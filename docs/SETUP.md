@@ -36,15 +36,18 @@ Esta guía proporciona instrucciones paso a paso para configurar PaginaWebPedido
 Completa el formulario:
 
 **Name** (Nombre):
+
 ```
 PaginaWebPedidosPS
 ```
 
 **Supported account types** (Tipos de cuenta compatibles):
+
 - Selecciona: "Accounts in any organizational directory and personal Microsoft accounts"
 - Esto permite que cualquier usuario con cuenta de Microsoft use la aplicación
 
 **Redirect URI** (URI de redirección):
+
 - Plataforma: **Web**
 - URI: `http://localhost:8000` (para desarrollo local)
 - Si vas a alojar en producción, agrega también tu URL de producción
@@ -117,7 +120,7 @@ Si prefieres crear el archivo Excel manualmente:
 
 ```bash
 # Opción 1: Clonar desde GitHub (si ya lo subiste)
-git clone https://github.com/TU_USUARIO/PaginaWebPedidosPS.git
+git clone https://github.com/EdwingAlarcon/PaginaWebPedidosPS.git
 cd PaginaWebPedidosPS
 
 # Opción 2: Si lo tienes localmente
@@ -141,9 +144,9 @@ Si tu archivo tiene nombre o ubicación diferente:
 1. En `js/app.js`, busca:
    ```javascript
    const EXCEL_CONFIG = {
-       fileName: 'Pedidos.xlsx',
-       sheetName: 'Pedidos',
-       folderPath: 'Documents'
+     fileName: "Pedidos.xlsx",
+     sheetName: "Pedidos",
+     folderPath: "Documents",
    };
    ```
 2. Ajusta según tu configuración
@@ -154,21 +157,25 @@ Si tu archivo tiene nombre o ubicación diferente:
 La aplicación necesita ejecutarse desde un servidor web (no desde file://).
 
 **Opción 1 - Python (recomendado):**
+
 ```bash
 python -m http.server 8000
 ```
 
 **Opción 2 - Node.js:**
+
 ```bash
 npx http-server -p 8000
 ```
 
 **Opción 3 - PHP:**
+
 ```bash
 php -S localhost:8000
 ```
 
 **Opción 4 - VS Code:**
+
 - Instala la extensión "Live Server"
 - Click derecho en index.html → "Open with Live Server"
 
@@ -206,6 +213,7 @@ Si cambias de puerto o dominio:
 **Problema**: La URL de redirección no coincide.
 
 **Solución**:
+
 1. Verifica la URL en tu navegador
 2. Ve a Azure Portal → Authentication
 3. Agrega la URL exacta como Redirect URI
@@ -216,6 +224,7 @@ Si cambias de puerto o dominio:
 **Problema**: Problema de CORS o conexión.
 
 **Solución**:
+
 1. Asegúrate de usar un servidor web (no file://)
 2. Verifica tu conexión a Internet
 3. Desactiva extensiones del navegador que puedan bloquear
@@ -225,6 +234,7 @@ Si cambias de puerto o dominio:
 **Problema**: Permisos insuficientes o carpeta no existe.
 
 **Solución**:
+
 1. Verifica que la carpeta Documents existe en OneDrive
 2. Revisa que los permisos Files.ReadWrite estén configurados
 3. Intenta crear el archivo manualmente
@@ -234,6 +244,7 @@ Si cambias de puerto o dominio:
 **Problema**: El token puede haber expirado.
 
 **Solución**:
+
 1. Recarga la página
 2. Vuelve a conectar con OneDrive
 3. Intenta guardar nuevamente
@@ -243,6 +254,7 @@ Si cambias de puerto o dominio:
 **Problema**: La librería MSAL no se cargó.
 
 **Solución**:
+
 1. Verifica tu conexión a Internet
 2. Abre las DevTools (F12) y revisa errores de red
 3. Intenta usar una versión CDN diferente de MSAL
@@ -257,7 +269,7 @@ Si cambias de puerto o dominio:
 
 Si sigues teniendo problemas:
 
-1. Revisa los [Issues en GitHub](https://github.com/TU_USUARIO/PaginaWebPedidosPS/issues)
+1. Revisa los [Issues en GitHub](https://github.com/EdwingAlarcon/PaginaWebPedidosPS/issues)
 2. Busca problemas similares
 3. Si no encuentras solución, crea un nuevo issue con:
    - Descripción del problema

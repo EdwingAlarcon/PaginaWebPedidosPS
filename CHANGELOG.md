@@ -5,6 +5,13 @@ Todos los cambios notables en este proyecto serán documentados en este archivo.
 El formato está basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.0.0/),
 y este proyecto se adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 
+## [Unreleased]
+
+### Changed
+- Actualizar todas las URLs con el usuario de GitHub real: EdwingAlarcon
+- Actualizar package.json con información del repositorio
+- Actualizar documentación con URLs específicas del proyecto
+
 ## [1.0.0] - 2025-12-15
 
 ### Agregado

@@ -14,8 +14,7 @@
 En tu terminal (PowerShell), ejecuta:
 
 ```powershell
-# Reemplaza TU_USUARIO con tu nombre de usuario de GitHub
-git remote add origin https://github.com/TU_USUARIO/PaginaWebPedidosPS.git
+git remote add origin https://github.com/EdwingAlarcon/PaginaWebPedidosPS.git
 
 # Sube el código
 git push -u origin main

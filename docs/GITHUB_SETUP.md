@@ -27,13 +27,11 @@ GitHub te mostrará instrucciones. Usa estas:
 
 ```bash
 # Agregar el repositorio remoto
-git remote add origin https://github.com/TU_USUARIO/PaginaWebPedidosPS.git
+git remote add origin https://github.com/EdwingAlarcon/PaginaWebPedidosPS.git
 
 # Subir tu código
 git push -u origin main
 ```
-
-Reemplaza `TU_USUARIO` con tu nombre de usuario de GitHub.
 
 ### Paso 3: Verificar
 
@@ -61,8 +59,8 @@ Si ya creaste el repositorio en GitHub:
 # En tu terminal, desde la carpeta del proyecto
 cd "c:\Users\bdp_u\Downloads\PaginaWebPedidosPS"
 
-# Agregar el remoto (reemplaza TU_USUARIO)
-git remote add origin https://github.com/TU_USUARIO/PaginaWebPedidosPS.git
+# Agregar el remoto
+git remote add origin https://github.com/EdwingAlarcon/PaginaWebPedidosPS.git
 
 # Verificar el remoto
 git remote -v
@@ -105,12 +103,12 @@ Si quieres desplegar tu sitio:
    - Branch: `main`
    - Folder: `/ (root)`
 3. Click en **Save**
-4. Tu sitio estará en: `https://TU_USUARIO.github.io/PaginaWebPedidosPS`
+4. Tu sitio estará en: `https://EdwingAlarcon.github.io/PaginaWebPedidosPS`
 
 **Importante**: Si usas GitHub Pages, actualiza el Redirect URI en Azure AD:
 
 ```
-https://TU_USUARIO.github.io/PaginaWebPedidosPS
+https://EdwingAlarcon.github.io/PaginaWebPedidosPS
 ```
 
 ### 4.4 Proteger la Rama Main
@@ -196,12 +194,12 @@ Después de crear el repositorio, actualiza `package.json`:
 ```json
 "repository": {
   "type": "git",
-  "url": "git+https://github.com/TU_USUARIO/PaginaWebPedidosPS.git"
+  "url": "git+https://github.com/EdwingAlarcon/PaginaWebPedidosPS.git"
 },
 "bugs": {
-  "url": "https://github.com/TU_USUARIO/PaginaWebPedidosPS/issues"
+  "url": "https://github.com/EdwingAlarcon/PaginaWebPedidosPS/issues"
 },
-"homepage": "https://github.com/TU_USUARIO/PaginaWebPedidosPS#readme"
+"homepage": "https://github.com/EdwingAlarcon/PaginaWebPedidosPS#readme"
 ```
 
 Luego:
@@ -218,7 +216,7 @@ git push
 
 ```bash
 git remote remove origin
-git remote add origin https://github.com/TU_USUARIO/PaginaWebPedidosPS.git
+git remote add origin https://github.com/EdwingAlarcon/PaginaWebPedidosPS.git
 ```
 
 ### Error: "failed to push some refs"

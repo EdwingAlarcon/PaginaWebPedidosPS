@@ -92,8 +92,8 @@ gh repo create PaginaWebPedidosPS --public --source=. --remote=origin --push
 Después de crear el repositorio en GitHub:
 
 ```bash
-# Agregar el repositorio remoto (reemplaza TU_USUARIO con tu usuario de GitHub)
-git remote add origin https://github.com/TU_USUARIO/PaginaWebPedidosPS.git
+# Agregar el repositorio remoto
+git remote add origin https://github.com/EdwingAlarcon/PaginaWebPedidosPS.git
 
 # Subir el código
 git push -u origin main
@@ -176,12 +176,12 @@ Después de crear el repositorio en GitHub, actualiza las URLs:
 
 ```json
 "repository": {
-  "url": "git+https://github.com/TU_USUARIO/PaginaWebPedidosPS.git"
+  "url": "git+https://github.com/EdwingAlarcon/PaginaWebPedidosPS.git"
 },
 "bugs": {
-  "url": "https://github.com/TU_USUARIO/PaginaWebPedidosPS/issues"
+  "url": "https://github.com/EdwingAlarcon/PaginaWebPedidosPS/issues"
 },
-"homepage": "https://github.com/TU_USUARIO/PaginaWebPedidosPS#readme"
+"homepage": "https://github.com/EdwingAlarcon/PaginaWebPedidosPS#readme"
 ```
 
 Luego commit y push:

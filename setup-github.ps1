@@ -66,9 +66,9 @@ Write-Host "  DESPUÉS DE CREAR EL REPOSITORIO" -ForegroundColor Cyan
 Write-Host "===============================================" -ForegroundColor Cyan
 Write-Host ""
 
-Write-Host "Ejecuta estos comandos (reemplaza TU_USUARIO):" -ForegroundColor Yellow
+Write-Host "Ejecuta estos comandos:" -ForegroundColor Yellow
 Write-Host ""
-Write-Host "git remote add origin https://github.com/TU_USUARIO/PaginaWebPedidosPS.git" -ForegroundColor White
+Write-Host "git remote add origin https://github.com/EdwingAlarcon/PaginaWebPedidosPS.git" -ForegroundColor White
 Write-Host "git push -u origin main" -ForegroundColor White
 Write-Host ""
 

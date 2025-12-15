@@ -9,7 +9,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/TU_USUARIO/PaginaWebPedidosPS.git"
+    "url": "git+https://github.com/EdwingAlarcon/PaginaWebPedidosPS.git"
   },
   "keywords": [
     "pedidos",
@@ -21,10 +21,10 @@
     "accessibility",
     "responsive"
   ],
-  "author": "Tu Nombre",
+  "author": "EdwingAlarcon",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/TU_USUARIO/PaginaWebPedidosPS/issues"
+    "url": "https://github.com/EdwingAlarcon/PaginaWebPedidosPS/issues"
   },
-  "homepage": "https://github.com/TU_USUARIO/PaginaWebPedidosPS#readme"
+  "homepage": "https://github.com/EdwingAlarcon/PaginaWebPedidosPS#readme"
 }
