@@ -1,0 +1,30 @@
+{
+  "name": "paginawebpedidosps",
+  "version": "1.0.0",
+  "description": "Sistema web accesible para registrar pedidos de negocio con integración a Excel en OneDrive",
+  "main": "index.html",
+  "scripts": {
+    "start": "python -m http.server 8000",
+    "serve": "npx http-server -p 8000"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/TU_USUARIO/PaginaWebPedidosPS.git"
+  },
+  "keywords": [
+    "pedidos",
+    "onedrive",
+    "excel",
+    "microsoft-graph",
+    "order-management",
+    "business",
+    "accessibility",
+    "responsive"
+  ],
+  "author": "Tu Nombre",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/TU_USUARIO/PaginaWebPedidosPS/issues"
+  },
+  "homepage": "https://github.com/TU_USUARIO/PaginaWebPedidosPS#readme"
+}
