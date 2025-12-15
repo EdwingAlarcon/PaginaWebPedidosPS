@@ -120,6 +120,39 @@
                         >
                             <div class="product-item" role="listitem">
                                 <div class="form-group">
+                                    <label for="category_0">
+                                        Categoría
+                                        <span
+                                            class="required"
+                                            aria-label="requerido"
+                                            >*</span
+                                        >
+                                    </label>
+                                    <select
+                                        id="category_0"
+                                        name="category[]"
+                                        required
+                                        aria-required="true"
+                                        class="category-select"
+                                        onchange="updateProductFields(0)"
+                                    >
+                                        <option value="">
+                                            Seleccionar categoría
+                                        </option>
+                                        <option value="accesorios">
+                                            Accesorios
+                                        </option>
+                                        <option value="medias">Medias</option>
+                                        <option value="camisetas">
+                                            Camisetas
+                                        </option>
+                                        <option value="perfumes">
+                                            Perfumes o Lociones
+                                        </option>
+                                    </select>
+                                </div>
+
+                                <div class="form-group">
                                     <label for="product_0">
                                         Producto
                                         <span
@@ -137,6 +170,12 @@
                                         placeholder="Nombre del producto"
                                     />
                                 </div>
+
+                                <!-- Campos específicos por categoría -->
+                                <div
+                                    id="dynamicFields_0"
+                                    class="dynamic-fields"
+                                ></div>
 
                                 <div class="form-group">
                                     <label for="quantity_0">
@@ -268,7 +307,23 @@
         </main>
 
         <footer role="contentinfo">
-            <p>&copy; 2025 PaginaWebPedidosPS - Sistema de Pedidos</p>
+            <div class="footer-content">
+                <img
+                    src="assets/images/logo-purple-shop.png"
+                    alt="Purple Shop"
+                    class="footer-logo"
+                />
+                <div class="footer-text">
+                    <h3>Purple Shop</h3>
+                    <p>
+                        Sistema de Registro de Pedidos de Accesorios, Medias,
+                        Camisetas, Perfumes o Lociones
+                    </p>
+                    <p class="copyright">
+                        &copy; 2025 Purple Shop - Todos los derechos reservados
+                    </p>
+                </div>
+            </div>
         </footer>
 
         <!-- Scripts -->
