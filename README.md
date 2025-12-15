@@ -39,6 +39,7 @@ PaginaWebPedidosPS/
 
 - **[Guía de Configuración](docs/SETUP.md)** - Instrucciones detalladas paso a paso
 - **[Guía de Despliegue](docs/DEPLOYMENT.md)** - Cómo desplegar en producción
+- **[Guía de GitHub](docs/GITHUB_SETUP.md)** - Cómo crear el repositorio en GitHub
 - **[Guía de Contribución](CONTRIBUTING.md)** - Cómo contribuir al proyecto
 
 ## Configuración
