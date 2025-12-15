@@ -8,6 +8,7 @@ y este proyecto se adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 ## [Unreleased]
 
 ### Changed
+
 - Actualizar todas las URLs con el usuario de GitHub real: EdwingAlarcon
 - Actualizar package.json con información del repositorio
 - Actualizar documentación con URLs específicas del proyecto
