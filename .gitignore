@@ -1,24 +1,29 @@
-# Dependencias de Node.js (si se usan en el futuro)
+# Dependencias de Node.js
 node_modules/
 npm-debug.log
 yarn-error.log
 package-lock.json
 yarn.lock
 
-# Archivos de entorno
+# Archivos de entorno y configuración sensible
 .env
 .env.local
 .env.development
 .env.production
 config.local.js
+**/config.local.*
 
 # Archivos del sistema operativo
 .DS_Store
 Thumbs.db
 desktop.ini
+ehthumbs.db
+Desktop.ini
 
 # Archivos de editor/IDE
 .vscode/
+!.vscode/extensions.json
+!.vscode/settings.json
 .idea/
 *.swp
 *.swo
@@ -27,10 +32,14 @@ desktop.ini
 .settings/
 *.sublime-project
 *.sublime-workspace
+.history/
 
 # Logs
 logs/
 *.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
 
 # Archivos de respaldo
 *.bak
@@ -41,15 +50,27 @@ logs/
 *.tmp
 *.temp
 .cache/
+.temp/
 
-# Distribución/Build (si se implementa)
+# Build y distribución
 dist/
 build/
+out/
 
-# Archivos de prueba
+# Archivos de prueba y cobertura
 coverage/
 .nyc_output/
+*.test.js.snap
 
-# Archivos específicos de Windows
-ehthumbs.db
-Desktop.ini
+# Archivos de Mac
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Minificados (si generas versiones minificadas localmente)
+*.min.js
+*.min.css
+!msal-browser.min.js
+
+# Archivos de debug
+debug.log

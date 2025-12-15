@@ -2,6 +2,28 @@
 
 Sistema web accesible para registrar pedidos de negocio con integración a Excel en OneDrive.
 
+## 📁 Estructura del Proyecto
+
+```
+PaginaWebPedidosPS/
+├── index.html              # Página principal
+├── css/
+│   └── styles.css         # Estilos de la aplicación
+├── js/
+│   └── app.js            # Lógica y integración con OneDrive
+├── assets/
+│   └── images/           # Imágenes y recursos
+├── docs/
+│   ├── SETUP.md         # Guía de configuración detallada
+│   └── DEPLOYMENT.md    # Guía de despliegue
+├── .vscode/             # Configuración de VS Code
+├── README.md            # Este archivo
+├── LICENSE              # Licencia MIT
+├── CONTRIBUTING.md      # Guía para contribuidores
+├── SECURITY.md          # Política de seguridad
+└── .gitignore          # Archivos ignorados por Git
+```
+
 ## Características
 
 - ✅ Formulario accesible con soporte completo para lectores de pantalla
@@ -12,6 +34,12 @@ Sistema web accesible para registrar pedidos de negocio con integración a Excel
 - ✅ Guardado automático en archivo Excel
 - ✅ Diseño responsive para móviles y tablets
 - ✅ Navegación por teclado completa
+
+## 📚 Documentación
+
+- **[Guía de Configuración](docs/SETUP.md)** - Instrucciones detalladas paso a paso
+- **[Guía de Despliegue](docs/DEPLOYMENT.md)** - Cómo desplegar en producción
+- **[Guía de Contribución](CONTRIBUTING.md)** - Cómo contribuir al proyecto
 
 ## Configuración
 
@@ -27,7 +55,7 @@ Para usar la integración con OneDrive, necesitas registrar una aplicación en A
    - **Redirect URI**: Web - `http://localhost` (o tu dominio si lo alojas en línea)
 4. Copia el **Application (client) ID**
 5. En **API permissions**, agrega:
-   - Microsoft Graph > Delegated permissions > `User.Read`
+   - Microsoft Grajs/ph > Delegated permissions > `User.Read`
    - Microsoft Graph > Delegated permissions > `Files.ReadWrite`
 6. Click en **Grant admin consent** si es necesario
 
@@ -48,15 +76,15 @@ const msalConfig = {
 
 ### 3. Configurar archivo de Excel
 
-Por defecto, la aplicación creará un archivo llamado `Pedidos.xlsx` en la carpeta `Documents` de OneDrive. 
+Por defecto, la aplicación creará un archivo llamado `Pedidos.xlsx` en la carpeta `Documents` de OneDrive.
 
-Puedes cambiar esto en `app.js`:
+Puedes cambiar esto en `js/app.js`:
 
 ```javascript
 const EXCEL_CONFIG = {
-    fileName: 'Pedidos.xlsx',      // Nombre del archivo
-    sheetName: 'Pedidos',          // Nombre de la hoja
-    folderPath: 'Documents'        // Carpeta en OneDrive
+  fileName: "Pedidos.xlsx", // Nombre del archivo
+  sheetName: "Pedidos", // Nombre de la hoja
+  folderPath: "Documents", // Carpeta en OneDrive
 };
 ```
 
@@ -72,12 +100,14 @@ const EXCEL_CONFIG = {
 ### Registrar un pedido
 
 1. Completa los datos del cliente:
+
    - Nombre (requerido)
    - Teléfono (requerido)
    - Email (opcional)
    - Dirección de entrega (requerido)
 
 2. Agrega productos:
+
    - Nombre del producto
    - Cantidad
    - Precio unitario
@@ -96,7 +126,7 @@ El pedido se guardará automáticamente en el archivo Excel de OneDrive.
 El archivo Excel tendrá las siguientes columnas:
 
 | Fecha | Cliente | Teléfono | Email | Dirección | Producto | Cantidad | Precio Unitario | Precio Total | Total Pedido | Notas |
-|-------|---------|----------|-------|-----------|----------|----------|-----------------|--------------|--------------|-------|
+| ----- | ------- | -------- | ----- | --------- | -------- | -------- | --------------- | ------------ | ------------ | ----- |
 
 - Si un pedido tiene múltiples productos, cada producto ocupará una fila
 - Los datos del cliente y el total del pedido aparecen solo en la primera fila de cada pedido
