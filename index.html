@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Sistema de registro de pedidos">
+    <title>Sistema de Pedidos - PaginaWebPedidosPS</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <header role="banner">
+        <h1>Sistema de Registro de Pedidos</h1>
+        <button id="loginBtn" class="btn-primary" aria-label="Iniciar sesión con Microsoft">
+            Conectar con OneDrive
+        </button>
+        <span id="userInfo" class="user-info" aria-live="polite"></span>
+    </header>
+
+    <main role="main">
+        <section class="form-container" aria-labelledby="form-title">
+            <h2 id="form-title">Nuevo Pedido</h2>
+            
+            <form id="orderForm" aria-label="Formulario de pedido">
+                <!-- Datos del Cliente -->
+                <fieldset>
+                    <legend>Datos del Cliente</legend>
+                    
+                    <div class="form-group">
+                        <label for="clientName">
+                            Nombre del Cliente <span class="required" aria-label="requerido">*</span>
+                        </label>
+                        <input 
+                            type="text" 
+                            id="clientName" 
+                            name="clientName" 
+                            required 
+                            aria-required="true"
+                            autocomplete="name">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="clientPhone">
+                            Teléfono <span class="required" aria-label="requerido">*</span>
+                        </label>
+                        <input 
+                            type="tel" 
+                            id="clientPhone" 
+                            name="clientPhone" 
+                            required 
+                            aria-required="true"
+                            autocomplete="tel"
+                            pattern="[0-9\s\-\+\(\)]+">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="clientEmail">
+                            Correo Electrónico
+                        </label>
+                        <input 
+                            type="email" 
+                            id="clientEmail" 
+                            name="clientEmail" 
+                            autocomplete="email">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="clientAddress">
+                            Dirección de Entrega <span class="required" aria-label="requerido">*</span>
+                        </label>
+                        <textarea 
+                            id="clientAddress" 
+                            name="clientAddress" 
+                            rows="3" 
+                            required 
+                            aria-required="true"
+                            autocomplete="street-address"></textarea>
+                    </div>
+                </fieldset>
+
+                <!-- Productos -->
+                <fieldset>
+                    <legend>Productos</legend>
+                    
+                    <div id="productsContainer" role="list" aria-label="Lista de productos">
+                        <div class="product-item" role="listitem">
+                            <div class="form-group">
+                                <label for="product_0">
+                                    Producto <span class="required" aria-label="requerido">*</span>
+                                </label>
+                                <input 
+                                    type="text" 
+                                    id="product_0" 
+                                    name="product[]" 
+                                    required 
+                                    aria-required="true"
+                                    placeholder="Nombre del producto">
+                            </div>
+
+                            <div class="form-group">
+                                <label for="quantity_0">
+                                    Cantidad <span class="required" aria-label="requerido">*</span>
+                                </label>
+                                <input 
+                                    type="number" 
+                                    id="quantity_0" 
+                                    name="quantity[]" 
+                                    min="1" 
+                                    value="1" 
+                                    required 
+                                    aria-required="true"
+                                    class="quantity-input">
+                            </div>
+
+                            <div class="form-group">
+                                <label for="unitPrice_0">
+                                    Precio Unitario <span class="required" aria-label="requerido">*</span>
+                                </label>
+                                <input 
+                                    type="number" 
+                                    id="unitPrice_0" 
+                                    name="unitPrice[]" 
+                                    min="0" 
+                                    step="0.01" 
+                                    required 
+                                    aria-required="true"
+                                    class="unit-price-input">
+                            </div>
+
+                            <div class="form-group">
+                                <label for="totalPrice_0">
+                                    Precio Total
+                                </label>
+                                <input 
+                                    type="number" 
+                                    id="totalPrice_0" 
+                                    name="totalPrice[]" 
+                                    readonly 
+                                    aria-readonly="true"
+                                    class="total-price-input"
+                                    tabindex="-1">
+                            </div>
+
+                            <button 
+                                type="button" 
+                                class="btn-remove" 
+                                aria-label="Eliminar producto"
+                                style="display: none;">
+                                ✕
+                            </button>
+                        </div>
+                    </div>
+
+                    <button 
+                        type="button" 
+                        id="addProductBtn" 
+                        class="btn-secondary"
+                        aria-label="Agregar otro producto">
+                        + Agregar Producto
+                    </button>
+                </fieldset>
+
+                <!-- Total General -->
+                <div class="total-section" aria-live="polite">
+                    <h3>Total del Pedido: <span id="grandTotal">$0.00</span></h3>
+                </div>
+
+                <!-- Notas Adicionales -->
+                <fieldset>
+                    <legend>Notas Adicionales</legend>
+                    <div class="form-group">
+                        <label for="notes">
+                            Observaciones
+                        </label>
+                        <textarea 
+                            id="notes" 
+                            name="notes" 
+                            rows="4"
+                            placeholder="Agregar cualquier información adicional sobre el pedido"></textarea>
+                    </div>
+                </fieldset>
+
+                <!-- Botones de acción -->
+                <div class="form-actions">
+                    <button 
+                        type="submit" 
+                        class="btn-primary btn-submit"
+                        id="submitBtn">
+                        Guardar Pedido
+                    </button>
+                    <button 
+                        type="reset" 
+                        class="btn-secondary"
+                        aria-label="Limpiar formulario">
+                        Limpiar
+                    </button>
+                </div>
+            </form>
+        </section>
+
+        <!-- Mensajes de estado -->
+        <div 
+            id="statusMessage" 
+            role="status" 
+            aria-live="polite" 
+            aria-atomic="true"
+            class="status-message"></div>
+    </main>
+
+    <footer role="contentinfo">
+        <p>&copy; 2025 PaginaWebPedidosPS - Sistema de Pedidos</p>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="https://alcdn.msauth.net/browser/2.30.0/js/msal-browser.min.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
