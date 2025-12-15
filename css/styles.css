@@ -24,7 +24,7 @@
 }
 
 body {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
     line-height: 1.6;
     color: var(--text-primary);
     background-color: var(--background);
@@ -58,16 +58,40 @@ header {
     color: white;
     padding: 1.5rem 2rem;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.header-content {
     display: flex;
     justify-content: space-between;
     align-items: center;
     flex-wrap: wrap;
+    gap: 1.5rem;
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+.logo-title {
+    display: flex;
+    align-items: center;
     gap: 1rem;
 }
 
+.logo {
+    height: 60px;
+    width: auto;
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
+}
+
 header h1 {
-    font-size: 1.75rem;
+    font-size: 1.5rem;
     font-weight: 600;
+    margin: 0;
+}
+
+.header-actions {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
 }
 
 .user-info {
@@ -368,13 +392,29 @@ footer {
 
 /* Responsive Design */
 @media (max-width: 768px) {
-    header {
+    .header-content {
         flex-direction: column;
         align-items: flex-start;
     }
 
+    .logo-title {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.5rem;
+    }
+
+    .logo {
+        height: 50px;
+    }
+
     header h1 {
-        font-size: 1.5rem;
+        font-size: 1.25rem;
+    }
+
+    .header-actions {
+        width: 100%;
+        flex-direction: column;
+        align-items: stretch;
     }
 
     main {
@@ -455,7 +495,7 @@ footer {
 }
 
 .loading::after {
-    content: '';
+    content: "";
     position: absolute;
     top: 50%;
     left: 50%;
