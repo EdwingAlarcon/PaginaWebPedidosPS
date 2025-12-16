@@ -19,6 +19,13 @@
                     <h1>Purple Shop - Registro de Pedidos</h1>
                 </div>
                 <div class="header-actions">
+                    <div
+                        id="offlineIndicator"
+                        class="offline-indicator"
+                        style="display: none"
+                    >
+                        🔴 Modo Offline
+                    </div>
                     <button
                         id="loginBtn"
                         class="btn-primary"
@@ -40,9 +47,69 @@
                 <h2 id="form-title">Nuevo Pedido</h2>
 
                 <form id="orderForm" aria-label="Formulario de pedido">
+                    <!-- Fecha del Pedido -->
+                    <fieldset>
+                        <legend>Información del Pedido</legend>
+                        <div class="form-group">
+                            <label for="orderDate">
+                                Fecha del Pedido
+                                <span class="required" aria-label="requerido"
+                                    >*</span
+                                >
+                            </label>
+                            <input
+                                type="date"
+                                id="orderDate"
+                                name="orderDate"
+                                required
+                                aria-required="true"
+                            />
+                        </div>
+                    </fieldset>
+
                     <!-- Datos del Cliente -->
                     <fieldset>
                         <legend>Datos del Cliente</legend>
+
+                        <div class="form-group client-search-group">
+                            <label for="clientSearch"> Buscar Cliente </label>
+                            <div class="search-with-button">
+                                <input
+                                    type="text"
+                                    id="clientSearch"
+                                    list="clientsList"
+                                    placeholder="Buscar cliente existente o escribir nombre nuevo..."
+                                    oninput="selectExistingClient()"
+                                    onblur="checkClientExists()"
+                                    autocomplete="off"
+                                />
+                                <datalist id="clientsList">
+                                    <!-- Clientes cargados dinámicamente -->
+                                </datalist>
+                                <button
+                                    type="button"
+                                    class="btn-secondary btn-small"
+                                    onclick="toggleClientsManagement()"
+                                    title="Gestionar clientes"
+                                >
+                                    👥 Clientes
+                                </button>
+                            </div>
+                            <div
+                                id="newClientSuggestion"
+                                style="display: none"
+                                class="client-suggestion"
+                            >
+                                <span>⚠️ Cliente no encontrado. </span>
+                                <button
+                                    type="button"
+                                    class="btn-primary btn-small"
+                                    onclick="quickAddClient()"
+                                >
+                                    ➕ Agregar Cliente
+                                </button>
+                            </div>
+                        </div>
 
                         <div class="form-group">
                             <label for="clientName">
@@ -171,6 +238,23 @@
                                     />
                                 </div>
 
+                                <div class="form-group">
+                                    <label for="productImage_0">
+                                        Imagen del Producto (URL)
+                                    </label>
+                                    <input
+                                        type="url"
+                                        id="productImage_0"
+                                        name="productImage[]"
+                                        placeholder="https://ejemplo.com/imagen.jpg"
+                                        class="product-image-input"
+                                    />
+                                    <small class="field-hint"
+                                        >📸 Opcional: Link de la imagen del
+                                        producto</small
+                                    >
+                                </div>
+
                                 <!-- Campos específicos por categoría -->
                                 <div
                                     id="dynamicFields_0"
@@ -212,7 +296,8 @@
                                         id="unitPrice_0"
                                         name="unitPrice[]"
                                         min="0"
-                                        step="0.01"
+                                        step="1000"
+                                        placeholder="Ej: 50000"
                                         required
                                         aria-required="true"
                                         class="unit-price-input"
@@ -258,7 +343,7 @@
                     <!-- Total General -->
                     <div class="total-section" aria-live="polite">
                         <h3>
-                            Total del Pedido: <span id="grandTotal">$0.00</span>
+                            Total del Pedido: <span id="grandTotal">$ 0</span>
                         </h3>
                     </div>
 
@@ -273,6 +358,28 @@
                                 rows="4"
                                 placeholder="Agregar cualquier información adicional sobre el pedido"
                             ></textarea>
+                        </div>
+                    </fieldset>
+
+                    <!-- Notificación por Email -->
+                    <fieldset>
+                        <legend>Notificaciones</legend>
+                        <div class="form-group">
+                            <label class="checkbox-label">
+                                <input
+                                    type="checkbox"
+                                    id="sendEmailNotification"
+                                    name="sendEmailNotification"
+                                />
+                                <span
+                                    >📧 Enviar confirmación por email al
+                                    cliente</span
+                                >
+                            </label>
+                            <small class="field-hint"
+                                >Se enviará un email con los detalles del
+                                pedido</small
+                            >
                         </div>
                     </fieldset>
 
@@ -292,8 +399,292 @@
                         >
                             Limpiar
                         </button>
+                        <button
+                            type="button"
+                            class="btn-secondary"
+                            id="manageOrdersBtn"
+                            onclick="toggleOrdersSection()"
+                        >
+                            Gestionar Pedidos
+                        </button>
+                        <button
+                            type="button"
+                            class="btn-secondary"
+                            id="reportsBtn"
+                            onclick="toggleReportsSection()"
+                        >
+                            📊 Reportes
+                        </button>
                     </div>
                 </form>
+            </section>
+
+            <!-- Gestión de Clientes -->
+            <section
+                class="clients-management"
+                id="clientsSection"
+                style="display: none"
+            >
+                <h2>Gestión de Clientes</h2>
+                <div class="clients-actions">
+                    <button
+                        type="button"
+                        class="btn-primary"
+                        id="newClientBtn"
+                        onclick="showNewClientForm()"
+                    >
+                        ➕ Nuevo Cliente
+                    </button>
+                    <button
+                        type="button"
+                        class="btn-primary"
+                        id="loadClientsBtn"
+                        onclick="loadClients()"
+                    >
+                        Cargar Clientes
+                    </button>
+                    <button
+                        type="button"
+                        class="btn-secondary"
+                        onclick="toggleClientsManagement()"
+                    >
+                        Cerrar
+                    </button>
+                </div>
+
+                <!-- Formulario para nuevo cliente -->
+                <div
+                    id="newClientForm"
+                    class="new-client-form"
+                    style="display: none"
+                >
+                    <h3>Registrar Nuevo Cliente</h3>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="newClientName">
+                                Nombre Completo
+                                <span class="required">*</span>
+                            </label>
+                            <input type="text" id="newClientName" required />
+                        </div>
+                        <div class="form-group">
+                            <label for="newClientPhone">
+                                Teléfono
+                                <span class="required">*</span>
+                            </label>
+                            <input type="tel" id="newClientPhone" required />
+                        </div>
+                        <div class="form-group">
+                            <label for="newClientEmail"> Email </label>
+                            <input type="email" id="newClientEmail" />
+                        </div>
+                        <div class="form-group form-group-full">
+                            <label for="newClientAddress">
+                                Dirección
+                                <span class="required">*</span>
+                            </label>
+                            <textarea
+                                id="newClientAddress"
+                                rows="2"
+                                required
+                            ></textarea>
+                        </div>
+                    </div>
+                    <div class="form-actions">
+                        <button
+                            type="button"
+                            class="btn-primary"
+                            onclick="saveNewClient()"
+                        >
+                            Guardar Cliente
+                        </button>
+                        <button
+                            type="button"
+                            class="btn-secondary"
+                            onclick="cancelNewClient()"
+                        >
+                            Cancelar
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Lista de clientes -->
+                <div id="clientsContainer" class="clients-list">
+                    <!-- Aquí se mostrarán los clientes -->
+                </div>
+            </section>
+
+            <!-- Gestión de Pedidos Existentes -->
+            <section
+                class="orders-management"
+                id="ordersSection"
+                style="display: none"
+            >
+                <h2>Pedidos Registrados</h2>
+                <div class="orders-actions">
+                    <button
+                        type="button"
+                        class="btn-primary"
+                        id="loadOrdersBtn"
+                        onclick="loadOrders()"
+                    >
+                        Cargar Pedidos
+                    </button>
+                    <button
+                        type="button"
+                        class="btn-secondary"
+                        id="exportPdfBtn"
+                        onclick="exportOrdersToPDF()"
+                    >
+                        💾 Exportar PDF
+                    </button>
+                    <button
+                        type="button"
+                        class="btn-secondary"
+                        id="hideOrdersBtn"
+                        onclick="toggleOrdersSection()"
+                    >
+                        Ocultar Pedidos
+                    </button>
+                </div>
+                <div id="ordersContainer" class="orders-list">
+                    <!-- Aquí se mostrarán los pedidos -->
+                </div>
+            </section>
+
+            <!-- Dashboard de Reportes -->
+            <section
+                class="reports-dashboard"
+                id="reportsSection"
+                style="display: none"
+            >
+                <div class="reports-header">
+                    <h2>📊 Dashboard de Ventas</h2>
+                    <div class="reports-actions">
+                        <div class="date-filter">
+                            <label for="filterStartDate">Desde:</label>
+                            <input type="date" id="filterStartDate" />
+                            <label for="filterEndDate">Hasta:</label>
+                            <input type="date" id="filterEndDate" />
+                            <button
+                                type="button"
+                                class="btn-primary btn-small"
+                                onclick="applyDateFilter()"
+                            >
+                                Filtrar
+                            </button>
+                            <button
+                                type="button"
+                                class="btn-secondary btn-small"
+                                onclick="clearDateFilter()"
+                            >
+                                Limpiar
+                            </button>
+                        </div>
+                        <button
+                            type="button"
+                            class="btn-secondary"
+                            onclick="toggleReportsSection()"
+                        >
+                            Cerrar
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Tarjetas de Estadísticas -->
+                <div class="stats-grid">
+                    <div class="stat-card stat-card-primary">
+                        <div class="stat-icon">💰</div>
+                        <div class="stat-content">
+                            <h3>Total Ventas</h3>
+                            <p class="stat-value" id="totalSales">$ 0</p>
+                            <span class="stat-label">Ingresos totales</span>
+                        </div>
+                    </div>
+
+                    <div class="stat-card stat-card-success">
+                        <div class="stat-icon">📋</div>
+                        <div class="stat-content">
+                            <h3>Pedidos</h3>
+                            <p class="stat-value" id="totalOrders">0</p>
+                            <span class="stat-label">Pedidos realizados</span>
+                        </div>
+                    </div>
+
+                    <div class="stat-card stat-card-info">
+                        <div class="stat-icon">👥</div>
+                        <div class="stat-content">
+                            <h3>Clientes</h3>
+                            <p class="stat-value" id="totalClients">0</p>
+                            <span class="stat-label">Clientes únicos</span>
+                        </div>
+                    </div>
+
+                    <div class="stat-card stat-card-warning">
+                        <div class="stat-icon">📈</div>
+                        <div class="stat-content">
+                            <h3>Promedio</h3>
+                            <p class="stat-value" id="avgOrderValue">$ 0</p>
+                            <span class="stat-label">Por pedido</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Gráficos y Tablas -->
+                <div class="reports-grid">
+                    <!-- Productos Más Vendidos -->
+                    <div class="report-card">
+                        <h3>🏆 Productos Más Vendidos</h3>
+                        <div id="topProductsChart" class="chart-container">
+                            <!-- Gráfico generado dinámicamente -->
+                        </div>
+                    </div>
+
+                    <!-- Clientes Frecuentes -->
+                    <div class="report-card">
+                        <h3>⭐ Clientes Frecuentes</h3>
+                        <div id="topClientsChart" class="chart-container">
+                            <!-- Tabla generada dinámicamente -->
+                        </div>
+                    </div>
+
+                    <!-- Ventas por Categoría -->
+                    <div class="report-card">
+                        <h3>📊 Ventas por Categoría</h3>
+                        <div id="categorySalesChart" class="chart-container">
+                            <!-- Gráfico generado dinámicamente -->
+                        </div>
+                    </div>
+
+                    <!-- Ventas por Fecha -->
+                    <div class="report-card">
+                        <h3>📅 Tendencia de Ventas</h3>
+                        <div id="salesTrendChart" class="chart-container">
+                            <!-- Gráfico de líneas generado dinámicamente -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tabla Detallada -->
+                <div class="report-card report-card-full">
+                    <h3>📋 Detalle de Pedidos</h3>
+                    <div class="table-responsive">
+                        <table id="ordersDetailTable" class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Fecha</th>
+                                    <th>Cliente</th>
+                                    <th>Productos</th>
+                                    <th>Cantidad</th>
+                                    <th>Total</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- Filas generadas dinámicamente -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
             </section>
 
             <!-- Mensajes de estado -->
