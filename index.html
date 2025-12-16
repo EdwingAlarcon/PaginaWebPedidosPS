@@ -18,957 +18,1078 @@
         <link rel="stylesheet" href="css/styles.css" />
     </head>
     <body>
-        <header role="banner">
-            <div class="header-content">
-                <div class="logo-title">
-                    <img
-                        src="assets/images/logo-purple-shop.png"
-                        alt="Purple Shop Logo"
-                        class="logo"
-                    />
-                    <h1>Purple Shop - Registro de Pedidos</h1>
-                </div>
-                <div class="header-actions">
-                    <div
-                        id="offlineIndicator"
-                        class="offline-indicator"
-                        style="display: none"
-                    >
-                        🔴 Modo Offline
+        <!-- Splash Screen -->
+        <div id="splashScreen" class="splash-screen">
+            <div class="splash-content">
+                <div class="splash-logo">
+                    <div class="package-animation">
+                        <div class="package">
+                            <div class="package-top"></div>
+                            <div class="package-side"></div>
+                        </div>
+                        <div class="sparkles">
+                            <span class="sparkle" style="--delay: 0s">✨</span>
+                            <span class="sparkle" style="--delay: 0.3s"
+                                >📦</span
+                            >
+                            <span class="sparkle" style="--delay: 0.6s"
+                                >🛒</span
+                            >
+                            <span class="sparkle" style="--delay: 0.9s"
+                                >📋</span
+                            >
+                        </div>
                     </div>
-                    <button
-                        id="loginBtn"
-                        class="btn-primary"
-                        aria-label="Iniciar sesión con Microsoft"
-                    >
-                        Conectar con OneDrive
-                    </button>
-                    <span
-                        id="userInfo"
-                        class="user-info"
-                        aria-live="polite"
-                    ></span>
                 </div>
+                <h1 class="splash-title">
+                    <span class="title-word" style="--word-delay: 0.2s"
+                        >Purple</span
+                    >
+                    <span class="title-word" style="--word-delay: 0.4s"
+                        >Shop</span
+                    >
+                </h1>
+                <p class="splash-subtitle">
+                    <span class="subtitle-word" style="--word-delay: 0.6s"
+                        >Sistema</span
+                    >
+                    <span class="subtitle-word" style="--word-delay: 0.7s"
+                        >de</span
+                    >
+                    <span class="subtitle-word" style="--word-delay: 0.8s"
+                        >Gestión</span
+                    >
+                    <span class="subtitle-word" style="--word-delay: 0.9s"
+                        >de</span
+                    >
+                    <span class="subtitle-word" style="--word-delay: 1s"
+                        >Pedidos</span
+                    >
+                </p>
+                <div class="loading-bar">
+                    <div class="loading-progress"></div>
+                </div>
+                <p class="splash-hint">Cargando tu experiencia...</p>
             </div>
-        </header>
+        </div>
 
-        <!-- Navegación por Pestañas -->
-        <nav
-            class="tabs-navigation"
-            role="navigation"
-            aria-label="Navegación principal"
-        >
-            <button
-                class="tab-btn active"
-                data-tab="newOrder"
-                onclick="switchTab('newOrder')"
+        <!-- Aplicación Principal -->
+        <div id="mainApp" class="main-app" style="display: none">
+            <header role="banner">
+                <div class="header-content">
+                    <div class="logo-title">
+                        <img
+                            src="assets/images/logo-purple-shop.png"
+                            alt="Purple Shop Logo"
+                            class="logo"
+                        />
+                        <h1>Purple Shop - Registro de Pedidos</h1>
+                    </div>
+                    <div class="header-actions">
+                        <div
+                            id="offlineIndicator"
+                            class="offline-indicator"
+                            style="display: none"
+                        >
+                            🔴 Modo Offline
+                        </div>
+                        <button
+                            id="loginBtn"
+                            class="btn-primary"
+                            aria-label="Iniciar sesión con Microsoft"
+                        >
+                            Conectar con OneDrive
+                        </button>
+                        <span
+                            id="userInfo"
+                            class="user-info"
+                            aria-live="polite"
+                        ></span>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Navegación por Pestañas -->
+            <nav
+                class="tabs-navigation"
+                role="navigation"
+                aria-label="Navegación principal"
             >
-                🏠 Nuevo Pedido
-            </button>
-            <button
-                class="tab-btn"
-                data-tab="clients"
-                onclick="switchTab('clients')"
-            >
-                👥 Clientes
-            </button>
-            <button
-                class="tab-btn"
-                data-tab="orders"
-                onclick="switchTab('orders')"
-            >
-                📦 Pedidos
-            </button>
-            <button
-                class="tab-btn"
-                data-tab="reports"
-                onclick="switchTab('reports')"
-            >
-                📊 Reportes
-            </button>
-        </nav>
+                <button
+                    class="tab-btn active"
+                    data-tab="newOrder"
+                    onclick="switchTab('newOrder')"
+                >
+                    🏠 Nuevo Pedido
+                </button>
+                <button
+                    class="tab-btn"
+                    data-tab="clients"
+                    onclick="switchTab('clients')"
+                >
+                    👥 Clientes
+                </button>
+                <button
+                    class="tab-btn"
+                    data-tab="orders"
+                    onclick="switchTab('orders')"
+                >
+                    📦 Pedidos
+                </button>
+                <button
+                    class="tab-btn"
+                    data-tab="reports"
+                    onclick="switchTab('reports')"
+                >
+                    📊 Reportes
+                </button>
+            </nav>
 
-        <main role="main">
-            <!-- Pestaña: Nuevo Pedido -->
-            <section
-                class="tab-content active"
-                id="newOrder"
-                aria-labelledby="form-title"
-            >
-                <div class="form-container">
-                    <h2 id="form-title">Nuevo Pedido</h2>
+            <main role="main">
+                <!-- Pestaña: Nuevo Pedido -->
+                <section
+                    class="tab-content active"
+                    id="newOrder"
+                    aria-labelledby="form-title"
+                >
+                    <div class="form-container">
+                        <h2 id="form-title">Nuevo Pedido</h2>
 
-                    <form id="orderForm" aria-label="Formulario de pedido">
-                        <!-- Fecha del Pedido -->
-                        <fieldset>
-                            <legend>Información del Pedido</legend>
-                            <div class="form-group">
-                                <label for="orderDate">
-                                    Fecha del Pedido
-                                    <span
-                                        class="required"
-                                        aria-label="requerido"
-                                        >*</span
-                                    >
-                                </label>
-                                <input
-                                    type="date"
-                                    id="orderDate"
-                                    name="orderDate"
-                                    required
-                                    aria-required="true"
-                                />
-                            </div>
-                        </fieldset>
-
-                        <!-- Datos del Cliente -->
-                        <fieldset>
-                            <legend>Datos del Cliente</legend>
-
-                            <!-- Clientes Favoritos -->
-                            <div
-                                class="form-group"
-                                id="favoriteClientsSection"
-                                style="display: none"
-                            >
-                                <label>⭐ Clientes Frecuentes</label>
-                                <div
-                                    id="favoriteClientsButtons"
-                                    class="favorite-clients-grid"
-                                >
-                                    <!-- Botones de clientes favoritos cargados dinámicamente -->
-                                </div>
-                            </div>
-
-                            <div class="form-group client-search-group">
-                                <label for="clientSearch">
-                                    Buscar Cliente
-                                </label>
-                                <div class="search-with-button">
-                                    <input
-                                        type="text"
-                                        id="clientSearch"
-                                        list="clientsList"
-                                        placeholder="Buscar cliente existente o escribir nombre nuevo..."
-                                        oninput="selectExistingClient()"
-                                        onblur="checkClientExists()"
-                                        autocomplete="off"
-                                    />
-                                    <datalist id="clientsList">
-                                        <!-- Clientes cargados dinámicamente -->
-                                    </datalist>
-                                    <button
-                                        type="button"
-                                        class="btn-secondary btn-small"
-                                        onclick="switchTab('clients')"
-                                        title="Gestionar clientes"
-                                    >
-                                        👥 Clientes
-                                    </button>
-                                </div>
-                                <div
-                                    id="newClientSuggestion"
-                                    style="display: none"
-                                    class="client-suggestion"
-                                >
-                                    <span
-                                        >⚠️ Cliente no encontrado. Puedes
-                                        agregarlo en la pestaña de
-                                        Clientes.</span
-                                    >
-                                </div>
-                            </div>
-
-                            <div class="form-group">
-                                <label for="clientName">
-                                    Nombre del Cliente
-                                    <span
-                                        class="required"
-                                        aria-label="requerido"
-                                        >*</span
-                                    >
-                                </label>
-                                <input
-                                    type="text"
-                                    id="clientName"
-                                    name="clientName"
-                                    required
-                                    aria-required="true"
-                                    autocomplete="name"
-                                />
-                            </div>
-
-                            <div class="form-group">
-                                <label for="clientPhone">
-                                    Teléfono
-                                    <span
-                                        class="required"
-                                        aria-label="requerido"
-                                        >*</span
-                                    >
-                                </label>
-                                <input
-                                    type="tel"
-                                    id="clientPhone"
-                                    name="clientPhone"
-                                    required
-                                    aria-required="true"
-                                    autocomplete="tel"
-                                    inputmode="tel"
-                                    pattern="[0-9\s\-\+\(\)]+"
-                                />
-                            </div>
-
-                            <div class="form-group">
-                                <label for="clientEmail">
-                                    Correo Electrónico
-                                </label>
-                                <input
-                                    type="email"
-                                    id="clientEmail"
-                                    name="clientEmail"
-                                    autocomplete="email"
-                                />
-                            </div>
-
-                            <div class="form-group">
-                                <label for="clientAddress">
-                                    Dirección de Entrega
-                                    <span
-                                        class="required"
-                                        aria-label="requerido"
-                                        >*</span
-                                    >
-                                </label>
-                                <textarea
-                                    id="clientAddress"
-                                    name="clientAddress"
-                                    rows="3"
-                                    required
-                                    aria-required="true"
-                                    autocomplete="street-address"
-                                ></textarea>
-                            </div>
-                        </fieldset>
-
-                        <!-- Productos -->
-                        <fieldset>
-                            <legend>Productos</legend>
-
-                            <!-- Secci\u00f3n de c\u00f3digos guardados -->
-                            <div
-                                class="saved-codes-info"
-                                id="savedCodesInfo"
-                                style="display: none"
-                            >
-                                <div class="info-header">
-                                    <span
-                                        >\u26a1 C\u00f3digos R\u00e1pidos
-                                        Guardados</span
-                                    >
-                                    <button
-                                        type="button"
-                                        onclick="toggleSavedCodes()"
-                                        class="btn-toggle-codes"
-                                    >
-                                        Ver <span id="codesCount">0</span>
-                                    </button>
-                                </div>
-                                <div
-                                    id="savedCodesList"
-                                    class="saved-codes-list"
-                                    style="display: none"
-                                >
-                                    <!-- Lista de c\u00f3digos cargada din\u00e1micamente -->
-                                </div>
-                            </div>
-
-                            <div
-                                id="productsContainer"
-                                role="list"
-                                aria-label="Lista de productos"
-                            >
-                                <div class="product-item" role="listitem">
-                                    <div class="form-group">
-                                        <label for="category_0">
-                                            Categoría
-                                            <span
-                                                class="required"
-                                                aria-label="requerido"
-                                                >*</span
-                                            >
-                                        </label>
-                                        <select
-                                            id="category_0"
-                                            name="category[]"
-                                            required
-                                            aria-required="true"
-                                            class="category-select"
-                                            onchange="updateProductFields(0)"
+                        <form id="orderForm" aria-label="Formulario de pedido">
+                            <!-- Fecha del Pedido -->
+                            <fieldset>
+                                <legend>Información del Pedido</legend>
+                                <div class="form-group">
+                                    <label for="orderDate">
+                                        Fecha del Pedido
+                                        <span
+                                            class="required"
+                                            aria-label="requerido"
+                                            >*</span
                                         >
-                                            <option value="">
-                                                Seleccionar categoría
-                                            </option>
-                                            <option value="accesorios">
-                                                Accesorios
-                                            </option>
-                                            <option value="medias">
-                                                Medias
-                                            </option>
-                                            <option value="camisetas">
-                                                Camisetas
-                                            </option>
-                                            <option value="perfumes">
-                                                Perfumes o Lociones
-                                            </option>
-                                        </select>
-                                    </div>
+                                    </label>
+                                    <input
+                                        type="date"
+                                        id="orderDate"
+                                        name="orderDate"
+                                        required
+                                        aria-required="true"
+                                    />
+                                </div>
+                            </fieldset>
 
-                                    <div class="form-group">
-                                        <label for="productCode_0">
-                                            Código Rápido
-                                            <small
-                                                style="
-                                                    font-weight: normal;
-                                                    color: #666;
-                                                "
-                                                >⚡ Opcional - Ej: A001</small
-                                            >
-                                        </label>
+                            <!-- Datos del Cliente -->
+                            <fieldset>
+                                <legend>Datos del Cliente</legend>
+
+                                <!-- Clientes Favoritos -->
+                                <div
+                                    class="form-group"
+                                    id="favoriteClientsSection"
+                                    style="display: none"
+                                >
+                                    <label>⭐ Clientes Frecuentes</label>
+                                    <div
+                                        id="favoriteClientsButtons"
+                                        class="favorite-clients-grid"
+                                    >
+                                        <!-- Botones de clientes favoritos cargados dinámicamente -->
+                                    </div>
+                                </div>
+
+                                <div class="form-group client-search-group">
+                                    <label for="clientSearch">
+                                        Buscar Cliente
+                                    </label>
+                                    <div class="search-with-button">
                                         <input
                                             type="text"
-                                            id="productCode_0"
-                                            name="productCode[]"
-                                            placeholder="Código rápido (Ej: A001)"
-                                            oninput="handleProductCodeInput(0)"
+                                            id="clientSearch"
+                                            list="clientsList"
+                                            placeholder="Buscar cliente existente o escribir nombre nuevo..."
+                                            oninput="selectExistingClient()"
+                                            onblur="checkClientExists()"
                                             autocomplete="off"
                                         />
-                                    </div>
-
-                                    <div class="form-group">
-                                        <label for="product_0">
-                                            Producto
-                                            <span
-                                                class="required"
-                                                aria-label="requerido"
-                                                >*</span
-                                            >
-                                        </label>
-                                        <input
-                                            type="text"
-                                            id="product_0"
-                                            name="product[]"
-                                            required
-                                            aria-required="true"
-                                            placeholder="Nombre del producto"
-                                        />
-                                    </div>
-
-                                    <div class="form-group">
-                                        <label for="productImage_0">
-                                            Imagen del Producto (URL)
-                                            <small
-                                                style="
-                                                    font-weight: normal;
-                                                    color: #666;
-                                                "
-                                                >📸 Opcional</small
-                                            >
-                                        </label>
-                                        <input
-                                            type="url"
-                                            id="productImage_0"
-                                            name="productImage[]"
-                                            placeholder="https://ejemplo.com/imagen.jpg"
-                                        />
-                                    </div>
-
-                                    <!-- Campos específicos por categoría -->
-                                    <div
-                                        id="dynamicFields_0"
-                                        class="dynamic-fields"
-                                    ></div>
-
-                                    <div class="form-group">
-                                        <label for="quantity_0">
-                                            Cantidad
-                                            <span
-                                                class="required"
-                                                aria-label="requerido"
-                                                >*</span
-                                            >
-                                        </label>
-                                        <input
-                                            type="number"
-                                            id="quantity_0"
-                                            name="quantity[]"
-                                            min="1"
-                                            value="1"
-                                            required
-                                            aria-required="true"
-                                            inputmode="numeric"
-                                            class="quantity-input"
-                                        />
-                                    </div>
-
-                                    <div class="form-group">
-                                        <label for="unitPrice_0">
-                                            Precio Unitario
-                                            <span
-                                                class="required"
-                                                aria-label="requerido"
-                                                >*</span
-                                            >
-                                        </label>
-                                        <input
-                                            type="number"
-                                            id="unitPrice_0"
-                                            name="unitPrice[]"
-                                            min="0"
-                                            step="1000"
-                                            placeholder="Ej: 50000"
-                                            required
-                                            aria-required="true"
-                                            inputmode="numeric"
-                                            class="unit-price-input"
-                                        />
-                                    </div>
-
-                                    <div class="form-group">
-                                        <label for="totalPrice_0">
-                                            Precio Total
-                                        </label>
-                                        <input
-                                            type="number"
-                                            id="totalPrice_0"
-                                            name="totalPrice[]"
-                                            readonly
-                                            aria-readonly="true"
-                                            class="total-price-input"
-                                            tabindex="-1"
-                                        />
-                                    </div>
-
-                                    <!-- Bot\u00f3n para guardar c\u00f3digo -->
-                                    <div
-                                        class="form-group"
-                                        style="margin-top: 0.5rem"
-                                    >
+                                        <datalist id="clientsList">
+                                            <!-- Clientes cargados dinámicamente -->
+                                        </datalist>
                                         <button
                                             type="button"
-                                            onclick="saveCurrentProductAsCode()"
-                                            class="btn-save-code"
-                                            title="Guardar este producto con su c\u00f3digo para uso futuro"
+                                            class="btn-secondary btn-small"
+                                            onclick="switchTab('clients')"
+                                            title="Gestionar clientes"
                                         >
-                                            \ud83d\udcbe Guardar C\u00f3digo
-                                            R\u00e1pido
+                                            👥 Clientes
                                         </button>
                                     </div>
+                                    <div
+                                        id="newClientSuggestion"
+                                        style="display: none"
+                                        class="client-suggestion"
+                                    >
+                                        <span
+                                            >⚠️ Cliente no encontrado. Puedes
+                                            agregarlo en la pestaña de
+                                            Clientes.</span
+                                        >
+                                    </div>
+                                </div>
 
-                                    <button
-                                        type="button"
-                                        class="btn-remove"
-                                        aria-label="Eliminar producto"
+                                <div class="form-group">
+                                    <label for="clientName">
+                                        Nombre del Cliente
+                                        <span
+                                            class="required"
+                                            aria-label="requerido"
+                                            >*</span
+                                        >
+                                    </label>
+                                    <input
+                                        type="text"
+                                        id="clientName"
+                                        name="clientName"
+                                        required
+                                        aria-required="true"
+                                        autocomplete="name"
+                                    />
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="clientPhone">
+                                        Teléfono
+                                        <span
+                                            class="required"
+                                            aria-label="requerido"
+                                            >*</span
+                                        >
+                                    </label>
+                                    <input
+                                        type="tel"
+                                        id="clientPhone"
+                                        name="clientPhone"
+                                        required
+                                        aria-required="true"
+                                        autocomplete="tel"
+                                        inputmode="tel"
+                                        pattern="[0-9\s\-\+\(\)]+"
+                                    />
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="clientEmail">
+                                        Correo Electrónico
+                                    </label>
+                                    <input
+                                        type="email"
+                                        id="clientEmail"
+                                        name="clientEmail"
+                                        autocomplete="email"
+                                    />
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="clientAddress">
+                                        Dirección de Entrega
+                                        <span
+                                            class="required"
+                                            aria-label="requerido"
+                                            >*</span
+                                        >
+                                    </label>
+                                    <textarea
+                                        id="clientAddress"
+                                        name="clientAddress"
+                                        rows="3"
+                                        required
+                                        aria-required="true"
+                                        autocomplete="street-address"
+                                    ></textarea>
+                                </div>
+                            </fieldset>
+
+                            <!-- Productos -->
+                            <fieldset>
+                                <legend>Productos</legend>
+
+                                <!-- Secci\u00f3n de c\u00f3digos guardados -->
+                                <div
+                                    class="saved-codes-info"
+                                    id="savedCodesInfo"
+                                    style="display: none"
+                                >
+                                    <div class="info-header">
+                                        <span
+                                            >\u26a1 C\u00f3digos R\u00e1pidos
+                                            Guardados</span
+                                        >
+                                        <button
+                                            type="button"
+                                            onclick="toggleSavedCodes()"
+                                            class="btn-toggle-codes"
+                                        >
+                                            Ver <span id="codesCount">0</span>
+                                        </button>
+                                    </div>
+                                    <div
+                                        id="savedCodesList"
+                                        class="saved-codes-list"
                                         style="display: none"
                                     >
-                                        ✕
-                                    </button>
+                                        <!-- Lista de c\u00f3digos cargada din\u00e1micamente -->
+                                    </div>
                                 </div>
-                            </div>
 
-                            <button
-                                type="button"
-                                id="addProductBtn"
-                                class="btn-secondary"
-                                aria-label="Agregar otro producto"
-                            >
-                                + Agregar Producto
-                            </button>
-                        </fieldset>
-
-                        <!-- Calculadora de Descuentos y Envío -->
-                        <fieldset>
-                            <legend>💰 Ajustes al Total</legend>
-                            <div
-                                class="form-group"
-                                style="
-                                    display: flex;
-                                    gap: 20px;
-                                    align-items: flex-start;
-                                    flex-wrap: wrap;
-                                "
-                            >
-                                <div style="flex: 1; min-width: 200px">
-                                    <label for="discount">Descuento (%)</label>
-                                    <input
-                                        type="number"
-                                        id="discount"
-                                        name="discount"
-                                        min="0"
-                                        max="100"
-                                        step="1"
-                                        value="0"
-                                        placeholder="Ej: 10"
-                                        inputmode="numeric"
-                                        oninput="updateGrandTotal()"
-                                    />
-                                    <small class="field-hint"
-                                        >Porcentaje de descuento sobre el
-                                        subtotal</small
-                                    >
-                                </div>
-                                <div style="flex: 1; min-width: 200px">
-                                    <label for="shippingCost"
-                                        >Costo de Envío ($)</label
-                                    >
-                                    <input
-                                        type="number"
-                                        id="shippingCost"
-                                        name="shippingCost"
-                                        min="0"
-                                        step="1000"
-                                        value="0"
-                                        placeholder="Ej: 5000"
-                                        inputmode="numeric"
-                                        oninput="updateGrandTotal()"
-                                    />
-                                    <small class="field-hint"
-                                        >Costo adicional de envío</small
-                                    >
-                                </div>
-                            </div>
-                        </fieldset>
-
-                        <!-- Total General -->
-                        <div class="total-section" aria-live="polite">
-                            <div
-                                style="
-                                    display: flex;
-                                    flex-direction: column;
-                                    gap: 10px;
-                                    padding: 15px;
-                                    background: linear-gradient(
-                                        135deg,
-                                        #f5f5f5,
-                                        #e8e8e8
-                                    );
-                                    border-radius: 8px;
-                                "
-                            >
                                 <div
-                                    style="
-                                        display: flex;
-                                        justify-content: space-between;
-                                        font-size: 0.95em;
-                                        color: #666;
-                                    "
+                                    id="productsContainer"
+                                    role="list"
+                                    aria-label="Lista de productos"
                                 >
-                                    <span>Subtotal Productos:</span>
-                                    <span id="subtotal">$ 0</span>
+                                    <div class="product-item" role="listitem">
+                                        <div class="form-group">
+                                            <label for="category_0">
+                                                Categoría
+                                                <span
+                                                    class="required"
+                                                    aria-label="requerido"
+                                                    >*</span
+                                                >
+                                            </label>
+                                            <select
+                                                id="category_0"
+                                                name="category[]"
+                                                required
+                                                aria-required="true"
+                                                class="category-select"
+                                                onchange="updateProductFields(0)"
+                                            >
+                                                <option value="">
+                                                    Seleccionar categoría
+                                                </option>
+                                                <option value="accesorios">
+                                                    Accesorios
+                                                </option>
+                                                <option value="medias">
+                                                    Medias
+                                                </option>
+                                                <option value="camisetas">
+                                                    Camisetas
+                                                </option>
+                                                <option value="perfumes">
+                                                    Perfumes o Lociones
+                                                </option>
+                                            </select>
+                                        </div>
+
+                                        <div class="form-group">
+                                            <label for="productCode_0">
+                                                Código Rápido
+                                                <small
+                                                    style="
+                                                        font-weight: normal;
+                                                        color: #666;
+                                                    "
+                                                    >⚡ Opcional - Ej:
+                                                    A001</small
+                                                >
+                                            </label>
+                                            <input
+                                                type="text"
+                                                id="productCode_0"
+                                                name="productCode[]"
+                                                placeholder="Código rápido (Ej: A001)"
+                                                oninput="handleProductCodeInput(0)"
+                                                autocomplete="off"
+                                            />
+                                        </div>
+
+                                        <div class="form-group">
+                                            <label for="product_0">
+                                                Producto
+                                                <span
+                                                    class="required"
+                                                    aria-label="requerido"
+                                                    >*</span
+                                                >
+                                            </label>
+                                            <input
+                                                type="text"
+                                                id="product_0"
+                                                name="product[]"
+                                                required
+                                                aria-required="true"
+                                                placeholder="Nombre del producto"
+                                            />
+                                        </div>
+
+                                        <div class="form-group">
+                                            <label for="productImage_0">
+                                                Imagen del Producto (URL)
+                                                <small
+                                                    style="
+                                                        font-weight: normal;
+                                                        color: #666;
+                                                    "
+                                                    >📸 Opcional</small
+                                                >
+                                            </label>
+                                            <input
+                                                type="url"
+                                                id="productImage_0"
+                                                name="productImage[]"
+                                                placeholder="https://ejemplo.com/imagen.jpg"
+                                            />
+                                        </div>
+
+                                        <!-- Campos específicos por categoría -->
+                                        <div
+                                            id="dynamicFields_0"
+                                            class="dynamic-fields"
+                                        ></div>
+
+                                        <div class="form-group">
+                                            <label for="quantity_0">
+                                                Cantidad
+                                                <span
+                                                    class="required"
+                                                    aria-label="requerido"
+                                                    >*</span
+                                                >
+                                            </label>
+                                            <input
+                                                type="number"
+                                                id="quantity_0"
+                                                name="quantity[]"
+                                                min="1"
+                                                value="1"
+                                                required
+                                                aria-required="true"
+                                                inputmode="numeric"
+                                                class="quantity-input"
+                                            />
+                                        </div>
+
+                                        <div class="form-group">
+                                            <label for="unitPrice_0">
+                                                Precio Unitario
+                                                <span
+                                                    class="required"
+                                                    aria-label="requerido"
+                                                    >*</span
+                                                >
+                                            </label>
+                                            <input
+                                                type="number"
+                                                id="unitPrice_0"
+                                                name="unitPrice[]"
+                                                min="0"
+                                                step="1000"
+                                                placeholder="Ej: 50000"
+                                                required
+                                                aria-required="true"
+                                                inputmode="numeric"
+                                                class="unit-price-input"
+                                            />
+                                        </div>
+
+                                        <div class="form-group">
+                                            <label for="totalPrice_0">
+                                                Precio Total
+                                            </label>
+                                            <input
+                                                type="number"
+                                                id="totalPrice_0"
+                                                name="totalPrice[]"
+                                                readonly
+                                                aria-readonly="true"
+                                                class="total-price-input"
+                                                tabindex="-1"
+                                            />
+                                        </div>
+
+                                        <!-- Bot\u00f3n para guardar c\u00f3digo -->
+                                        <div
+                                            class="form-group"
+                                            style="margin-top: 0.5rem"
+                                        >
+                                            <button
+                                                type="button"
+                                                onclick="saveCurrentProductAsCode()"
+                                                class="btn-save-code"
+                                                title="Guardar este producto con su c\u00f3digo para uso futuro"
+                                            >
+                                                \ud83d\udcbe Guardar C\u00f3digo
+                                                R\u00e1pido
+                                            </button>
+                                        </div>
+
+                                        <button
+                                            type="button"
+                                            class="btn-remove"
+                                            aria-label="Eliminar producto"
+                                            style="display: none"
+                                        >
+                                            ✕
+                                        </button>
+                                    </div>
                                 </div>
-                                <div
-                                    style="
-                                        display: none;
-                                        justify-content: space-between;
-                                        font-size: 0.95em;
-                                        color: #107c10;
-                                    "
-                                    id="discountRow"
-                                >
-                                    <span
-                                        >Descuento (<span id="discountPercent"
-                                            >0</span
-                                        >%):</span
-                                    >
-                                    <span id="discountAmount">- $ 0</span>
-                                </div>
-                                <div
-                                    style="
-                                        display: none;
-                                        justify-content: space-between;
-                                        font-size: 0.95em;
-                                        color: #666;
-                                    "
-                                    id="shippingRow"
-                                >
-                                    <span>Costo de Envío:</span>
-                                    <span id="shippingAmount">+ $ 0</span>
-                                </div>
-                                <hr
-                                    style="
-                                        border: none;
-                                        border-top: 2px solid #800b96;
-                                        margin: 5px 0;
-                                    "
-                                />
-                                <div
-                                    style="
-                                        display: flex;
-                                        justify-content: space-between;
-                                        font-size: 1.3em;
-                                        font-weight: bold;
-                                        color: #800b96;
-                                    "
-                                >
-                                    <span>Total del Pedido:</span>
-                                    <span id="grandTotal">$ 0</span>
-                                </div>
-                            </div>
-                        </div>
 
-                        <!-- Notas Adicionales -->
-                        <fieldset>
-                            <legend>Notas Adicionales</legend>
-                            <div class="form-group">
-                                <label for="notes"> Observaciones </label>
-                                <textarea
-                                    id="notes"
-                                    name="notes"
-                                    rows="4"
-                                    placeholder="Agregar cualquier información adicional sobre el pedido"
-                                ></textarea>
-                            </div>
-                        </fieldset>
-
-                        <!-- Notificación por Email -->
-                        <fieldset>
-                            <legend>Notificaciones</legend>
-                            <div class="form-group">
-                                <label class="checkbox-label">
-                                    <input
-                                        type="checkbox"
-                                        id="sendEmailNotification"
-                                        name="sendEmailNotification"
-                                    />
-                                    <span
-                                        >📧 Enviar confirmación por email al
-                                        cliente</span
-                                    >
-                                </label>
-                                <small class="field-hint"
-                                    >Se enviará un email con los detalles del
-                                    pedido</small
-                                >
-                            </div>
-                        </fieldset>
-
-                        <!-- Botones de acción -->
-                        <div class="form-actions">
-                            <button
-                                type="submit"
-                                class="btn-primary btn-submit"
-                                id="submitBtn"
-                            >
-                                Guardar Pedido
-                            </button>
-                            <button
-                                type="reset"
-                                class="btn-secondary"
-                                aria-label="Limpiar formulario"
-                            >
-                                Limpiar
-                            </button>
-                        </div>
-                    </form>
-                </div>
-            </section>
-
-            <!-- Pestaña: Gestión de Clientes -->
-            <section class="tab-content" id="clients">
-                <div class="form-container">
-                    <h2>Gestión de Clientes</h2>
-                    <div class="clients-actions">
-                        <button
-                            type="button"
-                            class="btn-primary"
-                            id="newClientBtn"
-                            onclick="showNewClientForm()"
-                        >
-                            ➕ Nuevo Cliente
-                        </button>
-                        <button
-                            type="button"
-                            class="btn-primary"
-                            id="loadClientsBtn"
-                            onclick="loadClients()"
-                        >
-                            Cargar Clientes
-                        </button>
-                    </div>
-
-                    <!-- Formulario para nuevo cliente -->
-                    <div
-                        id="newClientForm"
-                        class="new-client-form"
-                        style="display: none"
-                    >
-                        <h3>Registrar Nuevo Cliente</h3>
-                        <div class="form-grid">
-                            <div class="form-group">
-                                <label for="newClientName">
-                                    Nombre Completo
-                                    <span class="required">*</span>
-                                </label>
-                                <input
-                                    type="text"
-                                    id="newClientName"
-                                    required
-                                />
-                            </div>
-                            <div class="form-group">
-                                <label for="newClientPhone">
-                                    Teléfono
-                                    <span class="required">*</span>
-                                </label>
-                                <input
-                                    type="tel"
-                                    id="newClientPhone"
-                                    required
-                                />
-                            </div>
-                            <div class="form-group">
-                                <label for="newClientEmail"> Email </label>
-                                <input type="email" id="newClientEmail" />
-                            </div>
-                            <div class="form-group form-group-full">
-                                <label for="newClientAddress">
-                                    Dirección
-                                    <span class="required">*</span>
-                                </label>
-                                <textarea
-                                    id="newClientAddress"
-                                    rows="2"
-                                    required
-                                ></textarea>
-                            </div>
-                        </div>
-                        <div class="form-actions">
-                            <button
-                                type="button"
-                                class="btn-primary"
-                                onclick="saveNewClient()"
-                            >
-                                Guardar Cliente
-                            </button>
-                            <button
-                                type="button"
-                                class="btn-secondary"
-                                onclick="cancelNewClient()"
-                            >
-                                Cancelar
-                            </button>
-                        </div>
-                    </div>
-
-                    <!-- Lista de clientes -->
-                    <div id="clientsContainer" class="clients-list">
-                        <!-- Aquí se mostrarán los clientes -->
-                    </div>
-                </div>
-            </section>
-
-            <!-- Pestaña: Gestión de Pedidos -->
-            <section class="tab-content" id="orders">
-                <div class="form-container">
-                    <h2>Pedidos Registrados</h2>
-                    <div class="orders-actions">
-                        <button
-                            type="button"
-                            class="btn-primary"
-                            id="loadOrdersBtn"
-                            onclick="loadOrders()"
-                        >
-                            Cargar Pedidos
-                        </button>
-                        <button
-                            type="button"
-                            class="btn-secondary"
-                            id="exportPdfBtn"
-                            onclick="exportOrdersToPDF()"
-                        >
-                            💾 Exportar PDF
-                        </button>
-                    </div>
-                    <div id="ordersContainer" class="orders-list">
-                        <!-- Aquí se mostrarán los pedidos -->
-                    </div>
-                </div>
-            </section>
-
-            <!-- Pestaña: Dashboard de Reportes -->
-            <section class="tab-content" id="reports">
-                <div class="form-container">
-                    <div class="reports-header">
-                        <h2>📊 Dashboard de Ventas</h2>
-                        <div class="reports-actions">
-                            <div class="date-filter">
-                                <label for="filterStartDate">Desde:</label>
-                                <input type="date" id="filterStartDate" />
-                                <label for="filterEndDate">Hasta:</label>
-                                <input type="date" id="filterEndDate" />
-                                <label for="filterClient">Cliente:</label>
-                                <input
-                                    type="text"
-                                    id="filterClient"
-                                    placeholder="Buscar por cliente..."
-                                    list="filterClientsList"
-                                    autocomplete="off"
-                                />
-                                <datalist id="filterClientsList">
-                                    <!-- Clientes cargados dinámicamente -->
-                                </datalist>
                                 <button
                                     type="button"
-                                    class="btn-primary btn-small"
-                                    onclick="applyFilters()"
+                                    id="addProductBtn"
+                                    class="btn-secondary"
+                                    aria-label="Agregar otro producto"
                                 >
-                                    Filtrar
+                                    + Agregar Producto
+                                </button>
+                            </fieldset>
+
+                            <!-- Calculadora de Descuentos y Envío -->
+                            <fieldset>
+                                <legend>💰 Ajustes al Total</legend>
+                                <div
+                                    class="form-group"
+                                    style="
+                                        display: flex;
+                                        gap: 20px;
+                                        align-items: flex-start;
+                                        flex-wrap: wrap;
+                                    "
+                                >
+                                    <div style="flex: 1; min-width: 200px">
+                                        <label for="discount"
+                                            >Descuento (%)</label
+                                        >
+                                        <input
+                                            type="number"
+                                            id="discount"
+                                            name="discount"
+                                            min="0"
+                                            max="100"
+                                            step="1"
+                                            value="0"
+                                            placeholder="Ej: 10"
+                                            inputmode="numeric"
+                                            oninput="updateGrandTotal()"
+                                        />
+                                        <small class="field-hint"
+                                            >Porcentaje de descuento sobre el
+                                            subtotal</small
+                                        >
+                                    </div>
+                                    <div style="flex: 1; min-width: 200px">
+                                        <label for="shippingCost"
+                                            >Costo de Envío ($)</label
+                                        >
+                                        <input
+                                            type="number"
+                                            id="shippingCost"
+                                            name="shippingCost"
+                                            min="0"
+                                            step="1000"
+                                            value="0"
+                                            placeholder="Ej: 5000"
+                                            inputmode="numeric"
+                                            oninput="updateGrandTotal()"
+                                        />
+                                        <small class="field-hint"
+                                            >Costo adicional de envío</small
+                                        >
+                                    </div>
+                                </div>
+                            </fieldset>
+
+                            <!-- Total General -->
+                            <div class="total-section" aria-live="polite">
+                                <div
+                                    style="
+                                        display: flex;
+                                        flex-direction: column;
+                                        gap: 10px;
+                                        padding: 15px;
+                                        background: linear-gradient(
+                                            135deg,
+                                            #f5f5f5,
+                                            #e8e8e8
+                                        );
+                                        border-radius: 8px;
+                                    "
+                                >
+                                    <div
+                                        style="
+                                            display: flex;
+                                            justify-content: space-between;
+                                            font-size: 0.95em;
+                                            color: #666;
+                                        "
+                                    >
+                                        <span>Subtotal Productos:</span>
+                                        <span id="subtotal">$ 0</span>
+                                    </div>
+                                    <div
+                                        style="
+                                            display: none;
+                                            justify-content: space-between;
+                                            font-size: 0.95em;
+                                            color: #107c10;
+                                        "
+                                        id="discountRow"
+                                    >
+                                        <span
+                                            >Descuento (<span
+                                                id="discountPercent"
+                                                >0</span
+                                            >%):</span
+                                        >
+                                        <span id="discountAmount">- $ 0</span>
+                                    </div>
+                                    <div
+                                        style="
+                                            display: none;
+                                            justify-content: space-between;
+                                            font-size: 0.95em;
+                                            color: #666;
+                                        "
+                                        id="shippingRow"
+                                    >
+                                        <span>Costo de Envío:</span>
+                                        <span id="shippingAmount">+ $ 0</span>
+                                    </div>
+                                    <hr
+                                        style="
+                                            border: none;
+                                            border-top: 2px solid #800b96;
+                                            margin: 5px 0;
+                                        "
+                                    />
+                                    <div
+                                        style="
+                                            display: flex;
+                                            justify-content: space-between;
+                                            font-size: 1.3em;
+                                            font-weight: bold;
+                                            color: #800b96;
+                                        "
+                                    >
+                                        <span>Total del Pedido:</span>
+                                        <span id="grandTotal">$ 0</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Notas Adicionales -->
+                            <fieldset>
+                                <legend>Notas Adicionales</legend>
+                                <div class="form-group">
+                                    <label for="notes"> Observaciones </label>
+                                    <textarea
+                                        id="notes"
+                                        name="notes"
+                                        rows="4"
+                                        placeholder="Agregar cualquier información adicional sobre el pedido"
+                                    ></textarea>
+                                </div>
+                            </fieldset>
+
+                            <!-- Notificación por Email -->
+                            <fieldset>
+                                <legend>Notificaciones</legend>
+                                <div class="form-group">
+                                    <label class="checkbox-label">
+                                        <input
+                                            type="checkbox"
+                                            id="sendEmailNotification"
+                                            name="sendEmailNotification"
+                                        />
+                                        <span
+                                            >📧 Enviar confirmación por email al
+                                            cliente</span
+                                        >
+                                    </label>
+                                    <small class="field-hint"
+                                        >Se enviará un email con los detalles
+                                        del pedido</small
+                                    >
+                                </div>
+                            </fieldset>
+
+                            <!-- Botones de acción -->
+                            <div class="form-actions">
+                                <button
+                                    type="submit"
+                                    class="btn-primary btn-submit"
+                                    id="submitBtn"
+                                >
+                                    Guardar Pedido
                                 </button>
                                 <button
-                                    type="button"
-                                    class="btn-secondary btn-small"
-                                    onclick="clearFilters()"
+                                    type="reset"
+                                    class="btn-secondary"
+                                    aria-label="Limpiar formulario"
                                 >
                                     Limpiar
                                 </button>
                             </div>
-                        </div>
+                        </form>
                     </div>
+                </section>
 
-                    <!-- Tarjetas de Estadísticas -->
-                    <div class="stats-grid">
-                        <div class="stat-card stat-card-primary">
-                            <div class="stat-icon">💰</div>
-                            <div class="stat-content">
-                                <h3>Total Ventas</h3>
-                                <p class="stat-value" id="totalSales">$ 0</p>
-                                <span class="stat-label">Ingresos totales</span>
-                            </div>
-                        </div>
-
-                        <div class="stat-card stat-card-success">
-                            <div class="stat-icon">📋</div>
-                            <div class="stat-content">
-                                <h3>Pedidos</h3>
-                                <p class="stat-value" id="totalOrders">0</p>
-                                <span class="stat-label"
-                                    >Pedidos realizados</span
-                                >
-                            </div>
-                        </div>
-
-                        <div class="stat-card stat-card-info">
-                            <div class="stat-icon">👥</div>
-                            <div class="stat-content">
-                                <h3>Clientes</h3>
-                                <p class="stat-value" id="totalClients">0</p>
-                                <span class="stat-label">Clientes únicos</span>
-                            </div>
-                        </div>
-
-                        <div class="stat-card stat-card-warning">
-                            <div class="stat-icon">📈</div>
-                            <div class="stat-content">
-                                <h3>Promedio</h3>
-                                <p class="stat-value" id="avgOrderValue">$ 0</p>
-                                <span class="stat-label">Por pedido</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Gráficos y Tablas -->
-                    <div class="reports-grid">
-                        <!-- Productos Más Vendidos -->
-                        <div class="report-card">
-                            <h3>🏆 Productos Más Vendidos</h3>
-                            <div id="topProductsChart" class="chart-container">
-                                <!-- Gráfico generado dinámicamente -->
-                            </div>
-                        </div>
-
-                        <!-- Clientes Frecuentes -->
-                        <div class="report-card">
-                            <h3>⭐ Clientes Frecuentes</h3>
-                            <div id="topClientsChart" class="chart-container">
-                                <!-- Tabla generada dinámicamente -->
-                            </div>
-                        </div>
-
-                        <!-- Ventas por Categoría -->
-                        <div class="report-card">
-                            <h3>📊 Ventas por Categoría</h3>
-                            <div
-                                id="categorySalesChart"
-                                class="chart-container"
+                <!-- Pestaña: Gestión de Clientes -->
+                <section class="tab-content" id="clients">
+                    <div class="form-container">
+                        <h2>Gestión de Clientes</h2>
+                        <div class="clients-actions">
+                            <button
+                                type="button"
+                                class="btn-primary"
+                                id="newClientBtn"
+                                onclick="showNewClientForm()"
                             >
-                                <!-- Gráfico generado dinámicamente -->
+                                ➕ Nuevo Cliente
+                            </button>
+                            <button
+                                type="button"
+                                class="btn-primary"
+                                id="loadClientsBtn"
+                                onclick="loadClients()"
+                            >
+                                Cargar Clientes
+                            </button>
+                        </div>
+
+                        <!-- Formulario para nuevo cliente -->
+                        <div
+                            id="newClientForm"
+                            class="new-client-form"
+                            style="display: none"
+                        >
+                            <h3>Registrar Nuevo Cliente</h3>
+                            <div class="form-grid">
+                                <div class="form-group">
+                                    <label for="newClientName">
+                                        Nombre Completo
+                                        <span class="required">*</span>
+                                    </label>
+                                    <input
+                                        type="text"
+                                        id="newClientName"
+                                        required
+                                    />
+                                </div>
+                                <div class="form-group">
+                                    <label for="newClientPhone">
+                                        Teléfono
+                                        <span class="required">*</span>
+                                    </label>
+                                    <input
+                                        type="tel"
+                                        id="newClientPhone"
+                                        required
+                                    />
+                                </div>
+                                <div class="form-group">
+                                    <label for="newClientEmail"> Email </label>
+                                    <input type="email" id="newClientEmail" />
+                                </div>
+                                <div class="form-group form-group-full">
+                                    <label for="newClientAddress">
+                                        Dirección
+                                        <span class="required">*</span>
+                                    </label>
+                                    <textarea
+                                        id="newClientAddress"
+                                        rows="2"
+                                        required
+                                    ></textarea>
+                                </div>
+                            </div>
+                            <div class="form-actions">
+                                <button
+                                    type="button"
+                                    class="btn-primary"
+                                    onclick="saveNewClient()"
+                                >
+                                    Guardar Cliente
+                                </button>
+                                <button
+                                    type="button"
+                                    class="btn-secondary"
+                                    onclick="cancelNewClient()"
+                                >
+                                    Cancelar
+                                </button>
                             </div>
                         </div>
 
-                        <!-- Ventas por Fecha -->
-                        <div class="report-card">
-                            <h3>📅 Tendencia de Ventas</h3>
-                            <div id="salesTrendChart" class="chart-container">
-                                <!-- Gráfico de líneas generado dinámicamente -->
+                        <!-- Lista de clientes -->
+                        <div id="clientsContainer" class="clients-list">
+                            <!-- Aquí se mostrarán los clientes -->
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Pestaña: Gestión de Pedidos -->
+                <section class="tab-content" id="orders">
+                    <div class="form-container">
+                        <h2>Pedidos Registrados</h2>
+                        <div class="orders-actions">
+                            <button
+                                type="button"
+                                class="btn-primary"
+                                id="loadOrdersBtn"
+                                onclick="loadOrders()"
+                            >
+                                Cargar Pedidos
+                            </button>
+                            <button
+                                type="button"
+                                class="btn-secondary"
+                                id="exportPdfBtn"
+                                onclick="exportOrdersToPDF()"
+                            >
+                                💾 Exportar PDF
+                            </button>
+                        </div>
+                        <div id="ordersContainer" class="orders-list">
+                            <!-- Aquí se mostrarán los pedidos -->
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Pestaña: Dashboard de Reportes -->
+                <section class="tab-content" id="reports">
+                    <div class="form-container">
+                        <div class="reports-header">
+                            <h2>📊 Dashboard de Ventas</h2>
+                            <div class="reports-actions">
+                                <div class="date-filter">
+                                    <label for="filterStartDate">Desde:</label>
+                                    <input type="date" id="filterStartDate" />
+                                    <label for="filterEndDate">Hasta:</label>
+                                    <input type="date" id="filterEndDate" />
+                                    <label for="filterClient">Cliente:</label>
+                                    <input
+                                        type="text"
+                                        id="filterClient"
+                                        placeholder="Buscar por cliente..."
+                                        list="filterClientsList"
+                                        autocomplete="off"
+                                    />
+                                    <datalist id="filterClientsList">
+                                        <!-- Clientes cargados dinámicamente -->
+                                    </datalist>
+                                    <button
+                                        type="button"
+                                        class="btn-primary btn-small"
+                                        onclick="applyFilters()"
+                                    >
+                                        Filtrar
+                                    </button>
+                                    <button
+                                        type="button"
+                                        class="btn-secondary btn-small"
+                                        onclick="clearFilters()"
+                                    >
+                                        Limpiar
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Tarjetas de Estadísticas -->
+                        <div class="stats-grid">
+                            <div class="stat-card stat-card-primary">
+                                <div class="stat-icon">💰</div>
+                                <div class="stat-content">
+                                    <h3>Total Ventas</h3>
+                                    <p class="stat-value" id="totalSales">
+                                        $ 0
+                                    </p>
+                                    <span class="stat-label"
+                                        >Ingresos totales</span
+                                    >
+                                </div>
+                            </div>
+
+                            <div class="stat-card stat-card-success">
+                                <div class="stat-icon">📋</div>
+                                <div class="stat-content">
+                                    <h3>Pedidos</h3>
+                                    <p class="stat-value" id="totalOrders">0</p>
+                                    <span class="stat-label"
+                                        >Pedidos realizados</span
+                                    >
+                                </div>
+                            </div>
+
+                            <div class="stat-card stat-card-info">
+                                <div class="stat-icon">👥</div>
+                                <div class="stat-content">
+                                    <h3>Clientes</h3>
+                                    <p class="stat-value" id="totalClients">
+                                        0
+                                    </p>
+                                    <span class="stat-label"
+                                        >Clientes únicos</span
+                                    >
+                                </div>
+                            </div>
+
+                            <div class="stat-card stat-card-warning">
+                                <div class="stat-icon">📈</div>
+                                <div class="stat-content">
+                                    <h3>Promedio</h3>
+                                    <p class="stat-value" id="avgOrderValue">
+                                        $ 0
+                                    </p>
+                                    <span class="stat-label">Por pedido</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Gráficos y Tablas -->
+                        <div class="reports-grid">
+                            <!-- Productos Más Vendidos -->
+                            <div class="report-card">
+                                <h3>🏆 Productos Más Vendidos</h3>
+                                <div
+                                    id="topProductsChart"
+                                    class="chart-container"
+                                >
+                                    <!-- Gráfico generado dinámicamente -->
+                                </div>
+                            </div>
+
+                            <!-- Clientes Frecuentes -->
+                            <div class="report-card">
+                                <h3>⭐ Clientes Frecuentes</h3>
+                                <div
+                                    id="topClientsChart"
+                                    class="chart-container"
+                                >
+                                    <!-- Tabla generada dinámicamente -->
+                                </div>
+                            </div>
+
+                            <!-- Ventas por Categoría -->
+                            <div class="report-card">
+                                <h3>📊 Ventas por Categoría</h3>
+                                <div
+                                    id="categorySalesChart"
+                                    class="chart-container"
+                                >
+                                    <!-- Gráfico generado dinámicamente -->
+                                </div>
+                            </div>
+
+                            <!-- Ventas por Fecha -->
+                            <div class="report-card">
+                                <h3>📅 Tendencia de Ventas</h3>
+                                <div
+                                    id="salesTrendChart"
+                                    class="chart-container"
+                                >
+                                    <!-- Gráfico de líneas generado dinámicamente -->
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Tabla Detallada -->
+                        <div class="report-card report-card-full">
+                            <h3>📋 Detalle de Pedidos</h3>
+                            <div class="table-responsive">
+                                <table
+                                    id="ordersDetailTable"
+                                    class="data-table"
+                                >
+                                    <thead>
+                                        <tr>
+                                            <th>Fecha</th>
+                                            <th>Cliente</th>
+                                            <th>Productos</th>
+                                            <th>Cantidad</th>
+                                            <th>Total</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <!-- Filas generadas dinámicamente -->
+                                    </tbody>
+                                </table>
                             </div>
                         </div>
                     </div>
+                </section>
 
-                    <!-- Tabla Detallada -->
-                    <div class="report-card report-card-full">
-                        <h3>📋 Detalle de Pedidos</h3>
-                        <div class="table-responsive">
-                            <table id="ordersDetailTable" class="data-table">
-                                <thead>
-                                    <tr>
-                                        <th>Fecha</th>
-                                        <th>Cliente</th>
-                                        <th>Productos</th>
-                                        <th>Cantidad</th>
-                                        <th>Total</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <!-- Filas generadas dinámicamente -->
-                                </tbody>
-                            </table>
-                        </div>
+                <!-- Mensajes de estado -->
+                <div
+                    id="statusMessage"
+                    role="status"
+                    aria-live="polite"
+                    aria-atomic="true"
+                    class="status-message"
+                ></div>
+            </main>
+
+            <footer role="contentinfo">
+                <div class="footer-content">
+                    <img
+                        src="assets/images/logo-purple-shop.png"
+                        alt="Purple Shop"
+                        class="footer-logo"
+                    />
+                    <div class="footer-text">
+                        <h3>Purple Shop</h3>
+                        <p>
+                            Sistema de Registro de Pedidos de Accesorios,
+                            Medias, Camisetas, Perfumes o Lociones
+                        </p>
+                        <p class="copyright">
+                            &copy; 2025 Purple Shop - Todos los derechos
+                            reservados
+                        </p>
                     </div>
                 </div>
-            </section>
+            </footer>
 
-            <!-- Mensajes de estado -->
-            <div
-                id="statusMessage"
-                role="status"
-                aria-live="polite"
-                aria-atomic="true"
-                class="status-message"
-            ></div>
-        </main>
+            <!-- Scripts -->
+            <script src="https://alcdn.msauth.net/browser/2.30.0/js/msal-browser.min.js"></script>
+            <script src="js/app.js"></script>
+        </div>
+        <!-- Fin de Aplicación Principal -->
 
-        <footer role="contentinfo">
-            <div class="footer-content">
-                <img
-                    src="assets/images/logo-purple-shop.png"
-                    alt="Purple Shop"
-                    class="footer-logo"
-                />
-                <div class="footer-text">
-                    <h3>Purple Shop</h3>
-                    <p>
-                        Sistema de Registro de Pedidos de Accesorios, Medias,
-                        Camisetas, Perfumes o Lociones
-                    </p>
-                    <p class="copyright">
-                        &copy; 2025 Purple Shop - Todos los derechos reservados
-                    </p>
-                </div>
-            </div>
-        </footer>
+        <script>
+            // Control de Splash Screen
+            window.addEventListener("DOMContentLoaded", () => {
+                const splashScreen = document.getElementById("splashScreen");
+                const mainApp = document.getElementById("mainApp");
 
-        <!-- Scripts -->
-        <script src="https://alcdn.msauth.net/browser/2.30.0/js/msal-browser.min.js"></script>
-        <script src="js/app.js"></script>
+                // Duración mínima de la pantalla de carga (2.5 segundos)
+                const minLoadingTime = 2500;
+                const startTime = Date.now();
+
+                // Función para ocultar splash y mostrar app
+                function hideSplash() {
+                    const elapsed = Date.now() - startTime;
+                    const remaining = Math.max(0, minLoadingTime - elapsed);
+
+                    setTimeout(() => {
+                        splashScreen.classList.add("splash-fade-out");
+
+                        setTimeout(() => {
+                            splashScreen.style.display = "none";
+                            mainApp.style.display = "block";
+                            mainApp.classList.add("app-fade-in");
+                        }, 500);
+                    }, remaining);
+                }
+
+                // Esperar a que todo esté cargado
+                if (document.readyState === "complete") {
+                    hideSplash();
+                } else {
+                    window.addEventListener("load", hideSplash);
+                }
+            });
+        </script>
     </body>
 </html>
