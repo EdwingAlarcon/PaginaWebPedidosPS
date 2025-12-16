@@ -2224,6 +2224,29 @@ function selectExistingClient() {
     }
 }
 
+// Verificar si un cliente existe
+function checkClientExists() {
+    const searchInput = document.getElementById("clientSearch");
+    const clientsList = document.getElementById("clientsList");
+    const newClientSuggestion = document.getElementById("newClientSuggestion");
+    
+    if (!searchInput || !newClientSuggestion) return;
+    
+    const searchValue = searchInput.value.trim();
+    if (!searchValue) {
+        newClientSuggestion.style.display = "none";
+        return;
+    }
+    
+    // Verificar si existe en la datalist
+    const options = clientsList ? Array.from(clientsList.options).map(o => o.value) : [];
+    if (options.includes(searchValue)) {
+        newClientSuggestion.style.display = "none";
+    } else {
+        newClientSuggestion.style.display = "block";
+    }
+}
+
 // Eliminar cliente
 async function deleteClient(clientIndex) {
     if (!confirm("¿Estás seguro de que deseas eliminar este cliente?")) {
