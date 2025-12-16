@@ -40,13 +40,6 @@ let productCounter = 0;
 const categoryFields = {
     accesorios: [
         {
-            id: "referencia",
-            label: "Referencia/Código",
-            type: "text",
-            placeholder: "Ej: ACC-001",
-            required: false,
-        },
-        {
             id: "tipo",
             label: "Tipo de Accesorio",
             type: "select",
