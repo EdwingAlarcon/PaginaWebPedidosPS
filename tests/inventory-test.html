@@ -1,0 +1,589 @@
+<!DOCTYPE html>
+<html lang="es">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Test de Módulo de Inventarios</title>
+        <style>
+            body {
+                font-family: Arial, sans-serif;
+                max-width: 1200px;
+                margin: 20px auto;
+                padding: 20px;
+                background: #f5f5f5;
+            }
+            .test-container {
+                background: white;
+                padding: 20px;
+                border-radius: 8px;
+                margin-bottom: 20px;
+                box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            }
+            h1 {
+                color: #333;
+            }
+            h2 {
+                color: #666;
+                border-bottom: 2px solid #800b96;
+                padding-bottom: 10px;
+            }
+            .test-result {
+                padding: 10px;
+                margin: 10px 0;
+                border-radius: 4px;
+            }
+            .success {
+                background: #d4edda;
+                border: 1px solid #c3e6cb;
+                color: #155724;
+            }
+            .error {
+                background: #f8d7da;
+                border: 1px solid #f5c6cb;
+                color: #721c24;
+            }
+            .info {
+                background: #d1ecf1;
+                border: 1px solid #bee5eb;
+                color: #0c5460;
+            }
+            button {
+                background: #800b96;
+                color: white;
+                border: none;
+                padding: 10px 20px;
+                border-radius: 4px;
+                cursor: pointer;
+                margin: 5px;
+            }
+            button:hover {
+                background: #600a70;
+            }
+            .stats {
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+                gap: 15px;
+                margin: 20px 0;
+            }
+            .stat-card {
+                background: #f8f9fa;
+                padding: 15px;
+                border-radius: 8px;
+                border-left: 4px solid #800b96;
+            }
+            .stat-value {
+                font-size: 24px;
+                font-weight: bold;
+                color: #800b96;
+            }
+            .stat-label {
+                color: #666;
+                font-size: 14px;
+            }
+            pre {
+                background: #f4f4f4;
+                padding: 15px;
+                border-radius: 4px;
+                overflow-x: auto;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="test-container">
+            <h1>🧪 Test de Módulo de Inventarios</h1>
+            <p>
+                Esta página prueba todas las funcionalidades del módulo de
+                inventarios.
+            </p>
+
+            <button onclick="runAllTests()">
+                ▶️ Ejecutar Todas las Pruebas
+            </button>
+            <button onclick="clearResults()">🗑️ Limpiar Resultados</button>
+            <button onclick="clearInventory()">⚠️ Limpiar Inventario</button>
+        </div>
+
+        <div class="test-container">
+            <h2>📊 Estado del Módulo</h2>
+            <div id="moduleStatus" class="stats"></div>
+        </div>
+
+        <div class="test-container">
+            <h2>✅ Resultados de Pruebas</h2>
+            <div id="testResults"></div>
+        </div>
+
+        <div class="test-container">
+            <h2>📦 Productos en Inventario</h2>
+            <div id="productsDisplay"></div>
+        </div>
+
+        <!-- Cargar módulos de inventario -->
+        <script src="../js/inventory.js"></script>
+
+        <script>
+            // Variables globales para testing
+            let testResults = [];
+            let testsPassed = 0;
+            let testsFailed = 0;
+
+            function log(message, type = "info") {
+                const result = document.createElement("div");
+                result.className = `test-result ${type}`;
+                result.innerHTML = `<strong>${type.toUpperCase()}:</strong> ${message}`;
+                document.getElementById("testResults").appendChild(result);
+
+                testResults.push({ message, type, timestamp: new Date() });
+
+                if (type === "success") testsPassed++;
+                if (type === "error") testsFailed++;
+            }
+
+            function updateModuleStatus() {
+                const status = document.getElementById("moduleStatus");
+                const stockStatus = inventory.getStockStatus();
+
+                status.innerHTML = `
+                <div class="stat-card">
+                    <div class="stat-value">${stockStatus.totalProducts}</div>
+                    <div class="stat-label">Total Productos</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">${stockStatus.activeProducts}</div>
+                    <div class="stat-label">Productos Activos</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">${stockStatus.lowStock}</div>
+                    <div class="stat-label">Stock Bajo</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">${stockStatus.criticalStock}</div>
+                    <div class="stat-label">Stock Crítico</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">$${stockStatus.totalValue.toFixed(
+                        2
+                    )}</div>
+                    <div class="stat-label">Valor Total</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">${testsPassed}/${
+                    testsPassed + testsFailed
+                }</div>
+                    <div class="stat-label">Tests Pasados</div>
+                </div>
+            `;
+            }
+
+            function updateProductsDisplay() {
+                const products = inventory.getAllProducts();
+                const display = document.getElementById("productsDisplay");
+
+                if (products.length === 0) {
+                    display.innerHTML =
+                        "<p>No hay productos en el inventario.</p>";
+                    return;
+                }
+
+                const table = `
+                <table style="width: 100%; border-collapse: collapse;">
+                    <thead>
+                        <tr style="background: #f8f9fa; text-align: left;">
+                            <th style="padding: 10px;">Producto</th>
+                            <th>SKU</th>
+                            <th>Categoría</th>
+                            <th>Stock</th>
+                            <th>Precio</th>
+                            <th>Estado</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${products
+                            .map(
+                                (p) => `
+                            <tr style="border-bottom: 1px solid #dee2e6;">
+                                <td style="padding: 10px;">${p.name}</td>
+                                <td>${p.sku}</td>
+                                <td>${p.category}</td>
+                                <td>${p.quantity}</td>
+                                <td>$${p.price}</td>
+                                <td>${p.status}</td>
+                            </tr>
+                        `
+                            )
+                            .join("")}
+                    </tbody>
+                </table>
+            `;
+                display.innerHTML = table;
+            }
+
+            // ========== TESTS ==========
+
+            function test1_ModuleLoaded() {
+                log("Test 1: Verificando carga del módulo...", "info");
+
+                if (typeof inventory === "undefined") {
+                    log("❌ Módulo de inventario NO cargado", "error");
+                    return false;
+                }
+
+                if (typeof inventory.addProduct !== "function") {
+                    log("❌ Funciones del módulo no disponibles", "error");
+                    return false;
+                }
+
+                log("✅ Módulo de inventario cargado correctamente", "success");
+                return true;
+            }
+
+            function test2_AddProduct() {
+                log("Test 2: Agregando producto de prueba...", "info");
+
+                try {
+                    const product = inventory.addProduct({
+                        name: "Producto Test 1",
+                        category: "accesorios",
+                        cost: 10000,
+                        price: 15000,
+                        quantity: 50,
+                        minStock: 10,
+                        maxStock: 100,
+                        unit: "Unidad",
+                        supplier: "Proveedor Test",
+                        location: "Bodega A",
+                        description: "Producto de prueba para testing",
+                    });
+
+                    if (!product || !product.id) {
+                        log("❌ Producto no creado correctamente", "error");
+                        return false;
+                    }
+
+                    log(`✅ Producto creado con ID: ${product.id}`, "success");
+                    return product;
+                } catch (error) {
+                    log(
+                        `❌ Error al crear producto: ${error.message}`,
+                        "error"
+                    );
+                    return false;
+                }
+            }
+
+            function test3_GetProduct(productId) {
+                log("Test 3: Recuperando producto...", "info");
+
+                const product = inventory.getProductById(productId);
+
+                if (!product) {
+                    log("❌ No se pudo recuperar el producto", "error");
+                    return false;
+                }
+
+                log(`✅ Producto recuperado: ${product.name}`, "success");
+                return true;
+            }
+
+            function test4_UpdateProduct(productId) {
+                log("Test 4: Actualizando producto...", "info");
+
+                try {
+                    const updated = inventory.updateProduct(productId, {
+                        price: 18000,
+                        quantity: 60,
+                    });
+
+                    if (!updated) {
+                        log("❌ No se pudo actualizar el producto", "error");
+                        return false;
+                    }
+
+                    log(
+                        `✅ Producto actualizado: Precio=${updated.price}, Stock=${updated.quantity}`,
+                        "success"
+                    );
+                    return true;
+                } catch (error) {
+                    log(`❌ Error al actualizar: ${error.message}`, "error");
+                    return false;
+                }
+            }
+
+            function test5_IncreaseStock(productId) {
+                log("Test 5: Aumentando stock...", "info");
+
+                const result = inventory.increaseStock(
+                    productId,
+                    20,
+                    "Entrada de stock por testing"
+                );
+
+                if (!result || result.error) {
+                    log("❌ No se pudo aumentar el stock", "error");
+                    return false;
+                }
+
+                log(
+                    `✅ Stock aumentado: ${result.oldQuantity} → ${result.newQuantity}`,
+                    "success"
+                );
+                return true;
+            }
+
+            function test6_DecreaseStock(productId) {
+                log("Test 6: Disminuyendo stock...", "info");
+
+                const result = inventory.decreaseStock(
+                    productId,
+                    15,
+                    "Venta de prueba"
+                );
+
+                if (!result || result.error) {
+                    log("❌ No se pudo disminuir el stock", "error");
+                    return false;
+                }
+
+                log(
+                    `✅ Stock disminuido: ${result.oldQuantity} → ${result.newQuantity}`,
+                    "success"
+                );
+                return true;
+            }
+
+            function test7_SearchProducts() {
+                log("Test 7: Buscando productos...", "info");
+
+                const results = inventory.searchProducts("Test");
+
+                if (results.length === 0) {
+                    log("❌ No se encontraron productos", "error");
+                    return false;
+                }
+
+                log(
+                    `✅ Se encontraron ${results.length} producto(s)`,
+                    "success"
+                );
+                return true;
+            }
+
+            function test8_GetStockStatus() {
+                log("Test 8: Obteniendo estado del stock...", "info");
+
+                const status = inventory.getStockStatus();
+
+                if (!status || typeof status.totalProducts === "undefined") {
+                    log("❌ No se pudo obtener el estado del stock", "error");
+                    return false;
+                }
+
+                log(
+                    `✅ Estado obtenido: ${
+                        status.totalProducts
+                    } productos, Valor: $${status.totalValue.toFixed(2)}`,
+                    "success"
+                );
+                return true;
+            }
+
+            function test9_GetMovementHistory() {
+                log("Test 9: Verificando historial de movimientos...", "info");
+
+                const movements = inventory.getMovementHistory(null, 10);
+
+                if (!movements || movements.length === 0) {
+                    log("⚠️ No hay movimientos registrados", "info");
+                    return true;
+                }
+
+                log(
+                    `✅ Se encontraron ${movements.length} movimiento(s)`,
+                    "success"
+                );
+                return true;
+            }
+
+            function test10_GenerateReport() {
+                log("Test 10: Generando reporte...", "info");
+
+                try {
+                    const report = inventory.generateInventoryReport("json");
+
+                    if (!report || !report.summary) {
+                        log("❌ No se pudo generar el reporte", "error");
+                        return false;
+                    }
+
+                    log(
+                        `✅ Reporte generado con ${report.allProducts.length} productos`,
+                        "success"
+                    );
+                    return true;
+                } catch (error) {
+                    log(
+                        `❌ Error al generar reporte: ${error.message}`,
+                        "error"
+                    );
+                    return false;
+                }
+            }
+
+            function test11_CreateBackup() {
+                log("Test 11: Creando copia de seguridad...", "info");
+
+                try {
+                    const backup = inventory.createBackup();
+
+                    if (!backup || !backup.products) {
+                        log(
+                            "❌ No se pudo crear la copia de seguridad",
+                            "error"
+                        );
+                        return false;
+                    }
+
+                    log(
+                        `✅ Backup creado: ${backup.products.length} productos`,
+                        "success"
+                    );
+                    return backup;
+                } catch (error) {
+                    log(`❌ Error al crear backup: ${error.message}`, "error");
+                    return false;
+                }
+            }
+
+            function test12_LocalStoragePersistence() {
+                log(
+                    "Test 12: Verificando persistencia en localStorage...",
+                    "info"
+                );
+
+                const stored = localStorage.getItem("inventory_products");
+
+                if (!stored) {
+                    log("❌ No hay datos en localStorage", "error");
+                    return false;
+                }
+
+                try {
+                    const products = JSON.parse(stored);
+                    log(
+                        `✅ Datos persistidos correctamente: ${products.length} productos`,
+                        "success"
+                    );
+                    return true;
+                } catch (error) {
+                    log("❌ Error al parsear datos de localStorage", "error");
+                    return false;
+                }
+            }
+
+            // ========== EJECUTAR TODAS LAS PRUEBAS ==========
+
+            async function runAllTests() {
+                clearResults();
+                testsPassed = 0;
+                testsFailed = 0;
+
+                log(
+                    "🚀 Iniciando suite de pruebas del módulo de inventarios...",
+                    "info"
+                );
+                log("═══════════════════════════════════════════════", "info");
+
+                // Test 1: Módulo cargado
+                if (!test1_ModuleLoaded()) return;
+
+                // Test 2: Agregar producto
+                const product = test2_AddProduct();
+                if (!product) return;
+
+                const productId = product.id;
+
+                // Test 3: Obtener producto
+                test3_GetProduct(productId);
+
+                // Test 4: Actualizar producto
+                test4_UpdateProduct(productId);
+
+                // Test 5: Aumentar stock
+                test5_IncreaseStock(productId);
+
+                // Test 6: Disminuir stock
+                test6_DecreaseStock(productId);
+
+                // Test 7: Buscar productos
+                test7_SearchProducts();
+
+                // Test 8: Estado del stock
+                test8_GetStockStatus();
+
+                // Test 9: Historial de movimientos
+                test9_GetMovementHistory();
+
+                // Test 10: Generar reporte
+                test10_GenerateReport();
+
+                // Test 11: Backup
+                test11_CreateBackup();
+
+                // Test 12: Persistencia
+                test12_LocalStoragePersistence();
+
+                // Resumen final
+                log("═══════════════════════════════════════════════", "info");
+                log(
+                    `✨ RESUMEN: ${testsPassed} tests pasados, ${testsFailed} tests fallidos`,
+                    testsFailed === 0 ? "success" : "error"
+                );
+
+                updateModuleStatus();
+                updateProductsDisplay();
+
+                if (testsFailed === 0) {
+                    log(
+                        "🎉 ¡Todos los tests pasaron exitosamente! El módulo está 100% funcional.",
+                        "success"
+                    );
+                } else {
+                    log(
+                        "⚠️ Algunos tests fallaron. Revisa los errores arriba.",
+                        "error"
+                    );
+                }
+            }
+
+            function clearResults() {
+                document.getElementById("testResults").innerHTML = "";
+                testResults = [];
+                testsPassed = 0;
+                testsFailed = 0;
+            }
+
+            function clearInventory() {
+                if (
+                    confirm(
+                        "¿Estás seguro de que quieres limpiar todo el inventario?"
+                    )
+                ) {
+                    localStorage.removeItem("inventory_products");
+                    localStorage.removeItem("inventory_movements");
+                    location.reload();
+                }
+            }
+
+            // Inicializar al cargar
+            window.addEventListener("load", () => {
+                updateModuleStatus();
+                updateProductsDisplay();
+                log(
+                    '✅ Página de testing cargada. Haz clic en "Ejecutar Todas las Pruebas" para comenzar.',
+                    "info"
+                );
+            });
+        </script>
+    </body>
+</html>

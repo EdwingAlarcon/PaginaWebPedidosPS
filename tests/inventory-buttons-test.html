@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<html lang="es">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Test de Botones - Módulo de Inventarios</title>
+        <style>
+            body {
+                font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+                max-width: 1400px;
+                margin: 20px auto;
+                padding: 20px;
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            }
+            .container {
+                background: white;
+                border-radius: 12px;
+                padding: 30px;
+                box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            }
+            h1 {
+                color: #333;
+                text-align: center;
+                margin-bottom: 10px;
+            }
+            .subtitle {
+                text-align: center;
+                color: #666;
+                margin-bottom: 30px;
+            }
+            .test-grid {
+                display: grid;
+                grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+                gap: 20px;
+                margin-top: 20px;
+            }
+            .test-card {
+                border: 2px solid #e0e0e0;
+                border-radius: 8px;
+                padding: 20px;
+                background: #fafafa;
+                transition: all 0.3s ease;
+            }
+            .test-card:hover {
+                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+                transform: translateY(-2px);
+            }
+            .test-card.success {
+                border-color: #4caf50;
+                background: #f1f8e9;
+            }
+            .test-card.error {
+                border-color: #f44336;
+                background: #ffebee;
+            }
+            .test-header {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                margin-bottom: 15px;
+            }
+            .test-title {
+                font-weight: bold;
+                color: #333;
+                font-size: 16px;
+            }
+            .test-status {
+                font-size: 24px;
+            }
+            .test-description {
+                color: #666;
+                font-size: 14px;
+                margin-bottom: 10px;
+            }
+            .test-function {
+                background: #333;
+                color: #0f0;
+                padding: 8px 12px;
+                border-radius: 4px;
+                font-family: "Courier New", monospace;
+                font-size: 13px;
+                margin-top: 10px;
+            }
+            .summary {
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                color: white;
+                padding: 25px;
+                border-radius: 12px;
+                margin-bottom: 30px;
+                text-align: center;
+            }
+            .summary h2 {
+                margin: 0 0 20px 0;
+            }
+            .stats {
+                display: flex;
+                justify-content: center;
+                gap: 40px;
+                flex-wrap: wrap;
+            }
+            .stat {
+                text-align: center;
+            }
+            .stat-value {
+                font-size: 48px;
+                font-weight: bold;
+                display: block;
+            }
+            .stat-label {
+                font-size: 14px;
+                opacity: 0.9;
+            }
+            button {
+                background: #667eea;
+                color: white;
+                border: none;
+                padding: 12px 24px;
+                border-radius: 6px;
+                cursor: pointer;
+                font-size: 16px;
+                font-weight: bold;
+                display: block;
+                margin: 0 auto 20px;
+                transition: all 0.3s ease;
+            }
+            button:hover {
+                background: #764ba2;
+                transform: scale(1.05);
+            }
+            .loading {
+                text-align: center;
+                padding: 40px;
+                color: #666;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <h1>🔘 Test de Botones del Módulo de Inventarios</h1>
+            <p class="subtitle">
+                Verificación exhaustiva de todos los botones y funciones onclick
+            </p>
+
+            <button onclick="runButtonTests()">
+                ▶️ Ejecutar Verificación de Botones
+            </button>
+
+            <div id="summary" style="display: none" class="summary">
+                <h2>📊 Resumen de Verificación</h2>
+                <div class="stats">
+                    <div class="stat">
+                        <span class="stat-value" id="totalButtons">0</span>
+                        <span class="stat-label">Botones Totales</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-value" id="functionalButtons">0</span>
+                        <span class="stat-label">✅ Funcionales</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-value" id="brokenButtons">0</span>
+                        <span class="stat-label">❌ Con Problemas</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-value" id="successRate">0%</span>
+                        <span class="stat-label">Tasa de Éxito</span>
+                    </div>
+                </div>
+            </div>
+
+            <div id="results" class="test-grid">
+                <div class="loading">
+                    ⏳ Haz clic en "Ejecutar Verificación" para comenzar...
+                </div>
+            </div>
+        </div>
+
+        <script>
+            // Definir todas las funciones que deben existir
+            const buttonsToTest = [
+                {
+                    name: "➕ Nuevo Producto",
+                    description:
+                        "Botón principal para agregar nuevos productos",
+                    functionName: "openInventoryModal",
+                    params: "'addProduct'",
+                    category: "Acciones Principales",
+                },
+                {
+                    name: "📊 Ajustar Stock",
+                    description:
+                        "Botón principal para ajustar stock de productos",
+                    functionName: "openInventoryModal",
+                    params: "'adjustStock'",
+                    category: "Acciones Principales",
+                },
+                {
+                    name: "📈 Reportes",
+                    description: "Botón principal para mostrar reportes",
+                    functionName: "showInventoryReport",
+                    params: "",
+                    category: "Acciones Principales",
+                },
+                {
+                    name: "📊 Tab Dashboard",
+                    description: "Cambiar a pestaña de Dashboard",
+                    functionName: "switchInventoryTab",
+                    params: "'dashboard'",
+                    category: "Navegación (Tabs)",
+                },
+                {
+                    name: "📦 Tab Productos",
+                    description: "Cambiar a pestaña de Productos",
+                    functionName: "switchInventoryTab",
+                    params: "'products'",
+                    category: "Navegación (Tabs)",
+                },
+                {
+                    name: "🔄 Tab Movimientos",
+                    description: "Cambiar a pestaña de Movimientos",
+                    functionName: "switchInventoryTab",
+                    params: "'movements'",
+                    category: "Navegación (Tabs)",
+                },
+                {
+                    name: "⚠️ Tab Alertas",
+                    description: "Cambiar a pestaña de Alertas",
+                    functionName: "switchInventoryTab",
+                    params: "'alerts'",
+                    category: "Navegación (Tabs)",
+                },
+                {
+                    name: "⚙️ Tab Configuración",
+                    description: "Cambiar a pestaña de Configuración",
+                    functionName: "switchInventoryTab",
+                    params: "'settings'",
+                    category: "Navegación (Tabs)",
+                },
+                {
+                    name: "✏️ Editar Producto",
+                    description: "Botón en tabla para editar producto",
+                    functionName: "editProduct",
+                    params: "'test-id'",
+                    category: "Acciones de Tabla",
+                },
+                {
+                    name: "🗑️ Eliminar Producto",
+                    description: "Botón en tabla para eliminar producto",
+                    functionName: "deleteProduct",
+                    params: "'test-id'",
+                    category: "Acciones de Tabla",
+                },
+                {
+                    name: "📊 Ajuste Rápido",
+                    description:
+                        "Botón en tabla para ajustar stock rápidamente",
+                    functionName: "quickAdjustStock",
+                    params: "'test-id'",
+                    category: "Acciones de Tabla",
+                },
+                {
+                    name: "📥 Exportar Movimientos",
+                    description: "Exportar tabla de movimientos",
+                    functionName: "exportMovements",
+                    params: "",
+                    category: "Exportación",
+                },
+                {
+                    name: "💾 Guardar Configuración",
+                    description: "Guardar cambios en configuración",
+                    functionName: "saveInventorySettings",
+                    params: "",
+                    category: "Configuración",
+                },
+                {
+                    name: "🔄 Resetear Configuración",
+                    description: "Restablecer configuración por defecto",
+                    functionName: "resetInventorySettings",
+                    params: "",
+                    category: "Configuración",
+                },
+                {
+                    name: "➕ Nueva Categoría",
+                    description: "Agregar nueva categoría de productos",
+                    functionName: "addNewCategory",
+                    params: "",
+                    category: "Configuración",
+                },
+                {
+                    name: "🗑️ Eliminar Categoría",
+                    description: "Eliminar categoría de productos",
+                    functionName: "deleteCategory",
+                    params: "'test-id'",
+                    category: "Configuración",
+                },
+                {
+                    name: "💾 Descargar Backup",
+                    description: "Crear y descargar copia de seguridad",
+                    functionName: "downloadInventoryBackup",
+                    params: "",
+                    category: "Backup",
+                },
+                {
+                    name: "📂 Restaurar Backup",
+                    description: "Restaurar desde copia de seguridad",
+                    functionName: "restoreInventoryBackup",
+                    params: "event",
+                    category: "Backup",
+                },
+                {
+                    name: "📄 Exportar CSV",
+                    description: "Exportar inventario a CSV",
+                    functionName: "exportInventoryToCSV",
+                    params: "",
+                    category: "Exportación",
+                },
+                {
+                    name: "📄 Exportar JSON",
+                    description: "Exportar inventario a JSON",
+                    functionName: "exportInventoryToJSON",
+                    params: "",
+                    category: "Exportación",
+                },
+                {
+                    name: "📄 Exportar Excel",
+                    description: "Exportar inventario a Excel",
+                    functionName: "exportInventoryToExcel",
+                    params: "",
+                    category: "Exportación",
+                },
+                {
+                    name: "× Cerrar Modal Producto",
+                    description: "Cerrar modal de agregar/editar producto",
+                    functionName: "closeInventoryModal",
+                    params: "'addProduct'",
+                    category: "Modales",
+                },
+                {
+                    name: "× Cerrar Modal Ajuste",
+                    description: "Cerrar modal de ajustar stock",
+                    functionName: "closeInventoryModal",
+                    params: "'adjustStock'",
+                    category: "Modales",
+                },
+                {
+                    name: "× Cerrar Modal Reporte",
+                    description: "Cerrar modal de reportes",
+                    functionName: "closeInventoryModal",
+                    params: "'report'",
+                    category: "Modales",
+                },
+                {
+                    name: "🖨️ Imprimir Reporte",
+                    description: "Imprimir reporte de inventario",
+                    functionName: "printInventoryReport",
+                    params: "",
+                    category: "Reportes",
+                },
+                {
+                    name: "💾 Descargar Reporte",
+                    description: "Descargar reporte de inventario",
+                    functionName: "downloadInventoryReport",
+                    params: "",
+                    category: "Reportes",
+                },
+                {
+                    name: "🔍 Filtrar Productos (Categoría)",
+                    description: "Filtrar productos por categoría",
+                    functionName: "filterInventoryProducts",
+                    params: "",
+                    category: "Filtros",
+                },
+                {
+                    name: "🔍 Filtrar Productos (Estado)",
+                    description: "Filtrar productos por estado",
+                    functionName: "filterInventoryProducts",
+                    params: "",
+                    category: "Filtros",
+                },
+                {
+                    name: "🔍 Filtrar Movimientos",
+                    description: "Filtrar movimientos de inventario",
+                    functionName: "filterMovements",
+                    params: "",
+                    category: "Filtros",
+                },
+            ];
+
+            function runButtonTests() {
+                const resultsDiv = document.getElementById("results");
+                const summaryDiv = document.getElementById("summary");
+
+                resultsDiv.innerHTML = "";
+                summaryDiv.style.display = "block";
+
+                let functional = 0;
+                let broken = 0;
+
+                // Agrupar por categoría
+                const byCategory = {};
+                buttonsToTest.forEach((btn) => {
+                    if (!byCategory[btn.category]) {
+                        byCategory[btn.category] = [];
+                    }
+                    byCategory[btn.category].push(btn);
+                });
+
+                // Verificar cada botón
+                Object.keys(byCategory).forEach((category) => {
+                    const categoryHeader = document.createElement("div");
+                    categoryHeader.style.gridColumn = "1 / -1";
+                    categoryHeader.innerHTML = `<h3 style="color: #667eea; margin-top: 20px; border-bottom: 2px solid #667eea; padding-bottom: 10px;">${category}</h3>`;
+                    resultsDiv.appendChild(categoryHeader);
+
+                    byCategory[category].forEach((button) => {
+                        const card = document.createElement("div");
+                        card.className = "test-card";
+
+                        // Verificar si la función existe
+                        const functionExists =
+                            typeof window[button.functionName] === "function";
+
+                        if (functionExists) {
+                            functional++;
+                            card.classList.add("success");
+                        } else {
+                            broken++;
+                            card.classList.add("error");
+                        }
+
+                        card.innerHTML = `
+                        <div class="test-header">
+                            <span class="test-title">${button.name}</span>
+                            <span class="test-status">${
+                                functionExists ? "✅" : "❌"
+                            }</span>
+                        </div>
+                        <div class="test-description">${
+                            button.description
+                        }</div>
+                        <div class="test-function">${button.functionName}(${
+                            button.params
+                        })</div>
+                    `;
+
+                        resultsDiv.appendChild(card);
+                    });
+                });
+
+                // Actualizar resumen
+                const total = buttonsToTest.length;
+                const successRate = ((functional / total) * 100).toFixed(1);
+
+                document.getElementById("totalButtons").textContent = total;
+                document.getElementById("functionalButtons").textContent =
+                    functional;
+                document.getElementById("brokenButtons").textContent = broken;
+                document.getElementById("successRate").textContent =
+                    successRate + "%";
+
+                // Cambiar color según resultado
+                if (broken === 0) {
+                    summaryDiv.style.background =
+                        "linear-gradient(135deg, #11998e 0%, #38ef7d 100%)";
+                } else if (broken > total / 2) {
+                    summaryDiv.style.background =
+                        "linear-gradient(135deg, #eb3349 0%, #f45c43 100%)";
+                }
+            }
+
+            // Auto-ejecutar después de cargar el módulo
+            window.addEventListener("load", () => {
+                // Esperar un poco para que los scripts se carguen
+                setTimeout(() => {
+                    console.log(
+                        "🔍 Verificando disponibilidad de funciones del módulo de inventarios..."
+                    );
+                    console.log(
+                        "Funciones disponibles:",
+                        Object.keys(window).filter(
+                            (k) =>
+                                k.includes("inventory") ||
+                                k.includes("Inventory") ||
+                                k.includes("export") ||
+                                k.includes("filter")
+                        )
+                    );
+                }, 1000);
+            });
+        </script>
+    </body>
+</html>

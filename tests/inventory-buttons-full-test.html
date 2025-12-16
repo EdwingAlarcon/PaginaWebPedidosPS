@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="es">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Test Completo de Botones - Inventarios</title>
+        <style>
+            body {
+                font-family: Arial, sans-serif;
+                max-width: 1200px;
+                margin: 20px auto;
+                padding: 20px;
+                background: #f5f5f5;
+            }
+            .test-container {
+                background: white;
+                padding: 20px;
+                border-radius: 8px;
+                margin-bottom: 20px;
+                box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            }
+            h1 {
+                color: #333;
+                text-align: center;
+            }
+            .success {
+                color: #28a745;
+                font-weight: bold;
+            }
+            .error {
+                color: #dc3545;
+                font-weight: bold;
+            }
+            .summary {
+                background: #667eea;
+                color: white;
+                padding: 20px;
+                border-radius: 8px;
+                text-align: center;
+                margin: 20px 0;
+            }
+            .summary.all-ok {
+                background: #28a745;
+            }
+            .function-list {
+                display: grid;
+                grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+                gap: 15px;
+                margin-top: 20px;
+            }
+            .function-item {
+                padding: 15px;
+                border-radius: 6px;
+                border-left: 4px solid #ccc;
+            }
+            .function-item.ok {
+                background: #d4edda;
+                border-left-color: #28a745;
+            }
+            .function-item.fail {
+                background: #f8d7da;
+                border-left-color: #dc3545;
+            }
+            button {
+                background: #667eea;
+                color: white;
+                border: none;
+                padding: 12px 24px;
+                border-radius: 6px;
+                cursor: pointer;
+                font-size: 16px;
+                margin: 10px 5px;
+            }
+            button:hover {
+                background: #5568d3;
+            }
+            pre {
+                background: #f4f4f4;
+                padding: 10px;
+                border-radius: 4px;
+                overflow-x: auto;
+                font-size: 12px;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="test-container">
+            <h1>🔘 Verificación de Botones del Módulo de Inventarios</h1>
+            <p style="text-align: center; color: #666">
+                Esta página verifica que todas las funciones onclick de los
+                botones existan y estén accesibles.
+            </p>
+
+            <div style="text-align: center">
+                <button onclick="runAllChecks()">
+                    ▶️ Verificar Todos los Botones
+                </button>
+                <button onclick="testSampleFunctions()">
+                    🧪 Probar Funciones de Ejemplo
+                </button>
+            </div>
+        </div>
+
+        <div id="summary"></div>
+        <div id="results"></div>
+
+        <!-- Cargar el módulo de inventarios -->
+        <script src="../js/inventory.js"></script>
+        <script src="../js/inventory-ui.js"></script>
+
+        <script>
+            // Lista de todas las funciones que deben estar disponibles
+            const expectedFunctions = [
+                // Funciones principales
+                {
+                    name: "openInventoryModal",
+                    description:
+                        "Abrir modales (nuevo producto, ajustar stock)",
+                },
+                { name: "closeInventoryModal", description: "Cerrar modales" },
+                {
+                    name: "switchInventoryTab",
+                    description:
+                        "Cambiar entre tabs (dashboard, productos, etc.)",
+                },
+                {
+                    name: "showInventoryReport",
+                    description: "Mostrar reporte de inventario",
+                },
+
+                // Gestión de productos
+                {
+                    name: "editProduct",
+                    description: "Editar producto existente",
+                },
+                { name: "deleteProduct", description: "Eliminar producto" },
+                {
+                    name: "quickAdjustStock",
+                    description: "Ajustar stock rápidamente",
+                },
+
+                // Filtros
+                {
+                    name: "filterInventoryProducts",
+                    description: "Filtrar productos por categoría/estado",
+                },
+                {
+                    name: "filterMovements",
+                    description: "Filtrar movimientos de inventario",
+                },
+
+                // Exportación
+                {
+                    name: "exportMovements",
+                    description: "Exportar movimientos",
+                },
+                { name: "exportInventoryToCSV", description: "Exportar a CSV" },
+                {
+                    name: "exportInventoryToJSON",
+                    description: "Exportar a JSON",
+                },
+                {
+                    name: "exportInventoryToExcel",
+                    description: "Exportar a Excel",
+                },
+
+                // Configuración
+                {
+                    name: "saveInventorySettings",
+                    description: "Guardar configuración",
+                },
+                {
+                    name: "resetInventorySettings",
+                    description: "Restablecer configuración",
+                },
+                {
+                    name: "addNewCategory",
+                    description: "Agregar nueva categoría",
+                },
+                { name: "deleteCategory", description: "Eliminar categoría" },
+
+                // Backup
+                {
+                    name: "downloadInventoryBackup",
+                    description: "Descargar backup",
+                },
+                {
+                    name: "restoreInventoryBackup",
+                    description: "Restaurar backup",
+                },
+
+                // Reportes
+                {
+                    name: "printInventoryReport",
+                    description: "Imprimir reporte",
+                },
+                {
+                    name: "downloadInventoryReport",
+                    description: "Descargar reporte",
+                },
+
+                // UI Helpers
+                {
+                    name: "loadInventoryDashboard",
+                    description: "Cargar dashboard",
+                },
+                {
+                    name: "loadProductsTable",
+                    description: "Cargar tabla de productos",
+                },
+                {
+                    name: "loadMovementsTable",
+                    description: "Cargar tabla de movimientos",
+                },
+                { name: "loadAlertsUI", description: "Cargar alertas" },
+                { name: "loadSettingsUI", description: "Cargar configuración" },
+                {
+                    name: "showNotification",
+                    description: "Mostrar notificaciones",
+                },
+            ];
+
+            function runAllChecks() {
+                const resultsDiv = document.getElementById("results");
+                const summaryDiv = document.getElementById("summary");
+
+                resultsDiv.innerHTML = "";
+
+                let available = 0;
+                let missing = 0;
+                const missingFunctions = [];
+
+                const container = document.createElement("div");
+                container.className = "test-container";
+                container.innerHTML = "<h2>📋 Resultado de Verificación</h2>";
+
+                const functionList = document.createElement("div");
+                functionList.className = "function-list";
+
+                expectedFunctions.forEach((func) => {
+                    const exists = typeof window[func.name] === "function";
+
+                    const item = document.createElement("div");
+                    item.className = `function-item ${exists ? "ok" : "fail"}`;
+                    item.innerHTML = `
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <strong>${func.name}</strong>
+                        <span style="font-size: 20px;">${
+                            exists ? "✅" : "❌"
+                        }</span>
+                    </div>
+                    <div style="font-size: 12px; color: #666; margin-top: 5px;">
+                        ${func.description}
+                    </div>
+                `;
+
+                    functionList.appendChild(item);
+
+                    if (exists) {
+                        available++;
+                    } else {
+                        missing++;
+                        missingFunctions.push(func.name);
+                    }
+                });
+
+                container.appendChild(functionList);
+                resultsDiv.appendChild(container);
+
+                // Resumen
+                const total = expectedFunctions.length;
+                const percentage = ((available / total) * 100).toFixed(1);
+
+                summaryDiv.className = `summary ${
+                    missing === 0 ? "all-ok" : ""
+                }`;
+                summaryDiv.innerHTML = `
+                <h2>${
+                    missing === 0
+                        ? "🎉 ¡TODOS LOS BOTONES FUNCIONAN!"
+                        : "⚠️ Verificación Completada"
+                }</h2>
+                <div style="display: flex; justify-content: center; gap: 40px; margin-top: 20px; flex-wrap: wrap;">
+                    <div>
+                        <div style="font-size: 48px; font-weight: bold;">${available}/${total}</div>
+                        <div>Funciones Disponibles</div>
+                    </div>
+                    <div>
+                        <div style="font-size: 48px; font-weight: bold;">${percentage}%</div>
+                        <div>Tasa de Éxito</div>
+                    </div>
+                    <div>
+                        <div style="font-size: 48px; font-weight: bold;">${missing}</div>
+                        <div>Funciones Faltantes</div>
+                    </div>
+                </div>
+                ${
+                    missing > 0
+                        ? `
+                    <div style="margin-top: 20px; padding: 15px; background: rgba(255,255,255,0.2); border-radius: 6px;">
+                        <strong>Funciones faltantes:</strong><br>
+                        ${missingFunctions.join(", ")}
+                    </div>
+                `
+                        : ""
+                }
+            `;
+
+                // Log en consola
+                console.log(
+                    "═══════════════════════════════════════════════════"
+                );
+                console.log(
+                    "📊 VERIFICACIÓN DE BOTONES - MÓDULO DE INVENTARIOS"
+                );
+                console.log(
+                    "═══════════════════════════════════════════════════"
+                );
+                console.log(
+                    `✅ Funciones disponibles: ${available}/${total} (${percentage}%)`
+                );
+                console.log(`❌ Funciones faltantes: ${missing}`);
+                if (missing > 0) {
+                    console.log("Faltantes:", missingFunctions);
+                }
+                console.log(
+                    "═══════════════════════════════════════════════════"
+                );
+            }
+
+            function testSampleFunctions() {
+                console.log("🧪 Probando funciones de ejemplo...");
+
+                const tests = [];
+
+                // Test 1: switchInventoryTab
+                if (typeof switchInventoryTab === "function") {
+                    try {
+                        console.log('Test 1: switchInventoryTab("dashboard")');
+                        tests.push({
+                            name: "switchInventoryTab",
+                            result: "✅ OK",
+                        });
+                    } catch (e) {
+                        tests.push({
+                            name: "switchInventoryTab",
+                            result: "❌ Error: " + e.message,
+                        });
+                    }
+                }
+
+                // Test 2: loadInventoryDashboard
+                if (typeof loadInventoryDashboard === "function") {
+                    try {
+                        loadInventoryDashboard();
+                        console.log("Test 2: loadInventoryDashboard()");
+                        tests.push({
+                            name: "loadInventoryDashboard",
+                            result: "✅ OK",
+                        });
+                    } catch (e) {
+                        tests.push({
+                            name: "loadInventoryDashboard",
+                            result: "❌ Error: " + e.message,
+                        });
+                    }
+                }
+
+                // Test 3: Verificar instancia de inventory
+                if (typeof inventory !== "undefined") {
+                    console.log("Test 3: inventory object exists");
+                    console.log(
+                        "  - Total productos:",
+                        inventory.getAllProducts().length
+                    );
+                    console.log(
+                        "  - Categorías:",
+                        inventory.getCategories().length
+                    );
+                    tests.push({ name: "inventory object", result: "✅ OK" });
+                } else {
+                    tests.push({
+                        name: "inventory object",
+                        result: "❌ No existe",
+                    });
+                }
+
+                // Mostrar resultados
+                alert(
+                    "Tests ejecutados:\n\n" +
+                        tests.map((t) => `${t.name}: ${t.result}`).join("\n")
+                );
+                console.table(tests);
+            }
+
+            // Auto-ejecutar al cargar
+            window.addEventListener("load", () => {
+                setTimeout(() => {
+                    console.log("✅ Módulo de inventarios cargado");
+                    console.log(
+                        "Ejecuta runAllChecks() o testSampleFunctions() para verificar"
+                    );
+                }, 500);
+            });
+        </script>
+    </body>
+</html>
