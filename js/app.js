@@ -497,6 +497,7 @@ function updateConditionalFields(index, fieldId, value) {
 // Hacer las funciones globales para que funcionen desde el HTML
 window.updateProductFields = updateProductFields;
 window.updateConditionalFields = updateConditionalFields;
+window.updateGrandTotal = updateGrandTotal;
 
 // Inicializar la aplicación
 document.addEventListener("DOMContentLoaded", () => {
@@ -537,6 +538,9 @@ function initializeForm() {
     document.getElementById("orderDate").value = today;
 
     updateProductCalculations(0);
+    
+    // Cargar códigos de productos guardados
+    updateSavedCodesDisplay();
 }
 
 // Configurar event listeners
@@ -672,6 +676,20 @@ function createProductRow(index) {
                 <option value="camisetas">Camisetas</option>
                 <option value="perfumes">Perfumes o Lociones</option>
             </select>
+        </div>
+
+        <div class="form-group">
+            <label for="productCode_${index}">
+                Código Rápido
+                <small style="font-weight: normal; color: #666;">⚡ Opcional - Ej: A001</small>
+            </label>
+            <input 
+                type="text" 
+                id="productCode_${index}" 
+                name="productCode[]" 
+                placeholder="Código rápido (Ej: A001)"
+                oninput="handleProductCodeInput(${index})"
+                autocomplete="off">
         </div>
 
         <div class="form-group">
@@ -1254,33 +1272,19 @@ function showStatus(message, type = "info") {
 // Hacer funciones globales
 window.removeProductRow = removeProductRow;
 window.loadOrders = loadOrders;
-window.toggleOrdersSection = toggleOrdersSection;
 window.editOrder = editOrder;
 window.deleteOrder = deleteOrder;
-window.toggleClientsManagement = toggleClientsManagement;
 window.showNewClientForm = showNewClientForm;
 window.cancelNewClient = cancelNewClient;
 window.saveNewClient = saveNewClient;
 window.loadClients = loadClients;
+window.loadClientsForManagement = loadClients;
 window.selectExistingClient = selectExistingClient;
 window.deleteClient = deleteClient;
 window.checkClientExists = checkClientExists;
 window.quickAddClient = quickAddClient;
-
-// Mostrar/Ocultar sección de gestión de pedidos
-function toggleOrdersSection() {
-    const ordersSection = document.getElementById("ordersSection");
-    const manageBtn = document.getElementById("manageOrdersBtn");
-
-    if (ordersSection.style.display === "none") {
-        ordersSection.style.display = "block";
-        manageBtn.textContent = "Ocultar Gestión";
-        loadOrders();
-    } else {
-        ordersSection.style.display = "none";
-        manageBtn.textContent = "Gestionar Pedidos";
-    }
-}
+window.toggleFavoriteClient = toggleFavoriteClient;
+window.fillClientFromFavorite = fillClientFromFavorite;
 
 // Cargar pedidos desde Excel
 async function loadOrders() {
@@ -1554,18 +1558,6 @@ async function deleteOrder(orderIndex) {
 // ==================== GESTIÓN DE CLIENTES ====================
 
 // Mostrar/Ocultar gestión de clientes
-function toggleClientsManagement() {
-    const clientsSection = document.getElementById("clientsSection");
-
-    if (clientsSection.style.display === "none") {
-        clientsSection.style.display = "block";
-        document.getElementById("newClientForm").style.display = "none";
-        loadClients();
-    } else {
-        clientsSection.style.display = "none";
-    }
-}
-
 // Mostrar formulario de nuevo cliente
 function showNewClientForm() {
     const form = document.getElementById("newClientForm");
@@ -1691,16 +1683,33 @@ async function loadClients() {
 // Mostrar clientes en la interfaz
 function displayClients(dataLines) {
     const clientsContainer = document.getElementById("clientsContainer");
+    const favorites = getFavoriteClients();
     let html = '<div class="clients-grid">';
 
     dataLines.forEach((line, index) => {
         const columns = line.split("\t");
         if (columns.length >= 3) {
             const [name, phone, email, address] = columns;
+            const isFavorite = favorites.includes(name);
+
             html += `
-                <div class="client-card">
+                <div class="client-card ${isFavorite ? "favorite" : ""}">
                     <div class="client-header">
                         <h3>👤 ${name}</h3>
+                        <button 
+                            class="favorite-btn ${isFavorite ? "active" : ""}" 
+                            onclick="toggleFavoriteClient('${name.replace(
+                                /'/g,
+                                "\\'"
+                            )}')"
+                            title="${
+                                isFavorite
+                                    ? "Quitar de favoritos"
+                                    : "Agregar a favoritos"
+                            }"
+                        >
+                            ${isFavorite ? "⭐" : "☆"}
+                        </button>
                     </div>
                     <div class="client-body">
                         <p><strong>📞 Teléfono:</strong> ${phone}</p>
@@ -1719,7 +1728,7 @@ function displayClients(dataLines) {
                         <button class="btn-edit" onclick="useClientData('${name.replace(
                             /'/g,
                             "\\'"
-                        )}',' ${phone}', '${email}', '${address.replace(
+                        )}', '${phone}', '${email}', '${address.replace(
                 /'/g,
                 "\\'"
             )}')">
@@ -1772,27 +1781,325 @@ async function loadClientsForSearch() {
             const datalist = document.getElementById("clientsList");
             datalist.innerHTML = "";
 
+            // Obtener favoritos de localStorage
+            const favorites = getFavoriteClients();
+            const clientsData = [];
+
             dataLines.forEach((line) => {
                 const columns = line.split("\t");
                 if (columns.length >= 1) {
-                    const option = document.createElement("option");
-                    option.value = columns[0]; // Nombre del cliente
-                    option.setAttribute("data-phone", columns[1] || "");
-                    option.setAttribute("data-email", columns[2] || "");
-                    option.setAttribute("data-address", columns[3] || "");
-                    datalist.appendChild(option);
+                    const clientName = columns[0];
+                    const isFavorite = favorites.includes(clientName);
+
+                    clientsData.push({
+                        name: clientName,
+                        phone: columns[1] || "",
+                        email: columns[2] || "",
+                        address: columns[3] || "",
+                        isFavorite: isFavorite,
+                    });
                 }
             });
+
+            // Ordenar: favoritos primero
+            clientsData.sort((a, b) => {
+                if (a.isFavorite && !b.isFavorite) return -1;
+                if (!a.isFavorite && b.isFavorite) return 1;
+                return a.name.localeCompare(b.name);
+            });
+
+            // Llenar datalist
+            clientsData.forEach((client) => {
+                const option = document.createElement("option");
+                option.value = client.isFavorite
+                    ? `⭐ ${client.name}`
+                    : client.name;
+                option.setAttribute("data-name", client.name);
+                option.setAttribute("data-phone", client.phone);
+                option.setAttribute("data-email", client.email);
+                option.setAttribute("data-address", client.address);
+                datalist.appendChild(option);
+            });
+
+            // Actualizar botones de favoritos
+            updateFavoriteClientsButtons(
+                clientsData.filter((c) => c.isFavorite)
+            );
         }
     } catch (error) {
         console.error("Error al cargar clientes para búsqueda:", error);
     }
 }
 
+// ==================== SISTEMA DE CÓDIGOS RÁPIDOS DE PRODUCTOS ====================
+
+function getProductCodes() {
+    try {
+        const codes = localStorage.getItem("productCodes");
+        return codes ? JSON.parse(codes) : {};
+    } catch (error) {
+        console.error("Error al leer códigos de productos:", error);
+        return {};
+    }
+}
+
+function saveProductCodes(codes) {
+    try {
+        localStorage.setItem("productCodes", JSON.stringify(codes));
+    } catch (error) {
+        console.error("Error al guardar códigos de productos:", error);
+    }
+}
+
+function saveProductCode(code, productData) {
+    const codes = getProductCodes();
+    codes[code.toUpperCase()] = productData;
+    saveProductCodes(codes);
+}
+
+function getProductByCode(code) {
+    const codes = getProductCodes();
+    return codes[code.toUpperCase()] || null;
+}
+
+function handleProductCodeInput(index) {
+    const codeInput = document.getElementById(`productCode_${index}`);
+    const code = codeInput.value.trim().toUpperCase();
+
+    if (code.length >= 3) {
+        const productData = getProductByCode(code);
+        if (productData) {
+            // Autocompletar campos
+            const productInput = document.getElementById(`product_${index}`);
+            const priceInput = document.getElementById(`unitPrice_${index}`);
+            const categorySelect = document.getElementById(`category_${index}`);
+
+            if (productInput) productInput.value = productData.name;
+            if (priceInput) priceInput.value = productData.price;
+            if (categorySelect && productData.category) {
+                categorySelect.value = productData.category;
+                updateProductFields(index);
+            }
+
+            // Visual feedback
+            codeInput.style.borderColor = "#4CAF50";
+            codeInput.style.backgroundColor = "#e8f5e9";
+
+            showStatus(`✅ Producto ${productData.name} cargado`, "success");
+
+            // Reset visual feedback después de 2 segundos
+            setTimeout(() => {
+                codeInput.style.borderColor = "";
+                codeInput.style.backgroundColor = "";
+            }, 2000);
+        } else {
+            // Código no encontrado
+            codeInput.style.borderColor = "#ff9800";
+            codeInput.style.backgroundColor = "#fff3e0";
+        }
+    } else {
+        // Reset si el código es muy corto
+        codeInput.style.borderColor = "";
+        codeInput.style.backgroundColor = "";
+    }
+}
+
+function saveCurrentProductAsCode() {
+    const codeInput = document.getElementById("productCode_0");
+    const productInput = document.getElementById("product_0");
+    const priceInput = document.getElementById("unitPrice_0");
+    const categorySelect = document.getElementById("category_0");
+
+    const code = codeInput?.value.trim().toUpperCase();
+    const name = productInput?.value.trim();
+    const price = priceInput?.value;
+    const category = categorySelect?.value;
+
+    if (code && name && price) {
+        saveProductCode(code, {
+            name: name,
+            price: parseFloat(price),
+            category: category || "",
+        });
+        showStatus(`💾 Código ${code} guardado para ${name}`, "success");
+        updateSavedCodesDisplay();
+        return true;
+    } else {
+        showStatus("Por favor completa código, nombre y precio", "error");
+    }
+    return false;
+}
+
+function updateSavedCodesDisplay() {
+    const codes = getProductCodes();
+    const codesCount = Object.keys(codes).length;
+    const savedCodesInfo = document.getElementById("savedCodesInfo");
+    const codesCountSpan = document.getElementById("codesCount");
+
+    if (codesCount > 0) {
+        savedCodesInfo.style.display = "block";
+        codesCountSpan.textContent = codesCount;
+    } else {
+        savedCodesInfo.style.display = "none";
+    }
+
+    renderSavedCodesList();
+}
+
+function renderSavedCodesList() {
+    const codes = getProductCodes();
+    const listContainer = document.getElementById("savedCodesList");
+
+    if (!listContainer) return;
+
+    const codeEntries = Object.entries(codes);
+
+    if (codeEntries.length === 0) {
+        listContainer.innerHTML =
+            '<p class="no-codes">No hay códigos guardados aún</p>';
+        return;
+    }
+
+    let html = '<div class="codes-grid">';
+    codeEntries
+        .sort((a, b) => a[0].localeCompare(b[0]))
+        .forEach(([code, data]) => {
+            html += `
+            <div class="code-card">
+                <div class="code-header">
+                    <strong class="code-value">${code}</strong>
+                    <button type="button" onclick="deleteProductCode('${code}')" class="btn-delete-code" title="Eliminar código">
+                        ×
+                    </button>
+                </div>
+                <div class="code-body">
+                    <div class="code-name">${data.name}</div>
+                    <div class="code-price">$${Math.round(
+                        data.price
+                    ).toLocaleString("es-CO")}</div>
+                    ${
+                        data.category
+                            ? `<div class="code-category">${data.category}</div>`
+                            : ""
+                    }
+                </div>
+            </div>
+        `;
+        });
+    html += "</div>";
+
+    listContainer.innerHTML = html;
+}
+
+function toggleSavedCodes() {
+    const listContainer = document.getElementById("savedCodesList");
+    const toggleBtn = document.querySelector(".btn-toggle-codes");
+
+    if (listContainer.style.display === "none") {
+        listContainer.style.display = "block";
+        toggleBtn.innerHTML = `Ocultar <span id="codesCount">${
+            Object.keys(getProductCodes()).length
+        }</span>`;
+    } else {
+        listContainer.style.display = "none";
+        toggleBtn.innerHTML = `Ver <span id="codesCount">${
+            Object.keys(getProductCodes()).length
+        }</span>`;
+    }
+}
+
+function deleteProductCode(code) {
+    if (confirm(`¿Eliminar el código ${code}?`)) {
+        const codes = getProductCodes();
+        delete codes[code];
+        saveProductCodes(codes);
+        updateSavedCodesDisplay();
+        showStatus(`Código ${code} eliminado`, "success");
+    }
+}
+
+// ==================== SISTEMA DE CLIENTES FAVORITOS ====================
+
+// Obtener clientes favoritos de localStorage
+function getFavoriteClients() {
+    try {
+        return JSON.parse(localStorage.getItem("favoriteClients") || "[]");
+    } catch {
+        return [];
+    }
+}
+
+// Guardar clientes favoritos en localStorage
+function saveFavoriteClients(favorites) {
+    localStorage.setItem("favoriteClients", JSON.stringify(favorites));
+}
+
+// Marcar/desmarcar cliente como favorito
+function toggleFavoriteClient(clientName) {
+    const favorites = getFavoriteClients();
+    const index = favorites.indexOf(clientName);
+
+    if (index > -1) {
+        favorites.splice(index, 1);
+    } else {
+        favorites.push(clientName);
+    }
+
+    saveFavoriteClients(favorites);
+    loadClientsForSearch();
+    loadClientsForManagement();
+}
+
+// Actualizar botones de clientes favoritos
+function updateFavoriteClientsButtons(favoriteClients) {
+    const container = document.getElementById("favoriteClientsButtons");
+    const section = document.getElementById("favoriteClientsSection");
+
+    if (favoriteClients.length === 0) {
+        section.style.display = "none";
+        return;
+    }
+
+    section.style.display = "block";
+    container.innerHTML = "";
+
+    favoriteClients.forEach((client) => {
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = "favorite-client-btn";
+        btn.onclick = () => fillClientFromFavorite(client);
+        btn.innerHTML = `
+            <span style="font-size: 1.2rem;">⭐</span>
+            <div>
+                <div class="client-name">${client.name}</div>
+                <div class="client-phone">${client.phone}</div>
+            </div>
+        `;
+        container.appendChild(btn);
+    });
+}
+
+// Rellenar formulario con cliente favorito
+function fillClientFromFavorite(client) {
+    document.getElementById("clientSearch").value = client.name;
+    document.getElementById("clientName").value = client.name;
+    document.getElementById("clientPhone").value = client.phone;
+    document.getElementById("clientEmail").value = client.email;
+    document.getElementById("clientAddress").value = client.address;
+    document.getElementById("newClientSuggestion").style.display = "none";
+
+    showStatus(`Cliente ${client.name} seleccionado`, "success");
+}
+
 // Seleccionar cliente existente desde el datalist
 function selectExistingClient() {
     const searchInput = document.getElementById("clientSearch");
-    const selectedName = searchInput.value.trim();
+    let selectedName = searchInput.value.trim();
+
+    // Remover estrella si existe
+    if (selectedName.startsWith("⭐ ")) {
+        selectedName = selectedName.substring(2);
+    }
 
     if (!selectedName) {
         // Limpiar campos si no hay nombre
@@ -1805,7 +2112,9 @@ function selectExistingClient() {
     let found = false;
 
     options.forEach((option) => {
-        if (option.value === selectedName) {
+        const optionName =
+            option.getAttribute("data-name") || option.value.replace("⭐ ", "");
+        if (optionName === selectedName) {
             // Cliente encontrado - autocompletar
             document.getElementById("clientName").value = selectedName;
             document.getElementById("clientPhone").value =
@@ -1929,20 +2238,6 @@ let currentFilterStartDate = null;
 let currentFilterEndDate = null;
 
 // Mostrar/Ocultar sección de reportes
-function toggleReportsSection() {
-    const reportsSection = document.getElementById("reportsSection");
-    const reportsBtn = document.getElementById("reportsBtn");
-
-    if (reportsSection.style.display === "none") {
-        reportsSection.style.display = "block";
-        reportsBtn.textContent = "Ocultar Reportes";
-        loadReportsData();
-    } else {
-        reportsSection.style.display = "none";
-        reportsBtn.textContent = "📊 Reportes";
-    }
-}
-
 // Cargar datos para reportes
 async function loadReportsData() {
     if (!accessToken) {
@@ -2417,7 +2712,9 @@ function switchTab(tabName) {
     }
 
     // Cargar datos según la pestaña
-    if (tabName === "clients") {
+    if (tabName === "newOrder") {
+        loadClientsForSearch(); // Cargar clientes y favoritos en el formulario
+    } else if (tabName === "clients") {
         loadClientsForManagement();
     } else if (tabName === "orders") {
         loadOrders();
@@ -2428,10 +2725,16 @@ function switchTab(tabName) {
 
 // Hacer funciones globales
 window.switchTab = switchTab;
-window.toggleReportsSection = toggleReportsSection;
 window.applyDateFilter = applyDateFilter;
 window.clearDateFilter = clearDateFilter;
 window.exportOrdersToPDF = exportOrdersToPDF;
+window.handleProductCodeInput = handleProductCodeInput;
+window.saveCurrentProductAsCode = saveCurrentProductAsCode;
+window.getProductCodes = getProductCodes;
+window.saveProductCode = saveProductCode;
+window.toggleSavedCodes = toggleSavedCodes;
+window.deleteProductCode = deleteProductCode;
+window.updateSavedCodesDisplay = updateSavedCodesDisplay;
 
 // ==================== EXPORTAR A PDF ====================
 
