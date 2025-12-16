@@ -181,13 +181,24 @@ function closeInventoryModal(modalType) {
 function loadInventoryDashboard() {
     const status = inventory.getStockStatus();
 
-    // Actualizar estadísticas
-    document.getElementById('totalProducts').textContent = status.totalProducts;
-    document.getElementById('totalValue').textContent = formatCOP(status.totalValue);
-    document.getElementById('lowStockCount').textContent = status.lowStock;
-    document.getElementById('criticalStockCount').textContent = status.criticalStock;
-    document.getElementById('overstockedCount').textContent = status.overstocked;
-    document.getElementById('activeProductsCount').textContent = status.activeProducts;
+    // Actualizar estadísticas (con verificación de existencia)
+    const totalProducts = document.getElementById('totalProducts');
+    if (totalProducts) totalProducts.textContent = status.totalProducts;
+    
+    const totalValue = document.getElementById('totalValue');
+    if (totalValue) totalValue.textContent = formatCOP(status.totalValue);
+    
+    const lowStockCount = document.getElementById('lowStockCount');
+    if (lowStockCount) lowStockCount.textContent = status.lowStock;
+    
+    const criticalStockCount = document.getElementById('criticalStockCount');
+    if (criticalStockCount) criticalStockCount.textContent = status.criticalStock;
+    
+    const overstockedCount = document.getElementById('overstockedCount');
+    if (overstockedCount) overstockedCount.textContent = status.overstocked;
+    
+    const activeProductsCount = document.getElementById('activeProductsCount');
+    if (activeProductsCount) activeProductsCount.textContent = status.activeProducts;
 
     // Cargar productos más vendidos
     loadTopSellingProducts();

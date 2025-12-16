@@ -2247,6 +2247,40 @@ function checkClientExists() {
     }
 }
 
+// Agregar cliente rápidamente
+function quickAddClient() {
+    const clientName = document.getElementById("clientSearch");
+    if (!clientName || !clientName.value.trim()) {
+        alert("Por favor ingresa un nombre de cliente");
+        return;
+    }
+    
+    const clientPhone = document.getElementById("clientPhone");
+    const clientEmail = document.getElementById("clientEmail");
+    const clientAddress = document.getElementById("clientAddress");
+    
+    if (!clientPhone || !clientPhone.value.trim()) {
+        alert("Por favor ingresa un teléfono");
+        return;
+    }
+    
+    if (!clientAddress || !clientAddress.value.trim()) {
+        alert("Por favor ingresa una dirección");
+        return;
+    }
+    
+    // Auto-llenar los campos de cliente
+    clientPhone.value = clientPhone.value;
+    clientEmail.value = clientEmail.value || "";
+    clientAddress.value = clientAddress.value;
+    
+    // Cerrar sugerencia
+    const newClientSuggestion = document.getElementById("newClientSuggestion");
+    if (newClientSuggestion) {
+        newClientSuggestion.style.display = "none";
+    }
+}
+
 // Eliminar cliente
 async function deleteClient(clientIndex) {
     if (!confirm("¿Estás seguro de que deseas eliminar este cliente?")) {
