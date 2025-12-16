@@ -1196,6 +1196,19 @@ input[id^="productCode_"].code-not-found {
     font-size: 0.9rem;
 }
 
+.date-filter input[type="text"] {
+    padding: 0.4rem 0.6rem;
+    border: 2px solid var(--border-color);
+    border-radius: 4px;
+    font-size: 0.9rem;
+    min-width: 200px;
+}
+
+.date-filter input[type="text"]:focus {
+    border-color: var(--primary-color);
+    outline: none;
+}
+
 /* Tarjetas de Estadísticas */
 .stats-grid {
     display: grid;

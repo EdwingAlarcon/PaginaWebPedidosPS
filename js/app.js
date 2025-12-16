@@ -538,7 +538,7 @@ function initializeForm() {
     document.getElementById("orderDate").value = today;
 
     updateProductCalculations(0);
-    
+
     // Cargar códigos de productos guardados
     updateSavedCodesDisplay();
 }
@@ -2269,6 +2269,10 @@ async function loadReportsData() {
         }
 
         const ordersData = parseOrdersData(dataLines);
+
+        // Poblar lista de clientes para el filtro
+        populateClientsFilter(ordersData);
+
         const filteredData = applyDateFilterToData(ordersData);
 
         calculateStatistics(filteredData);
@@ -2311,9 +2315,13 @@ function parseOrdersData(dataLines) {
     return orders;
 }
 
-// Aplicar filtro de fechas
+// Aplicar filtros (fechas y cliente)
 function applyDateFilterToData(ordersData) {
-    if (!currentFilterStartDate && !currentFilterEndDate) {
+    if (
+        !currentFilterStartDate &&
+        !currentFilterEndDate &&
+        !currentFilterClient
+    ) {
         return ordersData;
     }
 
@@ -2328,28 +2336,51 @@ function applyDateFilterToData(ordersData) {
             return false;
         }
 
+        if (
+            currentFilterClient &&
+            !order.cliente
+                .toLowerCase()
+                .includes(currentFilterClient.toLowerCase())
+        ) {
+            return false;
+        }
+
         return true;
     });
 }
 
-// Aplicar filtro de fechas
-function applyDateFilter() {
+// Aplicar filtros de fechas y cliente
+function applyFilters() {
     const startDateInput = document.getElementById("filterStartDate").value;
     const endDateInput = document.getElementById("filterEndDate").value;
+    const clientInput = document.getElementById("filterClient").value;
 
     currentFilterStartDate = startDateInput ? new Date(startDateInput) : null;
     currentFilterEndDate = endDateInput ? new Date(endDateInput) : null;
+    currentFilterClient = clientInput.trim() || null;
 
     loadReportsData();
 }
 
-// Limpiar filtro de fechas
-function clearDateFilter() {
+// Mantener compatibilidad con función anterior
+function applyDateFilter() {
+    applyFilters();
+}
+
+// Limpiar todos los filtros
+function clearFilters() {
     currentFilterStartDate = null;
     currentFilterEndDate = null;
+    currentFilterClient = null;
     document.getElementById("filterStartDate").value = "";
     document.getElementById("filterEndDate").value = "";
+    document.getElementById("filterClient").value = "";
     loadReportsData();
+}
+
+// Mantener compatibilidad con función anterior
+function clearDateFilter() {
+    clearFilters();
 }
 
 // Calcular estadísticas generales
@@ -2723,10 +2754,27 @@ function switchTab(tabName) {
     }
 }
 
+// Poblar lista de clientes en el filtro de reportes
+function populateClientsFilter(ordersData) {
+    const clientsList = document.getElementById("filterClientsList");
+    if (!clientsList) return;
+
+    const uniqueClients = [
+        ...new Set(ordersData.map((order) => order.cliente).filter((c) => c)),
+    ];
+    uniqueClients.sort();
+
+    clientsList.innerHTML = uniqueClients
+        .map((client) => `<option value="${client}">${client}</option>`)
+        .join("");
+}
+
 // Hacer funciones globales
 window.switchTab = switchTab;
 window.applyDateFilter = applyDateFilter;
+window.applyFilters = applyFilters;
 window.clearDateFilter = clearDateFilter;
+window.clearFilters = clearFilters;
 window.exportOrdersToPDF = exportOrdersToPDF;
 window.handleProductCodeInput = handleProductCodeInput;
 window.saveCurrentProductAsCode = saveCurrentProductAsCode;

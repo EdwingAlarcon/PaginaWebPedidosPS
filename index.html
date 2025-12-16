@@ -171,14 +171,11 @@
                                     style="display: none"
                                     class="client-suggestion"
                                 >
-                                    <span>⚠️ Cliente no encontrado. </span>
-                                    <button
-                                        type="button"
-                                        class="btn-primary btn-small"
-                                        onclick="quickAddClient()"
+                                    <span
+                                        >⚠️ Cliente no encontrado. Puedes
+                                        agregarlo en la pestaña de
+                                        Clientes.</span
                                     >
-                                        ➕ Agregar Cliente
-                                    </button>
                                 </div>
                             </div>
 
@@ -697,13 +694,6 @@
                         >
                             Cargar Clientes
                         </button>
-                        <button
-                            type="button"
-                            class="btn-secondary"
-                            onclick="toggleClientsManagement()"
-                        >
-                            Cerrar
-                        </button>
                     </div>
 
                     <!-- Formulario para nuevo cliente -->
@@ -816,28 +806,32 @@
                                 <input type="date" id="filterStartDate" />
                                 <label for="filterEndDate">Hasta:</label>
                                 <input type="date" id="filterEndDate" />
+                                <label for="filterClient">Cliente:</label>
+                                <input
+                                    type="text"
+                                    id="filterClient"
+                                    placeholder="Buscar por cliente..."
+                                    list="filterClientsList"
+                                    autocomplete="off"
+                                />
+                                <datalist id="filterClientsList">
+                                    <!-- Clientes cargados dinámicamente -->
+                                </datalist>
                                 <button
                                     type="button"
                                     class="btn-primary btn-small"
-                                    onclick="applyDateFilter()"
+                                    onclick="applyFilters()"
                                 >
                                     Filtrar
                                 </button>
                                 <button
                                     type="button"
                                     class="btn-secondary btn-small"
-                                    onclick="clearDateFilter()"
+                                    onclick="clearFilters()"
                                 >
                                     Limpiar
                                 </button>
                             </div>
-                            <button
-                                type="button"
-                                class="btn-secondary"
-                                onclick="toggleReportsSection()"
-                            >
-                                Cerrar
-                            </button>
                         </div>
                     </div>
 
