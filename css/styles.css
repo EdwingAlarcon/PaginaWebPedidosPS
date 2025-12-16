@@ -99,8 +99,8 @@
 }
 
 .splash-logo-img {
-    width: 80px;
-    height: 80px;
+    width: 50px;
+    height: 50px;
     object-fit: contain;
     filter: drop-shadow(0 8px 16px rgba(0, 0, 0, 0.3));
     animation: logoGlow 2s ease-in-out infinite;
@@ -388,8 +388,8 @@
     }
 
     .splash-logo-img {
-        width: 70px;
-        height: 70px;
+        width: 45px;
+        height: 45px;
     }
 
     .package-animation {
@@ -428,8 +428,8 @@
     }
 
     .splash-logo-img {
-        width: 60px;
-        height: 60px;
+        width: 40px;
+        height: 40px;
     }
 
     .loading-bar {
