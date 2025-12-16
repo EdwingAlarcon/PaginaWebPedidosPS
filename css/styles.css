@@ -457,6 +457,8 @@ body {
     min-height: 100vh;
     display: flex;
     flex-direction: column;
+    overflow-x: hidden;
+    width: 100%;
     /* Mejorar renderizado en móviles */
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
@@ -554,6 +556,22 @@ header h1 {
     position: sticky;
     top: 0;
     z-index: 100;
+    width: 100%;
+    scrollbar-width: thin;
+    scrollbar-color: var(--primary-color) #f0f0f0;
+}
+
+.tabs-navigation::-webkit-scrollbar {
+    height: 4px;
+}
+
+.tabs-navigation::-webkit-scrollbar-track {
+    background: #f0f0f0;
+}
+
+.tabs-navigation::-webkit-scrollbar-thumb {
+    background: var(--primary-color);
+    border-radius: 2px;
 }
 
 .tab-btn {
@@ -594,6 +612,9 @@ header h1 {
 .tab-content {
     display: none;
     animation: fadeIn 0.3s ease-in;
+    width: 100%;
+    box-sizing: border-box;
+    overflow-x: hidden;
 }
 
 .tab-content.active {
@@ -642,6 +663,8 @@ main {
     max-width: 1400px;
     width: 100%;
     margin: 0 auto;
+    box-sizing: border-box;
+    overflow-x: hidden;
 }
 
 .form-container {
@@ -2050,12 +2073,15 @@ footer {
     .tabs-navigation {
         justify-content: flex-start;
         gap: 0;
+        overflow-x: auto;
+        scrollbar-width: thin;
     }
 
     .tab-btn {
         min-width: 100px;
         padding: 0.875rem 1rem;
         font-size: 0.9rem;
+        flex-shrink: 0;
     }
 
     .header-content {
@@ -2084,16 +2110,23 @@ footer {
     }
 
     main {
-        padding: 1rem;
+        padding: 0.5rem;
+        width: 100%;
+        box-sizing: border-box;
     }
 
     .form-container {
-        padding: 1.5rem;
+        padding: 1rem;
+        width: 100%;
+        box-sizing: border-box;
+        overflow-x: hidden;
     }
 
     .product-item {
         grid-template-columns: 1fr;
         gap: 0.75rem;
+        width: 100%;
+        box-sizing: border-box;
     }
 
     .btn-remove {
@@ -2339,9 +2372,10 @@ footer {
 @media (max-width: 480px) {
     /* Pestañas en móviles pequeños */
     .tab-btn {
-        min-width: 90px;
-        padding: 0.75rem 0.75rem;
-        font-size: 0.85rem;
+        min-width: 85px;
+        padding: 0.75rem 0.5rem;
+        font-size: 0.8rem;
+        flex-shrink: 0;
     }
 
     header h1 {
@@ -2353,7 +2387,15 @@ footer {
     }
 
     fieldset {
-        padding: 1rem;
+        padding: 0.75rem;
+    }
+
+    .tab-content {
+        padding: 1rem 0.5rem;
+    }
+
+    .form-container {
+        padding: 0.75rem;
     }
 
     /* Inputs aún más grandes en pantallas muy pequeñas */
