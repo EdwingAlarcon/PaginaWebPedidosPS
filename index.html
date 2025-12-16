@@ -16,6 +16,7 @@
         />
         <title>Sistema de Pedidos - PaginaWebPedidosPS</title>
         <link rel="stylesheet" href="css/styles.css" />
+        <link rel="stylesheet" href="css/inventory.css" />
     </head>
     <body>
         <!-- Splash Screen -->
@@ -161,6 +162,13 @@
                     onclick="switchTab('reports')"
                 >
                     📊 Reportes
+                </button>
+                <button
+                    class="tab-btn"
+                    data-tab="inventory"
+                    onclick="switchTab('inventory')"
+                >
+                    📦 Inventarios
                 </button>
             </nav>
 
@@ -1038,6 +1046,13 @@
                     </div>
                 </section>
 
+                <!-- Pestaña: Gestión de Inventarios -->
+                <section class="tab-content" id="inventory">
+                    <div id="inventoryModule">
+                        <!-- El módulo de inventarios se cargará aquí -->
+                    </div>
+                </section>
+
                 <!-- Mensajes de estado -->
                 <div
                     id="statusMessage"
@@ -1072,6 +1087,25 @@
             <!-- Scripts -->
             <script src="https://alcdn.msauth.net/browser/2.30.0/js/msal-browser.min.js"></script>
             <script src="js/app.js"></script>
+            <script src="js/inventory.js"></script>
+            <script src="js/inventory-ui.js"></script>
+            <script>
+                // Inicializar módulo de inventarios cuando se carga
+                document.addEventListener('DOMContentLoaded', function() {
+                    const inventoryModule = document.getElementById('inventoryModule');
+                    if (inventoryModule) {
+                        // Cargar el HTML del módulo de inventarios
+                        fetch('html/inventory.html')
+                            .then(response => response.text())
+                            .then(html => {
+                                inventoryModule.innerHTML = html;
+                                // Inicializar la UI después de cargar el HTML
+                                initInventoryUI();
+                            })
+                            .catch(error => console.error('Error cargando módulo de inventarios:', error));
+                    }
+                });
+            </script>
         </div>
         <!-- Fin de Aplicación Principal -->
 
