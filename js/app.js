@@ -702,6 +702,7 @@ function createProductRow(index) {
                 value="1" 
                 required 
                 aria-required="true"
+                inputmode="numeric"
                 class="quantity-input">
         </div>
 
@@ -714,9 +715,11 @@ function createProductRow(index) {
                 id="unitPrice_${index}" 
                 name="unitPrice[]" 
                 min="0" 
-                step="0.01" 
+                step="1000" 
+                placeholder="Ej: 50000"
                 required 
                 aria-required="true"
+                inputmode="numeric"
                 class="unit-price-input">
         </div>
 
@@ -788,15 +791,106 @@ function updateProductCalculations(index) {
 // Calcular total general
 function updateGrandTotal() {
     const totalInputs = document.querySelectorAll(".total-price-input");
-    let grandTotal = 0;
+    let subtotal = 0;
 
     totalInputs.forEach((input) => {
-        grandTotal += parseFloat(input.value) || 0;
+        subtotal += parseFloat(input.value) || 0;
     });
 
-    // Formatear como pesos colombianos con separadores de miles
+    // Obtener descuento y costo de envío
+    const discountPercent =
+        parseFloat(document.getElementById("discount")?.value) || 0;
+    const shippingCost =
+        parseFloat(document.getElementById("shippingCost")?.value) || 0;
+
+    // Calcular descuento
+    const discountAmount = (subtotal * discountPercent) / 100;
+
+    // Calcular total final
+    const grandTotal = subtotal - discountAmount + shippingCost;
+
+    // Actualizar subtotal
+    const formattedSubtotal = Math.round(subtotal).toLocaleString("es-CO");
+    const subtotalElement = document.getElementById("subtotal");
+    if (subtotalElement) {
+        subtotalElement.textContent = `$ ${formattedSubtotal}`;
+    }
+
+    // Actualizar descuento
+    const formattedDiscount =
+        Math.round(discountAmount).toLocaleString("es-CO");
+    const discountPercentElement = document.getElementById("discountPercent");
+    const discountAmountElement = document.getElementById("discountAmount");
+    const discountRow = document.getElementById("discountRow");
+
+    if (discountPercentElement) {
+        discountPercentElement.textContent = discountPercent;
+    }
+    if (discountAmountElement) {
+        discountAmountElement.textContent = `- $ ${formattedDiscount}`;
+    }
+    if (discountRow) {
+        discountRow.style.display = discountAmount > 0 ? "flex" : "none";
+    }
+
+    // Actualizar envío
+    const formattedShipping = Math.round(shippingCost).toLocaleString("es-CO");
+    const shippingAmountElement = document.getElementById("shippingAmount");
+    const shippingRow = document.getElementById("shippingRow");
+
+    if (shippingAmountElement) {
+        shippingAmountElement.textContent = `+ $ ${formattedShipping}`;
+    }
+    if (shippingRow) {
+        shippingRow.style.display = shippingCost > 0 ? "flex" : "none";
+    }
+
+    // Actualizar total final
     const formattedTotal = Math.round(grandTotal).toLocaleString("es-CO");
     document.getElementById("grandTotal").textContent = `$ ${formattedTotal}`;
+}
+
+// Verificar si hay duplicados recientes
+function checkRecentDuplicate(orderData) {
+    const recentOrders = JSON.parse(
+        localStorage.getItem("recentOrders") || "[]"
+    );
+    const now = new Date().getTime();
+    const fiveMinutesAgo = now - 5 * 60 * 1000;
+
+    // Limpiar pedidos antiguos (más de 5 minutos)
+    const validOrders = recentOrders.filter(
+        (order) => order.timestamp > fiveMinutesAgo
+    );
+    localStorage.setItem("recentOrders", JSON.stringify(validOrders));
+
+    // Buscar duplicados
+    for (const recent of validOrders) {
+        const sameClient =
+            recent.cliente.toLowerCase() ===
+            orderData.cliente.nombre.toLowerCase();
+        const totalDiff = Math.abs(recent.total - orderData.total);
+        const similarTotal = totalDiff <= orderData.total * 0.05; // 5% de diferencia
+
+        if (sameClient && similarTotal) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+// Guardar pedido en historial reciente
+function saveToRecentOrders(orderData) {
+    const recentOrders = JSON.parse(
+        localStorage.getItem("recentOrders") || "[]"
+    );
+    recentOrders.push({
+        cliente: orderData.cliente.nombre,
+        total: orderData.total,
+        timestamp: new Date().getTime(),
+    });
+    localStorage.setItem("recentOrders", JSON.stringify(recentOrders));
 }
 
 // Manejar envío del formulario
@@ -816,6 +910,27 @@ async function handleFormSubmit(e) {
     try {
         const orderData = collectOrderData();
 
+        // Verificar duplicados
+        if (checkRecentDuplicate(orderData)) {
+            const confirmSave = confirm(
+                `⚠️ POSIBLE DUPLICADO\n\n` +
+                    `Ya guardaste un pedido similar para "${orderData.cliente.nombre}" ` +
+                    `con un total parecido ($ ${Math.round(
+                        orderData.total
+                    ).toLocaleString("es-CO")}) ` +
+                    `en los últimos 5 minutos.\n\n` +
+                    `¿Seguro que no es duplicado?`
+            );
+
+            if (!confirmSave) {
+                submitBtn.disabled = false;
+                submitBtn.classList.remove("loading");
+                submitBtn.textContent = "Guardar Pedido";
+                showStatus("Pedido cancelado", "info");
+                return;
+            }
+        }
+
         // Si está offline, guardar localmente
         if (!isOnline || !accessToken) {
             saveOrderOffline(orderData);
@@ -834,10 +949,15 @@ async function handleFormSubmit(e) {
             showStatus("¡Pedido guardado exitosamente!", "success");
         }
 
+        // Guardar en historial reciente para detección de duplicados
+        saveToRecentOrders(orderData);
+
         // Limpiar formulario después de 2 segundos
         setTimeout(() => {
             document.getElementById("orderForm").reset();
             document.getElementById("sendEmailNotification").checked = false;
+            document.getElementById("discount").value = 0;
+            document.getElementById("shippingCost").value = 0;
             // Mantener solo una fila de producto
             const products = document.querySelectorAll(".product-item");
             for (let i = 1; i < products.length; i++) {
@@ -904,6 +1024,12 @@ function collectOrderData() {
         ? new Date(orderDateInput).toISOString()
         : new Date().toISOString();
 
+    // Calcular subtotal, descuento y envío
+    const subtotal = products.reduce((sum, p) => sum + p.precioTotal, 0);
+    const discountPercent = parseFloat(formData.get("discount")) || 0;
+    const discountAmount = (subtotal * discountPercent) / 100;
+    const shippingCost = parseFloat(formData.get("shippingCost")) || 0;
+
     return {
         fecha: orderDate,
         cliente: {
@@ -913,6 +1039,12 @@ function collectOrderData() {
             direccion: formData.get("clientAddress"),
         },
         productos: products,
+        subtotal: subtotal,
+        descuento: {
+            porcentaje: discountPercent,
+            monto: discountAmount,
+        },
+        envio: shippingCost,
         total: grandTotal,
         notas: formData.get("notes") || "",
     };
@@ -977,6 +1109,9 @@ async function createExcelFile() {
             "Cantidad",
             "Precio Unitario",
             "Precio Total",
+            "Subtotal",
+            "Descuento",
+            "Envío",
             "Total Pedido",
             "Notas",
         ];
@@ -1019,6 +1154,14 @@ function prepareExcelRow(orderData) {
             cantidad: producto.cantidad,
             precioUnitario: producto.precioUnitario,
             precioTotal: producto.precioTotal,
+            subtotal: index === 0 ? orderData.subtotal : "",
+            descuento:
+                index === 0
+                    ? `${orderData.descuento.porcentaje}% (${Math.round(
+                          orderData.descuento.monto
+                      )})`
+                    : "",
+            envio: index === 0 ? orderData.envio : "",
             totalPedido: index === 0 ? orderData.total : "",
             notas: index === 0 ? orderData.notas : "",
         };
@@ -1055,6 +1198,9 @@ async function addRowToExcel(fileId, rows) {
                     row.cantidad,
                     row.precioUnitario,
                     row.precioTotal,
+                    row.subtotal,
+                    row.descuento,
+                    row.envio,
                     row.totalPedido,
                     row.notas,
                 ].join("\t") + "\n";

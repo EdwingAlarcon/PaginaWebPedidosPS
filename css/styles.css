@@ -31,6 +31,15 @@ body {
     min-height: 100vh;
     display: flex;
     flex-direction: column;
+    /* Mejorar renderizado en móviles */
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    /* Prevenir zoom al hacer foco en inputs (Safari iOS) */
+    -webkit-text-size-adjust: 100%;
+    /* Mejorar scroll suave */
+    scroll-behavior: smooth;
+    /* Habilitar scroll con momentum en iOS */
+    -webkit-overflow-scrolling: touch;
 }
 
 /* Accesibilidad */
@@ -233,6 +242,20 @@ select {
     font-size: 1rem;
     font-family: inherit;
     transition: border-color 0.2s, box-shadow 0.2s;
+    /* Mejorar experiencia en móvil */
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    background-color: var(--surface);
+}
+
+/* Flecha personalizada para select */
+select {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23333' d='M10.293 3.293L6 7.586 1.707 3.293A1 1 0 00.293 4.707l5 5a1 1 0 001.414 0l5-5a1 1 0 10-1.414-1.414z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 0.75rem center;
+    background-size: 1rem;
+    padding-right: 2.5rem;
 }
 
 input[type="text"]:hover,
@@ -329,6 +352,10 @@ textarea {
     border-radius: 4px;
     cursor: pointer;
     transition: background-color 0.2s, transform 0.1s;
+    /* Mejorar tap en móviles */
+    -webkit-tap-highlight-color: rgba(0, 0, 0, 0.1);
+    touch-action: manipulation; /* Eliminar delay de 300ms en touch */
+    user-select: none; /* Prevenir selección de texto en tap */
 }
 
 .btn-primary {
@@ -342,6 +369,7 @@ textarea {
 
 .btn-primary:active {
     transform: scale(0.98);
+    background-color: var(--primary-hover);
 }
 
 .btn-secondary {
@@ -356,6 +384,7 @@ textarea {
 
 .btn-secondary:active {
     transform: scale(0.98);
+    background-color: var(--background);
 }
 
 button:disabled {
@@ -1402,19 +1431,163 @@ footer {
     .data-table td {
         padding: 0.5rem;
     }
+
+    /* Optimizaciones para touch en móviles */
+    input[type="text"],
+    input[type="tel"],
+    input[type="email"],
+    input[type="number"],
+    input[type="url"],
+    input[type="date"],
+    textarea,
+    select {
+        padding: 1rem;
+        font-size: 16px; /* Evita zoom automático en iOS */
+        min-height: 44px; /* Tamaño mínimo recomendado para touch */
+    }
+
+    select {
+        padding: 1rem 2.5rem 1rem 1rem; /* Más espacio para la flecha */
+        background-size: 1.5rem;
+    }
+
+    textarea {
+        min-height: 100px;
+    }
+
+    /* Botones más grandes para touch */
+    .btn-primary,
+    .btn-secondary {
+        padding: 1rem 1.5rem;
+        font-size: 1.1rem;
+        min-height: 48px; /* Tamaño mínimo recomendado para touch */
+        font-weight: 600;
+    }
+
+    .btn-remove {
+        min-width: 44px;
+        min-height: 44px;
+        padding: 0.75rem;
+        font-size: 1.2rem;
+    }
+
+    .btn-small {
+        padding: 0.875rem 1.25rem;
+        font-size: 1rem;
+        min-height: 44px;
+    }
+
+    #addProductBtn {
+        padding: 1.125rem;
+        font-size: 1.1rem;
+        min-height: 50px;
+    }
+
+    /* Espaciado mejorado entre campos */
+    .form-group {
+        margin-bottom: 1.25rem;
+    }
+
+    label {
+        font-size: 1rem;
+        margin-bottom: 0.5rem;
+        display: block;
+        font-weight: 600;
+    }
+
+    /* Checkbox más grande */
+    .checkbox-label {
+        padding: 1rem;
+        min-height: 44px;
+    }
+
+    .checkbox-label input[type="checkbox"] {
+        width: 24px;
+        height: 24px;
+        min-width: 24px;
+        min-height: 24px;
+    }
+
+    .checkbox-label span {
+        font-size: 1rem;
+    }
+
+    /* Mejor espaciado en fieldset */
+    fieldset {
+        padding: 1.25rem;
+        margin-bottom: 1.5rem;
+    }
+
+    legend {
+        font-size: 1.1rem;
+        padding: 0.5rem 1rem;
+    }
+
+    /* Mejorar visibilidad de hints */
+    .field-hint {
+        font-size: 0.9rem;
+        margin-top: 0.5rem;
+    }
+
+    /* Ajustes para contenedor de descuento/envío */
+    .form-group[style*="display: flex"] {
+        flex-direction: column !important;
+    }
+
+    .form-group[style*="display: flex"] > div {
+        width: 100% !important;
+        min-width: 100% !important;
+    }
+
+    /* Total más visible */
+    .total-section {
+        padding: 1.25rem;
+        font-size: 1.05rem;
+    }
+
+    .total-section h3 {
+        font-size: 1.4rem;
+    }
 }
 
 @media (max-width: 480px) {
     header h1 {
-        font-size: 1.25rem;
+        font-size: 1.125rem;
     }
 
     .form-container h2 {
-        font-size: 1.25rem;
+        font-size: 1.2rem;
     }
 
     fieldset {
         padding: 1rem;
+    }
+
+    /* Inputs aún más grandes en pantallas muy pequeñas */
+    input[type="text"],
+    input[type="tel"],
+    input[type="email"],
+    input[type="number"],
+    input[type="url"],
+    input[type="date"],
+    textarea,
+    select {
+        padding: 1.125rem;
+        font-size: 16px;
+    }
+
+    /* Botones extra grandes */
+    .btn-primary,
+    .btn-secondary {
+        padding: 1.125rem 1.5rem;
+        font-size: 1.125rem;
+        min-height: 52px;
+    }
+
+    #addProductBtn {
+        padding: 1.25rem;
+        font-size: 1.125rem;
+        min-height: 52px;
     }
 }
 

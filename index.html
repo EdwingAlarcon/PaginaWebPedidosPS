@@ -2,8 +2,18 @@
 <html lang="es">
     <head>
         <meta charset="UTF-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <meta
+            name="viewport"
+            content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes"
+        />
         <meta name="description" content="Sistema de registro de pedidos" />
+        <meta name="theme-color" content="#800b96" />
+        <meta name="mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta
+            name="apple-mobile-web-app-status-bar-style"
+            content="black-translucent"
+        />
         <title>Sistema de Pedidos - PaginaWebPedidosPS</title>
         <link rel="stylesheet" href="css/styles.css" />
     </head>
@@ -142,6 +152,7 @@
                                 required
                                 aria-required="true"
                                 autocomplete="tel"
+                                inputmode="tel"
                                 pattern="[0-9\s\-\+\(\)]+"
                             />
                         </div>
@@ -280,6 +291,7 @@
                                         value="1"
                                         required
                                         aria-required="true"
+                                        inputmode="numeric"
                                         class="quantity-input"
                                     />
                                 </div>
@@ -302,6 +314,7 @@
                                         placeholder="Ej: 50000"
                                         required
                                         aria-required="true"
+                                        inputmode="numeric"
                                         class="unit-price-input"
                                     />
                                 </div>
@@ -342,11 +355,134 @@
                         </button>
                     </fieldset>
 
+                    <!-- Calculadora de Descuentos y Envío -->
+                    <fieldset>
+                        <legend>💰 Ajustes al Total</legend>
+                        <div
+                            class="form-group"
+                            style="
+                                display: flex;
+                                gap: 20px;
+                                align-items: flex-start;
+                                flex-wrap: wrap;
+                            "
+                        >
+                            <div style="flex: 1; min-width: 200px">
+                                <label for="discount">Descuento (%)</label>
+                                <input
+                                    type="number"
+                                    id="discount"
+                                    name="discount"
+                                    min="0"
+                                    max="100"
+                                    step="1"
+                                    value="0"
+                                    placeholder="Ej: 10"
+                                    inputmode="numeric"
+                                    oninput="updateGrandTotal()"
+                                />
+                                <small class="field-hint"
+                                    >Porcentaje de descuento sobre el
+                                    subtotal</small
+                                >
+                            </div>
+                            <div style="flex: 1; min-width: 200px">
+                                <label for="shippingCost"
+                                    >Costo de Envío ($)</label
+                                >
+                                <input
+                                    type="number"
+                                    id="shippingCost"
+                                    name="shippingCost"
+                                    min="0"
+                                    step="1000"
+                                    value="0"
+                                    placeholder="Ej: 5000"
+                                    inputmode="numeric"
+                                    oninput="updateGrandTotal()"
+                                />
+                                <small class="field-hint"
+                                    >Costo adicional de envío</small
+                                >
+                            </div>
+                        </div>
+                    </fieldset>
+
                     <!-- Total General -->
                     <div class="total-section" aria-live="polite">
-                        <h3>
-                            Total del Pedido: <span id="grandTotal">$ 0</span>
-                        </h3>
+                        <div
+                            style="
+                                display: flex;
+                                flex-direction: column;
+                                gap: 10px;
+                                padding: 15px;
+                                background: linear-gradient(
+                                    135deg,
+                                    #f5f5f5,
+                                    #e8e8e8
+                                );
+                                border-radius: 8px;
+                            "
+                        >
+                            <div
+                                style="
+                                    display: flex;
+                                    justify-content: space-between;
+                                    font-size: 0.95em;
+                                    color: #666;
+                                "
+                            >
+                                <span>Subtotal Productos:</span>
+                                <span id="subtotal">$ 0</span>
+                            </div>
+                            <div
+                                style="
+                                    display: flex;
+                                    justify-content: space-between;
+                                    font-size: 0.95em;
+                                    color: #107c10;
+                                "
+                                id="discountRow"
+                            >
+                                <span
+                                    >Descuento (<span id="discountPercent"
+                                        >0</span
+                                    >%):</span
+                                >
+                                <span id="discountAmount">- $ 0</span>
+                            </div>
+                            <div
+                                style="
+                                    display: flex;
+                                    justify-content: space-between;
+                                    font-size: 0.95em;
+                                    color: #666;
+                                "
+                                id="shippingRow"
+                            >
+                                <span>Costo de Envío:</span>
+                                <span id="shippingAmount">+ $ 0</span>
+                            </div>
+                            <hr
+                                style="
+                                    border: none;
+                                    border-top: 2px solid #800b96;
+                                    margin: 5px 0;
+                                "
+                            />
+                            <div
+                                style="
+                                    display: flex;
+                                    justify-content: space-between;
+                                    font-size: 1.3em;
+                                    font-weight: bold;
+                                    color: #800b96;
+                                "
+                            >
+                                <span>Total del Pedido:</span>
+                                <span id="grandTotal">$ 0</span>
+                            </div>
+                        </div>
                     </div>
 
                     <!-- Notas Adicionales -->
