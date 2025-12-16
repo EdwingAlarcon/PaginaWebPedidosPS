@@ -69,6 +69,32 @@ const categoryFields = {
             required: true,
         },
         {
+            id: "talla",
+            label: "Talla de Anillo",
+            type: "select",
+            options: [
+                "5",
+                "5.5",
+                "6",
+                "6.5",
+                "7",
+                "7.5",
+                "8",
+                "8.5",
+                "9",
+                "9.5",
+                "10",
+                "10.5",
+                "11",
+                "11.5",
+                "12",
+                "12.5",
+                "13",
+            ],
+            required: false,
+            showWhen: { field: "tipo", value: "Anillo" },
+        },
+        {
             id: "material",
             label: "Material",
             type: "select",
@@ -382,6 +408,19 @@ function updateProductFields(index) {
             const formGroup = document.createElement("div");
             formGroup.className = "form-group";
 
+            // Ocultar campo si tiene condición showWhen
+            if (field.showWhen) {
+                formGroup.style.display = "none";
+                formGroup.setAttribute(
+                    "data-show-when-field",
+                    field.showWhen.field
+                );
+                formGroup.setAttribute(
+                    "data-show-when-value",
+                    field.showWhen.value
+                );
+            }
+
             const label = document.createElement("label");
             label.setAttribute("for", `${field.id}_${index}`);
             label.innerHTML = `${field.label} ${
@@ -398,6 +437,17 @@ function updateProductFields(index) {
                 field.options.forEach((option) => {
                     input.innerHTML += `<option value="${option}">${option}</option>`;
                 });
+
+                // Si este campo controla otros campos, agregar evento
+                if (
+                    fields.some(
+                        (f) => f.showWhen && f.showWhen.field === field.id
+                    )
+                ) {
+                    input.addEventListener("change", function () {
+                        updateConditionalFields(index, field.id, this.value);
+                    });
+                }
             } else if (field.type === "number") {
                 input = document.createElement("input");
                 input.type = "number";
@@ -422,8 +472,31 @@ function updateProductFields(index) {
     }
 }
 
-// Hacer la función global para que funcione desde el HTML
+// Actualizar visibilidad de campos condicionales
+function updateConditionalFields(index, fieldId, value) {
+    const dynamicFieldsContainer = document.getElementById(
+        `dynamicFields_${index}`
+    );
+    const conditionalGroups = dynamicFieldsContainer.querySelectorAll(
+        `[data-show-when-field="${fieldId}"]`
+    );
+
+    conditionalGroups.forEach((group) => {
+        const showWhenValue = group.getAttribute("data-show-when-value");
+        if (value === showWhenValue) {
+            group.style.display = "block";
+        } else {
+            group.style.display = "none";
+            // Limpiar valor del input oculto
+            const input = group.querySelector("input, select");
+            if (input) input.value = "";
+        }
+    });
+}
+
+// Hacer las funciones globales para que funcionen desde el HTML
 window.updateProductFields = updateProductFields;
+window.updateConditionalFields = updateConditionalFields;
 
 // Inicializar la aplicación
 document.addEventListener("DOMContentLoaded", () => {
