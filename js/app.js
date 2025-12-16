@@ -2389,7 +2389,45 @@ function showNoDataMessage() {
         '<tr><td colspan="5" class="no-data">No hay pedidos disponibles</td></tr>';
 }
 
+// ==================== SISTEMA DE PESTAÑAS ====================
+
+function switchTab(tabName) {
+    // Ocultar todas las pestañas
+    const allTabs = document.querySelectorAll(".tab-content");
+    allTabs.forEach((tab) => {
+        tab.classList.remove("active");
+    });
+
+    // Remover active de todos los botones
+    const allButtons = document.querySelectorAll(".tab-btn");
+    allButtons.forEach((btn) => {
+        btn.classList.remove("active");
+    });
+
+    // Mostrar pestaña seleccionada
+    const selectedTab = document.getElementById(tabName);
+    if (selectedTab) {
+        selectedTab.classList.add("active");
+    }
+
+    // Activar botón seleccionado
+    const selectedButton = document.querySelector(`[data-tab="${tabName}"]`);
+    if (selectedButton) {
+        selectedButton.classList.add("active");
+    }
+
+    // Cargar datos según la pestaña
+    if (tabName === "clients") {
+        loadClientsForManagement();
+    } else if (tabName === "orders") {
+        loadOrders();
+    } else if (tabName === "reports") {
+        loadReportsData();
+    }
+}
+
 // Hacer funciones globales
+window.switchTab = switchTab;
 window.toggleReportsSection = toggleReportsSection;
 window.applyDateFilter = applyDateFilter;
 window.clearDateFilter = clearDateFilter;

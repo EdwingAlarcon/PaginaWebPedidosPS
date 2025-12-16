@@ -117,6 +117,74 @@ header h1 {
     gap: 0.5rem;
 }
 
+/* Navegación por Pestañas */
+.tabs-navigation {
+    display: flex;
+    background: white;
+    border-bottom: 3px solid var(--primary-color);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+}
+
+.tab-btn {
+    flex: 1;
+    min-width: 120px;
+    padding: 1rem 1.5rem;
+    background: white;
+    border: none;
+    border-bottom: 3px solid transparent;
+    color: var(--text-secondary);
+    font-size: 1rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    white-space: nowrap;
+    -webkit-tap-highlight-color: rgba(0, 0, 0, 0.1);
+    touch-action: manipulation;
+}
+
+.tab-btn:hover {
+    background: var(--background);
+    color: var(--primary-color);
+}
+
+.tab-btn.active {
+    color: var(--primary-color);
+    border-bottom-color: var(--primary-color);
+    background: linear-gradient(to bottom, var(--background) 0%, white 100%);
+    font-weight: 600;
+}
+
+.tab-btn:focus-visible {
+    outline: 2px solid var(--focus-outline);
+    outline-offset: -2px;
+}
+
+/* Contenido de Pestañas */
+.tab-content {
+    display: none;
+    animation: fadeIn 0.3s ease-in;
+}
+
+.tab-content.active {
+    display: block;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
 /* Indicador de modo offline */
 .offline-indicator {
     background: #d13438;
@@ -145,7 +213,7 @@ header h1 {
 main {
     flex: 1;
     padding: 2rem;
-    max-width: 1200px;
+    max-width: 1400px;
     width: 100%;
     margin: 0 auto;
 }
@@ -155,6 +223,7 @@ main {
     border-radius: 8px;
     padding: 2rem;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    margin-bottom: 2rem;
 }
 
 .form-container h2 {
@@ -1272,6 +1341,18 @@ footer {
 
 /* Responsive Design */
 @media (max-width: 768px) {
+    /* Pestañas en móvil */
+    .tabs-navigation {
+        justify-content: flex-start;
+        gap: 0;
+    }
+
+    .tab-btn {
+        min-width: 100px;
+        padding: 0.875rem 1rem;
+        font-size: 0.9rem;
+    }
+
     .header-content {
         flex-direction: column;
         align-items: flex-start;
@@ -1551,6 +1632,13 @@ footer {
 }
 
 @media (max-width: 480px) {
+    /* Pestañas en móviles pequeños */
+    .tab-btn {
+        min-width: 90px;
+        padding: 0.75rem 0.75rem;
+        font-size: 0.85rem;
+    }
+
     header h1 {
         font-size: 1.125rem;
     }
