@@ -8,6 +8,21 @@ let currentProductId = null;
 let filteredProducts = [];
 
 /**
+ * Función helper para formatear valores en pesos colombianos (COP)
+ * @param {number} value - Valor numérico a formatear
+ * @returns {string} Valor formateado como COP
+ */
+function formatCOP(value) {
+    const numericValue = Math.round(parseFloat(value) || 0);
+    return numericValue.toLocaleString('es-CO', {
+        style: 'currency',
+        currency: 'COP',
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 0
+    });
+}
+
+/**
  * ==================== INICIALIZACIÓN ====================
  */
 
@@ -168,7 +183,7 @@ function loadInventoryDashboard() {
 
     // Actualizar estadísticas
     document.getElementById('totalProducts').textContent = status.totalProducts;
-    document.getElementById('totalValue').textContent = `$${status.totalValue.toFixed(2)}`;
+    document.getElementById('totalValue').textContent = formatCOP(status.totalValue);
     document.getElementById('lowStockCount').textContent = status.lowStock;
     document.getElementById('criticalStockCount').textContent = status.criticalStock;
     document.getElementById('overstockedCount').textContent = status.overstocked;
@@ -196,7 +211,7 @@ function loadTopSellingProducts() {
             <td>${product.sku}</td>
             <td>${product.quantity}</td>
             <td>${product.totalSold}</td>
-            <td>$${(product.totalSold * product.price).toFixed(2)}</td>
+            <td>${formatCOP(product.totalSold * product.price)}</td>
         </tr>
     `).join('');
 }
@@ -219,15 +234,15 @@ function loadCategoryAnalysis() {
                 </div>
                 <div class="stat">
                     <span class="stat-label">Valor:</span>
-                    <span class="stat-number">$${cat.totalValue.toFixed(2)}</span>
+                    <span class="stat-number">${formatCOP(cat.totalValue)}</span>
                 </div>
                 <div class="stat">
                     <span class="stat-label">Ingresos:</span>
-                    <span class="stat-number">$${cat.totalRevenue.toFixed(2)}</span>
+                    <span class="stat-number">${formatCOP(cat.totalRevenue)}</span>
                 </div>
                 <div class="stat">
                     <span class="stat-label">Precio Promedio:</span>
-                    <span class="stat-number">$${cat.averagePrice.toFixed(2)}</span>
+                    <span class="stat-number">${formatCOP(cat.averagePrice)}</span>
                 </div>
             </div>
         </div>
@@ -277,8 +292,8 @@ function renderProductsTable(products) {
                     <span class="unit">${product.unit}</span>
                 </td>
                 <td>${product.minStock} / ${product.maxStock}</td>
-                <td>$${product.price.toFixed(2)}</td>
-                <td>$${totalValue.toFixed(2)}</td>
+                <td>${formatCOP(product.price)}</td>
+                <td>${formatCOP(totalValue)}</td>
                 <td>${product.supplier || '-'}</td>
                 <td><span class="status-badge status-${product.status}">${product.status}</span></td>
                 <td class="actions-cell">
@@ -642,7 +657,7 @@ function showInventoryReport() {
                 </tr>
                 <tr>
                     <td>Valor Total del Inventario:</td>
-                    <td><strong>$${report.summary.totalValue.toFixed(2)}</strong></td>
+                    <td><strong>${formatCOP(report.summary.totalValue)}</strong></td>
                 </tr>
                 <tr>
                     <td>Productos con Stock Bajo:</td>
@@ -674,7 +689,7 @@ function showInventoryReport() {
                         <tr>
                             <td>${p.name}</td>
                             <td>${p.totalSold}</td>
-                            <td>$${(p.totalSold * p.price).toFixed(2)}</td>
+                            <td>${formatCOP(p.totalSold * p.price)}</td>
                         </tr>
                     `).join('')}
                 </tbody>
@@ -686,7 +701,7 @@ function showInventoryReport() {
             ${Object.entries(report.categoryAnalysis).map(([key, cat]) => `
                 <div class="category-report">
                     <h4>${cat.name}</h4>
-                    <p>Productos: ${cat.totalProducts} | Stock: ${cat.totalQuantity} | Valor: $${cat.totalValue.toFixed(2)}</p>
+                    <p>Productos: ${cat.totalProducts} | Stock: ${cat.totalQuantity} | Valor: ${formatCOP(cat.totalValue)}</p>
                 </div>
             `).join('')}
         </div>
