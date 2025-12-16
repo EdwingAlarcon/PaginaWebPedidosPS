@@ -1,0 +1,199 @@
+{
+  "name": "PaginaWebPedidosPS - Sistema de Gestión de Pedidos",
+  "short_name": "PedidosPS",
+  "description": "Sistema web accesible para registrar y gestionar pedidos de negocio con integración a Excel en OneDrive",
+  "start_url": "/index.html",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  
+  "theme_color": "#0078d4",
+  "background_color": "#ffffff",
+  
+  "icons": [
+    {
+      "src": "assets/images/icon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "assets/images/icon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "assets/images/icon-maskable-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "assets/images/icon-maskable-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  
+  "screenshots": [
+    {
+      "src": "assets/images/screenshot-1.png",
+      "sizes": "540x720",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "Pantalla principal de pedidos"
+    },
+    {
+      "src": "assets/images/screenshot-2.png",
+      "sizes": "540x720",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "Formulario de nuevo pedido"
+    },
+    {
+      "src": "assets/images/screenshot-3.png",
+      "sizes": "1280x720",
+      "type": "image/png",
+      "form_factor": "wide",
+      "label": "Vista de escritorio con tabla completa"
+    }
+  ],
+  
+  "categories": [
+    "business",
+    "productivity"
+  ],
+  
+  "screenshots_desktop": [
+    {
+      "src": "assets/images/desktop-1.png",
+      "sizes": "1280x720",
+      "type": "image/png"
+    }
+  ],
+  
+  "shortcuts": [
+    {
+      "name": "Nuevo Pedido",
+      "short_name": "Nuevo",
+      "description": "Crear un nuevo pedido rápidamente",
+      "url": "/index.html?action=new-order",
+      "icons": [
+        {
+          "src": "assets/images/icon-96x96.png",
+          "sizes": "96x96",
+          "type": "image/png"
+        }
+      ]
+    },
+    {
+      "name": "Ver Pedidos",
+      "short_name": "Pedidos",
+      "description": "Ver lista de todos los pedidos",
+      "url": "/index.html?action=list",
+      "icons": [
+        {
+          "src": "assets/images/icon-96x96.png",
+          "sizes": "96x96",
+          "type": "image/png"
+        }
+      ]
+    },
+    {
+      "name": "Exportar Datos",
+      "short_name": "Exportar",
+      "description": "Exportar datos a JSON o Excel",
+      "url": "/index.html?action=export",
+      "icons": [
+        {
+          "src": "assets/images/icon-96x96.png",
+          "sizes": "96x96",
+          "type": "image/png"
+        }
+      ]
+    }
+  ],
+  
+  "share_target": {
+    "action": "/share",
+    "method": "POST",
+    "enctype": "multipart/form-data",
+    "params": {
+      "title": "title",
+      "text": "text",
+      "url": "url",
+      "files": [
+        {
+          "name": "media",
+          "accept": [
+            "image/png",
+            "image/jpeg",
+            "application/json"
+          ]
+        }
+      ]
+    }
+  },
+  
+  "protocol_handlers": [
+    {
+      "protocol": "web+pedidos",
+      "url": "/index.html?protocol=%s"
+    }
+  ],
+  
+  "launch_handler": {
+    "client_mode": [
+      "navigate-new",
+      "auto"
+    ]
+  },
+  
+  "note_taking": {
+    "new_note_url": "/index.html?action=new-note"
+  },
+  
+  "file_handlers": [
+    {
+      "action": "/open-file",
+      "accept": {
+        "application/json": [
+          ".json"
+        ],
+        "text/csv": [
+          ".csv"
+        ],
+        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet": [
+          ".xlsx"
+        ]
+      }
+    }
+  ],
+  
+  "share": {
+    "title": "Compartir Pedidos",
+    "text": "Sistema de Gestión de Pedidos",
+    "url": "https://paginawebpedidosps.example.com"
+  },
+  
+  "manifest_version": 3,
+  "version": "2.0.0",
+  "author": {
+    "name": "EdwingAlarcon",
+    "url": "https://github.com/EdwingAlarcon"
+  },
+  "robots": "index, follow",
+  "mobile_alternate": null,
+  "prefer_related_applications": false,
+  "related_applications": [],
+  "screenshots_dark": [
+    {
+      "src": "assets/images/screenshot-dark-1.png",
+      "sizes": "540x720",
+      "type": "image/png",
+      "form_factor": "narrow"
+    }
+  ]
+}
