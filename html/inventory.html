@@ -1,0 +1,550 @@
+<!-- 
+    MÓDULO DE INVENTARIOS
+    Sistema completo de gestión de stock, productos y movimientos
+-->
+
+<div id="inventoryModule" class="inventory-module">
+    <!-- HEADER DEL MÓDULO -->
+    <div class="inventory-header">
+        <h1>📦 Gestión de Inventarios</h1>
+        <div class="inventory-actions">
+            <button class="btn btn-primary" onclick="openInventoryModal('addProduct')">
+                ➕ Nuevo Producto
+            </button>
+            <button class="btn btn-secondary" onclick="openInventoryModal('adjustStock')">
+                📊 Ajustar Stock
+            </button>
+            <button class="btn btn-info" onclick="showInventoryReport()">
+                📈 Reportes
+            </button>
+        </div>
+    </div>
+
+    <!-- TABS DE NAVEGACIÓN -->
+    <div class="inventory-tabs">
+        <button class="tab-button active" onclick="switchInventoryTab('dashboard')">
+            📊 Dashboard
+        </button>
+        <button class="tab-button" onclick="switchInventoryTab('products')">
+            📦 Productos
+        </button>
+        <button class="tab-button" onclick="switchInventoryTab('movements')">
+            🔄 Movimientos
+        </button>
+        <button class="tab-button" onclick="switchInventoryTab('alerts')">
+            ⚠️ Alertas
+        </button>
+        <button class="tab-button" onclick="switchInventoryTab('settings')">
+            ⚙️ Configuración
+        </button>
+    </div>
+
+    <!-- CONTENIDO DE LOS TABS -->
+    <div class="inventory-content">
+
+        <!-- TAB: DASHBOARD -->
+        <div id="inventoryTab-dashboard" class="inventory-tab-content active">
+            <div class="dashboard-grid">
+                <!-- RESUMEN DE INVENTARIO -->
+                <div class="dashboard-card">
+                    <h3>📦 Total de Productos</h3>
+                    <p class="stat-value" id="totalProducts">0</p>
+                    <p class="stat-label">Productos registrados</p>
+                </div>
+
+                <div class="dashboard-card">
+                    <h3>💰 Valor Total</h3>
+                    <p class="stat-value" id="totalValue">$0.00</p>
+                    <p class="stat-label">Valor en inventario</p>
+                </div>
+
+                <div class="dashboard-card warning">
+                    <h3>⚠️ Stock Bajo</h3>
+                    <p class="stat-value" id="lowStockCount">0</p>
+                    <p class="stat-label">Productos con stock bajo</p>
+                </div>
+
+                <div class="dashboard-card critical">
+                    <h3>🔴 Stock Crítico</h3>
+                    <p class="stat-value" id="criticalStockCount">0</p>
+                    <p class="stat-label">Productos agotados</p>
+                </div>
+
+                <div class="dashboard-card overflow">
+                    <h3>📈 Sobrestocaje</h3>
+                    <p class="stat-value" id="overstockedCount">0</p>
+                    <p class="stat-label">Productos con exceso</p>
+                </div>
+
+                <div class="dashboard-card">
+                    <h3>✅ Activos</h3>
+                    <p class="stat-value" id="activeProductsCount">0</p>
+                    <p class="stat-label">Productos activos</p>
+                </div>
+            </div>
+
+            <!-- PRODUCTOS MÁS VENDIDOS -->
+            <div class="dashboard-section">
+                <h3>🏆 Productos Más Vendidos</h3>
+                <table class="inventory-table">
+                    <thead>
+                        <tr>
+                            <th>Producto</th>
+                            <th>SKU</th>
+                            <th>Stock</th>
+                            <th>Vendidos</th>
+                            <th>Ingresos</th>
+                        </tr>
+                    </thead>
+                    <tbody id="topSellingProductsTable">
+                        <tr><td colspan="5" class="empty-state">Cargando datos...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- ANÁLISIS POR CATEGORÍA -->
+            <div class="dashboard-section">
+                <h3>📂 Análisis por Categoría</h3>
+                <div class="category-analysis" id="categoryAnalysisContainer">
+                    <!-- Se genera dinámicamente -->
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB: PRODUCTOS -->
+        <div id="inventoryTab-products" class="inventory-tab-content">
+            <div class="products-header">
+                <div class="search-box">
+                    <input 
+                        type="text" 
+                        id="productSearch" 
+                        placeholder="🔍 Buscar por nombre, SKU o código de barras..."
+                        onkeyup="filterInventoryProducts()"
+                    />
+                </div>
+                <select id="categoryFilter" onchange="filterInventoryProducts()" class="filter-select">
+                    <option value="">Todas las categorías</option>
+                    <!-- Se genera dinámicamente -->
+                </select>
+                <select id="statusFilter" onchange="filterInventoryProducts()" class="filter-select">
+                    <option value="">Todos los estados</option>
+                    <option value="activo">Activo</option>
+                    <option value="inactivo">Inactivo</option>
+                    <option value="descontinuado">Descontinuado</option>
+                </select>
+            </div>
+
+            <div class="products-table-container">
+                <table class="inventory-table">
+                    <thead>
+                        <tr>
+                            <th>Producto</th>
+                            <th>SKU</th>
+                            <th>Categoría</th>
+                            <th>Stock</th>
+                            <th>Mín./Máx.</th>
+                            <th>Precio</th>
+                            <th>Valor Total</th>
+                            <th>Proveedor</th>
+                            <th>Estado</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody id="productsTableBody">
+                        <tr><td colspan="10" class="empty-state">No hay productos. Crea uno nuevo.</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- TAB: MOVIMIENTOS -->
+        <div id="inventoryTab-movements" class="inventory-tab-content">
+            <div class="movements-filters">
+                <div class="filter-group">
+                    <label>Tipo de Movimiento:</label>
+                    <select id="movementTypeFilter" onchange="filterMovements()" class="filter-select">
+                        <option value="">Todos</option>
+                        <option value="aumento">Entrada (+)</option>
+                        <option value="disminucion">Salida (-)</option>
+                        <option value="ajuste">Ajuste</option>
+                        <option value="transferencia">Transferencia</option>
+                    </select>
+                </div>
+
+                <div class="filter-group">
+                    <label>Producto:</label>
+                    <select id="movementProductFilter" onchange="filterMovements()" class="filter-select">
+                        <option value="">Todos los productos</option>
+                        <!-- Se genera dinámicamente -->
+                    </select>
+                </div>
+
+                <div class="filter-group">
+                    <label>Rango de Fechas:</label>
+                    <input type="date" id="movementDateFrom" onchange="filterMovements()" />
+                    <span>a</span>
+                    <input type="date" id="movementDateTo" onchange="filterMovements()" />
+                </div>
+
+                <button class="btn btn-secondary" onclick="exportMovements()">
+                    📥 Exportar Movimientos
+                </button>
+            </div>
+
+            <div class="movements-table-container">
+                <table class="inventory-table">
+                    <thead>
+                        <tr>
+                            <th>Fecha</th>
+                            <th>Tipo</th>
+                            <th>Producto</th>
+                            <th>Cantidad</th>
+                            <th>Razón</th>
+                            <th>Usuario</th>
+                            <th>ID Movimiento</th>
+                        </tr>
+                    </thead>
+                    <tbody id="movementsTableBody">
+                        <tr><td colspan="7" class="empty-state">No hay movimientos registrados.</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- TAB: ALERTAS -->
+        <div id="inventoryTab-alerts" class="inventory-tab-content">
+            <div class="alerts-container">
+                <!-- ALERTAS DE STOCK BAJO -->
+                <div class="alert-section">
+                    <h3>⚠️ Stock Bajo (Alerta)</h3>
+                    <div id="lowStockAlerts" class="alerts-list">
+                        <!-- Se genera dinámicamente -->
+                    </div>
+                </div>
+
+                <!-- ALERTAS DE STOCK CRÍTICO -->
+                <div class="alert-section">
+                    <h3>🔴 Stock Crítico (Agotado)</h3>
+                    <div id="criticalStockAlerts" class="alerts-list">
+                        <!-- Se genera dinámicamente -->
+                    </div>
+                </div>
+
+                <!-- ALERTAS DE SOBRESTOCAJE -->
+                <div class="alert-section">
+                    <h3>📈 Sobrestocaje</h3>
+                    <div id="overstockedAlerts" class="alerts-list">
+                        <!-- Se genera dinámicamente -->
+                    </div>
+                </div>
+
+                <!-- PRODUCTOS SIN MOVIMIENTO -->
+                <div class="alert-section">
+                    <h3>❌ Productos Sin Movimiento</h3>
+                    <div id="slowMovingAlerts" class="alerts-list">
+                        <!-- Se genera dinámicamente -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB: CONFIGURACIÓN -->
+        <div id="inventoryTab-settings" class="inventory-tab-content">
+            <div class="settings-form">
+                <h3>⚙️ Configuración del Inventario</h3>
+
+                <div class="form-group">
+                    <label for="minStockAlert">Stock Mínimo para Alerta:</label>
+                    <input 
+                        type="number" 
+                        id="minStockAlert" 
+                        min="1" 
+                        max="100" 
+                        placeholder="Ej: 5"
+                    />
+                </div>
+
+                <div class="form-group">
+                    <label for="maxStockLevel">Nivel Máximo de Stock Permitido:</label>
+                    <input 
+                        type="number" 
+                        id="maxStockLevel" 
+                        min="100" 
+                        max="10000" 
+                        placeholder="Ej: 1000"
+                    />
+                </div>
+
+                <div class="form-group">
+                    <label for="currencySymbol">Símbolo de Moneda:</label>
+                    <input 
+                        type="text" 
+                        id="currencySymbol" 
+                        placeholder="Ej: $, €, £"
+                    />
+                </div>
+
+                <div class="form-group">
+                    <label>
+                        <input type="checkbox" id="enableNotifications" />
+                        Habilitar notificaciones de stock bajo
+                    </label>
+                </div>
+
+                <div class="form-actions">
+                    <button class="btn btn-primary" onclick="saveInventorySettings()">
+                        💾 Guardar Configuración
+                    </button>
+                    <button class="btn btn-secondary" onclick="resetInventorySettings()">
+                        🔄 Restaurar Valores por Defecto
+                    </button>
+                </div>
+
+                <hr class="divider" />
+
+                <h3>📋 Categorías de Productos</h3>
+                <div id="categoriesContainer" class="categories-container">
+                    <!-- Se genera dinámicamente -->
+                </div>
+
+                <div class="form-group">
+                    <input 
+                        type="text" 
+                        id="newCategoryName" 
+                        placeholder="Nombre de la nueva categoría"
+                    />
+                    <input 
+                        type="color" 
+                        id="newCategoryColor" 
+                        value="#007bff"
+                    />
+                    <button class="btn btn-success" onclick="addNewCategory()">
+                        ➕ Añadir Categoría
+                    </button>
+                </div>
+
+                <hr class="divider" />
+
+                <h3>💾 Copias de Seguridad</h3>
+                <div class="backup-actions">
+                    <button class="btn btn-info" onclick="downloadInventoryBackup()">
+                        📥 Descargar Copia de Seguridad
+                    </button>
+                    <button class="btn btn-warning" onclick="document.getElementById('restoreBackupInput').click()">
+                        📤 Restaurar desde Archivo
+                    </button>
+                    <input 
+                        type="file" 
+                        id="restoreBackupInput" 
+                        style="display:none" 
+                        accept=".json"
+                        onchange="restoreInventoryBackup(event)"
+                    />
+                </div>
+
+                <hr class="divider" />
+
+                <h3>📊 Exportar Datos</h3>
+                <div class="export-actions">
+                    <button class="btn btn-secondary" onclick="exportInventoryToCSV()">
+                        📊 Exportar a CSV
+                    </button>
+                    <button class="btn btn-secondary" onclick="exportInventoryToJSON()">
+                        📄 Exportar a JSON
+                    </button>
+                    <button class="btn btn-secondary" onclick="exportInventoryToExcel()">
+                        📈 Exportar a Excel
+                    </button>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<!-- MODALES -->
+
+<!-- MODAL: AGREGAR/EDITAR PRODUCTO -->
+<div id="addProductModal" class="inventory-modal" style="display:none">
+    <div class="inventory-modal-content">
+        <div class="modal-header">
+            <h2 id="modalTitle">Agregar Nuevo Producto</h2>
+            <button class="close-btn" onclick="closeInventoryModal('addProduct')">×</button>
+        </div>
+
+        <form id="productForm" class="product-form">
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="productName">Nombre del Producto *</label>
+                    <input type="text" id="productName" required />
+                </div>
+
+                <div class="form-group">
+                    <label for="productSKU">SKU/Código *</label>
+                    <input type="text" id="productSKU" required />
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="productCategory">Categoría *</label>
+                    <select id="productCategory" required>
+                        <option value="">Seleccionar categoría</option>
+                        <!-- Se genera dinámicamente -->
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="productUnit">Unidad de Medida</label>
+                    <select id="productUnit">
+                        <option value="Unidad">Unidad</option>
+                        <option value="Kg">Kilogramos</option>
+                        <option value="L">Litros</option>
+                        <option value="m">Metros</option>
+                        <option value="Docena">Docena</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="productCost">Costo Unitario ($) *</label>
+                    <input type="number" id="productCost" step="0.01" required />
+                </div>
+
+                <div class="form-group">
+                    <label for="productPrice">Precio de Venta ($) *</label>
+                    <input type="number" id="productPrice" step="0.01" required />
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="productQuantity">Cantidad Inicial *</label>
+                    <input type="number" id="productQuantity" min="0" required />
+                </div>
+
+                <div class="form-group">
+                    <label for="productBarcode">Código de Barras</label>
+                    <input type="text" id="productBarcode" />
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="productMinStock">Stock Mínimo *</label>
+                    <input type="number" id="productMinStock" min="1" required />
+                </div>
+
+                <div class="form-group">
+                    <label for="productMaxStock">Stock Máximo *</label>
+                    <input type="number" id="productMaxStock" min="1" required />
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="productSupplier">Proveedor</label>
+                    <input type="text" id="productSupplier" />
+                </div>
+
+                <div class="form-group">
+                    <label for="productLocation">Ubicación en Almacén</label>
+                    <input type="text" id="productLocation" placeholder="Ej: Pasillo A, Estante 3" />
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="productDescription">Descripción</label>
+                <textarea id="productDescription" rows="3"></textarea>
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary">💾 Guardar Producto</button>
+                <button type="button" class="btn btn-secondary" onclick="closeInventoryModal('addProduct')">
+                    Cancelar
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- MODAL: AJUSTAR STOCK -->
+<div id="adjustStockModal" class="inventory-modal" style="display:none">
+    <div class="inventory-modal-content">
+        <div class="modal-header">
+            <h2>Ajustar Stock</h2>
+            <button class="close-btn" onclick="closeInventoryModal('adjustStock')">×</button>
+        </div>
+
+        <form id="adjustStockForm" class="adjust-stock-form">
+            <div class="form-group">
+                <label for="adjustProductSelect">Producto *</label>
+                <select id="adjustProductSelect" required>
+                    <option value="">Seleccionar producto</option>
+                    <!-- Se genera dinámicamente -->
+                </select>
+            </div>
+
+            <div id="productInfo" class="product-info" style="display:none">
+                <p><strong>Stock Actual:</strong> <span id="currentStockDisplay">0</span></p>
+                <p><strong>Mínimo:</strong> <span id="minStockDisplay">0</span> | <strong>Máximo:</strong> <span id="maxStockDisplay">0</span></p>
+            </div>
+
+            <div class="form-group">
+                <label for="adjustType">Tipo de Ajuste *</label>
+                <select id="adjustType" required>
+                    <option value="">Seleccionar tipo</option>
+                    <option value="aumento">📈 Entrada (Aumentar Stock)</option>
+                    <option value="disminucion">📉 Salida (Disminuir Stock)</option>
+                    <option value="ajuste">🔧 Ajuste Manual</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="adjustQuantity">Cantidad *</label>
+                <input type="number" id="adjustQuantity" min="1" required />
+            </div>
+
+            <div class="form-group">
+                <label for="adjustReason">Razón del Ajuste *</label>
+                <input type="text" id="adjustReason" placeholder="Ej: Corrección de inventario, entrada de compra..." required />
+            </div>
+
+            <div class="form-group">
+                <label for="adjustSupplier">Proveedor/Referencia (Opcional)</label>
+                <input type="text" id="adjustSupplier" placeholder="Proveedor o número de orden" />
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary">✅ Aplicar Ajuste</button>
+                <button type="button" class="btn btn-secondary" onclick="closeInventoryModal('adjustStock')">
+                    Cancelar
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- MODAL: REPORTE DE INVENTARIO -->
+<div id="reportModal" class="inventory-modal" style="display:none">
+    <div class="inventory-modal-content large">
+        <div class="modal-header">
+            <h2>📊 Reporte de Inventario</h2>
+            <button class="close-btn" onclick="closeInventoryModal('report')">×</button>
+        </div>
+
+        <div id="reportContent" class="report-content">
+            <!-- Se genera dinámicamente -->
+        </div>
+
+        <div class="modal-footer">
+            <button class="btn btn-secondary" onclick="printInventoryReport()">
+                🖨️ Imprimir
+            </button>
+            <button class="btn btn-info" onclick="downloadInventoryReport()">
+                📥 Descargar PDF
+            </button>
+        </div>
+    </div>
+</div>
