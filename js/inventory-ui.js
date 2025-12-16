@@ -210,6 +210,9 @@ function loadInventoryDashboard() {
 function loadTopSellingProducts() {
     const topProducts = inventory.getTopSellingProducts(5);
     const tbody = document.getElementById('topSellingProductsTable');
+    
+    // Protección: si el elemento no existe, salir
+    if (!tbody) return;
 
     if (topProducts.length === 0) {
         tbody.innerHTML = '<tr><td colspan="5" class="empty-state">No hay datos de ventas</td></tr>';
@@ -230,6 +233,9 @@ function loadTopSellingProducts() {
 function loadCategoryAnalysis() {
     const analysis = inventory.getCategoryAnalysis();
     const container = document.getElementById('categoryAnalysisContainer');
+    
+    // Protección: si el elemento no existe, salir
+    if (!container) return;
 
     const html = Object.entries(analysis).map(([key, cat]) => `
         <div class="category-card">
@@ -269,6 +275,9 @@ function loadCategoryAnalysis() {
 function loadProductsTable() {
     const products = inventory.getAllProducts();
     const tbody = document.getElementById('productsTableBody');
+    
+    // Protección: si el elemento no existe, salir
+    if (!tbody) return;
 
     if (products.length === 0) {
         tbody.innerHTML = '<tr><td colspan="10" class="empty-state">No hay productos registrados</td></tr>';
@@ -281,11 +290,9 @@ function loadProductsTable() {
 
 function renderProductsTable(products) {
     const tbody = document.getElementById('productsTableBody');
-
-    if (products.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="10" class="empty-state">No se encontraron productos</td></tr>';
-        return;
-    }
+    
+    // Protección: si el elemento no existe, salir
+    if (!tbody) return;
 
     tbody.innerHTML = products.map(product => {
         const totalValue = product.quantity * product.cost;
@@ -390,6 +397,9 @@ function quickAdjustStock(productId) {
 function loadMovementsTable() {
     const movements = inventory.getMovementHistory();
     const tbody = document.getElementById('movementsTableBody');
+    
+    // Protección: si el elemento no existe, salir
+    if (!tbody) return;
 
     if (movements.length === 0) {
         tbody.innerHTML = '<tr><td colspan="7" class="empty-state">No hay movimientos registrados</td></tr>';
@@ -401,8 +411,9 @@ function loadMovementsTable() {
 
 function renderMovementsTable(movements) {
     const tbody = document.getElementById('movementsTableBody');
-
-    tbody.innerHTML = movements.map(movement => {
+    
+    // Protección: si el elemento no existe, salir
+    if (!tbody) return;
         const product = inventory.getProductById(movement.productId);
         const movementIcon = {
             'aumento': '📈',
@@ -487,6 +498,9 @@ function loadAlertsUI() {
 
 function renderAlerts(containerId, products, type, icon) {
     const container = document.getElementById(containerId);
+    
+    // Protección: si el elemento no existe, salir
+    if (!container) return;
 
     if (products.length === 0) {
         container.innerHTML = `<p class="no-alerts">✅ No hay alertas de este tipo</p>`;
@@ -524,10 +538,17 @@ function renderAlerts(containerId, products, type, icon) {
 function loadSettingsUI() {
     const settings = inventory.getSettings();
 
-    document.getElementById('minStockAlert').value = settings.minStockAlert;
-    document.getElementById('maxStockLevel').value = settings.maxStockLevel;
-    document.getElementById('currencySymbol').value = settings.currencySymbol;
-    document.getElementById('enableNotifications').checked = settings.enableNotifications;
+    const minStockAlert = document.getElementById('minStockAlert');
+    if (minStockAlert) minStockAlert.value = settings.minStockAlert;
+    
+    const maxStockLevel = document.getElementById('maxStockLevel');
+    if (maxStockLevel) maxStockLevel.value = settings.maxStockLevel;
+    
+    const currencySymbol = document.getElementById('currencySymbol');
+    if (currencySymbol) currencySymbol.value = settings.currencySymbol;
+    
+    const enableNotifications = document.getElementById('enableNotifications');
+    if (enableNotifications) enableNotifications.checked = settings.enableNotifications;
 
     loadCategories();
 }
@@ -535,8 +556,9 @@ function loadSettingsUI() {
 function loadCategories() {
     const categories = inventory.getCategories();
     const container = document.getElementById('categoriesContainer');
-
-    container.innerHTML = categories.map(cat => `
+    
+    // Protección: si el elemento no existe, salir
+    if (!container) return;
         <div class="category-item">
             <div class="category-color" style="background-color: ${cat.color}"></div>
             <span class="category-name">${cat.name}</span>
@@ -598,6 +620,9 @@ function deleteCategory(categoryId) {
 function loadProductCategories() {
     const categories = inventory.getCategories();
     const select = document.getElementById('productCategory');
+    
+    // Protección: si el elemento no existe, salir
+    if (!select) return;
 
     select.innerHTML = '<option value="">Seleccionar categoría</option>' +
         categories.map(cat => `<option value="${cat.id}">${cat.name}</option>`).join('');
@@ -616,6 +641,9 @@ function loadCategoryFilter() {
 function loadAdjustStockProducts() {
     const products = inventory.getAllProducts();
     const select = document.getElementById('adjustProductSelect');
+    
+    // Protección: si el elemento no existe, salir
+    if (!select) return;
 
     select.innerHTML = '<option value="">Seleccionar producto</option>' +
         products.map(p => `<option value="${p.id}">${p.name} (${p.sku})</option>`).join('');
@@ -629,8 +657,13 @@ function loadAdjustStockProducts() {
 }
 
 function updateProductInfoDisplay() {
-    const productId = document.getElementById('adjustProductSelect').value;
+    const select = document.getElementById('adjustProductSelect');
     const infoDiv = document.getElementById('productInfo');
+    
+    // Protección: si los elementos no existen, salir
+    if (!select || !infoDiv) return;
+
+    const productId = select.value;
 
     if (!productId) {
         infoDiv.style.display = 'none';
@@ -639,9 +672,13 @@ function updateProductInfoDisplay() {
 
     const product = inventory.getProductById(productId);
     if (product) {
-        document.getElementById('currentStockDisplay').textContent = product.quantity;
-        document.getElementById('minStockDisplay').textContent = product.minStock;
-        document.getElementById('maxStockDisplay').textContent = product.maxStock;
+        const currentStockDisplay = document.getElementById('currentStockDisplay');
+        const minStockDisplay = document.getElementById('minStockDisplay');
+        const maxStockDisplay = document.getElementById('maxStockDisplay');
+        
+        if (currentStockDisplay) currentStockDisplay.textContent = product.quantity;
+        if (minStockDisplay) minStockDisplay.textContent = product.minStock;
+        if (maxStockDisplay) maxStockDisplay.textContent = product.maxStock;
         infoDiv.style.display = 'block';
     }
 }
@@ -651,10 +688,12 @@ function updateProductInfoDisplay() {
  */
 
 function showInventoryReport() {
-    const report = inventory.generateInventoryReport();
     const content = document.getElementById('reportContent');
+    
+    // Protección: si el elemento no existe, salir
+    if (!content) return;
 
-    const html = `
+    const report = inventory.generateInventoryReport();
         <div class="report-section">
             <h3>📊 Resumen General</h3>
             <table class="report-table">
