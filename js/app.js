@@ -13,18 +13,7 @@ function getEnvVar(varName, defaultValue = null) {
         return window.CONFIG[varName];
     }
     
-    // Intentar desde import.meta.env (para Vite)
-    if (typeof import !== 'undefined' && import.meta && import.meta.env) {
-        const value = import.meta.env[varName];
-        if (value) return value;
-    }
-    
-    // Intentar desde process.env (para Node.js)
-    if (typeof process !== 'undefined' && process.env) {
-        const value = process.env[varName];
-        if (value) return value;
-    }
-    
+    // Fallback a valor por defecto
     return defaultValue;
 }
 
