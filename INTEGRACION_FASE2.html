@@ -1,0 +1,174 @@
+<!-- FASE 2: MÓDULOS INTEGRADOS -->
+<!-- Este es el orden correcto de cargas para la aplicación modular -->
+
+<!-- 1. VARIABLES DE ENTORNO (primero) -->
+<script>
+    // Cargar variables de entorno si existen
+    if (typeof window.ENV === 'undefined') {
+        window.ENV = {};
+        // Intentar cargar desde .env.local (simulado con localStorage)
+        const envData = localStorage.getItem('appConfig');
+        if (envData) {
+            try {
+                window.ENV = JSON.parse(envData);
+            } catch (e) {
+                console.warn('Error parsing app config');
+            }
+        }
+    }
+</script>
+
+<!-- 2. MSALJS (Microsoft Authentication) -->
+<script src="https://alcdn.msauth.net/browser/2.26.0/js/msal-browser.min.js"></script>
+
+<!-- 3. CONFIG MODULE (Configuración centralizada) -->
+<script src="src/config/config.js"></script>
+
+<!-- 4. SECURITY MODULES (Seguridad - necesario antes de procesamiento de datos) -->
+<script src="js/utils/sanitize.js"></script>
+<script src="js/utils/validation.js"></script>
+
+<!-- 5. CORE MODULES (Módulos principales) -->
+<script src="src/modules/auth.js"></script>
+<script src="src/modules/inventory.js"></script>
+<script src="src/modules/excel.js"></script>
+<script src="src/modules/forms.js"></script>
+<script src="src/modules/ui.js"></script>
+
+<!-- 6. APPLICATION ENTRY POINT (Inicializador principal) -->
+<script src="src/main.js"></script>
+
+<!-- 7. ORIGINAL APP (Para compatibilidad backward - OPCIONAL) -->
+<!-- <script src="js/app.js"></script> -->
+
+<!-- 
+NOTA IMPORTANTE:
+- El sistema Fase 2 es completamente modular y no requiere app.js
+- Si necesitas funcionalidad antigua de app.js, puedes cargar como último script
+- El orden de carga es crucial para que los módulos funcionen correctamente
+-->
+
+<!-- DIAGNOSTICS SCRIPT (Para debugging en consola) -->
+<script>
+    window.DiagnosticTools = {
+        // Ver estado de módulos
+        status: function() {
+            return {
+                Config: !!window.Config,
+                AuthManager: !!window.AuthManager,
+                InventoryManager: !!window.InventoryManager,
+                ExcelManager: !!window.ExcelManager,
+                FormManager: !!window.FormManager,
+                UIManager: !!window.UIManager,
+                SecurityUtils: !!window.SecurityUtils,
+                ValidationUtils: !!window.ValidationUtils,
+                App: !!window.App,
+                AppInitialized: window.App?.isInitialized
+            };
+        },
+
+        // Información de debug
+        debug: function() {
+            console.group('🔍 DIAGNOSTIC REPORT');
+            console.log('Modules Status:', this.status());
+            console.log('Config:', window.Config?.getFullConfig());
+            console.log('Current User:', window.AuthManager?.getCurrentUser());
+            console.log('Inventory Count:', window.InventoryManager?.getAll().length);
+            console.log('Statistics:', window.InventoryManager?.getStatistics());
+            console.groupEnd();
+        },
+
+        // Reinicializar app
+        reinitialize: async function() {
+            console.log('🔄 Reinitializing application...');
+            window.App = new Application();
+            await window.App.initialize();
+            console.log('✅ Reinitialization complete');
+        },
+
+        // Test todos los módulos
+        testAll: async function() {
+            console.group('🧪 MODULE TESTS');
+            
+            // Test Config
+            try {
+                const config = window.Config.getFullConfig();
+                console.log('✅ Config: OK', config);
+            } catch (e) {
+                console.error('❌ Config: FAILED', e);
+            }
+
+            // Test Auth
+            try {
+                const isAuth = window.AuthManager?.isAuthenticated();
+                console.log(`✅ Auth: ${isAuth ? 'Authenticated' : 'Not authenticated'}`);
+            } catch (e) {
+                console.error('❌ Auth: FAILED', e);
+            }
+
+            // Test Inventory
+            try {
+                const count = window.InventoryManager?.getAll().length || 0;
+                console.log(`✅ Inventory: OK (${count} items)`);
+            } catch (e) {
+                console.error('❌ Inventory: FAILED', e);
+            }
+
+            // Test UI
+            try {
+                const stats = window.InventoryManager?.getStatistics();
+                console.log('✅ UI: OK', stats);
+            } catch (e) {
+                console.error('❌ UI: FAILED', e);
+            }
+
+            console.groupEnd();
+        },
+
+        // Comandos útiles
+        help: function() {
+            console.log(`
+╔════════════════════════════════════════════════════════════════╗
+║           DIAGNOSTIC TOOLS - FASE 2 MODULAR                   ║
+╚════════════════════════════════════════════════════════════════╝
+
+📋 Comandos disponibles:
+
+  DiagnosticTools.status()        → Ver estado de módulos
+  DiagnosticTools.debug()         → Reporte completo de debug
+  DiagnosticTools.testAll()       → Probar todos los módulos
+  DiagnosticTools.reinitialize()  → Reinicializar app
+  DiagnosticTools.help()          → Este mensaje
+
+🔐 Ejemplos de uso:
+
+  // Verificar si estás autenticado
+  window.AuthManager?.isAuthenticated()
+
+  // Ver todos los pedidos
+  window.InventoryManager?.getAll()
+
+  // Agregar nuevo pedido
+  await window.FormManager?.handleAddOrder({ clientName: 'Juan', ... })
+
+  // Actualizar tabla
+  window.UIManager?.updateInventoryTable(...)
+
+  // Sincronizar con Excel
+  await window.ExcelManager?.syncInventory()
+
+💡 Para más información, revisa:
+   - src/modules/ (módulos)
+   - src/config/config.js (configuración)
+   - src/main.js (orquestador)
+
+            `);
+        }
+    };
+
+    // Mostrar mensaje al cargar
+    console.log('%c╔════════════════════════════════════════════════════════════════╗', 'color: #0078d4');
+    console.log('%c║     PAGINAWEBPEDIDOSPS v2.0 - FASE 2 MODULAR                  ║', 'color: #0078d4');
+    console.log('%c╚════════════════════════════════════════════════════════════════╝', 'color: #0078d4');
+    console.log('%cPara diagnosticar, ejecuta: DiagnosticTools.help()', 'color: #107c10; font-weight: bold');
+</script>
