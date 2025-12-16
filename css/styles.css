@@ -1260,6 +1260,14 @@ input[id^="productCode_"].code-not-found {
     transition: all 0.3s ease;
     width: 100%;
     box-shadow: 0 2px 4px rgba(128, 11, 150, 0.2);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    text-align: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
 }
 
 .btn-save-code:hover {
