@@ -8,11 +8,10 @@ class InventoryManager {
         this.products = this.loadFromLocalStorage('inventory_products') || [];
         this.movements = this.loadFromLocalStorage('inventory_movements') || [];
         this.categories = this.loadFromLocalStorage('inventory_categories') || [
-            { id: 'electronica', name: 'Electrónica', color: '#007bff' },
-            { id: 'ropa', name: 'Ropa', color: '#28a745' },
             { id: 'accesorios', name: 'Accesorios', color: '#ffc107' },
-            { id: 'hogar', name: 'Hogar', color: '#dc3545' },
-            { id: 'otros', name: 'Otros', color: '#6f42c1' }
+            { id: 'medias', name: 'Medias', color: '#28a745' },
+            { id: 'camisetas', name: 'Camisetas', color: '#007bff' },
+            { id: 'perfumes', name: 'Perfumes o Lociones', color: '#dc3545' }
         ];
         this.settings = this.loadFromLocalStorage('inventory_settings') || {
             minStockAlert: 5,

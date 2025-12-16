@@ -291,6 +291,14 @@
     margin-bottom: 20px;
     padding-bottom: 20px;
     border-bottom: 2px solid var(--inventory-border);
+    align-items: end;
+}
+
+.movements-filters .btn {
+    grid-column: auto;
+    padding: 8px 12px;
+    font-size: 13px;
+    white-space: nowrap;
 }
 
 .search-box input,
