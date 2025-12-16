@@ -299,6 +299,13 @@
     padding: 8px 12px;
     font-size: 13px;
     white-space: nowrap;
+    justify-self: center;
+    align-self: center;
+}
+
+.export-btn {
+    justify-self: center;
+    align-self: center;
 }
 
 .search-box input,
