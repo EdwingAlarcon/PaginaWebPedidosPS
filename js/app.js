@@ -1,15 +1,55 @@
+/**
+ * SEGURIDAD: Este archivo ha sido actualizado con mejoras de seguridad
+ * - Client ID ahora se lee desde variables de entorno
+ * - Validación XSS implementada
+ * - Sanitización de entrada de usuarios
+ * - Validación centralizada de datos
+ */
+
+// Función helper para obtener variables de entorno
+function getEnvVar(varName, defaultValue = null) {
+    // Intentar desde window.CONFIG (si está configurado)
+    if (window.CONFIG && window.CONFIG[varName]) {
+        return window.CONFIG[varName];
+    }
+    
+    // Intentar desde import.meta.env (para Vite)
+    if (typeof import !== 'undefined' && import.meta && import.meta.env) {
+        const value = import.meta.env[varName];
+        if (value) return value;
+    }
+    
+    // Intentar desde process.env (para Node.js)
+    if (typeof process !== 'undefined' && process.env) {
+        const value = process.env[varName];
+        if (value) return value;
+    }
+    
+    return defaultValue;
+}
+
 // Configuración de Microsoft Authentication Library (MSAL)
 const msalConfig = {
     auth: {
-        clientId: "447bd8ae-99c8-470b-aca8-a6118d640151", // Reemplazar con tu Client ID de Azure AD
-        authority: "https://login.microsoftonline.com/common",
-        redirectUri: window.location.origin,
+        // Lee Client ID desde variables de entorno, con fallback al valor por defecto
+        clientId: getEnvVar('VITE_AZURE_CLIENT_ID', 'placeholder'),
+        authority: getEnvVar('VITE_AZURE_AUTHORITY', 'https://login.microsoftonline.com/common'),
+        redirectUri: getEnvVar('VITE_AZURE_REDIRECT_URI', window.location.origin),
     },
     cache: {
         cacheLocation: "localStorage",
         storeAuthStateInCookie: false,
     },
 };
+
+// Validar que el Client ID esté configurado
+if (!msalConfig.auth.clientId || msalConfig.auth.clientId === 'placeholder') {
+    console.warn(
+        'ADVERTENCIA: Client ID no está configurado. ' +
+        'Por favor, crea un archivo .env.local con VITE_AZURE_CLIENT_ID ' +
+        'o configura window.CONFIG.VITE_AZURE_CLIENT_ID'
+    );
+}
 
 // Scopes requeridos para acceder a OneDrive
 const loginRequest = {
@@ -949,6 +989,19 @@ async function handleFormSubmit(e) {
     try {
         const orderData = collectOrderData();
 
+        // SEGURIDAD: Validar datos del pedido
+        if (window.ValidationUtils) {
+            const validationResult = window.ValidationUtils.validateOrderData(orderData);
+            if (!validationResult.valid) {
+                const errorMessages = validationResult.errors.join('\n');
+                showStatus(`Errores de validación:\n${errorMessages}`, "error");
+                submitBtn.disabled = false;
+                submitBtn.classList.remove("loading");
+                submitBtn.textContent = "Guardar Pedido";
+                return;
+            }
+        }
+
         // Verificar duplicados
         if (checkRecentDuplicate(orderData)) {
             const confirmSave = confirm(
@@ -1029,9 +1082,14 @@ function collectOrderData() {
     const productImages = formData.getAll("productImage[]");
 
     for (let i = 0; i < productNames.length; i++) {
+        // SEGURIDAD: Sanitizar nombre de producto
+        const sanitizedProductName = window.SecurityUtils 
+            ? window.SecurityUtils.sanitizeText(productNames[i]) 
+            : productNames[i];
+        
         const productData = {
             categoria: categories[i],
-            producto: productNames[i],
+            producto: sanitizedProductName,
             imagen: productImages[i] || "",
             cantidad: parseFloat(quantities[i]),
             precioUnitario: parseFloat(unitPrices[i]),
@@ -1045,7 +1103,10 @@ function collectOrderData() {
                 const fieldName = `${field.id}[]`;
                 const values = formData.getAll(fieldName);
                 if (values[i]) {
-                    productData[field.id] = values[i];
+                    // SEGURIDAD: Sanitizar valores de categoría
+                    productData[field.id] = window.SecurityUtils 
+                        ? window.SecurityUtils.sanitizeText(values[i]) 
+                        : values[i];
                 }
             });
         }
@@ -1069,14 +1130,30 @@ function collectOrderData() {
     const discountAmount = (subtotal * discountPercent) / 100;
     const shippingCost = parseFloat(formData.get("shippingCost")) || 0;
 
+    // SEGURIDAD: Sanitizar datos del cliente
+    const clientName = formData.get("clientName");
+    const clientPhone = formData.get("clientPhone");
+    const clientEmail = formData.get("clientEmail") || "";
+    const clientAddress = formData.get("clientAddress");
+    
+    const sanitizedClient = {
+        nombre: window.SecurityUtils 
+            ? window.SecurityUtils.sanitizeText(clientName) 
+            : clientName,
+        telefono: window.SecurityUtils 
+            ? window.SecurityUtils.sanitizeText(clientPhone) 
+            : clientPhone,
+        email: window.SecurityUtils 
+            ? window.SecurityUtils.sanitizeText(clientEmail) 
+            : clientEmail,
+        direccion: window.SecurityUtils 
+            ? window.SecurityUtils.sanitizeText(clientAddress) 
+            : clientAddress,
+    };
+
     return {
         fecha: orderDate,
-        cliente: {
-            nombre: formData.get("clientName"),
-            telefono: formData.get("clientPhone"),
-            email: formData.get("clientEmail") || "",
-            direccion: formData.get("clientAddress"),
-        },
+        cliente: sanitizedClient,
         productos: products,
         subtotal: subtotal,
         descuento: {
