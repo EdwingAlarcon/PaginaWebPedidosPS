@@ -63,7 +63,7 @@
     background: transparent;
     border: none;
     border-bottom: 3px solid transparent;
-    color: #666;
+    color: #333;
     font-weight: 500;
     cursor: pointer;
     transition: all 0.3s ease;
@@ -215,7 +215,7 @@
 
 .stat-label {
     font-weight: 500;
-    color: #666;
+    color: #333;
     font-size: 13px;
 }
 
@@ -277,7 +277,7 @@
 .empty-state {
     text-align: center;
     padding: 30px !important;
-    color: #999;
+    color: #666;
     font-style: italic;
 }
 
@@ -328,7 +328,7 @@
 }
 
 .filter-group span {
-    color: #999;
+    color: #555;
 }
 
 /* ==================== BADGESS Y ETIQUETAS ==================== */
@@ -354,17 +354,20 @@
 
 .status-badge.status-activo {
     background: #d4edda;
-    color: #155724;
+    color: #0d3b1a;
+    font-weight: 600;
 }
 
 .status-badge.status-inactivo {
     background: #f8d7da;
-    color: #721c24;
+    color: #5a1e1e;
+    font-weight: 600;
 }
 
 .status-badge.status-descontinuado {
     background: #e2e3e5;
-    color: #383d41;
+    color: #2d2d2d;
+    font-weight: 600;
 }
 
 .movement-badge {
@@ -377,22 +380,26 @@
 
 .movement-badge.type-aumento {
     background: #d4edda;
-    color: #155724;
+    color: #0d3b1a;
+    font-weight: 600;
 }
 
 .movement-badge.type-disminucion {
     background: #f8d7da;
-    color: #721c24;
+    color: #5a1e1e;
+    font-weight: 600;
 }
 
 .movement-badge.type-ajuste {
     background: #d1ecf1;
-    color: #0c5460;
+    color: #0a424f;
+    font-weight: 600;
 }
 
 .movement-badge.type-transferencia {
     background: #fff3cd;
-    color: #856404;
+    color: #664d03;
+    font-weight: 600;
 }
 
 /* ==================== CELDAS ESPECIALES ==================== */

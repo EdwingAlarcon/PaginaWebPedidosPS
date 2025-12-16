@@ -1762,6 +1762,14 @@ input[id^="productCode_"].code-not-found {
 
 .stat-card-warning {
     background: linear-gradient(135deg, #ff8c00, #ffa500);
+    color: #fff;
+}
+
+.stat-card-warning .stat-value,
+.stat-card-warning .stat-content h3,
+.stat-card-warning .stat-label {
+    color: #fff;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
 }
 
 .stat-icon {
