@@ -67,7 +67,7 @@ PaginaWebPedidosPS v2.0/
 ├── index.html                       ← Entrada principal
 ├── .env.local                       ← Variables de entorno ✅ ARREGLADO
 │
-└── FASE_*.md                        ← Documentación de fases
+└── docs/FASE_*.md                   ← Documentación de fases
 ```
 
 ---
@@ -75,6 +75,7 @@ PaginaWebPedidosPS v2.0/
 ## 🚀 CARACTERÍSTICAS IMPLEMENTADAS
 
 ### Autenticación & Seguridad ✅
+
 - ✅ Login/Logout con Microsoft MSAL
 - ✅ Token acquisition (silent + popup)
 - ✅ Persistencia de sesión
@@ -84,6 +85,7 @@ PaginaWebPedidosPS v2.0/
 - ✅ Secure headers
 
 ### Gestión de Pedidos ✅
+
 - ✅ CRUD completo (Create, Read, Update, Delete)
 - ✅ Búsqueda y filtrado
 - ✅ Ordenamiento flexible
@@ -92,6 +94,7 @@ PaginaWebPedidosPS v2.0/
 - ✅ Estadísticas en tiempo real
 
 ### Integración Excel/OneDrive ✅
+
 - ✅ Sincronización bidireccional
 - ✅ Crear/leer/escribir archivos
 - ✅ Caché inteligente
@@ -99,6 +102,7 @@ PaginaWebPedidosPS v2.0/
 - ✅ Background sync
 
 ### Progressive Web App ✅
+
 - ✅ Instalable como app
 - ✅ Offline functionality
 - ✅ Push notifications
@@ -107,6 +111,7 @@ PaginaWebPedidosPS v2.0/
 - ✅ File handlers
 
 ### Testing ✅
+
 - ✅ 32+ unit tests
 - ✅ Coverage 95%+
 - ✅ Integration tests
@@ -114,6 +119,7 @@ PaginaWebPedidosPS v2.0/
 - ✅ Accessibility testing
 
 ### Performance ✅
+
 - ✅ Bundle size: 150 KB (-57%)
 - ✅ Lighthouse score: 90+
 - ✅ Caching strategies
@@ -121,6 +127,7 @@ PaginaWebPedidosPS v2.0/
 - ✅ Lazy loading architecture
 
 ### Accesibilidad ✅
+
 - ✅ WCAG 2.1 AA compliant
 - ✅ Keyboard navigation
 - ✅ Screen reader support
@@ -132,6 +139,7 @@ PaginaWebPedidosPS v2.0/
 ## 📈 MÉTRICAS FINALES
 
 ### Código
+
 ```
 Total Lines:        ~8,000 líneas
 Archivos:           12 módulos + tests + PWA
@@ -141,6 +149,7 @@ Documentación:      100% completada
 ```
 
 ### Performance
+
 ```
 Bundle Size:        150 KB (sin gzip)
 Gzipped:           50 KB
@@ -150,6 +159,7 @@ Cache Hit:         85-95%
 ```
 
 ### Testing
+
 ```
 Unit Tests:         32+
 Coverage:           95%+
@@ -159,6 +169,7 @@ E2E Tests:         10+ scenarios
 ```
 
 ### Calidad
+
 ```
 Security:          ★★★★★ Excelente
 Performance:       ★★★★★ Excelente
@@ -172,6 +183,7 @@ Browser Support:   ★★★★☆ 85%+
 ## 🔐 Seguridad
 
 ### Implementado ✅
+
 - ✅ XSS Prevention (sanitización)
 - ✅ CSRF Protection
 - ✅ Input Validation
@@ -182,6 +194,7 @@ Browser Support:   ★★★★☆ 85%+
 - ✅ No hardcoded secrets
 
 ### Tested ✅
+
 - ✅ XSS injection attempts blocked
 - ✅ Invalid inputs rejected
 - ✅ Token expiration handled
@@ -192,6 +205,7 @@ Browser Support:   ★★★★☆ 85%+
 ## 📱 Compatibilidad
 
 ### Navegadores Soportados ✅
+
 - ✅ Chrome/Edge 90+
 - ✅ Firefox 88+
 - ✅ Safari 14+
@@ -199,6 +213,7 @@ Browser Support:   ★★★★☆ 85%+
 - ✅ Tablets
 
 ### Dispositivos ✅
+
 - ✅ Desktop (Windows, Mac, Linux)
 - ✅ Tablets (iPad, Android tablets)
 - ✅ Mobile phones (iPhone, Android)
@@ -211,6 +226,7 @@ Browser Support:   ★★★★☆ 85%+
 ### Para Usuarios Finales
 
 **1. Instalar como app (PWA)**
+
 ```
 1. Abrir https://[tu-sitio]/index.html
 2. Click "Instalar" (aparece en navegador)
@@ -219,6 +235,7 @@ Browser Support:   ★★★★☆ 85%+
 ```
 
 **2. Usar en navegador**
+
 ```
 1. Abrir https://[tu-sitio]/index.html
 2. Login con Microsoft
@@ -228,6 +245,7 @@ Browser Support:   ★★★★☆ 85%+
 ```
 
 **3. Offline**
+
 ```
 1. App funciona sin Internet
 2. Los cambios se guardan localmente
@@ -237,6 +255,7 @@ Browser Support:   ★★★★☆ 85%+
 ### Para Desarrolladores
 
 **1. Setup local**
+
 ```bash
 # Clonar repo
 git clone https://github.com/EdwingAlarcon/PaginaWebPedidosPS.git
@@ -253,15 +272,17 @@ npx http-server -p 8000
 ```
 
 **2. Debugging**
+
 ```javascript
 // En consola del navegador:
-DiagnosticTools.status()          // Ver módulos
-DiagnosticTools.debug()           // Informe completo
-DiagnosticTools.testAll()         // Ejecutar tests
-window.TestResults                 // Ver resultados
+DiagnosticTools.status(); // Ver módulos
+DiagnosticTools.debug(); // Informe completo
+DiagnosticTools.testAll(); // Ejecutar tests
+window.TestResults; // Ver resultados
 ```
 
 **3. Desarrollo**
+
 ```javascript
 // Los módulos son independientes
 // Editar cualquier módulo en src/modules/
@@ -278,19 +299,22 @@ window.TestResults                 // Ver resultados
 ## 📚 Documentación
 
 ### Documentos Principales
-- [README.md](README.md) - Overview del proyecto
+
+- [README.md](../README.md) - Overview del proyecto
 - [INSTRUCCIONES-GITHUB.md](INSTRUCCIONES-GITHUB.md) - Setup GitHub
-- [PHASE_1_COMPLETE.md](docs/guides/PHASE_1_COMPLETE.md) - Seguridad
+- [PHASE_1_COMPLETE.md](guides/PHASE_1_COMPLETE.md) - Seguridad
 - [FASE_2_COMPLETADA.md](FASE_2_COMPLETADA.md) - Arquitectura modular
 - [FASE_3_COMPLETADA.md](FASE_3_COMPLETADA.md) - Testing & PWA
 
 ### Documentos de Guides
+
 - [EXECUTIVE_SUMMARY.md](docs/guides/EXECUTIVE_SUMMARY.md) - Resumen
 - [NEXT_STEPS.md](docs/guides/NEXT_STEPS.md) - Próximos pasos
 - [IMPLEMENTATION_START.md](docs/guides/IMPLEMENTATION_START.md) - Comienzo
 - [INTEGRACION_FASE2.html](INTEGRACION_FASE2.html) - Integración módulos
 
 ### Documentos Técnicos
+
 - [ESTRUCTURA.md](ESTRUCTURA.md) - Mapa de archivos
 - [VERIFICATION_CHECKLIST.sh](scripts/VERIFICATION_CHECKLIST.sh) - Verificación
 
@@ -299,6 +323,7 @@ window.TestResults                 // Ver resultados
 ## 🚀 DEPLOYMENT
 
 ### Opción 1: GitHub Pages
+
 ```bash
 # El repo ya está en GitHub
 # GitHub Pages activa automáticamente
@@ -306,6 +331,7 @@ window.TestResults                 // Ver resultados
 ```
 
 ### Opción 2: Azure Static Web Apps
+
 ```bash
 # Recomendado para Microsoft integration
 # Setup con Azure DevOps
@@ -313,6 +339,7 @@ window.TestResults                 // Ver resultados
 ```
 
 ### Opción 3: Vercel
+
 ```bash
 # Deploy simplificado
 # Preview automático en PRs
@@ -320,6 +347,7 @@ window.TestResults                 // Ver resultados
 ```
 
 ### Opción 4: Tu servidor
+
 ```bash
 # Copiar archivos a servidor
 # Configurar HTTPS
@@ -332,18 +360,21 @@ window.TestResults                 // Ver resultados
 ## 🔄 Mantenimiento
 
 ### Actualizaciones Mensuales ✅
+
 - [ ] Revisar dependencias (MSAL, etc)
 - [ ] Actualizar módulos
 - [ ] Ejecutar tests
 - [ ] Verificar Lighthouse
 
 ### Seguridad ✅
+
 - [ ] Revisar vulnerabilidades
 - [ ] Actualizar certificados
 - [ ] Revisar logs
 - [ ] Backup de datos
 
 ### Monitoring ✅
+
 - [ ] Verificar errores en consola
 - [ ] Analizar usage
 - [ ] Check performance
@@ -354,26 +385,31 @@ window.TestResults                 // Ver resultados
 ## 🎓 Aprendizajes Clave
 
 ### Arquitectura
+
 ✅ Modular > Monolítico
 ✅ Separación de responsabilidades
 ✅ Reutilización de código
 
 ### Seguridad
+
 ✅ Sanitización es crítica
 ✅ Validación en ambos lados
 ✅ Nunca confiar en usuario
 
 ### Testing
+
 ✅ Tests early, tests often
 ✅ Automatizar todo posible
 ✅ Coverage matters
 
 ### Performance
+
 ✅ Bundle size importa
 ✅ Caching es clave
 ✅ Offline is feature
 
 ### UX
+
 ✅ Responsivo es básico
 ✅ Accesibilidad importa
 ✅ Offline experience crítica
@@ -400,21 +436,25 @@ RESULTADO FINAL: Aplicación enterprise-grade ready
 ## 🎯 Próximas Mejoras Opcionales
 
 1. **Backend Database**
+
    - Reemplazar localStorage
    - Cloud storage
    - Real-time sync
 
 2. **Multi-user**
+
    - Colaboración
    - Permisos
    - Audit trail
 
 3. **Advanced Reports**
+
    - Dashboards
    - Analytics
    - Forecasting
 
 4. **Mobile App**
+
    - React Native
    - Flutter
    - Native apps
@@ -431,34 +471,38 @@ RESULTADO FINAL: Aplicación enterprise-grade ready
 ### Problemas Comunes
 
 **Q: No funciona la autenticación**
+
 ```javascript
 // Verificar:
-DiagnosticTools.status()
+DiagnosticTools.status();
 // Asegúrate que .env.local tenga CLIENT_ID
 ```
 
 **Q: Excel no se sincroniza**
+
 ```javascript
 // Verificar auth:
-window.AuthManager.isAuthenticated()
+window.AuthManager.isAuthenticated();
 // Verificar token:
-await window.AuthManager.getToken()
+await window.AuthManager.getToken();
 ```
 
 **Q: Offline no funciona**
+
 ```javascript
 // Verificar Service Worker:
-navigator.serviceWorker.getRegistrations()
+navigator.serviceWorker.getRegistrations();
 // Checking cache:
-caches.keys()
+caches.keys();
 ```
 
 **Q: Tests fallan**
+
 ```javascript
 // Ejecutar en consola:
-DiagnosticTools.testAll()
+DiagnosticTools.testAll();
 // Ver detailed results:
-window.TestResults
+window.TestResults;
 ```
 
 ---
@@ -472,6 +516,7 @@ MIT License - Libre para usar, modificar y distribuir
 ## 👤 Autor
 
 **EdwingAlarcon**
+
 - GitHub: https://github.com/EdwingAlarcon
 - Proyecto: PaginaWebPedidosPS
 
@@ -482,6 +527,7 @@ MIT License - Libre para usar, modificar y distribuir
 **PaginaWebPedidosPS v2.0 está completamente ready para producción.**
 
 Incluye:
+
 - ✅ Seguridad robusta
 - ✅ Arquitectura moderna
 - ✅ Testing comprehensivo
@@ -495,6 +541,6 @@ Incluye:
 
 ---
 
-*Última actualización: 2024*
-*Versión: 2.0.0*
-*Status: ✅ PRODUCCIÓN READY*
+_Última actualización: 2024_
+_Versión: 2.0.0_
+_Status: ✅ PRODUCCIÓN READY_

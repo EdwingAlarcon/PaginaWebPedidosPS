@@ -28,7 +28,7 @@ PaginaWebPedidosPS/
 ├── 📄 package.json                  # Metadatos del proyecto
 ├── 📄 .gitignore                    # Archivos ignorados
 ├── 📄 .editorconfig                 # Configuración del editor
-└── 📄 setup-github.ps1              # Script de ayuda
+└── � scripts/setup-github.ps1      # Script de ayuda
 ```
 
 ### 2. Commits Realizados
@@ -246,7 +246,7 @@ tree /F /A
 python -m http.server 8000
 
 # Ver ayuda
-.\setup-github.ps1
+.\scripts\setup-github.ps1
 ```
 
 ---

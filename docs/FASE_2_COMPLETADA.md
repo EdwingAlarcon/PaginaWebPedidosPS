@@ -12,6 +12,7 @@
 ### ✅ Completado
 
 #### 1. **Estructura Modular Creada** ✅
+
 ```
 src/
 ├── config/
@@ -28,6 +29,7 @@ src/
 #### 2. **Módulos Individuales** ✅
 
 **Config Module** (`src/config/config.js`)
+
 - ✅ Gestión centralizada de configuración
 - ✅ Variables de entorno con fallbacks
 - ✅ Configuración MSAL
@@ -35,6 +37,7 @@ src/
 - ✅ Validación de configuración
 
 **Auth Module** (`src/modules/auth.js`)
+
 - ✅ Clase `AuthManager` para MSAL
 - ✅ Login/Logout con popup
 - ✅ Token acquisition (silent + popup)
@@ -42,6 +45,7 @@ src/
 - ✅ Persistencia en localStorage
 
 **Inventory Module** (`src/modules/inventory.js`)
+
 - ✅ Clase `InventoryManager`
 - ✅ CRUD completo (Create, Read, Update, Delete)
 - ✅ Búsqueda y filtrado
@@ -52,6 +56,7 @@ src/
 - ✅ Integración con SecurityUtils
 
 **Excel Module** (`src/modules/excel.js`)
+
 - ✅ Clase `ExcelManager`
 - ✅ Búsqueda de archivos en OneDrive
 - ✅ Crear archivos Excel
@@ -61,6 +66,7 @@ src/
 - ✅ Manejo de errores robusto
 
 **Forms Module** (`src/modules/forms.js`)
+
 - ✅ Clase `FormManager`
 - ✅ Agregar nuevos pedidos
 - ✅ Editar pedidos existentes
@@ -71,6 +77,7 @@ src/
 - ✅ Notificaciones integradas
 
 **UI Module** (`src/modules/ui.js`)
+
 - ✅ Clase `UIManager`
 - ✅ Actualizar tabla de inventario
 - ✅ Actualizar estadísticas
@@ -82,6 +89,7 @@ src/
 - ✅ Responsive design
 
 **Main Application** (`src/main.js`)
+
 - ✅ Clase `Application` orquestadora
 - ✅ Inicialización secuencial de módulos
 - ✅ Setup de event listeners principales
@@ -107,6 +115,7 @@ src/
 ## 📊 COMPARATIVA ANTES/DESPUÉS
 
 ### Antes (Fase 1)
+
 ```
 js/
 ├── app.js                     (3,235 líneas - MONOLÍTICO)
@@ -118,6 +127,7 @@ js/
 ```
 
 **Problemas**:
+
 - ❌ app.js con toda la lógica (3,235 líneas)
 - ❌ Difícil de mantener
 - ❌ Difícil de testear
@@ -125,6 +135,7 @@ js/
 - ❌ Duplicación de código
 
 ### Después (Fase 2)
+
 ```
 src/
 ├── config/config.js           (configuración)
@@ -142,6 +153,7 @@ js/utils/
 ```
 
 **Ventajas**:
+
 - ✅ 7 módulos especializados
 - ✅ ~600 líneas por módulo (manejable)
 - ✅ Fácil de mantener
@@ -202,24 +214,28 @@ js/utils/
 ### Tests Implementados
 
 #### 1. **Module Loading**
+
 ```javascript
-DiagnosticTools.status()
+DiagnosticTools.status();
 // Verifica que todos los módulos estén cargados ✅
 ```
 
 #### 2. **Configuration**
+
 ```javascript
-window.Config.validateConfig()
+window.Config.validateConfig();
 // Verifica que la configuración sea válida ✅
 ```
 
 #### 3. **Authentication**
+
 ```javascript
-window.AuthManager.isAuthenticated()
+window.AuthManager.isAuthenticated();
 // Verifica estado de autenticación ✅
 ```
 
 #### 4. **Inventory Operations**
+
 ```javascript
 // Crear
 window.InventoryManager.addOrder({...})
@@ -235,6 +251,7 @@ window.InventoryManager.deleteOrder(id)
 ```
 
 #### 5. **UI Updates**
+
 ```javascript
 // Actualizar tabla
 window.UIManager.updateInventoryTable(...)
@@ -247,6 +264,7 @@ window.UIManager.toggleLoading(true/false)
 ```
 
 #### 6. **Form Handling**
+
 ```javascript
 // Agregar orden
 await window.FormManager.handleAddOrder({...})
@@ -261,8 +279,9 @@ await window.FormManager.handleDeleteOrder(id)
 ### Test Automatizado
 
 **Ejecuta en consola:**
+
 ```javascript
-DiagnosticTools.testAll()
+DiagnosticTools.testAll();
 ```
 
 ---
@@ -270,27 +289,28 @@ DiagnosticTools.testAll()
 ## 🔌 INTEGRACIÓN EN index.html
 
 **Orden de carga:**
+
 1. MSAL (Microsoft Authentication)
 2. Config module
 3. Security modules (Sanitize + Validation)
 4. Core modules (Auth, Inventory, Excel, Forms, UI)
 5. Main application (Orquestador)
 
-**Ver archivo**: `INTEGRACION_FASE2.html`
+**Ver archivo**: `../html/INTEGRACION_FASE2.html`
 
 ---
 
 ## 📈 MÉTRICAS FASE 2
 
-| Métrica | Antes | Después | Mejora |
-|---------|-------|---------|---------|
-| **Archivos JS** | 3 monolíticos | 7 módulos | +134% organización |
-| **Líneas por archivo** | 3,235 (app.js) | ~500-600 promedio | -85% complejidad |
-| **Testabilidad** | Baja | Alta | +900% |
-| **Reutilización** | 0% | 100% | ♾️ |
-| **Mantenibilidad** | Difícil | Fácil | +800% |
-| **Acoplamiento** | Alto | Bajo | -85% |
-| **Documentación** | Minimal | Completa | +500% |
+| Métrica                | Antes          | Después           | Mejora             |
+| ---------------------- | -------------- | ----------------- | ------------------ |
+| **Archivos JS**        | 3 monolíticos  | 7 módulos         | +134% organización |
+| **Líneas por archivo** | 3,235 (app.js) | ~500-600 promedio | -85% complejidad   |
+| **Testabilidad**       | Baja           | Alta              | +900%              |
+| **Reutilización**      | 0%             | 100%              | ♾️                 |
+| **Mantenibilidad**     | Difícil        | Fácil             | +800%              |
+| **Acoplamiento**       | Alto           | Bajo              | -85%               |
+| **Documentación**      | Minimal        | Completa          | +500%              |
 
 ---
 
@@ -299,28 +319,33 @@ DiagnosticTools.testAll()
 ### Phase 3: Testing & PWA Features (3-5 días)
 
 1. **Unit Testing** (Jest)
+
    - Tests para cada módulo
    - Mocking de MSAL
    - Coverage > 80%
 
 2. **E2E Testing** (Playwright)
+
    - Tests de flujos completos
    - Validación de UI
    - Integración Excel
 
 3. **PWA Features**
+
    - Service Worker
    - Offline support
    - App manifest
    - Push notifications
 
 4. **Performance**
+
    - Lighthouse audit
    - Bundle analysis
    - Lazy loading
    - Code splitting
 
 5. **CI/CD** (GitHub Actions)
+
    - Automated tests on push
    - Build optimization
    - Automatic deployment
@@ -338,17 +363,17 @@ DiagnosticTools.testAll()
 
 ```javascript
 const orderData = {
-    clientName: 'Juan García',
-    phoneNumber: '+1234567890',
-    email: 'juan@example.com',
-    address: 'Calle Principal 123',
-    productName: 'Producto A',
-    quantity: 5,
-    price: 100,
-    discount: 10,
-    shippingCost: 50,
-    totalPrice: 450,
-    notes: 'Entrega urgente'
+  clientName: "Juan García",
+  phoneNumber: "+1234567890",
+  email: "juan@example.com",
+  address: "Calle Principal 123",
+  productName: "Producto A",
+  quantity: 5,
+  price: 100,
+  discount: 10,
+  shippingCost: 50,
+  totalPrice: 450,
+  notes: "Entrega urgente",
 };
 
 await window.FormManager.handleAddOrder(orderData);
@@ -357,7 +382,7 @@ await window.FormManager.handleAddOrder(orderData);
 ### Buscar pedidos
 
 ```javascript
-window.InventoryManager.search('juan');
+window.InventoryManager.search("juan");
 // Retorna pedidos donde clientName o email coincidan
 ```
 
@@ -417,25 +442,25 @@ PaginaWebPedidosPS v2.0 - FASE 2 ✅
 
 ```javascript
 // Ver estado de módulos
-DiagnosticTools.status()
+DiagnosticTools.status();
 
 // Ver configuración completa
-window.Config.getFullConfig()
+window.Config.getFullConfig();
 
 // Ver usuario actual
-window.AuthManager.getCurrentUser()
+window.AuthManager.getCurrentUser();
 
 // Ver todos los pedidos
-window.InventoryManager.getAll()
+window.InventoryManager.getAll();
 
 // Ver estadísticas
-window.InventoryManager.getStatistics()
+window.InventoryManager.getStatistics();
 
 // Probar todos los módulos
-DiagnosticTools.testAll()
+DiagnosticTools.testAll();
 
 // Ayuda completa
-DiagnosticTools.help()
+DiagnosticTools.help();
 ```
 
 ---
@@ -443,20 +468,22 @@ DiagnosticTools.help()
 ## 📚 REFERENCIAS
 
 **Archivos principales:**
+
 - [src/config/config.js](src/config/config.js) - Configuración
 - [src/modules/auth.js](src/modules/auth.js) - Autenticación
 - [src/modules/inventory.js](src/modules/inventory.js) - Inventario
 - [src/modules/excel.js](src/modules/excel.js) - Excel
-- [src/modules/forms.js](src/modules/forms.js) - Formularios
-- [src/modules/ui.js](src/modules/ui.js) - UI
-- [src/main.js](src/main.js) - Orquestador
-- [INTEGRACION_FASE2.html](INTEGRACION_FASE2.html) - Cómo integrar
+- [src/modules/forms.js](../src/modules/forms.js) - Formularios
+- [src/modules/ui.js](../src/modules/ui.js) - UI
+- [src/main.js](../src/main.js) - Orquestador
+- [INTEGRACION_FASE2.html](../html/INTEGRACION_FASE2.html) - Cómo integrar
 
 ---
 
 ## 🏁 CONCLUSIÓN FASE 2
 
 Refactorización completada exitosamente:
+
 - ✅ De monolítico a modular
 - ✅ De 3,235 líneas a 7 módulos de ~500 líneas cada uno
 - ✅ De poco testeable a altamente testeable
@@ -464,6 +491,7 @@ Refactorización completada exitosamente:
 - ✅ De difícil mantener a fácil mantener
 
 **La aplicación está lista para:**
+
 1. ✅ Testing (Fase 3)
 2. ✅ PWA features (Fase 3)
 3. ✅ Performance optimization (Fase 3)
@@ -473,4 +501,4 @@ Refactorización completada exitosamente:
 
 **¡FASE 2 COMPLETADA CON ÉXITO! 🎉**
 
-*Siguiente: FASE 3 - Testing, PWA, y Optimización*
+_Siguiente: FASE 3 - Testing, PWA, y Optimización_

@@ -15,6 +15,7 @@
 **Archivo**: `tests/unit-tests.js` (~450 líneas)
 
 **Pruebas implementadas**:
+
 - ✅ Config module tests (5 tests)
 - ✅ Inventory Manager tests (9 tests)
 - ✅ Auth Manager tests (3 tests)
@@ -27,6 +28,7 @@
 **Total**: 32+ unit tests
 
 **Ejecución**:
+
 ```javascript
 // 1. Copiar contenido de tests/unit-tests.js
 // 2. Pegar en consola del navegador (F12)
@@ -35,6 +37,7 @@
 ```
 
 **Resultados Esperados**:
+
 ```
 ✅ 32+ tests
 ✅ 100% success rate
@@ -46,6 +49,7 @@
 **A. Manifest.json** (`pwa/manifest.json` - ~200 líneas)
 
 **Características**:
+
 - ✅ Aplicación web instalable
 - ✅ Nombre y descripción
 - ✅ Iconos múltiples (192x192, 512x512, maskable)
@@ -57,6 +61,7 @@
 - ✅ Launch handler
 
 **Instalación**:
+
 ```javascript
 // En index.html agregar:
 <link rel="manifest" href="pwa/manifest.json">
@@ -67,22 +72,27 @@
 **B. Service Worker** (`pwa/service-worker.js` - ~450 líneas)
 
 **Capacidades**:
+
 - ✅ **Offline Support**
+
   - Funciona sin conexión
   - Caché inteligente
   - Fallback offline page
 
 - ✅ **Caching Strategies**
+
   - Cache First (assets estáticos)
   - Network First (datos/API)
   - Runtime cache
 
 - ✅ **Background Sync**
+
   - Sincronización en background
   - Queue de pedidos locales
   - Retry automático
 
 - ✅ **Push Notifications**
+
   - Notificaciones push
   - Click handlers
   - Badge icons
@@ -93,6 +103,7 @@
   - Sin afectar UX
 
 **Instalación en index.html**:
+
 ```javascript
 <script>
   if ('serviceWorker' in navigator) {
@@ -106,6 +117,7 @@
 **C. Offline Capability**
 
 **Características**:
+
 - ✅ App funciona sin Internet
 - ✅ Datos guardados localmente
 - ✅ UI permanece responsive
@@ -114,6 +126,7 @@
 **D. Install Prompt**
 
 **Cómo funciona**:
+
 1. Usuario ve "Instalar aplicación" en navegador
 2. Instala como app nativa
 3. Funciona offline
@@ -125,6 +138,7 @@
 #### 3. **Performance Optimization** ✅
 
 **A. Bundle Size Analysis**
+
 ```
 Antes:
 - app.js: 125 KB (minificado)
@@ -140,6 +154,7 @@ Después (Fase 2-3):
 ```
 
 **B. Caching Strategy**
+
 ```
 Static Assets (CSS, JS imágenes):
 - Cache First
@@ -155,6 +170,7 @@ HTML:
 ```
 
 **C. Lazy Loading (Preparado para)**
+
 ```javascript
 // Modulos se pueden cargar bajo demanda
 // Implementado en architecture
@@ -162,6 +178,7 @@ HTML:
 ```
 
 **D. Code Splitting (Preparado para)**
+
 ```javascript
 // src/modules/ permite split per módulo
 // Service Worker cachea cada módulo
@@ -174,15 +191,16 @@ HTML:
 
 **Métricas (después de optimizaciones)**:
 
-| Métrica | Score | Meta |
-|---------|-------|------|
-| **Performance** | 85+ | 90+ |
-| **Accessibility** | 90+ | 90+ |
-| **Best Practices** | 90+ | 90+ |
-| **SEO** | 95+ | 90+ |
-| **PWA** | 90+ | 90+ |
+| Métrica            | Score | Meta |
+| ------------------ | ----- | ---- |
+| **Performance**    | 85+   | 90+  |
+| **Accessibility**  | 90+   | 90+  |
+| **Best Practices** | 90+   | 90+  |
+| **SEO**            | 95+   | 90+  |
+| **PWA**            | 90+   | 90+  |
 
 **Cómo ejecutar Lighthouse**:
+
 1. Abre DevTools (F12)
 2. Va a "Lighthouse" tab
 3. Click "Analyze page"
@@ -194,20 +212,23 @@ HTML:
 #### 5. **Security Testing** ✅
 
 **A. XSS Prevention**
+
 ```javascript
 // Prueba en consola:
-window.SecurityUtils.sanitizeText('<script>alert("xss")</script>')
+window.SecurityUtils.sanitizeText('<script>alert("xss")</script>');
 // Resultado: No scripts ejecutados ✅
 ```
 
 **B. Input Validation**
+
 ```javascript
 // Validar email
-window.ValidationUtils.validateEmail('test@example.com')
+window.ValidationUtils.validateEmail("test@example.com");
 // Resultado: { isValid: true } ✅
 ```
 
 **C. CSRF Protection**
+
 - ✅ Tokens en requests
 - ✅ SameSite cookies
 - ✅ Content-Security-Policy headers
@@ -217,6 +238,7 @@ window.ValidationUtils.validateEmail('test@example.com')
 #### 6. **Accessibility** ✅
 
 **A. WCAG 2.1 Compliance**
+
 - ✅ Color contrast > 4.5:1
 - ✅ Keyboard navigation
 - ✅ ARIA labels
@@ -224,13 +246,15 @@ window.ValidationUtils.validateEmail('test@example.com')
 - ✅ Loading states announced
 
 **B. Screen Reader Support**
+
 ```html
 <button aria-label="Agregar nuevo pedido">➕</button>
-<input aria-describedby="emailHelp">
+<input aria-describedby="emailHelp" />
 <div role="alert">Mensaje importante</div>
 ```
 
 **C. Mobile Friendly**
+
 - ✅ Responsive design
 - ✅ Touch targets > 44x44px
 - ✅ Mobile-first CSS
@@ -241,18 +265,20 @@ window.ValidationUtils.validateEmail('test@example.com')
 #### 7. **Browser Support** ✅
 
 **Navegadores soportados**:
+
 - ✅ Chrome/Edge 90+
 - ✅ Firefox 88+
 - ✅ Safari 14+
 - ✅ Mobile browsers (iOS Safari, Chrome Mobile)
 
 **Fallbacks para older browsers**:
+
 ```javascript
 // Detectar Service Worker support
-if ('serviceWorker' in navigator) {
-    // Register SW
+if ("serviceWorker" in navigator) {
+  // Register SW
 } else {
-    // Funcionar sin SW (con degradación)
+  // Funcionar sin SW (con degradación)
 }
 ```
 
@@ -261,6 +287,7 @@ if ('serviceWorker' in navigator) {
 ## 📊 TESTING SUMMARY
 
 ### Unit Tests
+
 ```
 ✅ 32 tests
 ✅ 100% coverage de módulos principales
@@ -270,6 +297,7 @@ if ('serviceWorker' in navigator) {
 ```
 
 ### Test Execution
+
 ```javascript
 // En consola del navegador:
 // 1. Copiar tests/unit-tests.js
@@ -287,6 +315,7 @@ if ('serviceWorker' in navigator) {
 ```
 
 ### Integration Tests (Manual)
+
 ```javascript
 // Test flujo completo:
 await window.AuthManager.initialize()
@@ -296,6 +325,7 @@ window.UIManager.updateInventoryTable(...)
 ```
 
 ### E2E Tests (Manual)
+
 ```
 1. Abrir index.html
 2. Login con Microsoft
@@ -316,41 +346,51 @@ Agregar estos tags en `<head>`:
 
 ```html
 <!-- PWA Manifest -->
-<link rel="manifest" href="pwa/manifest.json">
+<link rel="manifest" href="pwa/manifest.json" />
 
 <!-- Theme Color -->
-<meta name="theme-color" content="#0078d4">
-<meta name="description" content="Sistema web de gestión de pedidos con integración a Excel">
+<meta name="theme-color" content="#0078d4" />
+<meta
+  name="description"
+  content="Sistema web de gestión de pedidos con integración a Excel"
+/>
 
 <!-- Apple Meta Tags -->
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="PedidosPS">
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta
+  name="apple-mobile-web-app-status-bar-style"
+  content="black-translucent"
+/>
+<meta name="apple-mobile-web-app-title" content="PedidosPS" />
 
 <!-- Icons -->
-<link rel="icon" type="image/png" href="assets/images/icon-192x192.png">
-<link rel="apple-touch-icon" href="assets/images/icon-192x192.png">
+<link rel="icon" type="image/png" href="assets/images/icon-192x192.png" />
+<link rel="apple-touch-icon" href="assets/images/icon-192x192.png" />
 
 <!-- Service Worker -->
 <script>
-  if ('serviceWorker' in navigator) {
-    window.addEventListener('load', () => {
-      navigator.serviceWorker.register('pwa/service-worker.js')
-        .then(registration => {
-          console.log('✅ Service Worker registered:', registration.scope);
-          
+  if ("serviceWorker" in navigator) {
+    window.addEventListener("load", () => {
+      navigator.serviceWorker
+        .register("pwa/service-worker.js")
+        .then((registration) => {
+          console.log("✅ Service Worker registered:", registration.scope);
+
           // Update checker
-          registration.addEventListener('updatefound', () => {
+          registration.addEventListener("updatefound", () => {
             const newWorker = registration.installing;
-            newWorker.addEventListener('statechange', () => {
-              if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-                console.log('✅ New version available');
+            newWorker.addEventListener("statechange", () => {
+              if (
+                newWorker.state === "installed" &&
+                navigator.serviceWorker.controller
+              ) {
+                console.log("✅ New version available");
                 // Mostrar notificación al usuario
               }
             });
           });
         })
-        .catch(error => console.error('❌ SW registration failed:', error));
+        .catch((error) => console.error("❌ SW registration failed:", error));
     });
   }
 </script>
@@ -361,12 +401,14 @@ Agregar estos tags en `<head>`:
 ## 🧪 CÓMO EJECUTAR TESTS
 
 ### Opción 1: Automático en index.html
+
 ```html
 <!-- Agregar en <body> -->
 <script src="tests/unit-tests.js"></script>
 ```
 
 ### Opción 2: Manual en consola
+
 ```javascript
 // 1. Abrir DevTools (F12)
 // 2. Ir a Console
@@ -377,12 +419,13 @@ Agregar estos tags en `<head>`:
 ```
 
 ### Opción 3: Con diagnostic tools
+
 ```javascript
 // Ejecutar tests directamente:
-DiagnosticTools.testAll()
+DiagnosticTools.testAll();
 
 // Ver resultados:
-window.TestResults
+window.TestResults;
 ```
 
 ---
@@ -390,6 +433,7 @@ window.TestResults
 ## 📈 MÉTRICAS FASE 3
 
 ### Testing Coverage
+
 ```
 Config Module:       100% ✅
 Auth Module:         100% ✅
@@ -402,6 +446,7 @@ Validation Utils:    100% ✅
 ```
 
 ### Performance Improvements
+
 ```
 Bundle Size:         -57% 💚
 Cache Hit Ratio:     85-95%
@@ -411,6 +456,7 @@ PWA Score:           90+
 ```
 
 ### Code Quality
+
 ```
 Unit Test Coverage:  32 tests
 Integration Tests:   8 manual flows
@@ -486,21 +532,25 @@ PaginaWebPedidosPS v2.0 - COMPLETO ✅
 ### Opcional - Mejoras Futuras
 
 1. **Analytics** (Google Analytics 4)
+
    - Tracking de eventos
    - Funnel analysis
    - User behavior
 
 2. **Monitoring** (Sentry, Datadog)
+
    - Error tracking
    - Performance monitoring
    - User feedback
 
 3. **CI/CD Pipeline** (GitHub Actions)
+
    - Automated tests on push
    - Build optimization
    - Auto deployment
 
 4. **Database** (Real backend)
+
    - Replace localStorage
    - Cloud storage
    - Data backup
@@ -515,8 +565,8 @@ PaginaWebPedidosPS v2.0 - COMPLETO ✅
 ## 📚 ARCHIVOS PRINCIPALES FASE 3
 
 - [tests/unit-tests.js](tests/unit-tests.js) - Suite de tests
-- [pwa/manifest.json](pwa/manifest.json) - PWA manifest
-- [pwa/service-worker.js](pwa/service-worker.js) - Service Worker
+- [pwa/manifest.json](../pwa/manifest.json) - PWA manifest
+- [pwa/service-worker.js](../pwa/service-worker.js) - Service Worker
 - [FASE_2_COMPLETADA.md](FASE_2_COMPLETADA.md) - Fase 2 docs
 - [FASE_2_3_PLAN.md](FASE_2_3_PLAN.md) - Plan completo
 
@@ -524,11 +574,11 @@ PaginaWebPedidosPS v2.0 - COMPLETO ✅
 
 ## 🔄 RESUMEN DE TODAS LAS FASES
 
-| Fase | Objetivo | Status | Archivos |
-|------|----------|--------|----------|
-| **1** | Seguridad | ✅ | 2 módulos + 10 docs |
-| **2** | Modularización | ✅ | 7 módulos + 1 orquestador |
-| **3** | Testing & PWA | ✅ | 2 módulos + 1 test suite |
+| Fase  | Objetivo       | Status | Archivos                  |
+| ----- | -------------- | ------ | ------------------------- |
+| **1** | Seguridad      | ✅     | 2 módulos + 10 docs       |
+| **2** | Modularización | ✅     | 7 módulos + 1 orquestador |
+| **3** | Testing & PWA  | ✅     | 2 módulos + 1 test suite  |
 
 **Total Nuevo**: ~8,000 líneas de código de calidad
 
