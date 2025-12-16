@@ -32,18 +32,26 @@
 }
 
 .splash-screen::before {
-    content: '';
+    content: "";
     position: absolute;
     width: 200%;
     height: 200%;
-    background: radial-gradient(circle, rgba(255,255,255,0.1) 1px, transparent 1px);
+    background: radial-gradient(
+        circle,
+        rgba(255, 255, 255, 0.1) 1px,
+        transparent 1px
+    );
     background-size: 50px 50px;
     animation: backgroundMove 20s linear infinite;
 }
 
 @keyframes backgroundMove {
-    0% { transform: translate(0, 0); }
-    100% { transform: translate(50px, 50px); }
+    0% {
+        transform: translate(0, 0);
+    }
+    100% {
+        transform: translate(50px, 50px);
+    }
 }
 
 .splash-content {
@@ -67,6 +75,47 @@
 /* Animación del paquete */
 .splash-logo {
     margin-bottom: 2rem;
+    position: relative;
+}
+
+/* Logo en splash screen */
+.logo-container {
+    margin-bottom: 1.5rem;
+    animation: logoEntrance 1s ease-out;
+}
+
+@keyframes logoEntrance {
+    0% {
+        opacity: 0;
+        transform: scale(0.5) rotate(-10deg);
+    }
+    60% {
+        transform: scale(1.1) rotate(2deg);
+    }
+    100% {
+        opacity: 1;
+        transform: scale(1) rotate(0deg);
+    }
+}
+
+.splash-logo-img {
+    width: 120px;
+    height: 120px;
+    object-fit: contain;
+    filter: drop-shadow(0 8px 16px rgba(0, 0, 0, 0.3));
+    animation: logoGlow 2s ease-in-out infinite;
+}
+
+@keyframes logoGlow {
+    0%,
+    100% {
+        filter: drop-shadow(0 8px 16px rgba(0, 0, 0, 0.3))
+            drop-shadow(0 0 20px rgba(255, 215, 0, 0.3));
+    }
+    50% {
+        filter: drop-shadow(0 8px 16px rgba(0, 0, 0, 0.3))
+            drop-shadow(0 0 30px rgba(255, 215, 0, 0.6));
+    }
 }
 
 .package-animation {
@@ -85,7 +134,8 @@
 }
 
 @keyframes packageFloat {
-    0%, 100% {
+    0%,
+    100% {
         transform: translateY(0) rotate(0deg);
     }
     50% {
@@ -105,7 +155,7 @@
 }
 
 .package-top::before {
-    content: '';
+    content: "";
     position: absolute;
     width: 60%;
     height: 3px;
@@ -116,7 +166,7 @@
 }
 
 .package-top::after {
-    content: '';
+    content: "";
     position: absolute;
     width: 3px;
     height: 60%;
@@ -175,7 +225,8 @@
 }
 
 @keyframes sparkleFloat {
-    0%, 100% {
+    0%,
+    100% {
         opacity: 0;
         transform: translateY(0) scale(0.5);
     }
@@ -285,8 +336,13 @@
 }
 
 @keyframes pulse {
-    0%, 100% { opacity: 0.6; }
-    50% { opacity: 1; }
+    0%,
+    100% {
+        opacity: 0.6;
+    }
+    50% {
+        opacity: 1;
+    }
 }
 
 /* Animación de salida del splash */
@@ -326,32 +382,37 @@
     .splash-title {
         font-size: 2.5rem;
     }
-    
+
     .splash-subtitle {
         font-size: 1rem;
     }
-    
+
+    .splash-logo-img {
+        width: 100px;
+        height: 100px;
+    }
+
     .package-animation {
         width: 120px;
         height: 120px;
     }
-    
+
     .package {
         width: 80px;
         height: 80px;
     }
-    
+
     .package-top {
         width: 80px;
         height: 32px;
     }
-    
+
     .package-side {
         width: 80px;
         height: 64px;
         top: 32px;
     }
-    
+
     .loading-bar {
         width: 250px;
     }
@@ -361,11 +422,16 @@
     .splash-title {
         font-size: 2rem;
     }
-    
+
     .splash-subtitle {
         font-size: 0.9rem;
     }
-    
+
+    .splash-logo-img {
+        width: 80px;
+        height: 80px;
+    }
+
     .loading-bar {
         width: 200px;
     }
