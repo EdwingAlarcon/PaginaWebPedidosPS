@@ -17,7 +17,7 @@
         <title>Sistema de Pedidos - PaginaWebPedidosPS</title>
         <link rel="stylesheet" href="css/styles.css" />
         <link rel="stylesheet" href="css/inventory.css" />
-        
+
         <!-- Security and Utilities Scripts -->
         <script src="js/utils/sanitize.js"></script>
         <script src="js/utils/validation.js"></script>
@@ -1095,18 +1095,58 @@
             <script src="js/inventory-ui.js"></script>
             <script>
                 // Inicializar módulo de inventarios cuando se carga
-                document.addEventListener('DOMContentLoaded', function() {
-                    const inventoryModule = document.getElementById('inventoryModule');
+                document.addEventListener("DOMContentLoaded", function () {
+                    console.log(
+                        "[Index] DOM cargado, buscando módulo de inventarios..."
+                    );
+
+                    const inventoryModule =
+                        document.getElementById("inventoryModule");
                     if (inventoryModule) {
+                        console.log(
+                            "[Index] Módulo encontrado, cargando HTML..."
+                        );
+
                         // Cargar el HTML del módulo de inventarios
-                        fetch('html/inventory.html')
-                            .then(response => response.text())
-                            .then(html => {
-                                inventoryModule.innerHTML = html;
-                                // Inicializar la UI después de cargar el HTML
-                                initInventoryUI();
+                        fetch("html/inventory.html")
+                            .then((response) => {
+                                if (!response.ok) {
+                                    throw new Error(
+                                        "Error HTTP: " + response.status
+                                    );
+                                }
+                                return response.text();
                             })
-                            .catch(error => console.error('Error cargando módulo de inventarios:', error));
+                            .then((html) => {
+                                console.log(
+                                    "[Index] HTML cargado, inyectando en el DOM..."
+                                );
+                                inventoryModule.innerHTML = html;
+
+                                // Esperar un momento para que el HTML se renderice
+                                setTimeout(() => {
+                                    console.log(
+                                        "[Index] Inicializando UI del inventario..."
+                                    );
+                                    if (typeof initInventoryUI === "function") {
+                                        initInventoryUI();
+                                    } else {
+                                        console.error(
+                                            "[Index] initInventoryUI no está definida"
+                                        );
+                                    }
+                                }, 100);
+                            })
+                            .catch((error) => {
+                                console.error(
+                                    "[Index] Error cargando módulo de inventarios:",
+                                    error
+                                );
+                            });
+                    } else {
+                        console.warn(
+                            "[Index] Módulo de inventarios no encontrado en el DOM"
+                        );
                     }
                 });
             </script>

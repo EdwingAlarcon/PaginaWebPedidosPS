@@ -26,11 +26,23 @@ function formatCOP(value) {
  * ==================== INICIALIZACIÓN ====================
  */
 
-document.addEventListener('DOMContentLoaded', function() {
-    initInventoryUI();
-});
+// NO auto-inicializar aquí, se inicializará desde index.html después de cargar el HTML
+// document.addEventListener('DOMContentLoaded', function() {
+//     initInventoryUI();
+// });
 
 function initInventoryUI() {
+    console.log('[Inventory UI] Inicializando módulo de inventarios...');
+
+    // Verificar que los elementos existan antes de inicializar
+    if (!document.getElementById('inventoryModule')) {
+        console.warn('[Inventory UI] Módulo de inventarios no encontrado en el DOM');
+        return;
+    }
+
+    // Attachear event listeners a los botones del header
+    attachInventoryButtonListeners();
+
     loadInventoryDashboard();
     loadProductsTable();
     loadMovementsTable();
@@ -38,15 +50,41 @@ function initInventoryUI() {
     loadSettingsUI();
     initFormHandlers();
     loadCategoryFilter();
+
+    console.log('[Inventory UI] ✅ Módulo de inventarios inicializado correctamente');
 }
 
 /**
- * ==================== HANDLERS DE FORMULARIOS ====================
+ * Attachear event listeners a los botones principales
  */
+function attachInventoryButtonListeners() {
+    // Los botones con onclick ya funcionan, pero por si acaso agregamos listeners adicionales
+    console.log('[Inventory UI] Verificando botones...');
 
-function initFormHandlers() {
-    // Form de Agregar/Editar Producto
-    const productForm = document.getElementById('productForm');
+    // Verificar que las funciones onclick estén en el scope global
+    window.openInventoryModal = openInventoryModal;
+    window.closeInventoryModal = closeInventoryModal;
+    window.switchInventoryTab = switchInventoryTab;
+    window.showInventoryReport = showInventoryReport;
+    window.editProduct = editProduct;
+    window.deleteProduct = deleteProduct;
+    window.quickAdjustStock = quickAdjustStock;
+    window.filterInventoryProducts = filterInventoryProducts;
+    window.filterMovements = filterMovements;
+    window.exportMovements = exportMovements;
+    window.saveInventorySettings = saveInventorySettings;
+    window.resetInventorySettings = resetInventorySettings;
+    window.addNewCategory = addNewCategory;
+    window.deleteCategory = deleteCategory;
+    window.downloadInventoryBackup = downloadInventoryBackup;
+    window.restoreInventoryBackup = restoreInventoryBackup;
+    window.exportInventoryToCSV = exportInventoryToCSV;
+    window.exportInventoryToJSON = exportInventoryToJSON;
+    window.exportInventoryToExcel = exportInventoryToExcel;
+    window.printInventoryReport = printInventoryReport;
+    window.downloadInventoryReport = downloadInventoryReport;
+
+    console.log('[Inventory UI] ✅ Funciones onclick registradas en window');
     if (productForm) {
         productForm.addEventListener('submit', handleProductFormSubmit);
     }
@@ -184,19 +222,19 @@ function loadInventoryDashboard() {
     // Actualizar estadísticas (con verificación de existencia)
     const totalProducts = document.getElementById('totalProducts');
     if (totalProducts) totalProducts.textContent = status.totalProducts;
-    
+
     const totalValue = document.getElementById('totalValue');
     if (totalValue) totalValue.textContent = formatCOP(status.totalValue);
-    
+
     const lowStockCount = document.getElementById('lowStockCount');
     if (lowStockCount) lowStockCount.textContent = status.lowStock;
-    
+
     const criticalStockCount = document.getElementById('criticalStockCount');
     if (criticalStockCount) criticalStockCount.textContent = status.criticalStock;
-    
+
     const overstockedCount = document.getElementById('overstockedCount');
     if (overstockedCount) overstockedCount.textContent = status.overstocked;
-    
+
     const activeProductsCount = document.getElementById('activeProductsCount');
     if (activeProductsCount) activeProductsCount.textContent = status.activeProducts;
 
@@ -210,7 +248,7 @@ function loadInventoryDashboard() {
 function loadTopSellingProducts() {
     const topProducts = inventory.getTopSellingProducts(5);
     const tbody = document.getElementById('topSellingProductsTable');
-    
+
     // Protección: si el elemento no existe, salir
     if (!tbody) return;
 
@@ -233,7 +271,7 @@ function loadTopSellingProducts() {
 function loadCategoryAnalysis() {
     const analysis = inventory.getCategoryAnalysis();
     const container = document.getElementById('categoryAnalysisContainer');
-    
+
     // Protección: si el elemento no existe, salir
     if (!container) return;
 
@@ -275,7 +313,7 @@ function loadCategoryAnalysis() {
 function loadProductsTable() {
     const products = inventory.getAllProducts();
     const tbody = document.getElementById('productsTableBody');
-    
+
     // Protección: si el elemento no existe, salir
     if (!tbody) return;
 
@@ -290,7 +328,7 @@ function loadProductsTable() {
 
 function renderProductsTable(products) {
     const tbody = document.getElementById('productsTableBody');
-    
+
     // Protección: si el elemento no existe, salir
     if (!tbody) return;
 
@@ -331,7 +369,7 @@ function filterInventoryProducts() {
     const statusFilter = document.getElementById('statusFilter')?.value || '';
 
     filteredProducts = inventory.getAllProducts().filter(product => {
-        const matchesSearch = searchQuery === '' || 
+        const matchesSearch = searchQuery === '' ||
             product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
             product.sku.toLowerCase().includes(searchQuery.toLowerCase()) ||
             product.barcode.toLowerCase().includes(searchQuery.toLowerCase());
@@ -397,7 +435,7 @@ function quickAdjustStock(productId) {
 function loadMovementsTable() {
     const movements = inventory.getMovementHistory();
     const tbody = document.getElementById('movementsTableBody');
-    
+
     // Protección: si el elemento no existe, salir
     if (!tbody) return;
 
@@ -411,7 +449,7 @@ function loadMovementsTable() {
 
 function renderMovementsTable(movements) {
     const tbody = document.getElementById('movementsTableBody');
-    
+
     // Protección: si el elemento no existe, salir
     if (!tbody) return;
         const product = inventory.getProductById(movement.productId);
@@ -498,7 +536,7 @@ function loadAlertsUI() {
 
 function renderAlerts(containerId, products, type, icon) {
     const container = document.getElementById(containerId);
-    
+
     // Protección: si el elemento no existe, salir
     if (!container) return;
 
@@ -540,13 +578,13 @@ function loadSettingsUI() {
 
     const minStockAlert = document.getElementById('minStockAlert');
     if (minStockAlert) minStockAlert.value = settings.minStockAlert;
-    
+
     const maxStockLevel = document.getElementById('maxStockLevel');
     if (maxStockLevel) maxStockLevel.value = settings.maxStockLevel;
-    
+
     const currencySymbol = document.getElementById('currencySymbol');
     if (currencySymbol) currencySymbol.value = settings.currencySymbol;
-    
+
     const enableNotifications = document.getElementById('enableNotifications');
     if (enableNotifications) enableNotifications.checked = settings.enableNotifications;
 
@@ -556,7 +594,7 @@ function loadSettingsUI() {
 function loadCategories() {
     const categories = inventory.getCategories();
     const container = document.getElementById('categoriesContainer');
-    
+
     // Protección: si el elemento no existe, salir
     if (!container) return;
         <div class="category-item">
@@ -620,7 +658,7 @@ function deleteCategory(categoryId) {
 function loadProductCategories() {
     const categories = inventory.getCategories();
     const select = document.getElementById('productCategory');
-    
+
     // Protección: si el elemento no existe, salir
     if (!select) return;
 
@@ -641,7 +679,7 @@ function loadCategoryFilter() {
 function loadAdjustStockProducts() {
     const products = inventory.getAllProducts();
     const select = document.getElementById('adjustProductSelect');
-    
+
     // Protección: si el elemento no existe, salir
     if (!select) return;
 
@@ -659,7 +697,7 @@ function loadAdjustStockProducts() {
 function updateProductInfoDisplay() {
     const select = document.getElementById('adjustProductSelect');
     const infoDiv = document.getElementById('productInfo');
-    
+
     // Protección: si los elementos no existen, salir
     if (!select || !infoDiv) return;
 
@@ -675,7 +713,7 @@ function updateProductInfoDisplay() {
         const currentStockDisplay = document.getElementById('currentStockDisplay');
         const minStockDisplay = document.getElementById('minStockDisplay');
         const maxStockDisplay = document.getElementById('maxStockDisplay');
-        
+
         if (currentStockDisplay) currentStockDisplay.textContent = product.quantity;
         if (minStockDisplay) minStockDisplay.textContent = product.minStock;
         if (maxStockDisplay) maxStockDisplay.textContent = product.maxStock;
@@ -689,7 +727,7 @@ function updateProductInfoDisplay() {
 
 function showInventoryReport() {
     const content = document.getElementById('reportContent');
-    
+
     // Protección: si el elemento no existe, salir
     if (!content) return;
 
@@ -864,7 +902,7 @@ function viewProductHistory(productId) {
     }
 
     console.log(`Historial de ${product.name}:`, movements);
-    alert(`Historial de ${product.name}\n\n${movements.map(m => 
+    alert(`Historial de ${product.name}\n\n${movements.map(m =>
         `${new Date(m.timestamp).toLocaleString()}: ${m.type} (${m.quantity}) - ${m.reason}`
     ).join('\n')}`);
 }
@@ -906,4 +944,14 @@ function showNotification(message, type = 'info') {
 window.addEventListener('inventoryChanged', (event) => {
     loadInventoryDashboard();
     loadProductsTable();
+});
+
+// Log de funciones disponibles
+console.log('[Inventory UI] ✅ Módulo cargado. Funciones disponibles:', {
+    openInventoryModal: typeof openInventoryModal,
+    closeInventoryModal: typeof closeInventoryModal,
+    switchInventoryTab: typeof switchInventoryTab,
+    showInventoryReport: typeof showInventoryReport,
+    editProduct: typeof editProduct,
+    deleteProduct: typeof deleteProduct
 });
