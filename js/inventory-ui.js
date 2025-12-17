@@ -85,6 +85,28 @@ function attachInventoryButtonListeners() {
     window.downloadInventoryReport = downloadInventoryReport;
 
     console.log('[Inventory UI] ✅ Funciones onclick registradas en window');
+
+    // Agregar event listeners directos a los 3 botones principales
+    // IMPORTANTE: Esto es un backup al onclick, ya que el HTML se carga dinámicamente
+    const addProductBtn = document.querySelector('.inventory-actions button:nth-child(1)');
+    const adjustStockBtn = document.querySelector('.inventory-actions button:nth-child(2)');
+    const reportBtn = document.querySelector('.inventory-actions button:nth-child(3)');
+
+    if (addProductBtn) {
+        addProductBtn.addEventListener('click', () => openInventoryModal('addProduct'));
+        console.log('[Inventory UI] ✅ Event listener agregado a Nuevo Producto');
+    }
+
+    if (adjustStockBtn) {
+        adjustStockBtn.addEventListener('click', () => openInventoryModal('adjustStock'));
+        console.log('[Inventory UI] ✅ Event listener agregado a Ajustar Stock');
+    }
+
+    if (reportBtn) {
+        reportBtn.addEventListener('click', () => showInventoryReport());
+        console.log('[Inventory UI] ✅ Event listener agregado a Reportes');
+    }
+
     if (productForm) {
         productForm.addEventListener('submit', handleProductFormSubmit);
     }
@@ -172,6 +194,8 @@ function handleAdjustStockSubmit(e) {
  */
 
 function openInventoryModal(modalType) {
+    console.log('[openInventoryModal] Abriendo modal:', modalType);
+
     const modals = {
         'addProduct': 'addProductModal',
         'adjustStock': 'adjustStockModal',
@@ -179,10 +203,20 @@ function openInventoryModal(modalType) {
     };
 
     const modalId = modals[modalType];
-    if (!modalId) return;
+    console.log('[openInventoryModal] Modal ID:', modalId);
+
+    if (!modalId) {
+        console.error('[openInventoryModal] Modal ID no encontrado para tipo:', modalType);
+        return;
+    }
 
     const modal = document.getElementById(modalId);
-    if (!modal) return;
+    console.log('[openInventoryModal] Elemento modal:', modal);
+
+    if (!modal) {
+        console.error('[openInventoryModal] No se encontró el elemento modal con ID:', modalId);
+        return;
+    }
 
     // Limpiar estado previo
     currentProductId = null;
@@ -197,6 +231,7 @@ function openInventoryModal(modalType) {
     }
 
     modal.style.display = 'block';
+    console.log('[openInventoryModal] ✅ Modal abierto exitosamente');
 }
 
 function closeInventoryModal(modalType) {
@@ -726,12 +761,18 @@ function updateProductInfoDisplay() {
  */
 
 function showInventoryReport() {
+    console.log('[showInventoryReport] Generando reporte...');
+
     const content = document.getElementById('reportContent');
 
     // Protección: si el elemento no existe, salir
-    if (!content) return;
+    if (!content) {
+        console.error('[showInventoryReport] No se encontró el elemento reportContent');
+        return;
+    }
 
     const report = inventory.generateInventoryReport();
+    console.log('[showInventoryReport] Reporte generado:', report);
         <div class="report-section">
             <h3>📊 Resumen General</h3>
             <table class="report-table">
