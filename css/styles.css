@@ -818,23 +818,24 @@ main {
 
 /* Fieldsets y Legends - Diseño Moderno */
 fieldset {
-    border: 2px solid var(--border-color);
+    border: 2px solid #9ca3af;
     border-radius: var(--radius-lg);
     padding: var(--spacing-xl);
     margin-bottom: var(--spacing-lg);
-    background: var(--background);
+    background: #fafafa;
     transition: all var(--transition-base);
 }
 
 fieldset:hover {
-    border-color: var(--primary-light);
+    border-color: #6d28d9;
     background: white;
+    box-shadow: 0 2px 8px rgba(109, 40, 217, 0.1);
 }
 
 legend {
     font-size: 1.125rem;
     font-weight: 700;
-    color: var(--primary-color);
+    color: #5b21b6;
     padding: 0 var(--spacing-md);
     background: white;
     border-radius: var(--radius-md);
@@ -849,8 +850,9 @@ legend {
 .form-group label {
     display: block;
     margin-bottom: 0.5rem;
-    font-weight: 500;
-    color: var(--text-primary);
+    font-weight: 600;
+    color: #1f2937;
+    font-size: 0.95rem;
 }
 
 .required {
@@ -862,9 +864,10 @@ legend {
 .field-hint {
     display: block;
     font-size: 0.85rem;
-    color: var(--text-secondary);
+    color: #4b5563;
     margin-top: 0.25rem;
     font-style: italic;
+    font-weight: 500;
 }
 
 .product-image-input {
@@ -877,16 +880,25 @@ legend {
     gap: 0.5rem;
     cursor: pointer;
     user-select: none;
+    padding: 0.5rem;
+    border-radius: var(--radius-md);
+    transition: background-color var(--transition-base);
+}
+
+.checkbox-label:hover {
+    background-color: #f3f4f6;
 }
 
 .checkbox-label input[type="checkbox"] {
     width: auto;
     cursor: pointer;
     transform: scale(1.2);
+    accent-color: #5b21b6;
 }
 
 .checkbox-label span {
-    font-weight: 500;
+    font-weight: 600;
+    color: #1f2937;
 }
 
 /* Inputs y Textareas - Diseño Moderno */
@@ -900,7 +912,7 @@ textarea,
 select {
     width: 100%;
     padding: 0.875rem 1rem;
-    border: 2px solid var(--border-color);
+    border: 2px solid #9ca3af;
     border-radius: var(--radius-md);
     font-size: 0.95rem;
     font-family: inherit;
@@ -908,13 +920,14 @@ select {
     -webkit-appearance: none;
     -moz-appearance: none;
     appearance: none;
-    background-color: var(--surface);
-    color: var(--text-primary);
+    background-color: #ffffff;
+    color: #111827;
+    font-weight: 500;
 }
 
-/* Flecha personalizada para select */
+/* Flecha personalizada para select con mejor contraste */
 select {
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%237c3aed' d='M10.293 3.293L6 7.586 1.707 3.293A1 1 0 00.293 4.707l5 5a1 1 0 001.414 0l5-5a1 1 0 10-1.414-1.414z'/%3E%3C/svg%3E");
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%235b21b6' d='M10.293 3.293L6 7.586 1.707 3.293A1 1 0 00.293 4.707l5 5a1 1 0 001.414 0l5-5a1 1 0 10-1.414-1.414z'/%3E%3C/svg%3E");
     background-repeat: no-repeat;
     background-position: right 0.875rem center;
     background-size: 1rem;
@@ -930,8 +943,9 @@ input[type="url"]:hover,
 input[type="date"]:hover,
 textarea:hover,
 select:hover {
-    border-color: var(--primary-light);
-    box-shadow: var(--shadow-sm);
+    border-color: #6d28d9;
+    box-shadow: 0 0 0 3px rgba(109, 40, 217, 0.15);
+    background-color: #fefefe;
 }
 
 input[type="text"]:focus,
@@ -942,24 +956,44 @@ input[type="url"]:focus,
 input[type="date"]:focus,
 textarea:focus,
 select:focus {
-    border-color: var(--primary-color);
-    box-shadow: 0 0 0 4px rgba(124, 58, 237, 0.1);
-    outline: none;
+    border-color: #5b21b6;
+    box-shadow: 0 0 0 4px rgba(91, 33, 182, 0.25);
+    outline: 2px solid transparent;
+    background-color: #ffffff;
 }
 
 input:invalid:not(:placeholder-shown) {
-    border-color: var(--danger-color);
+    border-color: #dc2626;
+    background-color: #fef2f2;
 }
 
 input:invalid:not(:placeholder-shown):focus {
-    box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.1);
+    box-shadow: 0 0 0 4px rgba(220, 38, 38, 0.25);
+    border-color: #b91c1c;
 }
 
 input[readonly] {
-    background-color: var(--disabled-bg);
-    color: var(--text-secondary);
+    background-color: #e5e7eb;
+    color: #374151;
     cursor: not-allowed;
     border-style: dashed;
+    border-color: #9ca3af;
+    font-weight: 500;
+}
+
+/* Estilos para placeholders con mejor contraste */
+input::placeholder,
+textarea::placeholder,
+select::placeholder {
+    color: #6b7280;
+    opacity: 1;
+    font-weight: 400;
+}
+
+input:focus::placeholder,
+textarea:focus::placeholder,
+select:focus::placeholder {
+    color: #9ca3af;
 }
 
 textarea {
@@ -1153,12 +1187,13 @@ textarea {
 }
 
 button:disabled {
-    background: var(--disabled-bg) !important;
-    color: var(--disabled-text) !important;
+    background: #d1d5db !important;
+    color: #6b7280 !important;
     cursor: not-allowed;
-    border-color: var(--disabled-bg) !important;
+    border-color: #d1d5db !important;
     box-shadow: none !important;
-    opacity: 0.6;
+    opacity: 0.7;
+    font-weight: 600;
 }
 
 #addProductBtn {
