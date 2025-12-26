@@ -3354,4 +3354,71 @@ document.addEventListener("DOMContentLoaded", () => {
     if (!isOnline) {
         document.getElementById("offlineIndicator").style.display = "flex";
     }
+    
+    // ==================== EVENT LISTENERS ====================
+    // Reemplazar onclick inline con event listeners apropiados
+    
+    // Navegación por pestañas
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const tabName = btn.getAttribute('data-tab');
+            if (tabName) switchTab(tabName);
+        });
+    });
+    
+    // Botones de clientes
+    const newClientBtn = document.getElementById('newClientBtn');
+    if (newClientBtn) {
+        newClientBtn.addEventListener('click', showNewClientForm);
+    }
+    
+    const loadClientsBtn = document.getElementById('loadClientsBtn');
+    if (loadClientsBtn) {
+        loadClientsBtn.addEventListener('click', loadClients);
+    }
+    
+    const saveNewClientBtn = document.getElementById('saveNewClientBtn');
+    if (saveNewClientBtn) {
+        saveNewClientBtn.addEventListener('click', saveNewClient);
+    }
+    
+    const cancelNewClientBtn = document.getElementById('cancelNewClientBtn');
+    if (cancelNewClientBtn) {
+        cancelNewClientBtn.addEventListener('click', cancelNewClient);
+    }
+    
+    // Botones de pedidos
+    const loadOrdersBtn = document.getElementById('loadOrdersBtn');
+    if (loadOrdersBtn) {
+        loadOrdersBtn.addEventListener('click', loadOrders);
+    }
+    
+    const exportPdfBtn = document.getElementById('exportPdfBtn');
+    if (exportPdfBtn) {
+        exportPdfBtn.addEventListener('click', exportOrdersToPDF);
+    }
+    
+    // Botones de filtros
+    const applyFiltersBtn = document.getElementById('applyFiltersBtn');
+    if (applyFiltersBtn) {
+        applyFiltersBtn.addEventListener('click', applyFilters);
+    }
+    
+    const clearFiltersBtn = document.getElementById('clearFiltersBtn');
+    if (clearFiltersBtn) {
+        clearFiltersBtn.addEventListener('click', clearFilters);
+    }
+    
+    // Botones de códigos guardados
+    const toggleSavedCodesBtn = document.getElementById('toggleSavedCodesBtn');
+    if (toggleSavedCodesBtn) {
+        toggleSavedCodesBtn.addEventListener('click', toggleSavedCodes);
+    }
+    
+    const saveProductAsCodeBtn = document.getElementById('saveProductAsCodeBtn');
+    if (saveProductAsCodeBtn) {
+        saveProductAsCodeBtn.addEventListener('click', saveCurrentProductAsCode);
+    }
+    
+    console.log('✅ Event listeners configurados correctamente');
 });

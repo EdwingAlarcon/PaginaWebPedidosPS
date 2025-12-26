@@ -6,7 +6,9 @@
             name="viewport"
             content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes"
         />
-        <meta name="description" content="Sistema de registro de pedidos" />
+        <meta name="description" content="Sistema de gestión de pedidos para Purple Shop - Registro, seguimiento y gestión de inventarios de forma eficiente" />
+        <meta name="keywords" content="pedidos, inventario, gestión, Purple Shop, órdenes, clientes, ventas" />
+        <meta name="author" content="EdwingAlarcon" />
         <meta name="theme-color" content="#800b96" />
         <meta name="mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -14,10 +16,36 @@
             name="apple-mobile-web-app-status-bar-style"
             content="black-translucent"
         />
-        <title>Sistema de Pedidos - PaginaWebPedidosPS</title>
+        
+        <!-- Open Graph / Facebook -->
+        <meta property="og:type" content="website" />
+        <meta property="og:title" content="Purple Shop - Sistema de Pedidos" />
+        <meta property="og:description" content="Sistema de gestión de pedidos e inventarios" />
+        <meta property="og:image" content="assets/images/logo-purple-shop.png" />
+        
+        <!-- Twitter -->
+        <meta name="twitter:card" content="summary" />
+        <meta name="twitter:title" content="Purple Shop - Sistema de Pedidos" />
+        <meta name="twitter:description" content="Sistema de gestión de pedidos e inventarios" />
+        
+        <title>Purple Shop - Sistema de Gestión de Pedidos e Inventario</title>
+        
+        <!-- PWA Manifest -->
+        <link rel="manifest" href="pwa/manifest.json" />
+        
+        <!-- Favicon -->
+        <link rel="icon" type="image/png" href="assets/images/logo-purple-shop.png" />
+        <link rel="apple-touch-icon" href="assets/images/logo-purple-shop.png" />
+        
         <link rel="stylesheet" href="css/styles.css" />
         <link rel="stylesheet" href="css/inventory.css" />
 
+        <!-- Logger System (cargar primero) -->
+        <script src="src/utils/logger.js"></script>
+        
+        <!-- Performance Utilities -->
+        <script src="src/utils/performance.js"></script>
+        
         <!-- Security and Utilities Scripts -->
         <script src="src/utils/sanitize.js"></script>
         <script src="src/utils/validation.js"></script>
@@ -142,35 +170,35 @@
                 <button
                     class="tab-btn active"
                     data-tab="newOrder"
-                    onclick="switchTab('newOrder')"
+                    aria-label="Ir a Nuevo Pedido"
                 >
                     🏠 Nuevo Pedido
                 </button>
                 <button
                     class="tab-btn"
                     data-tab="clients"
-                    onclick="switchTab('clients')"
+                    aria-label="Ir a Clientes"
                 >
                     👥 Clientes
                 </button>
                 <button
                     class="tab-btn"
                     data-tab="orders"
-                    onclick="switchTab('orders')"
+                    aria-label="Ir a Pedidos"
                 >
                     📦 Pedidos
                 </button>
                 <button
                     class="tab-btn"
                     data-tab="reports"
-                    onclick="switchTab('reports')"
+                    aria-label="Ir a Reportes"
                 >
                     📊 Reportes
                 </button>
                 <button
                     class="tab-btn"
                     data-tab="inventory"
-                    onclick="switchTab('inventory')"
+                    aria-label="Ir a Inventarios"
                 >
                     📦 Inventarios
                 </button>
@@ -356,8 +384,9 @@
                                         >
                                         <button
                                             type="button"
-                                            onclick="toggleSavedCodes()"
+                                            id="toggleSavedCodesBtn"
                                             class="btn-toggle-codes"
+                                            aria-label="Ver códigos guardados"
                                         >
                                             Ver <span id="codesCount">0</span>
                                         </button>
@@ -545,9 +574,10 @@
                                         >
                                             <button
                                                 type="button"
-                                                onclick="saveCurrentProductAsCode()"
+                                                id="saveProductAsCodeBtn"
                                                 class="btn-save-code"
                                                 title="Guardar este producto con su código para uso futuro"
+                                                aria-label="Guardar este producto como código rápido"
                                             >
                                                 💾 Guardar Código Rápido
                                             </button>
@@ -773,7 +803,7 @@
                                 type="button"
                                 class="btn-primary"
                                 id="newClientBtn"
-                                onclick="showNewClientForm()"
+                                aria-label="Mostrar formulario de nuevo cliente"
                             >
                                 ➕ Nuevo Cliente
                             </button>
@@ -781,7 +811,7 @@
                                 type="button"
                                 class="btn-primary"
                                 id="loadClientsBtn"
-                                onclick="loadClients()"
+                                aria-label="Cargar clientes desde Excel"
                             >
                                 Cargar Clientes
                             </button>
@@ -837,14 +867,16 @@
                                 <button
                                     type="button"
                                     class="btn-primary"
-                                    onclick="saveNewClient()"
+                                    id="saveNewClientBtn"
+                                    aria-label="Guardar nuevo cliente"
                                 >
                                     Guardar Cliente
                                 </button>
                                 <button
                                     type="button"
                                     class="btn-secondary"
-                                    onclick="cancelNewClient()"
+                                    id="cancelNewClientBtn"
+                                    aria-label="Cancelar registro de cliente"
                                 >
                                     Cancelar
                                 </button>
@@ -867,7 +899,7 @@
                                 type="button"
                                 class="btn-primary"
                                 id="loadOrdersBtn"
-                                onclick="loadOrders()"
+                                aria-label="Cargar pedidos desde Excel"
                             >
                                 Cargar Pedidos
                             </button>
@@ -875,7 +907,7 @@
                                 type="button"
                                 class="btn-secondary"
                                 id="exportPdfBtn"
-                                onclick="exportOrdersToPDF()"
+                                aria-label="Exportar pedidos a PDF"
                             >
                                 💾 Exportar PDF
                             </button>
@@ -911,14 +943,16 @@
                                     <button
                                         type="button"
                                         class="btn-primary btn-small"
-                                        onclick="applyFilters()"
+                                        id="applyFiltersBtn"
+                                        aria-label="Aplicar filtros de búsqueda"
                                     >
                                         Filtrar
                                     </button>
                                     <button
                                         type="button"
                                         class="btn-secondary btn-small"
-                                        onclick="clearFilters()"
+                                        id="clearFiltersBtn"
+                                        aria-label="Limpiar filtros de búsqueda"
                                     >
                                         Limpiar
                                     </button>

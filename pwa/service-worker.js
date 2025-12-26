@@ -11,32 +11,36 @@ const API_CACHE = 'pagina-web-pedidos-api';
 const STATIC_ASSETS = [
     // HTML
     '/index.html',
+    '/inventory.html',
     
     // CSS
     '/css/styles.css',
     '/css/inventory.css',
     
-    // JS - Core
+    // JS - Config
     '/src/config/config.js',
+    
+    // JS - Modules
     '/src/modules/auth.js',
     '/src/modules/inventory.js',
     '/src/modules/excel.js',
     '/src/modules/forms.js',
     '/src/modules/ui.js',
+    
+    // JS - Core
+    '/src/core/app.js',
+    '/src/core/inventory.js',
+    '/src/core/inventory-ui.js',
     '/src/main.js',
     
-    // JS - Utilities
-    '/js/app.js',
-    '/js/inventory.js',
-    '/js/inventory-ui.js',
-    '/js/utils/sanitize.js',
-    '/js/utils/validation.js',
+    // JS - Utils
+    '/src/utils/sanitize.js',
+    '/src/utils/validation.js',
     
-    // External
+    // External Libraries
     'https://alcdn.msauth.net/browser/2.26.0/js/msal-browser.min.js',
     
-    // Assets
-    '/assets/images/',
+    // PWA
     '/pwa/manifest.json'
 ];
 

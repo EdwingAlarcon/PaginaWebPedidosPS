@@ -86,6 +86,14 @@ const uiConfig = {
     theme: 'light' // o 'dark'
 };
 
+// Configuración de logging
+// Niveles: 0=OFF, 1=ERROR, 2=WARN, 3=INFO, 4=DEBUG
+const logConfig = {
+    level: getEnvVar('LOG_LEVEL', '3'), // Default INFO
+    enableConsole: true,
+    enableRemote: false
+};
+
 // Configuración de validación
 const validationConfig = {
     minNameLength: 3,
@@ -113,6 +121,7 @@ window.Config = {
     msalScopes,
     excelConfig,
     uiConfig,
+    logConfig,
     validationConfig,
     
     // Método para actualizar configuración en runtime
@@ -151,6 +160,11 @@ window.Config = {
             msalScopes: this.msalScopes,
             excelConfig: this.excelConfig,
             uiConfig: this.uiConfig,
+            logConfig: this.logConfig,
+            validationConfig: this.validationConfig
+        };
+    }
+};
             validationConfig: this.validationConfig
         };
     }
