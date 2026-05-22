@@ -26,9 +26,11 @@ function getEnvVar(key, fallback = '') {
 }
 
 // Configuración de MSAL (Microsoft Authentication Library)
+// IMPORTANTE: VITE_AZURE_CLIENT_ID debe definirse en window.ENV o en localStorage
+// (clave: env_VITE_AZURE_CLIENT_ID). NO incluir el valor real en el código fuente.
 const msalConfig = {
     auth: {
-        clientId: getEnvVar('VITE_AZURE_CLIENT_ID', '447bd8ae-99c8-470b-aca8-a6118d640151'),
+        clientId: getEnvVar('VITE_AZURE_CLIENT_ID', ''),
         authority: getEnvVar('VITE_AZURE_AUTHORITY', 'https://login.microsoftonline.com/common'),
         redirectUri: window.location.origin + '/index.html',
         postLogoutRedirectUri: window.location.origin
@@ -135,20 +137,26 @@ window.Config = {
     // Método para verificar configuración
     validateConfig() {
         const errors = [];
-        
-        // Validar MSAL config
+
         if (!this.msalConfig.auth.clientId) {
-            errors.push('Missing: VITE_AZURE_CLIENT_ID in .env.local');
+            errors.push('Missing: VITE_AZURE_CLIENT_ID en window.ENV o localStorage (env_VITE_AZURE_CLIENT_ID)');
         }
         if (!this.msalConfig.auth.authority) {
-            errors.push('Missing: VITE_AZURE_AUTHORITY in .env.local');
+            errors.push('Missing: VITE_AZURE_AUTHORITY en window.ENV o localStorage');
         }
-        
+
         if (errors.length > 0) {
-            console.error('[Config] Validation errors:', errors);
+            console.error('[Config] ❌ Errores de configuración:', errors);
+            // Mostrar mensaje visible si falta el Client ID
+            if (!this.msalConfig.auth.clientId) {
+                console.error(
+                    '[Config] ❗ La integración con Microsoft/OneDrive está deshabilitada.\n' +
+                    'Define VITE_AZURE_CLIENT_ID en window.ENV antes de cargar la app.'
+                );
+            }
             return false;
         }
-        
+
         console.log('[Config] ✅ Configuration validated successfully');
         return true;
     },
@@ -165,10 +173,4 @@ window.Config = {
         };
     }
 };
-            validationConfig: this.validationConfig
-        };
-    }
-};
 
-// Log al cargar
-console.log('[Config] ✅ Config module loaded');

@@ -39,16 +39,6 @@
         
         <link rel="stylesheet" href="css/styles.css" />
         <link rel="stylesheet" href="css/inventory.css" />
-
-        <!-- Logger System (cargar primero) -->
-        <script src="src/utils/logger.js"></script>
-        
-        <!-- Performance Utilities -->
-        <script src="src/utils/performance.js"></script>
-        
-        <!-- Security and Utilities Scripts -->
-        <script src="src/utils/sanitize.js"></script>
-        <script src="src/utils/validation.js"></script>
     </head>
     <body>
         <!-- Splash Screen -->
@@ -1039,13 +1029,38 @@
             </footer>
 
             <!-- Scripts -->
+            <!-- Orden explícito: dependencias primero, orquestador al final (B4) -->
+
+            <!-- 1. Librerías externas -->
             <script src="https://alcdn.msauth.net/browser/2.30.0/js/msal-browser.min.js"></script>
-            <script src="src/core/app.js"></script>
+
+            <!-- 2. Infraestructura (sin dependencias) -->
+            <script src="src/utils/event-bus.js"></script>
+            <script src="src/utils/notification-service.js"></script>
+            <script src="src/utils/logger.js"></script>
+            <script src="src/utils/performance.js"></script>
+            <script src="src/utils/sanitize.js"></script>
+            <script src="src/utils/validation.js"></script>
+
+            <!-- 3. Configuración (depende de utils) -->
+            <script src="src/config/config.js"></script>
+
+            <!-- 4. Módulos de la aplicación (dependen de config + utils) -->
+            <script src="src/modules/auth.js"></script>
+            <script src="src/modules/inventory.js"></script>
+            <script src="src/modules/excel.js"></script>
+            <script src="src/modules/ui.js"></script>
+            <script src="src/modules/forms.js"></script>
+
+            <!-- 5. Módulo de inventario de productos (pestaña de stock) -->
             <script src="src/core/inventory.js"></script>
             <script src="src/core/inventory-ui.js"></script>
-            
-            <!-- Form Optimizations -->
+
+            <!-- 6. Optimizaciones de formulario -->
             <script src="src/utils/form-optimizations.js"></script>
+
+            <!-- 7. Orquestador principal (debe cargarse al último) -->
+            <script src="src/main.js"></script>
             
             <script>
                 // Inicializar módulo de inventarios cuando se carga

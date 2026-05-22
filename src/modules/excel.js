@@ -14,21 +14,24 @@ class ExcelManager {
     }
 
     /**
-     * Inicializar Excel Manager
+     * Inicializar Excel Manager.
+     * Las llamadas a Graph usan AuthManager.getToken() directamente;
+     * no se necesita una instancia MSAL separada aquí.
      */
     async initialize() {
         try {
             console.log('[Excel] 🔄 Initializing...');
-            
-            // Verificar que Auth esté disponible
+
             if (!window.AuthManager) {
                 throw new Error('AuthManager not loaded');
             }
 
-            // Crear cliente de Graph
-            this.graphClient = new window.msal.ConfidentialClientApplication({
-                auth: window.Config.msalConfig.auth
-            });
+            if (!window.Config) {
+                throw new Error('Config not loaded');
+            }
+
+            // graphClient no es necesario: todas las llamadas usan fetch + Bearer token.
+            this.graphClient = null;
 
             this.isInitialized = true;
             console.log('[Excel] ✅ Initialized');

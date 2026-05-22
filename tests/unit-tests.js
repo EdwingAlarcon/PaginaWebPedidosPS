@@ -1,8 +1,175 @@
 /**
- * 🧪 UNIT TESTS - FASE 3
- * Tests para módulos de la aplicación
- * Ejecutar en navegador: copiar y pegar en consola del navegador
+ * Suite de Pruebas Unitarias — PaginaWebPedidosPS (Fase C2)
+ * Cubre: ValidationUtils, SecurityUtils
+ *
+ * Ejecución: incluir en tests/unit-tests.html después de cargar todos los módulos.
+ * Resultados en consola y en #testResults si existe en el DOM.
  */
+
+/* ─── Harness ──────────────────────────────────────────────────────────────── */
+const _testResults = [];
+
+function test(name, fn) {
+    try { fn(); _testResults.push({ name, passed: true }); }
+    catch (e) { _testResults.push({ name, passed: false, error: e.message }); }
+}
+function assertEqual(actual, expected, message) {
+    const a = JSON.stringify(actual), e = JSON.stringify(expected);
+    if (a !== e) throw new Error(`${message || 'assertEqual'}: expected ${e}, got ${a}`);
+}
+function assertTrue(value, message) {
+    if (!value) throw new Error(message || `Expected truthy, got ${JSON.stringify(value)}`);
+}
+function assertFalse(value, message) {
+    if (value) throw new Error(message || `Expected falsy, got ${JSON.stringify(value)}`);
+}
+
+/* ─── ValidationUtils ──────────────────────────────────────────────────────── */
+function runValidationTests() {
+    const V = window.ValidationUtils;
+    if (!V) { console.error('[Tests] ValidationUtils not loaded — skip'); return; }
+
+    test('validateField clientName válido', () => assertTrue(V.validateField('clientName', 'Juan García').isValid));
+    test('validateField clientName vacío → inválido', () => assertFalse(V.validateField('clientName', '').isValid));
+    test('validateField clientName retorna isValid (no valid)', () => {
+        const r = V.validateField('clientName', 'Ana');
+        assertTrue(typeof r.isValid === 'boolean');
+        assertEqual(r.valid, undefined, 'NO debe existir propiedad "valid"');
+    });
+    test('validateField phone válido', () => assertTrue(V.validateField('phone', '1234567890').isValid));
+    test('validateField phone muy corto → inválido', () => assertFalse(V.validateField('phone', '123').isValid));
+    test('validateField email válido', () => assertTrue(V.validateField('email', 'test@example.com').isValid));
+    test('validateField email inválido', () => assertFalse(V.validateField('email', 'noesvalido').isValid));
+    test('validateField email vacío es válido (opcional)', () => assertTrue(V.validateField('email', '').isValid));
+    test('validateField quantity válida', () => assertTrue(V.validateField('quantity', 5).isValid));
+    test('validateField quantity cero → inválida', () => assertFalse(V.validateField('quantity', 0).isValid));
+    test('validateField price válido', () => assertTrue(V.validateField('price', 15.5).isValid));
+    test('validateField price negativo → inválido', () => assertFalse(V.validateField('price', -1).isValid));
+    test('validateField discount 0% válido', () => assertTrue(V.validateField('discount', 0).isValid));
+    test('validateField discount >100% → inválido', () => assertFalse(V.validateField('discount', 101).isValid));
+
+    test('validateOrderData plana completa → válida', () => {
+        const r = V.validateOrderData({ clientName: 'María López', phoneNumber: '3001234567', productName: 'Camiseta', quantity: 2, price: 25 });
+        assertTrue(r.isValid, 'Errores: ' + (r.errors || []).join(', '));
+        assertTrue(Array.isArray(r.errors));
+    });
+    test('validateOrderData sin clientName → inválida', () => {
+        const r = V.validateOrderData({ phoneNumber: '3001234567', productName: 'X', quantity: 1, price: 5 });
+        assertFalse(r.isValid); assertTrue(r.errors.length > 0);
+    });
+    test('validateOrderData retorna isValid no valid', () => {
+        const r = V.validateOrderData({ clientName: 'Ana', phoneNumber: '3009876543', productName: 'Y', quantity: 1, price: 5 });
+        assertTrue(typeof r.isValid === 'boolean');
+        assertEqual(r.valid, undefined, 'NO debe existir "valid"');
+    });
+    test('validateOrderData estructura anidada (legado) → válida', () => {
+        const r = V.validateOrderData({ cliente: { nombre: 'Carlos Díaz', telefono: '3101234567' }, productos: [{ producto: 'Perfume', cantidad: 1, precioUnitario: 50 }] });
+        assertTrue(r.isValid, 'Legado debe ser válido. Errores: ' + (r.errors || []).join(', '));
+    });
+    test('validateOrderData con email inválido → inválida', () => {
+        const r = V.validateOrderData({ clientName: 'Pedro', phoneNumber: '3001234567', email: 'noesunemail', productName: 'Z', quantity: 1, price: 10 });
+        assertFalse(r.isValid);
+    });
+}
+
+/* ─── SecurityUtils ────────────────────────────────────────────────────────── */
+function runSecurityTests() {
+    const S = window.SecurityUtils;
+    if (!S) { console.error('[Tests] SecurityUtils not loaded — skip'); return; }
+
+    test('sanitizeText escapa <script>', () => {
+        const r = S.sanitizeText('<script>alert(1)</script>');
+        assertFalse(r.includes('<script'), 'No debe contener <script');
+        assertTrue(r.includes('&lt;'), 'Debe escapar <');
+    });
+    test('sanitizeText null → vacío', () => assertEqual(S.sanitizeText(null), ''));
+    test('sanitizeText undefined → vacío', () => assertEqual(S.sanitizeText(undefined), ''));
+    test('sanitizeText preserva texto plano', () => assertEqual(S.sanitizeText('Hola mundo'), 'Hola mundo'));
+
+    test('escapeHTML escapa & < > " \'', () => {
+        const r = S.escapeHTML('<b onclick="alert(\'x\')">test & "q"</b>');
+        assertFalse(r.includes('<b'), 'No debe contener <b');
+        assertTrue(r.includes('&lt;'));
+        assertTrue(r.includes('&amp;'));
+        assertTrue(r.includes('&quot;'));
+    });
+    test('escapeHTML vacío → vacío', () => assertEqual(S.escapeHTML(''), ''));
+
+    test('sanitizeHTML elimina <script>', () => {
+        const r = S.sanitizeHTML('<b>Texto</b><script>alert(1)</script>');
+        assertFalse(r.toLowerCase().includes('script'), 'No debe contener script');
+        assertTrue(r.includes('<b>'), 'Debe conservar <b>');
+    });
+    test('sanitizeHTML elimina onclick', () => {
+        const r = S.sanitizeHTML('<span onclick="alert(1)">texto</span>');
+        assertFalse(r.includes('onclick'), 'No debe contener onclick');
+    });
+    test('sanitizeHTML permite etiquetas de la lista blanca', () => {
+        const r = S.sanitizeHTML('<em>énfasis</em> y <strong>negrita</strong>');
+        assertTrue(r.includes('<em>') || r.includes('énfasis'), 'Debe conservar contenido de <em>');
+        assertTrue(r.includes('<strong>') || r.includes('negrita'), 'Debe conservar contenido de <strong>');
+    });
+    test('sanitizeHTML elimina <div> conservando texto', () => {
+        const r = S.sanitizeHTML('<div>contenido</div>');
+        assertFalse(r.includes('<div'), 'No debe contener <div');
+        assertTrue(r.includes('contenido'));
+    });
+    test('sanitizeHTML elimina img onerror', () => {
+        const r = S.sanitizeHTML('<img src=x onerror="alert(1)">');
+        assertFalse(r.includes('onerror'), 'No debe contener onerror');
+    });
+    test('validateSecurity detecta <script', () => assertFalse(S.validateSecurity('<script>alert(1)</script>').valid));
+    test('validateSecurity detecta javascript:', () => assertFalse(S.validateSecurity('javascript:alert(1)').valid));
+    test('validateSecurity texto normal es válido', () => assertTrue(S.validateSecurity('Nombre del cliente').valid));
+}
+
+/* ─── Runner y reporte ─────────────────────────────────────────────────────── */
+function runAllTests() {
+    _testResults.length = 0;
+    runValidationTests();
+    runSecurityTests();
+
+    const passed = _testResults.filter(t => t.passed).length;
+    const total = _testResults.length;
+    const allPassed = passed === total;
+
+    console.log(`\n${'='.repeat(60)}`);
+    console.log(`TEST RESULTS: ${passed}/${total} ${allPassed ? '✅ ALL PASSED' : '❌ FAILURES'}`);
+    console.log('='.repeat(60));
+    _testResults.forEach(t => {
+        if (t.passed) console.log(`  ✅ ${t.name}`);
+        else console.error(`  ❌ ${t.name}\n     → ${t.error}`);
+    });
+
+    const container = document.getElementById('testResults');
+    if (container) {
+        container.innerHTML = '';
+        const h = document.createElement('h2');
+        h.textContent = `${passed}/${total} tests pasaron`;
+        h.style.color = allPassed ? 'green' : 'red';
+        container.appendChild(h);
+        _testResults.forEach(t => {
+            const div = document.createElement('div');
+            div.style.cssText = `padding:4px 8px;color:${t.passed ? 'green' : 'red'};font-family:monospace;`;
+            div.textContent = `${t.passed ? '✅' : '❌'} ${t.name}${t.error ? ' — ' + t.error : ''}`;
+            container.appendChild(div);
+        });
+    }
+    return { passed, total, allPassed };
+}
+
+// Auto-ejecutar al cargar DOM
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', runAllTests);
+} else {
+    runAllTests();
+}
+
+if (typeof module !== 'undefined' && module.exports) {
+    module.exports = { runAllTests, test, assertEqual, assertTrue, assertFalse };
+}
+
+// ─── LEGACY CLASS (kept for backward compatibility) ─────────────────────────
 
 class TestSuite {
     constructor() {

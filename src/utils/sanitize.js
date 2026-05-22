@@ -17,42 +17,45 @@ function sanitizeText(input) {
 }
 
 /**
- * Sanitiza HTML (permite algunas etiquetas seguras)
+ * Sanitiza HTML (permite algunas etiquetas seguras).
+ * Usa DOMParser para evitar la ventana de vulnerabilidad de innerHTML.
+ * Reconstruye el árbol DOM desde cero sin copiar atributos.
  * @param {string} html - HTML a sanitizar
  * @returns {string} HTML sanitizado
  */
 function sanitizeHTML(html) {
     if (!html || typeof html !== 'string') return '';
-    
-    const allowedTags = ['b', 'i', 'em', 'strong', 'p', 'br', 'span'];
-    const temp = document.createElement('div');
-    temp.innerHTML = html;
-    
-    // Remover scripts y event handlers
-    const scripts = temp.querySelectorAll('script');
-    scripts.forEach(script => script.remove());
-    
-    // Remover atributos peligrosos
-    const allElements = temp.querySelectorAll('*');
-    allElements.forEach(element => {
-        // Solo mantener etiquetas permitidas
-        if (!allowedTags.includes(element.tagName.toLowerCase())) {
-            const parent = element.parentNode;
-            while (element.firstChild) {
-                parent.insertBefore(element.firstChild, element);
+
+    const ALLOWED_TAGS = new Set(['b', 'i', 'em', 'strong', 'p', 'br', 'span']);
+
+    // DOMParser no ejecuta scripts ni dispara event handlers — seguro
+    const doc = new DOMParser().parseFromString(html, 'text/html');
+
+    function buildSafe(sourceNode) {
+        const frag = document.createDocumentFragment();
+        for (const child of Array.from(sourceNode.childNodes)) {
+            if (child.nodeType === Node.TEXT_NODE) {
+                frag.appendChild(document.createTextNode(child.textContent));
+            } else if (child.nodeType === Node.ELEMENT_NODE) {
+                const tag = child.tagName.toLowerCase();
+                if (ALLOWED_TAGS.has(tag)) {
+                    const el = document.createElement(tag);
+                    // No se copian atributos — se elimina cualquier onclick, href, etc.
+                    el.appendChild(buildSafe(child));
+                    frag.appendChild(el);
+                } else {
+                    // Etiqueta no permitida: conservar contenido de texto, descartar elemento
+                    frag.appendChild(buildSafe(child));
+                }
             }
-            parent.removeChild(element);
+            // Nodos de comentario, PI, etc. se descartan silenciosamente
         }
-        
-        // Remover atributos event listeners
-        Array.from(element.attributes).forEach(attr => {
-            if (attr.name.startsWith('on')) {
-                element.removeAttribute(attr.name);
-            }
-        });
-    });
-    
-    return temp.innerHTML;
+        return frag;
+    }
+
+    const container = document.createElement('div');
+    container.appendChild(buildSafe(doc.body));
+    return container.innerHTML;
 }
 
 /**

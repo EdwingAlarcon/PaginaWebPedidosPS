@@ -52,24 +52,20 @@ class FormManager {
 
             const order = window.InventoryManager.addOrder(formData);
             
-            // Sincronizar con Excel si está disponible
             if (window.ExcelManager?.syncInventory) {
                 await window.ExcelManager.syncInventory().catch(e => {
                     console.warn('[Forms] ⚠️ Excel sync failed:', e);
                 });
             }
 
-            // Mostrar notificación
-            this._showNotification('✅ Pedido agregado exitosamente', 'success');
-            
-            // Limpiar formulario
+            window.NotificationService?.success('✅ Pedido agregado exitosamente');
             this.clearForm();
             
             console.log('[Forms] ✅ Order added successfully');
             return order;
         } catch (error) {
             console.error('[Forms] ❌ Add order error:', error);
-            this._showNotification(`❌ Error: ${error.message}`, 'error');
+            window.NotificationService?.error(`❌ Error: ${error.message}`);
             throw error;
         } finally {
             this.isLoading = false;
@@ -84,7 +80,6 @@ class FormManager {
             this.isLoading = true;
             console.log(`[Forms] ✏️ Editing order ${orderId}...`);
 
-            // Validar datos
             if (window.ValidationUtils?.validateOrderData) {
                 const validation = window.ValidationUtils.validateOrderData(formData);
                 if (!validation.isValid) {
@@ -92,21 +87,19 @@ class FormManager {
                 }
             }
 
-            // Actualizar en inventario
             if (!window.InventoryManager) {
                 throw new Error('InventoryManager not loaded');
             }
 
             const order = window.InventoryManager.updateOrder(orderId, formData);
             
-            // Sincronizar con Excel
             if (window.ExcelManager?.syncInventory) {
                 await window.ExcelManager.syncInventory().catch(e => {
                     console.warn('[Forms] ⚠️ Excel sync failed:', e);
                 });
             }
 
-            this._showNotification('✅ Pedido actualizado exitosamente', 'success');
+            window.NotificationService?.success('✅ Pedido actualizado exitosamente');
             this.clearForm();
             this.isEditMode = false;
             
@@ -114,7 +107,7 @@ class FormManager {
             return order;
         } catch (error) {
             console.error('[Forms] ❌ Edit order error:', error);
-            this._showNotification(`❌ Error: ${error.message}`, 'error');
+            window.NotificationService?.error(`❌ Error: ${error.message}`);
             throw error;
         } finally {
             this.isLoading = false;
@@ -129,33 +122,33 @@ class FormManager {
             this.isLoading = true;
             console.log(`[Forms] 🗑️ Deleting order ${orderId}...`);
 
-            // Confirmar eliminación
-            if (!confirm('¿Está seguro de que desea eliminar este pedido?')) {
+            // Diálogo de confirmación accesible (reemplaza confirm() nativo)
+            const confirmed = await this._confirmDialog('¿Está seguro de que desea eliminar este pedido?');
+            if (!confirmed) {
+                this.isLoading = false;
                 return false;
             }
 
-            // Eliminar del inventario
             if (!window.InventoryManager) {
                 throw new Error('InventoryManager not loaded');
             }
 
             window.InventoryManager.deleteOrder(orderId);
-            
-            // Sincronizar con Excel
+
             if (window.ExcelManager?.syncInventory) {
                 await window.ExcelManager.syncInventory().catch(e => {
                     console.warn('[Forms] ⚠️ Excel sync failed:', e);
                 });
             }
 
-            this._showNotification('✅ Pedido eliminado exitosamente', 'success');
+            window.NotificationService?.success('✅ Pedido eliminado exitosamente');
             this.clearForm();
-            
+
             console.log('[Forms] ✅ Order deleted successfully');
             return true;
         } catch (error) {
             console.error('[Forms] ❌ Delete order error:', error);
-            this._showNotification(`❌ Error: ${error.message}`, 'error');
+            window.NotificationService?.error(`❌ Error: ${error.message}`);
             throw error;
         } finally {
             this.isLoading = false;
@@ -335,26 +328,72 @@ class FormManager {
     }
 
     /**
-     * PRIVATE: Mostrar notificación
+     * PRIVATE: Diálogo de confirmación accesible (reemplaza confirm() nativo).
+     * @param {string} message
+     * @returns {Promise<boolean>}
+     */
+    _confirmDialog(message) {
+        return new Promise((resolve) => {
+            const overlay = document.createElement('div');
+            overlay.style.cssText = [
+                'position:fixed', 'inset:0',
+                'background:rgba(0,0,0,0.55)',
+                'z-index:10001',
+                'display:flex', 'align-items:center', 'justify-content:center'
+            ].join(';');
+
+            const dialog = document.createElement('div');
+            dialog.setAttribute('role', 'alertdialog');
+            dialog.setAttribute('aria-modal', 'true');
+            dialog.setAttribute('aria-labelledby', 'confirm-dlg-msg');
+            dialog.style.cssText = [
+                'background:white', 'padding:24px 28px', 'border-radius:10px',
+                'max-width:420px', 'width:90%',
+                'box-shadow:0 8px 32px rgba(0,0,0,0.22)'
+            ].join(';');
+
+            const msg = document.createElement('p');
+            msg.id = 'confirm-dlg-msg';
+            msg.textContent = message;
+            msg.style.cssText = 'margin:0 0 20px;font-size:16px;line-height:1.5;';
+
+            const actions = document.createElement('div');
+            actions.style.cssText = 'display:flex;gap:12px;justify-content:flex-end;';
+
+            const cancelBtn = document.createElement('button');
+            cancelBtn.type = 'button';
+            cancelBtn.textContent = 'Cancelar';
+            cancelBtn.className = 'btn btn-secondary';
+
+            const confirmBtn = document.createElement('button');
+            confirmBtn.type = 'button';
+            confirmBtn.textContent = 'Confirmar';
+            confirmBtn.className = 'btn btn-danger';
+
+            actions.appendChild(cancelBtn);
+            actions.appendChild(confirmBtn);
+            dialog.appendChild(msg);
+            dialog.appendChild(actions);
+            overlay.appendChild(dialog);
+            document.body.appendChild(overlay);
+
+            const cleanup = (result) => { overlay.remove(); resolve(result); };
+
+            confirmBtn.addEventListener('click', () => cleanup(true));
+            cancelBtn.addEventListener('click', () => cleanup(false));
+            overlay.addEventListener('keydown', (e) => { if (e.key === 'Escape') cleanup(false); });
+
+            // Foco inicial en Confirmar para accesibilidad
+            confirmBtn.focus();
+        });
+    }
+
+    /**
+     * PRIVATE: Mostrar notificación (delegado a NotificationService).
+     * Se mantiene por compatibilidad con llamadas internas existentes.
      */
     _showNotification(message, type = 'info') {
-        try {
-            const notificationDiv = document.getElementById('notification');
-            if (notificationDiv) {
-                notificationDiv.textContent = message;
-                notificationDiv.className = `notification notification-${type}`;
-                notificationDiv.style.display = 'block';
-
-                const duration = window.Config?.uiConfig?.notificationDuration || 3000;
-                setTimeout(() => {
-                    notificationDiv.style.display = 'none';
-                }, duration);
-            } else {
-                console.log(`[Forms] [${type.toUpperCase()}] ${message}`);
-            }
-        } catch (error) {
-            console.warn('[Forms] ⚠️ Show notification failed:', error);
-        }
+        window.NotificationService?.show(message, type);
     }
 }
 

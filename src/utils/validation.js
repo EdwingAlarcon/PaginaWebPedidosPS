@@ -239,79 +239,76 @@ const Validators = {
 };
 
 /**
- * Valida todos los datos de un pedido completo
- * @param {object} orderData - Datos del pedido
- * @returns {object} {valid: boolean, errors: array}
+ * Valida todos los datos de un pedido completo.
+ * Acepta estructura plana (desde FormData) o anidada (legado).
+ * @param {object} orderData
+ * @returns {{ isValid: boolean, errors: string[] }}
  */
 function validateOrderData(orderData) {
     const errors = [];
-    
-    // Validar cliente
-    if (orderData.cliente) {
-        const nameVal = Validators.clientName(orderData.cliente.nombre);
-        if (!nameVal.valid) errors.push(nameVal.error);
-        
-        const phoneVal = Validators.phone(orderData.cliente.telefono);
-        if (!phoneVal.valid) errors.push(phoneVal.error);
-        
-        const emailVal = Validators.email(orderData.cliente.email);
+
+    // Aceptar estructura plana { clientName, phoneNumber, ... }
+    // o anidada { cliente: { nombre, telefono, ... }, productos: [...] } (legado)
+    const clientName   = orderData.clientName   ?? orderData.cliente?.nombre;
+    const phone        = orderData.phoneNumber  ?? orderData.cliente?.telefono;
+    const email        = orderData.email        ?? orderData.cliente?.email ?? '';
+    const address      = orderData.address      ?? orderData.cliente?.direccion ?? '';
+    const productName  = orderData.productName  ?? orderData.productos?.[0]?.producto;
+    const quantity     = orderData.quantity     ?? orderData.productos?.[0]?.cantidad;
+    const price        = orderData.price        ?? orderData.productos?.[0]?.precioUnitario;
+    const discount     = orderData.discount     ?? orderData.descuento?.porcentaje;
+    const shippingCost = orderData.shippingCost ?? orderData.envio;
+
+    const nameVal = Validators.clientName(clientName);
+    if (!nameVal.valid) errors.push(nameVal.error);
+
+    const phoneVal = Validators.phone(phone);
+    if (!phoneVal.valid) errors.push(phoneVal.error);
+
+    if (email) {
+        const emailVal = Validators.email(email);
         if (!emailVal.valid) errors.push(emailVal.error);
-        
-        const addressVal = Validators.address(orderData.cliente.direccion);
+    }
+
+    if (address) {
+        const addressVal = Validators.address(address);
         if (!addressVal.valid) errors.push(addressVal.error);
     }
-    
-    // Validar productos
-    if (!orderData.productos || orderData.productos.length === 0) {
-        errors.push("Debe agregar al menos un producto");
-    } else {
-        orderData.productos.forEach((product, index) => {
-            if (product.producto) {
-                const nameVal = Validators.productName(product.producto);
-                if (!nameVal.valid) errors.push(`Producto ${index + 1}: ${nameVal.error}`);
-            }
-            
-            const qtyVal = Validators.quantity(product.cantidad);
-            if (!qtyVal.valid) errors.push(`Producto ${index + 1}: ${qtyVal.error}`);
-            
-            const priceVal = Validators.price(product.precioUnitario);
-            if (!priceVal.valid) errors.push(`Producto ${index + 1}: ${priceVal.error}`);
-        });
-    }
-    
-    // Validar descuento si existe
-    if (orderData.descuento !== undefined) {
-        const discountVal = Validators.discount(orderData.descuento.porcentaje);
+
+    const productNameVal = Validators.productName(productName);
+    if (!productNameVal.valid) errors.push(productNameVal.error);
+
+    const qtyVal = Validators.quantity(quantity);
+    if (!qtyVal.valid) errors.push(qtyVal.error);
+
+    const priceVal = Validators.price(price);
+    if (!priceVal.valid) errors.push(priceVal.error);
+
+    if (discount !== undefined && discount !== '' && discount !== null) {
+        const discountVal = Validators.discount(discount);
         if (!discountVal.valid) errors.push(discountVal.error);
     }
-    
-    // Validar envío si existe
-    if (orderData.envio !== undefined) {
-        const shippingVal = Validators.shippingCost(orderData.envio);
+
+    if (shippingCost !== undefined && shippingCost !== '' && shippingCost !== null) {
+        const shippingVal = Validators.shippingCost(shippingCost);
         if (!shippingVal.valid) errors.push(shippingVal.error);
     }
-    
-    return {
-        valid: errors.length === 0,
-        errors: errors
-    };
+
+    return { isValid: errors.length === 0, errors };
 }
 
 /**
- * Valida un campo individual y retorna error formateado
- * @param {string} fieldName - Nombre del campo
- * @param {*} value - Valor a validar
- * @returns {object} {valid: boolean, error: string}
+ * Valida un campo individual.
+ * @param {string} fieldName
+ * @param {*} value
+ * @returns {{ isValid: boolean, error: string }}
  */
 function validateField(fieldName, value) {
     if (Validators[fieldName]) {
         const result = Validators[fieldName](value);
-        return {
-            valid: result.valid,
-            error: result.error || ''
-        };
+        return { isValid: result.valid, error: result.error || '' };
     }
-    return { valid: true, error: '' };
+    return { isValid: true, error: '' };
 }
 
 // Exportar validadores

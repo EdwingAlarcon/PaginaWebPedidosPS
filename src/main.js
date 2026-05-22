@@ -8,6 +8,7 @@ class Application {
     constructor() {
         this.isInitialized = false;
         this.modules = {};
+        this._syncIntervalId = null;
     }
 
     /**
@@ -60,7 +61,10 @@ class Application {
             // 8. Setup event listeners principales
             this._setupMainEventListeners();
 
-            // 9. Actualizar UI con datos iniciales
+            // 9. Setup navegación por pestañas
+            this._setupTabNavigation();
+
+            // 10. Actualizar UI con datos iniciales
             this._updateUI();
 
             // 10. Setup auto-sync cada 30 segundos (si Excel disponible)
@@ -82,10 +86,7 @@ class Application {
             return true;
         } catch (error) {
             console.error('%c❌ Initialization error:', 'color: #d13438; font-weight: bold', error);
-            window.UIManager?.showNotification(
-                `Error de inicialización: ${error.message}`,
-                'error'
-            );
+            window.NotificationService?.error(`Error de inicialización: ${error.message}`);
             return false;
         }
     }
@@ -121,19 +122,16 @@ class Application {
                     window.UIManager?.toggleLoading(true);
                     try {
                         await window.AuthManager?.handleLogin();
-                        window.UIManager?.showNotification('✅ Iniciaste sesión correctamente', 'success');
-                        
-                        // Reinicializar Excel
+                        window.NotificationService?.success('✅ Iniciaste sesión correctamente');
+
                         if (window.ExcelManager?.initialize) {
                             await window.ExcelManager.initialize();
                         }
-                        
+
+                        this._setupAutoSync();
                         this._updateUI();
                     } catch (error) {
-                        window.UIManager?.showNotification(
-                            `❌ Error en login: ${error.message}`,
-                            'error'
-                        );
+                        window.NotificationService?.error(`❌ Error en login: ${error.message}`);
                     } finally {
                         window.UIManager?.toggleLoading(false);
                     }
@@ -146,14 +144,12 @@ class Application {
                 logoutBtn.addEventListener('click', async () => {
                     window.UIManager?.toggleLoading(true);
                     try {
+                        this._cancelAutoSync(); // C4: cancelar interval antes de logout
                         await window.AuthManager?.handleLogout();
-                        window.UIManager?.showNotification('✅ Cerraste sesión correctamente', 'success');
+                        window.NotificationService?.success('✅ Cerraste sesión correctamente');
                         this._updateUI();
                     } catch (error) {
-                        window.UIManager?.showNotification(
-                            `❌ Error en logout: ${error.message}`,
-                            'error'
-                        );
+                        window.NotificationService?.error(`❌ Error en logout: ${error.message}`);
                     } finally {
                         window.UIManager?.toggleLoading(false);
                     }
@@ -164,11 +160,12 @@ class Application {
             const searchInput = document.getElementById('searchInput');
             if (searchInput) {
                 searchInput.addEventListener('input', (e) => {
-                    const query = e.target.value;
+                    const query = e.target.value.trim();
                     if (query.length > 0) {
                         window.InventoryManager?.search(query);
                     } else {
-                        window.InventoryManager?.initialize();
+                        // R8: resetFilter en lugar de initialize() para no perder estado
+                        window.InventoryManager?.resetFilter();
                     }
                     this._updateUI();
                 });
@@ -197,12 +194,9 @@ class Application {
                     window.UIManager?.toggleLoading(true);
                     try {
                         await window.ExcelManager?.syncInventory();
-                        window.UIManager?.showNotification('✅ Sincronizado con Excel', 'success');
+                        window.NotificationService?.success('✅ Sincronizado con Excel');
                     } catch (error) {
-                        window.UIManager?.showNotification(
-                            `❌ Error en sincronización: ${error.message}`,
-                            'error'
-                        );
+                        window.NotificationService?.error(`❌ Error en sincronización: ${error.message}`);
                     } finally {
                         window.UIManager?.toggleLoading(false);
                     }
@@ -216,27 +210,62 @@ class Application {
     }
 
     /**
-     * Setup auto-sync
+     * Setup navegación por pestañas (A1: migrado desde app.js)
+     */
+    _setupTabNavigation() {
+        document.querySelectorAll('.tab-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const tabName = btn.getAttribute('data-tab');
+                if (tabName) this._switchTab(tabName);
+            });
+        });
+        console.log('[Main] ✅ Tab navigation setup complete');
+    }
+
+    _switchTab(tabName) {
+        document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+        document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+
+        const selectedTab = document.getElementById(tabName);
+        if (selectedTab) selectedTab.classList.add('active');
+
+        const selectedBtn = document.querySelector(`[data-tab="${tabName}"]`);
+        if (selectedBtn) selectedBtn.classList.add('active');
+
+        window.EventBus?.emit('tab:changed', { tab: tabName });
+        console.log(`[Main] 🔄 Tab switched to: ${tabName}`);
+    }
+
+    /**
+     * Setup auto-sync con referencia al interval para poder cancelarlo (C4)
      */
     _setupAutoSync() {
-        try {
-            if (!window.ExcelManager || !window.AuthManager?.isAuthenticated()) {
-                return;
+        this._cancelAutoSync(); // Evitar duplicados
+
+        if (!window.ExcelManager || !window.AuthManager?.isAuthenticated()) {
+            return;
+        }
+
+        this._syncIntervalId = setInterval(async () => {
+            try {
+                await window.ExcelManager.syncInventory();
+                console.log('[Main] ✅ Auto-sync completed');
+            } catch (error) {
+                console.warn('[Main] ⚠️ Auto-sync failed:', error);
             }
+        }, 5 * 60 * 1000);
 
-            // Auto-sync cada 5 minutos
-            setInterval(async () => {
-                try {
-                    await window.ExcelManager.syncInventory();
-                    console.log('[Main] ✅ Auto-sync completed');
-                } catch (error) {
-                    console.warn('[Main] ⚠️ Auto-sync failed:', error);
-                }
-            }, 5 * 60 * 1000);
+        console.log('[Main] ✅ Auto-sync configured (every 5 minutes)');
+    }
 
-            console.log('[Main] ✅ Auto-sync configured (every 5 minutes)');
-        } catch (error) {
-            console.warn('[Main] ⚠️ Auto-sync setup failed:', error);
+    /**
+     * Cancelar auto-sync (llamar al hacer logout) (C4)
+     */
+    _cancelAutoSync() {
+        if (this._syncIntervalId !== null) {
+            clearInterval(this._syncIntervalId);
+            this._syncIntervalId = null;
+            console.log('[Main] ⏹️ Auto-sync cancelled');
         }
     }
 
@@ -258,14 +287,11 @@ class Application {
             link.click();
             URL.revokeObjectURL(url);
 
-            window.UIManager?.showNotification('✅ Datos exportados correctamente', 'success');
+            window.NotificationService?.success('✅ Datos exportados correctamente');
             console.log('[Main] ✅ Data exported');
         } catch (error) {
             console.error('[Main] ❌ Export error:', error);
-            window.UIManager?.showNotification(
-                `❌ Error en exportación: ${error.message}`,
-                'error'
-            );
+            window.NotificationService?.error(`❌ Error en exportación: ${error.message}`);
         }
     }
 
@@ -286,17 +312,14 @@ class Application {
                     try {
                         const success = window.InventoryManager?.importFromJSON(event.target.result);
                         if (success) {
-                            window.UIManager?.showNotification('✅ Datos importados correctamente', 'success');
+                            window.NotificationService?.success('✅ Datos importados correctamente');
                             this._updateUI();
                             console.log('[Main] ✅ Data imported');
                         } else {
                             throw new Error('Invalid format');
                         }
                     } catch (error) {
-                        window.UIManager?.showNotification(
-                            `❌ Error en importación: ${error.message}`,
-                            'error'
-                        );
+                        window.NotificationService?.error(`❌ Error en importación: ${error.message}`);
                     }
                 };
 
@@ -313,18 +336,19 @@ class Application {
      * Validar que módulos requeridos estén cargados
      */
     _validateModules() {
-        const required = ['Config', 'AuthManager', 'InventoryManager', 'UIManager', 'FormManager', 'ExcelManager'];
-        const missing = [];
-
-        required.forEach(module => {
-            if (!window[module]) {
-                missing.push(module);
-            }
-        });
+        const required = ['Config', 'UIManager', 'InventoryManager', 'FormManager'];
+        const missing = required.filter(m => !window[m]);
 
         if (missing.length > 0) {
-            console.error('[Main] ❌ Missing modules:', missing);
+            console.error('[Main] ❌ Missing required modules:', missing);
             return false;
+        }
+
+        // Módulos opcionales — solo advertir si faltan
+        const optional = ['AuthManager', 'ExcelManager', 'SecurityUtils', 'ValidationUtils'];
+        const missingOptional = optional.filter(m => !window[m]);
+        if (missingOptional.length > 0) {
+            console.warn('[Main] ⚠️ Optional modules not loaded:', missingOptional);
         }
 
         console.log('[Main] ✅ All required modules loaded');
@@ -336,6 +360,7 @@ class Application {
      */
     cleanup() {
         try {
+            this._cancelAutoSync();
             window.ExcelManager?.cleanup();
             console.log('[Main] ✅ Cleanup complete');
         } catch (error) {

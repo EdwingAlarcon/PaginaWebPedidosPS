@@ -265,6 +265,17 @@ class InventoryManager {
     }
 
     /**
+     * Resetear filtros y mostrar todos los items (sin reinicializar desde storage).
+     * Llamar cuando se limpia la búsqueda — preserva paginación/ordenamiento.
+     */
+    resetFilter() {
+        this.filteredInventory = [...this.inventory];
+        this.currentPage = 1;
+        console.log('[Inventory] ℹ️ Filter reset');
+        return this.filteredInventory;
+    }
+
+    /**
      * Exportar a JSON
      */
     exportToJSON() {
@@ -320,20 +331,36 @@ class InventoryManager {
     }
 
     /**
-     * PRIVATE: Generar ID único
+     * PRIVATE: Generar ID único usando crypto.randomUUID() (C3)
      */
     _generateId() {
-        return `ORD-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+        if (typeof crypto !== 'undefined' && crypto.randomUUID) {
+            return `ORD-${crypto.randomUUID()}`;
+        }
+        // Fallback seguro para entornos sin crypto.randomUUID
+        return `ORD-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 11)}`;
     }
 
     /**
-     * PRIVATE: Guardar en localStorage
+     * PRIVATE: Guardar en localStorage con manejo de cuota (D)
      */
     _saveToStorage() {
         try {
             localStorage.setItem(this.storageKey, JSON.stringify(this.inventory));
         } catch (error) {
-            console.error('[Inventory] ❌ Storage error:', error);
+            if (error instanceof DOMException && (
+                error.code === 22 || // QuotaExceededError legacy
+                error.name === 'QuotaExceededError' ||
+                error.name === 'NS_ERROR_DOM_QUOTA_REACHED'
+            )) {
+                console.error('[Inventory] ❌ localStorage lleno. No se pudo guardar el pedido.');
+                window.NotificationService?.error(
+                    '⚠️ Almacenamiento lleno. Exporta y limpia datos antes de agregar más pedidos.',
+                    8000
+                );
+            } else {
+                console.error('[Inventory] ❌ Storage error:', error);
+            }
         }
     }
 }

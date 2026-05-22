@@ -51,33 +51,42 @@ class UIManager {
             inventory.forEach(order => {
                 const row = document.createElement('tr');
                 row.dataset.orderId = order.id;
-                
+
+                // Construir celdas sin interpolación de datos en atributos HTML (previene XSS)
                 row.innerHTML = `
                     <td>${order.id.substring(0, 8)}</td>
                     <td>${this._sanitize(order.clientName)}</td>
                     <td>${this._sanitize(order.phoneNumber)}</td>
                     <td>${this._sanitize(order.email)}</td>
                     <td>${this._sanitize(order.productName)}</td>
-                    <td>${order.quantity}</td>
+                    <td>${this._sanitize(String(order.quantity))}</td>
                     <td>$${parseFloat(order.price).toFixed(2)}</td>
-                    <td>${order.discount}%</td>
-                    <td>$${parseFloat(order.shippingCost).toFixed(2)}</td>
+                    <td>${parseFloat(order.discount || 0).toFixed(1)}%</td>
+                    <td>$${parseFloat(order.shippingCost || 0).toFixed(2)}</td>
                     <td>$${parseFloat(order.totalPrice || 0).toFixed(2)}</td>
                     <td>
-                        <span class="badge badge-${order.status}">
+                        <span class="badge badge-${this._sanitize(order.status)}">
                             ${this._translateStatus(order.status)}
                         </span>
                     </td>
                     <td>${new Date(order.orderDate).toLocaleDateString()}</td>
                     <td>
-                        <button class="btn btn-sm btn-edit" onclick="window.FormManager.loadOrderToForm('${order.id}')">
-                            ✏️ Editar
-                        </button>
-                        <button class="btn btn-sm btn-danger" onclick="window.FormManager.handleDeleteOrder('${order.id}')">
-                            🗑️ Eliminar
-                        </button>
+                        <button class="btn btn-sm btn-edit" type="button">✏️ Editar</button>
+                        <button class="btn btn-sm btn-danger" type="button">🗑️ Eliminar</button>
                     </td>
                 `;
+
+                // Vincular eventos con addEventListener — nunca interpolación en onclick
+                const editBtn = row.querySelector('.btn-edit');
+                const deleteBtn = row.querySelector('.btn-danger');
+                const orderId = order.id; // Capturar en closure, no en HTML
+
+                editBtn.addEventListener('click', () => {
+                    window.FormManager?.loadOrderToForm(orderId);
+                });
+                deleteBtn.addEventListener('click', () => {
+                    window.FormManager?.handleDeleteOrder(orderId);
+                });
 
                 tableBody.appendChild(row);
             });
@@ -136,53 +145,40 @@ class UIManager {
     }
 
     /**
-     * Mostrar notificación
+     * Mostrar notificación — delega al NotificationService centralizado.
      */
     showNotification(message, type = 'info', duration = null) {
-        try {
-            const div = document.createElement('div');
-            div.className = `notification notification-${type}`;
-            div.textContent = message;
-            div.style.cssText = `
-                position: fixed;
-                top: 20px;
-                right: 20px;
-                z-index: 9999;
-                padding: 15px 20px;
-                border-radius: 4px;
-                animation: slideIn 0.3s ease-in-out;
-            `;
-
-            document.body.appendChild(div);
-
-            const timeout = duration || (window.Config?.uiConfig?.notificationDuration || 3000);
-            setTimeout(() => {
-                div.remove();
-            }, timeout);
-
+        if (window.NotificationService) {
+            window.NotificationService.show(message, type, duration);
+        } else {
+            // Fallback si NotificationService aún no está cargado
             console.log(`[UI] [${type.toUpperCase()}] ${message}`);
-        } catch (error) {
-            console.warn('[UI] ⚠️ Show notification failed:', error);
         }
     }
 
     /**
-     * Mostrar/ocultar loading
+     * Mostrar/ocultar loading.
+     * @param {boolean} show
+     * @param {string|null} scopeSelector Selector CSS del contenedor cuyos botones se deshabilitan.
+     *   Si es null se usan solo los botones de tipo submit/primary para no bloquear zonas no relacionadas.
      */
-    toggleLoading(show = true) {
+    toggleLoading(show = true, scopeSelector = null) {
         try {
             const loadingDiv = document.getElementById('loading');
             if (loadingDiv) {
                 loadingDiv.style.display = show ? 'flex' : 'none';
             }
-            
+
             this.isLoading = show;
-            
-            // También actualizar visualmente botones
-            const buttons = document.querySelectorAll('button');
-            buttons.forEach(btn => {
-                btn.disabled = show;
-            });
+
+            // Solo deshabilitar botones dentro del scope provisto,
+            // o los de tipo submit si no hay scope — nunca todos los botones del DOM.
+            const container = scopeSelector ? document.querySelector(scopeSelector) : null;
+            const buttons = container
+                ? container.querySelectorAll('button')
+                : document.querySelectorAll('button[type="submit"], .btn-primary, .btn-submit');
+
+            buttons.forEach(btn => { btn.disabled = show; });
 
             console.log(`[UI] ${show ? '⏳ Loading' : '✅ Loading complete'}`);
         } catch (error) {
