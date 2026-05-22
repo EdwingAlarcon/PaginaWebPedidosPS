@@ -4,14 +4,14 @@
  * Caché, offline, sincronización de fondo
  */
 
-const CACHE_NAME = 'pagina-web-pedidos-v2.0.0';
+const CACHE_NAME = 'pagina-web-pedidos-v2.1.0';
 const RUNTIME_CACHE = 'pagina-web-pedidos-runtime';
 const API_CACHE = 'pagina-web-pedidos-api';
 
 const STATIC_ASSETS = [
     // HTML
     '/index.html',
-    '/inventory.html',
+    '/html/inventory.html',
     
     // CSS
     '/css/styles.css',
@@ -28,17 +28,21 @@ const STATIC_ASSETS = [
     '/src/modules/ui.js',
     
     // JS - Core
-    '/src/core/app.js',
     '/src/core/inventory.js',
     '/src/core/inventory-ui.js',
     '/src/main.js',
     
     // JS - Utils
+    '/src/utils/event-bus.js',
+    '/src/utils/notification-service.js',
     '/src/utils/sanitize.js',
     '/src/utils/validation.js',
+    '/src/utils/logger.js',
+    '/src/utils/performance.js',
+    '/src/utils/form-optimizations.js',
     
     // External Libraries
-    'https://alcdn.msauth.net/browser/2.26.0/js/msal-browser.min.js',
+    'https://alcdn.msauth.net/browser/2.30.0/js/msal-browser.min.js',
     
     // PWA
     '/pwa/manifest.json'
