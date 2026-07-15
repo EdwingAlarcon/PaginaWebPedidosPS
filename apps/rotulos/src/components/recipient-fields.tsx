@@ -1,5 +1,5 @@
 import type { Recipient } from "@/lib/types";
-import { PRINTABLE_RECIPIENT_LIMITS } from "@/lib/validation";
+import { PRINTABLE_LABEL_LIMITS } from "@/lib/validation";
 
 const labels: Record<keyof Recipient, string> = {
   fullName: "Nombre y apellidos",
@@ -12,7 +12,11 @@ const labels: Record<keyof Recipient, string> = {
   notes: "Observaciones",
 };
 
-const printableHelp: Partial<Record<keyof Recipient, string>> = {
+const printableHelp: Record<keyof Recipient, string> = {
+  fullName: "Maximo 55 caracteres para imprimirlo completo.",
+  phone: "Maximo 20 caracteres para imprimirlo completo.",
+  department: "Maximo 35 caracteres para imprimirlo completo.",
+  city: "Maximo 35 caracteres para imprimirla completa.",
   address: "Maximo 170 caracteres para imprimirla completa.",
   neighborhood: "Maximo 45 caracteres para imprimirlo completo.",
   reference: "Maximo 90 caracteres para imprimirla completa.",
@@ -30,7 +34,7 @@ export function RecipientFields({ value, onChange, errors }: { value: Recipient;
         const helperText = printableHelp[key];
         const helperId = `${errorKey}-help`;
         const describedBy = [helperText ? helperId : null, errors[errorKey] ? errorId : null].filter(Boolean).join(" ") || undefined;
-        const maxLength = key in PRINTABLE_RECIPIENT_LIMITS ? PRINTABLE_RECIPIENT_LIMITS[key as keyof typeof PRINTABLE_RECIPIENT_LIMITS] : undefined;
+        const maxLength = PRINTABLE_LABEL_LIMITS.recipient[key];
         return (
           <label className="field" key={key}>
             <span>{labels[key]}</span>

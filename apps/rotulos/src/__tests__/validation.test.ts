@@ -91,12 +91,39 @@ describe("label validation", () => {
 
   it("accepts recipient printable content at each limit", () => {
     const draft = createCompleteDraft();
+    draft.sender.name = "s".repeat(50);
+    draft.sender.phone = "p".repeat(20);
+    draft.sender.department = "d".repeat(35);
+    draft.sender.city = "c".repeat(35);
+    draft.sender.address = "a".repeat(120);
+    draft.recipient.fullName = "f".repeat(55);
+    draft.recipient.phone = "p".repeat(20);
+    draft.recipient.department = "d".repeat(35);
+    draft.recipient.city = "c".repeat(35);
     draft.recipient.address = "a".repeat(170);
     draft.recipient.reference = "r".repeat(90);
     draft.recipient.notes = "n".repeat(90);
     draft.recipient.neighborhood = "b".repeat(45);
+    draft.orderNumber = "o".repeat(32);
+    draft.carrier = "c".repeat(40);
 
     expect(validateLabelDraft(draft)).toEqual({ valid: true, errors: {} });
+  });
+
+  it.each([
+    ["sender name", (draft: ReturnType<typeof createCompleteDraft>) => { draft.sender.name = "x".repeat(51); }, "sender.name", "El nombre del remitente puede tener maximo 50 caracteres para imprimirlo completo."],
+    ["sender address", (draft: ReturnType<typeof createCompleteDraft>) => { draft.sender.address = "x".repeat(121); }, "sender.address", "La direccion del remitente puede tener maximo 120 caracteres para imprimirla completa."],
+    ["recipient full name", (draft: ReturnType<typeof createCompleteDraft>) => { draft.recipient.fullName = "x".repeat(56); }, "recipient.fullName", "El nombre del destinatario puede tener maximo 55 caracteres para imprimirlo completo."],
+    ["order number", (draft: ReturnType<typeof createCompleteDraft>) => { draft.orderNumber = "x".repeat(33); }, "orderNumber", "El numero de pedido puede tener maximo 32 caracteres para imprimirlo completo."],
+    ["carrier", (draft: ReturnType<typeof createCompleteDraft>) => { draft.carrier = "x".repeat(41); }, "carrier", "La transportadora puede tener maximo 40 caracteres para imprimirla completa."],
+  ] as const)("rejects over-limit %s", (_field, setValue, errorKey, message) => {
+    const draft = createCompleteDraft();
+    setValue(draft);
+
+    const result = validateLabelDraft(draft);
+
+    expect(result.valid).toBe(false);
+    expect(result.errors[errorKey]).toBe(message);
   });
 });
 

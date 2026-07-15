@@ -34,11 +34,20 @@ export function LabelForm() {
   }), [draft.date, draft.recipient.city, draft.recipient.department]);
   const errorMessages = Object.values(errors);
 
-  function saveDraft() {
+  function validateDraft(): boolean {
     const result = validateLabelDraft(draft);
     setErrors(result.errors);
-    if (!result.valid) return;
+    return result.valid;
+  }
+
+  function saveDraft() {
+    if (!validateDraft()) return;
     window.alert("Rotulo validado. La persistencia se conecta en la siguiente tarea.");
+  }
+
+  function printDraft() {
+    if (!validateDraft()) return;
+    window.print();
   }
 
   return (
@@ -51,7 +60,7 @@ export function LabelForm() {
         <SenderFields value={draft.sender} onChange={(sender) => setDraft({ ...draft, sender })} errors={errors} />
         <RecipientFields value={draft.recipient} onChange={(recipient) => setDraft({ ...draft, recipient })} errors={errors} />
         <ShipmentFields value={draft} onChange={setDraft} errors={errors} allowManualEdit={defaultSettings.orderNumberConfig.allowManualEdit} />
-        <LabelActions onSave={saveDraft} />
+        <LabelActions onSave={saveDraft} onPrint={printDraft} />
       </div>
       <div className="preview-rail print-area">
         <LabelPreview draft={draft} settings={defaultSettings} />
