@@ -255,6 +255,14 @@
         return `<table class="labels-history-table"><thead><tr><th>Cliente</th><th>Teléfono</th><th>Ciudad</th><th>Fecha</th><th>Pedido</th><th>Acciones</th></tr></thead><tbody>${items.map((label) => `<tr><td>${escapeHtml(label.recipient.fullName)}</td><td>${escapeHtml(label.recipient.phone)}</td><td>${escapeHtml(label.recipient.city)}</td><td>${escapeHtml(label.date)}</td><td>${escapeHtml(label.orderNumber)}</td><td><button class="labels-btn" data-history-action="edit" data-id="${label.id}">Editar</button> <button class="labels-btn" data-history-action="duplicate" data-id="${label.id}">Duplicar</button> <button class="labels-btn" data-history-action="print" data-id="${label.id}">Imprimir</button> <button class="labels-btn" data-history-action="delete" data-id="${label.id}">Eliminar</button></td></tr>`).join('')}</tbody></table>`;
     }
 
+    function bindHistoryEvents() {
+        const container = document.getElementById('labelsHistory');
+        if (!container) return;
+        container.querySelectorAll('[data-history-action]').forEach((button) => {
+            button.addEventListener('click', () => handleHistory(button.dataset.historyAction, button.dataset.id));
+        });
+    }
+
     function bindEvents(app) {
         app.querySelectorAll('[data-label-field]').forEach((input) => {
             input.addEventListener('input', () => {
@@ -275,16 +283,14 @@
         app.querySelectorAll('[data-label-action]').forEach((button) => {
             button.addEventListener('click', () => handleAction(button.dataset.labelAction));
         });
-        app.querySelectorAll('[data-history-action]').forEach((button) => {
-            button.addEventListener('click', () => handleHistory(button.dataset.historyAction, button.dataset.id));
-        });
+        bindHistoryEvents();
         const search = document.getElementById('labelsSearch');
         if (search) {
             search.addEventListener('input', () => {
                 const needle = search.value.trim().toLowerCase();
                 const filtered = labels.filter((label) => [label.orderNumber, label.recipient.fullName, label.recipient.phone, label.recipient.city].some((value) => String(value || '').toLowerCase().includes(needle)));
                 document.getElementById('labelsHistory').innerHTML = historyHtml(filtered);
-                bindEvents(app);
+                bindHistoryEvents();
             });
         }
     }
