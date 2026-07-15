@@ -25,7 +25,10 @@ export function validateLabelDraft(draft: LabelDraft): ValidationResult {
     errors.packageCount = "Ingresa al menos un paquete.";
   }
 
-  if (draft.paymentMethod === "contraentrega" && draft.codAmount <= 0) {
+  if (
+    draft.paymentMethod === "contraentrega" &&
+    (!Number.isFinite(draft.codAmount) || draft.codAmount <= 0)
+  ) {
     errors.codAmount = "Ingresa el valor contraentrega.";
   }
 

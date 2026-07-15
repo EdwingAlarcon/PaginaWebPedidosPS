@@ -51,4 +51,26 @@ describe("label validation", () => {
     expect(result.valid).toBe(false);
     expect(result.errors.codAmount).toBe("Ingresa el valor contraentrega.");
   });
+
+  it.each([NaN, Infinity])("rejects non-finite contraentrega amount: %s", (codAmount) => {
+    const draft = createBlankLabelDraft();
+    draft.sender.name = "PurpleShop";
+    draft.sender.phone = "3001234567";
+    draft.sender.department = "Cundinamarca";
+    draft.sender.city = "Bogota";
+    draft.sender.address = "Calle 1 # 2-3";
+    draft.recipient.fullName = "Ana Perez";
+    draft.recipient.phone = "3101234567";
+    draft.recipient.department = "Antioquia";
+    draft.recipient.city = "Medellin";
+    draft.recipient.address = "Carrera 45 # 10-20";
+    draft.orderNumber = "PS-2026-000001";
+    draft.carrier = "Interrapidisimo";
+    draft.paymentMethod = "contraentrega";
+    draft.codAmount = codAmount;
+
+    const result = validateLabelDraft(draft);
+    expect(result.valid).toBe(false);
+    expect(result.errors.codAmount).toBe("Ingresa el valor contraentrega.");
+  });
 });

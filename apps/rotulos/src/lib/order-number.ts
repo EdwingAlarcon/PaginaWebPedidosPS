@@ -13,11 +13,14 @@ function pad(value: number, digits: number): string {
 
 function cleanToken(value: string): string {
   return value
-    .replace(/\s+D\.?C\.?$/i, "")
     .normalize("NFD")
     .replace(/[\u0300-\u036f]/g, "")
     .replace(/[^a-zA-Z0-9]+/g, "")
     .toUpperCase();
+}
+
+function cleanCityToken(value: string): string {
+  return cleanToken(value.replace(/[,\s]+D\.?\s*C\.?$/i, ""));
 }
 
 function datePart(date: Date, part: "year" | "month" | "day"): string {
@@ -50,7 +53,7 @@ export function formatOrderNumber(config: OrderNumberConfig, context: NumberCont
     DAY: day,
     DATE: formatDateToken(context.date, config.dateFormat),
     SEQUENCE: pad(context.sequence, config.sequenceDigits),
-    CITY: cleanToken(context.city),
+    CITY: cleanCityToken(context.city),
     DEPARTMENT: cleanToken(context.department),
   };
 

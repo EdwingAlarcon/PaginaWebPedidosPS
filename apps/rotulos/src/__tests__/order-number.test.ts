@@ -33,7 +33,7 @@ describe("order numbering", () => {
     ).toBe("PS-20260715-0023");
   });
 
-  it("normalizes city and suffix variables", () => {
+  it("normalizes Bogota D.C. city variants", () => {
     expect(
       formatOrderNumber(
         {
@@ -50,6 +50,40 @@ describe("order numbering", () => {
         },
       ),
     ).toBe("PS-BOGOTA-000245-ONLINE");
+
+    expect(
+      formatOrderNumber(
+        {
+          ...defaultOrderNumberConfig,
+          pattern: "{PREFIX}-{CITY}-{SEQUENCE}",
+        },
+        {
+          date: new Date("2026-07-15T12:00:00Z"),
+          sequence: 245,
+          city: "Bogotá, D.C.",
+          department: "Cundinamarca",
+        },
+      ),
+    ).toBe("PS-BOGOTA-000245");
+  });
+
+  it("keeps D.C. text in non-city tokens", () => {
+    expect(
+      formatOrderNumber(
+        {
+          ...defaultOrderNumberConfig,
+          prefix: "Bogota D.C.",
+          suffix: "Bogota D.C.",
+          pattern: "{PREFIX}-{CITY}-{DEPARTMENT}-{SUFFIX}",
+        },
+        {
+          date: new Date("2026-07-15T12:00:00Z"),
+          sequence: 1,
+          city: "Bogota D.C.",
+          department: "Bogota D.C.",
+        },
+      ),
+    ).toBe("BOGOTADC-BOGOTA-BOGOTADC-BOGOTADC");
   });
 
   it("returns scope keys for reset policies", () => {
