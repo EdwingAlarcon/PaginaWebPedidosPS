@@ -68,6 +68,31 @@ export function LabelForm() {
     window.print();
   }
 
+  async function downloadPdf() {
+    if (!validateDraft()) return;
+    setSaveStatus("Generando PDF...");
+    try {
+      const response = await fetch("/api/labels/pdf", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ label: draft, settings }),
+      });
+      if (!response.ok) throw new Error("pdf_generation_failed");
+      const blob = await response.blob();
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = `rotulo-${draft.orderNumber || "purpleshop"}.pdf`;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      URL.revokeObjectURL(url);
+      setSaveStatus("PDF descargado.");
+    } catch {
+      setSaveStatus("No se pudo generar el PDF.");
+    }
+  }
+
   return (
     <div className="creator-grid">
       <div className="form-stack">
@@ -78,7 +103,7 @@ export function LabelForm() {
         <SenderFields value={draft.sender} onChange={(sender) => setDraft({ ...draft, sender })} errors={errors} />
         <RecipientFields value={draft.recipient} onChange={(recipient) => setDraft({ ...draft, recipient })} errors={errors} />
         <ShipmentFields value={draft} onChange={setDraft} errors={errors} allowManualEdit={settings.orderNumberConfig.allowManualEdit} />
-        <LabelActions onSave={saveDraft} onPrint={printDraft} />
+        <LabelActions onSave={saveDraft} onPrint={printDraft} onDownloadPdf={downloadPdf} />
       </div>
       <div className="preview-rail print-area">
         <LabelPreview draft={draft} settings={settings} />
