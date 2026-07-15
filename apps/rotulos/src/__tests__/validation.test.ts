@@ -125,6 +125,28 @@ describe("label validation", () => {
     expect(result.valid).toBe(false);
     expect(result.errors[errorKey]).toBe(message);
   });
+
+  it("accepts numeric printable values at their limits", () => {
+    const draft = createCompleteDraft();
+    draft.packageCount = 99;
+    draft.paymentMethod = "contraentrega";
+    draft.codAmount = 9_999_999;
+
+    expect(validateLabelDraft(draft)).toEqual({ valid: true, errors: {} });
+  });
+
+  it.each([
+    ["package count", (draft: ReturnType<typeof createCompleteDraft>) => { draft.packageCount = 100; }, "packageCount", "Ingresa maximo 99 paquetes para imprimirlos completos."],
+    ["COD amount", (draft: ReturnType<typeof createCompleteDraft>) => { draft.paymentMethod = "contraentrega"; draft.codAmount = 10_000_000; }, "codAmount", "Ingresa un valor contraentrega maximo de $9.999.999 para imprimirlo completo."],
+  ] as const)("rejects over-limit %s", (_field, setValue, errorKey, message) => {
+    const draft = createCompleteDraft();
+    setValue(draft);
+
+    const result = validateLabelDraft(draft);
+
+    expect(result.valid).toBe(false);
+    expect(result.errors[errorKey]).toBe(message);
+  });
 });
 
 function createCompleteDraft() {

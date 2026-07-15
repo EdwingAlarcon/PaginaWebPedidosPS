@@ -21,6 +21,11 @@ export const PRINTABLE_LABEL_LIMITS = {
   },
   orderNumber: 32,
   carrier: 40,
+  numeric: {
+    packageCount: 99,
+    // $9.999.999 COP fits the fixed footer badge without truncation.
+    codAmount: 9_999_999,
+  },
 } as const;
 
 function requireText(errors: Record<string, string>, key: string, value: string, message: string): void {
@@ -71,13 +76,16 @@ export function validateLabelDraft(draft: LabelDraft): ValidationResult {
 
   if (!Number.isInteger(draft.packageCount) || draft.packageCount < 1) {
     errors.packageCount = "Ingresa al menos un paquete.";
+  } else if (draft.packageCount > PRINTABLE_LABEL_LIMITS.numeric.packageCount) {
+    errors.packageCount = "Ingresa maximo 99 paquetes para imprimirlos completos.";
   }
 
-  if (
-    draft.paymentMethod === "contraentrega" &&
-    (!Number.isFinite(draft.codAmount) || draft.codAmount <= 0)
-  ) {
-    errors.codAmount = "Ingresa el valor contraentrega.";
+  if (draft.paymentMethod === "contraentrega") {
+    if (!Number.isFinite(draft.codAmount) || draft.codAmount <= 0) {
+      errors.codAmount = "Ingresa el valor contraentrega.";
+    } else if (draft.codAmount > PRINTABLE_LABEL_LIMITS.numeric.codAmount) {
+      errors.codAmount = "Ingresa un valor contraentrega maximo de $9.999.999 para imprimirlo completo.";
+    }
   }
 
   return { valid: Object.keys(errors).length === 0, errors };
