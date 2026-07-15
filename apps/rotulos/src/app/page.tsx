@@ -1,6 +1,8 @@
 import { DashboardStats } from "@/components/dashboard-stats";
 import { getLabelStore } from "@/lib/label-store";
 
+export const dynamic = "force-dynamic";
+
 export default async function DashboardPage() {
   const labels = await getLabelStore().listLabels();
 
