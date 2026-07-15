@@ -1,8 +1,16 @@
-export default function DashboardPage() {
+import { DashboardStats } from "@/components/dashboard-stats";
+import { getLabelStore } from "@/lib/label-store";
+
+export default async function DashboardPage() {
+  const labels = await getLabelStore().listLabels();
+
   return (
-    <main className="min-h-screen bg-purpleShop-paper p-6 text-purpleShop-ink">
-      <h1 className="text-3xl font-semibold">Rotulos PurpleShop</h1>
-      <p className="mt-2 text-sm text-neutral-600">Generador profesional de rotulos de envio.</p>
+    <main className="page-shell">
+      <div className="page-heading">
+        <p>Operacion diaria</p>
+        <h1>Rotulos de envio</h1>
+      </div>
+      <DashboardStats labels={labels} />
     </main>
   );
 }
