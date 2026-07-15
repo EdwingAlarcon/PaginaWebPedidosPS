@@ -5,7 +5,11 @@
   "main": "index.html",
   "scripts": {
     "start": "python -m http.server 8000",
-    "serve": "npx http-server -p 8000"
+    "serve": "npx http-server -p 8000",
+    "rotulos:dev": "npm --prefix apps/rotulos run dev",
+    "rotulos:build": "npm --prefix apps/rotulos run build",
+    "rotulos:test": "npm --prefix apps/rotulos run test",
+    "rotulos:e2e": "npm --prefix apps/rotulos run test:e2e"
   },
   "repository": {
     "type": "git",
