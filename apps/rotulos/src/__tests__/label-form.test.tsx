@@ -1,4 +1,4 @@
-import { fireEvent, render, screen } from "@testing-library/react";
+import { fireEvent, render, screen, within } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { LabelForm } from "@/components/label-form";
 import { createBlankLabelDraft, defaultSettings } from "@/lib/defaults";
@@ -19,6 +19,30 @@ describe("LabelForm", () => {
 
     expect(print).not.toHaveBeenCalled();
     expect(screen.getByRole("status")).toHaveTextContent("Revisa");
+  });
+
+
+  it("saves a valid draft with an automatically generated order number", async () => {
+    render(<LabelForm />);
+    const sender = within(screen.getByRole("group", { name: "Remitente" }));
+    const recipient = within(screen.getByRole("group", { name: "Destinatario" }));
+    const shipment = within(screen.getByRole("group", { name: "Datos del envio" }));
+
+    fireEvent.change(sender.getByLabelText(/Telefono/), { target: { value: "3001234567" } });
+    fireEvent.change(sender.getByLabelText(/Departamento/), { target: { value: "Cundinamarca" } });
+    fireEvent.change(sender.getByLabelText(/Ciudad/), { target: { value: "Bogota" } });
+    fireEvent.change(sender.getByLabelText(/Direccion/), { target: { value: "Calle 1 # 2-3" } });
+    fireEvent.change(recipient.getByLabelText(/Nombre y apellidos/), { target: { value: "Ana Perez" } });
+    fireEvent.change(recipient.getByLabelText(/Telefono/), { target: { value: "3101234567" } });
+    fireEvent.change(recipient.getByLabelText(/Departamento/), { target: { value: "Antioquia" } });
+    fireEvent.change(recipient.getByLabelText(/Ciudad/), { target: { value: "Medellin" } });
+    fireEvent.change(recipient.getByLabelText(/Direccion completa/), { target: { value: "Carrera 45 # 10-20" } });
+    fireEvent.change(shipment.getByLabelText(/Transportadora/), { target: { value: "Coordinadora" } });
+
+    fireEvent.click(screen.getByRole("button", { name: "Guardar rotulo" }));
+
+    expect(await screen.findByText("Rotulo guardado.")).toBeInTheDocument();
+    expect((await getLabelStore().listLabels())[0].orderNumber).toBe("PS-2026-000001");
   });
 
   it("loads an existing browser-fallback label for an edit URL", async () => {

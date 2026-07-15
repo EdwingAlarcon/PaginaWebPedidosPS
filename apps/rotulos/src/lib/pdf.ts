@@ -46,9 +46,14 @@ function sanitizeColor(value: string, fallback: string): string {
 }
 
 function assetUrl(value: string, origin?: string): string {
-  if (/^(https?:|data:|blob:)/i.test(value)) return value;
-  if (!origin) return value;
-  return new URL(value.startsWith("/") ? value : `/${value}`, origin).toString();
+  const trimmed = value.trim();
+  if (!/^\/[a-zA-Z0-9/_\-.]+$/.test(trimmed)) return "";
+  if (!origin) return trimmed;
+  return new URL(trimmed, origin).toString();
+}
+
+function safeAssetUrl(value: string, fallback: string, origin?: string): string {
+  return assetUrl(value, origin) || assetUrl(fallback, origin);
 }
 
 function text(value: string, fallback: string): string {
@@ -101,11 +106,11 @@ export function renderLabelPdfHtml(label: LabelDraft | LabelRecord, settings: La
   <main class="label">
     <header class="header">
       <div class="brand">
-        <img src="${escapeHtml(assetUrl(settings.logoUrl, options.origin))}" alt="Logo PurpleShop" />
+        <img src="${escapeHtml(safeAssetUrl(settings.logoUrl, "/purple-shop-logo.png", options.origin))}" alt="Logo PurpleShop" />
         <div><strong>PurpleShop</strong><span>${text(settings.brandPhrase, "")}</span></div>
       </div>
       <div class="social">
-        <img src="${escapeHtml(assetUrl(settings.qrUrl, options.origin))}" alt="QR de Instagram PurpleShop" />
+        <img src="${escapeHtml(safeAssetUrl(settings.qrUrl, "/purple-shop-qr.png", options.origin))}" alt="QR de Instagram PurpleShop" />
         <span>${text(settings.instagramUser, "@PURPLESHOP.ONLINE")}</span>
       </div>
     </header>

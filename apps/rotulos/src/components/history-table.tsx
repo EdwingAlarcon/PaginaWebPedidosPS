@@ -40,9 +40,27 @@ export function HistoryTable({ labels }: { labels: LabelRecord[] }) {
     setActionStatus("Etiqueta eliminada.");
   }
 
-  function printLabel() {
-    window.print();
-    setActionStatus("Se abrio el dialogo de impresion.");
+  async function downloadPdf(label: LabelRecord) {
+    const settings = await getLabelStore().getSettings();
+    const response = await fetch("/api/labels/pdf", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ label, settings }),
+    });
+    if (!response.ok) {
+      setActionStatus("No se pudo generar el PDF.");
+      return;
+    }
+    const blob = await response.blob();
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `rotulo-${label.orderNumber || "purpleshop"}.pdf`;
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    URL.revokeObjectURL(url);
+    setActionStatus(`PDF ${label.orderNumber} descargado.`);
   }
 
   return (
@@ -65,8 +83,8 @@ export function HistoryTable({ labels }: { labels: LabelRecord[] }) {
             <span>{label.orderNumber}</span>
             <span>{label.status}</span>
             <span className="row-actions">
-              <button type="button" onClick={printLabel}>Imprimir</button>
-              <button type="button" disabled title="La descarga de PDF se habilitara en el siguiente paso.">PDF</button>
+              <a href={`/crear?id=${label.id}&print=1`}>Imprimir</a>
+              <button type="button" onClick={() => downloadPdf(label)}>PDF</button>
               <button type="button" onClick={() => duplicateLabel(label.id)}>Duplicar</button>
               <a href={`/crear?id=${label.id}`}>Editar</a>
               <button type="button" onClick={() => deleteLabel(label.id)}>Eliminar</button>

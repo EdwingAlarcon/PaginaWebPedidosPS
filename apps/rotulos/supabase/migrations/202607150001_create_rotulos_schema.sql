@@ -47,7 +47,7 @@ create table if not exists public.labels (
   carrier text not null,
   status text not null default 'generado' check (status in ('borrador', 'generado', 'impreso', 'anulado')),
   pdf_url text,
-  created_by uuid,
+  created_by uuid not null default auth.uid(),
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );
@@ -96,22 +96,22 @@ create policy "Authenticated users can update settings."
   using (true)
   with check (true);
 
-create policy "Authenticated users can read labels."
+create policy "Users can read own labels."
   on public.labels for select to authenticated
-  using (true);
+  using (created_by = auth.uid());
 
-create policy "Authenticated users can insert labels."
+create policy "Users can insert own labels."
   on public.labels for insert to authenticated
-  with check (true);
+  with check (created_by = auth.uid());
 
-create policy "Authenticated users can update labels."
+create policy "Users can update own labels."
   on public.labels for update to authenticated
-  using (true)
-  with check (true);
+  using (created_by = auth.uid())
+  with check (created_by = auth.uid());
 
-create policy "Authenticated users can delete labels."
+create policy "Users can delete own labels."
   on public.labels for delete to authenticated
-  using (true);
+  using (created_by = auth.uid());
 
 create or replace function public.reserve_order_number(
   p_scope_key text,

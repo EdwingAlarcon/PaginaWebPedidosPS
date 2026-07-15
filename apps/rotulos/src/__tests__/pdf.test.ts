@@ -39,4 +39,18 @@ describe("renderLabelPdfHtml", () => {
     expect(html).toContain("&lt;img src=x onerror=alert(&quot;x&quot;)&gt;");
     expect(html).toContain("Fragil &amp; urgente");
   });
+
+  it("does not embed remote or data asset URLs in server-rendered PDFs", () => {
+    const draft = createBlankLabelDraft();
+    const html = renderLabelPdfHtml(draft, {
+      ...defaultSettings,
+      logoUrl: "http://169.254.169.254/latest/meta-data",
+      qrUrl: "data:image/svg+xml,<svg></svg>",
+    }, { origin: "https://purpleshop.test" });
+
+    expect(html).not.toContain("169.254.169.254");
+    expect(html).not.toContain("data:image");
+    expect(html).toContain('src="https://purpleshop.test/purple-shop-logo.png"');
+    expect(html).toContain('src="https://purpleshop.test/purple-shop-qr.png"');
+  });
 });

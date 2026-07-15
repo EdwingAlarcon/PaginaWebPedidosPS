@@ -42,7 +42,7 @@ function requirePrintableLength(
   if (value.length > limit) errors[key] = message;
 }
 
-export function validateLabelDraft(draft: LabelDraft): ValidationResult {
+export function validateLabelDraft(draft: LabelDraft, options: { requireOrderNumber?: boolean } = {}): ValidationResult {
   const errors: Record<string, string> = {};
 
   requireText(errors, "sender.name", draft.sender.name, "Ingresa el nombre del remitente.");
@@ -55,7 +55,7 @@ export function validateLabelDraft(draft: LabelDraft): ValidationResult {
   requireText(errors, "recipient.department", draft.recipient.department, "Ingresa el departamento del destinatario.");
   requireText(errors, "recipient.city", draft.recipient.city, "Ingresa la ciudad del destinatario.");
   requireText(errors, "recipient.address", draft.recipient.address, "Ingresa la direccion del destinatario.");
-  requireText(errors, "orderNumber", draft.orderNumber, "Ingresa el numero de pedido.");
+  if (options.requireOrderNumber) requireText(errors, "orderNumber", draft.orderNumber, "Ingresa el numero de pedido.");
   requireText(errors, "date", draft.date, "Ingresa la fecha.");
   requireText(errors, "carrier", draft.carrier, "Ingresa la transportadora.");
   requirePrintableLength(errors, "sender.name", draft.sender.name, PRINTABLE_LABEL_LIMITS.sender.name, "El nombre del remitente puede tener maximo 50 caracteres para imprimirlo completo.");

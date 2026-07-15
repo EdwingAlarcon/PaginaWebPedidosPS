@@ -1,4 +1,8 @@
+"use client";
+
 import Link from "next/link";
+import { useEffect, useState } from "react";
+import { getLabelStore } from "@/lib/label-store";
 import type { LabelRecord } from "@/lib/types";
 
 function isToday(value: string): boolean {
@@ -6,13 +10,19 @@ function isToday(value: string): boolean {
 }
 
 export function DashboardStats({ labels }: { labels: LabelRecord[] }) {
-  const todayCount = labels.filter((label) => isToday(label.createdAt)).length;
-  const latest = labels.slice(0, 5);
+  const [dashboardLabels, setDashboardLabels] = useState(labels);
+
+  useEffect(() => {
+    getLabelStore().listLabels().then(setDashboardLabels).catch(() => setDashboardLabels(labels));
+  }, [labels]);
+
+  const todayCount = dashboardLabels.filter((label) => isToday(label.createdAt)).length;
+  const latest = dashboardLabels.slice(0, 5);
 
   return (
     <div className="grid gap-6">
       <div className="grid gap-4 md:grid-cols-3">
-        <div className="metric-card"><span>Total rotulos</span><strong>{labels.length}</strong></div>
+        <div className="metric-card"><span>Total rotulos</span><strong>{dashboardLabels.length}</strong></div>
         <div className="metric-card"><span>Generados hoy</span><strong>{todayCount}</strong></div>
         <Link className="primary-action" href="/crear">Crear rotulo</Link>
       </div>

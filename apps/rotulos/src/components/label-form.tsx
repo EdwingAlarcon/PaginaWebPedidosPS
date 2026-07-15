@@ -26,7 +26,9 @@ export function LabelForm() {
   useEffect(() => {
     let active = true;
     const store = getLabelStore();
-    const labelId = new URLSearchParams(window.location.search).get("id");
+    const params = new URLSearchParams(window.location.search);
+    const labelId = params.get("id");
+    const shouldPrint = params.get("print") === "1";
 
     async function loadFallbackData() {
       const savedSettings = await store.getSettings();
@@ -34,6 +36,7 @@ export function LabelForm() {
       if (!active) return;
       setSettings(savedSettings);
       setDraft((current) => existing ?? { ...current, sender: savedSettings.defaultSender });
+      if (existing && shouldPrint) window.setTimeout(() => window.print(), 150);
     }
 
     void loadFallbackData();
