@@ -98,3 +98,300 @@ body {
   font-size: 1.1rem;
   font-weight: 800;
 }
+
+.label-canvas {
+  width: 14cm;
+  height: 11cm;
+  overflow: hidden;
+  border: 1px solid #111111;
+  border-radius: 6px;
+  background: #ffffff;
+  box-shadow: 0 18px 50px rgba(17, 17, 17, 0.16);
+  color: #111111;
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+.label-header {
+  display: flex;
+  height: 2.2cm;
+  align-items: center;
+  justify-content: space-between;
+  background: #6b1fa2;
+  color: #ffffff;
+  padding: 0.22cm 0.35cm;
+}
+
+.label-brand {
+  display: flex;
+  align-items: center;
+  gap: 0.22cm;
+}
+
+.label-brand img {
+  width: 1.38cm;
+  height: 1.38cm;
+  object-fit: contain;
+  border-radius: 4px;
+  background: #ffffff;
+}
+
+.label-brand strong {
+  display: block;
+  font-size: 0.48cm;
+  line-height: 1;
+}
+
+.label-brand span,
+.label-social span {
+  display: block;
+  font-size: 0.24cm;
+}
+
+.label-social {
+  display: grid;
+  justify-items: center;
+  gap: 0.08cm;
+}
+
+.label-social img {
+  width: 1.55cm;
+  height: 1.55cm;
+  object-fit: contain;
+  background: #ffffff;
+  padding: 0.05cm;
+}
+
+.label-meta {
+  display: grid;
+  grid-template-columns: 1.7fr repeat(3, 1fr);
+  border-bottom: 1px solid #111111;
+  font-size: 0.25cm;
+}
+
+.label-meta > * {
+  min-width: 0;
+  border-right: 1px solid #111111;
+  padding: 0.12cm 0.16cm;
+}
+
+.label-meta > *:last-child {
+  border-right: 0;
+}
+
+.label-grid {
+  display: grid;
+  height: 6.7cm;
+  grid-template-columns: 0.82fr 1.18fr;
+}
+
+.label-block {
+  min-width: 0;
+  border-right: 1px solid #111111;
+  padding: 0.22cm;
+  font-size: 0.25cm;
+}
+
+.label-block:last-child {
+  border-right: 0;
+}
+
+.label-block h2 {
+  margin: 0 0 0.12cm;
+  color: #3b0a57;
+  font-size: 0.26cm;
+  text-transform: uppercase;
+}
+
+.label-block p {
+  margin: 0 0 0.11cm;
+  overflow-wrap: anywhere;
+}
+
+.label-block .person {
+  font-size: 0.36cm;
+  font-weight: 800;
+}
+
+.recipient .person {
+  font-size: 0.48cm;
+}
+
+.recipient .address {
+  min-height: 1.55cm;
+  border: 1px solid rgba(17, 17, 17, 0.35);
+  border-radius: 4px;
+  padding: 0.12cm;
+  font-size: 0.34cm;
+  font-weight: 700;
+  line-height: 1.18;
+}
+
+.label-footer {
+  display: flex;
+  height: 1.34cm;
+  align-items: center;
+  justify-content: space-between;
+  border-top: 1px solid #111111;
+  padding: 0.18cm 0.25cm;
+  font-size: 0.27cm;
+}
+
+.cod-badge,
+.paid-badge {
+  border-radius: 999px;
+  padding: 0.12cm 0.24cm;
+  font-weight: 800;
+}
+
+.cod-badge {
+  background: #111111;
+  color: #ffffff;
+}
+
+.paid-badge {
+  background: #f5f5f7;
+  color: #111111;
+}
+
+.creator-grid {
+  display: grid;
+  gap: 24px;
+  grid-template-columns: minmax(320px, 0.82fr) minmax(530px, 1fr);
+  align-items: start;
+}
+
+.form-stack {
+  display: grid;
+  gap: 14px;
+}
+
+.form-section,
+.order-preview,
+.label-actions {
+  border: 1px solid rgba(17, 17, 17, 0.1);
+  border-radius: 8px;
+  background: #ffffff;
+  padding: 16px;
+}
+
+.form-section legend {
+  color: #3b0a57;
+  font-weight: 800;
+}
+
+.field {
+  display: grid;
+  gap: 6px;
+  margin-top: 12px;
+}
+
+.field span {
+  font-size: 0.82rem;
+  font-weight: 700;
+}
+
+.field input,
+.field select,
+.field textarea {
+  width: 100%;
+  border: 1px solid rgba(17, 17, 17, 0.18);
+  border-radius: 6px;
+  padding: 10px 11px;
+  font: inherit;
+}
+
+.field small {
+  color: #b00020;
+}
+
+.order-preview span {
+  display: block;
+  color: #666666;
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
+.order-preview strong {
+  display: block;
+  margin-top: 4px;
+  color: #3b0a57;
+  font-size: 1.45rem;
+}
+
+.label-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.button-primary,
+.button-secondary {
+  border: 0;
+  border-radius: 7px;
+  padding: 11px 14px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.button-primary {
+  background: #6b1fa2;
+  color: #ffffff;
+}
+
+.button-secondary {
+  background: #f5f5f7;
+  color: #111111;
+}
+
+.button-secondary:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.preview-rail {
+  position: sticky;
+  top: 24px;
+  overflow-x: auto;
+}
+
+@media (max-width: 1100px) {
+  .creator-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .preview-rail {
+    position: static;
+  }
+}
+
+@media print {
+  @page {
+    size: 14cm 11cm;
+    margin: 0;
+  }
+
+  body {
+    background: #ffffff;
+  }
+
+  body * {
+    visibility: hidden;
+  }
+
+  .print-area,
+  .print-area * {
+    visibility: visible;
+  }
+
+  .print-area {
+    position: fixed;
+    inset: 0;
+  }
+
+  .label-canvas {
+    width: 14cm;
+    height: 11cm;
+    border-radius: 0;
+    box-shadow: none;
+  }
+}
