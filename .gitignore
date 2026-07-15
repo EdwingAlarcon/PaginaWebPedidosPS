@@ -77,3 +77,4 @@ coverage/
 
 # Archivos de debug
 debug.log
+.superpowers/
