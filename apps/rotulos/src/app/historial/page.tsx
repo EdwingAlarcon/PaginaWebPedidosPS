@@ -1,11 +1,15 @@
-export default function LabelHistoryPage() {
+import { HistoryTable } from "@/components/history-table";
+import { getLabelStore } from "@/lib/label-store";
+
+export default async function HistoryPage() {
+  const labels = await getLabelStore().listLabels();
   return (
     <main className="page-shell">
       <div className="page-heading">
-        <p>Operacion diaria</p>
+        <p>Consulta y reutilizacion</p>
         <h1>Historial</h1>
       </div>
-      <p>Este modulo se esta preparando.</p>
+      <HistoryTable labels={labels} />
     </main>
   );
 }
