@@ -15,17 +15,27 @@ export type LabelStore = {
 
 const memoryLabels: LabelRecord[] = [];
 let memorySettings: LabelSettings = defaultSettings;
-let memorySequence = 0;
+const memorySequences = new Map<string, number>();
 
-function toRecord(draft: LabelDraft): LabelRecord {
+function toRecord(draft: LabelDraft, existing?: LabelRecord): LabelRecord {
   const now = new Date().toISOString();
   return {
     ...draft,
-    id: draft.id ?? crypto.randomUUID(),
-    createdAt: now,
+    id: existing?.id ?? draft.id ?? crypto.randomUUID(),
+    createdAt: existing?.createdAt ?? now,
     updatedAt: now,
-    pdfUrl: null,
-    createdBy: null,
+    pdfUrl: existing?.pdfUrl ?? null,
+    createdBy: existing?.createdBy ?? null,
+  };
+}
+
+function getNextSequence(settings: LabelSettings, draft: LabelDraft): { scope: string; value: number } {
+  const date = new Date(`${draft.date}T00:00:00Z`);
+  const scope = getSequenceScope(settings.orderNumberConfig.resetPolicy, date);
+  const currentValue = memorySequences.get(scope);
+  return {
+    scope,
+    value: currentValue === undefined ? settings.orderNumberConfig.initialSequence : currentValue + 1,
   };
 }
 
@@ -42,14 +52,18 @@ export function createLocalLabelStore(): LabelStore {
       if (manual && memoryLabels.some((label) => label.orderNumber === manual && label.id !== draft.id)) {
         throw new Error("duplicate_order_number");
       }
+      const index = memoryLabels.findIndex((label) => label.id === draft.id);
+      const existing = index >= 0 ? memoryLabels[index] : undefined;
+      const nextSequence = manual ? undefined : getNextSequence(settings, draft);
       const orderNumber = manual || formatOrderNumber(settings.orderNumberConfig, {
         date: new Date(`${draft.date}T00:00:00Z`),
-        sequence: ++memorySequence,
+        sequence: nextSequence!.value,
         city: draft.recipient.city,
         department: draft.recipient.department,
       });
-      const record = toRecord({ ...draft, orderNumber, status: "generado" });
-      const index = memoryLabels.findIndex((label) => label.id === record.id);
+      if (nextSequence) memorySequences.set(nextSequence.scope, nextSequence.value);
+      const status = existing ? draft.status : draft.status === "borrador" ? "generado" : draft.status;
+      const record = toRecord({ ...draft, orderNumber, status }, existing);
       if (index >= 0) memoryLabels[index] = record;
       else memoryLabels.unshift(record);
       return record;
@@ -71,11 +85,10 @@ export function createLocalLabelStore(): LabelStore {
       return settings;
     },
     async estimateNextOrderNumber(settings, draft) {
-      const scope = getSequenceScope(settings.orderNumberConfig.resetPolicy, new Date(`${draft.date}T00:00:00Z`));
-      void scope;
+      const nextSequence = getNextSequence(settings, draft);
       return formatOrderNumber(settings.orderNumberConfig, {
         date: new Date(`${draft.date}T00:00:00Z`),
-        sequence: memorySequence + 1,
+        sequence: nextSequence.value,
         city: draft.recipient.city,
         department: draft.recipient.department,
       });

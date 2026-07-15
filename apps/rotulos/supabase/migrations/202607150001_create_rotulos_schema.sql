@@ -64,7 +64,6 @@ alter table public.labels enable row level security;
 
 grant select, insert, update, delete on public.customers to authenticated;
 grant select, insert, update, delete on public.settings to authenticated;
-grant select, insert, update, delete on public.order_sequences to authenticated;
 grant select, insert, update, delete on public.labels to authenticated;
 
 create policy "Authenticated users can read customers."
@@ -94,19 +93,6 @@ create policy "Authenticated users can insert settings."
 
 create policy "Authenticated users can update settings."
   on public.settings for update to authenticated
-  using (true)
-  with check (true);
-
-create policy "Authenticated users can read sequences."
-  on public.order_sequences for select to authenticated
-  using (true);
-
-create policy "Authenticated users can insert sequences."
-  on public.order_sequences for insert to authenticated
-  with check (true);
-
-create policy "Authenticated users can update sequences."
-  on public.order_sequences for update to authenticated
   using (true)
   with check (true);
 
@@ -142,9 +128,12 @@ create or replace function public.reserve_order_number(
 )
 returns text
 language plpgsql
+security definer
+set search_path = ''
 as $$
 declare
   next_value bigint;
+  sequence_text text;
   v_order_number text;
   year_text text;
   month_text text;
@@ -181,6 +170,11 @@ begin
   end;
   city_text := upper(regexp_replace(coalesce(p_city, ''), '[^[:alnum:]]+', '', 'g'));
   department_text := upper(regexp_replace(coalesce(p_department, ''), '[^[:alnum:]]+', '', 'g'));
+  sequence_text := next_value::text;
+  sequence_text := case
+    when length(sequence_text) >= p_sequence_digits then sequence_text
+    else lpad(sequence_text, p_sequence_digits, '0')
+  end;
 
   v_order_number := p_pattern;
   v_order_number := replace(v_order_number, '{PREFIX}', upper(regexp_replace(coalesce(p_prefix, ''), '[^[:alnum:]]+', '', 'g')));
@@ -189,7 +183,7 @@ begin
   v_order_number := replace(v_order_number, '{MONTH}', month_text);
   v_order_number := replace(v_order_number, '{DAY}', day_text);
   v_order_number := replace(v_order_number, '{DATE}', date_text);
-  v_order_number := replace(v_order_number, '{SEQUENCE}', lpad(next_value::text, p_sequence_digits, '0'));
+  v_order_number := replace(v_order_number, '{SEQUENCE}', sequence_text);
   v_order_number := replace(v_order_number, '{CITY}', city_text);
   v_order_number := replace(v_order_number, '{DEPARTMENT}', department_text);
 
