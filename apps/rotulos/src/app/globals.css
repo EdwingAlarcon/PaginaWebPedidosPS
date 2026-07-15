@@ -243,13 +243,9 @@ body {
 }
 
 .recipient .recipient-address {
-  display: -webkit-box;
-  overflow: hidden;
   padding: 0.1cm;
   font-size: 0.29cm;
   line-height: 1.1;
-  -webkit-box-orient: vertical;
-  -webkit-line-clamp: 5;
 }
 
 .recipient-neighborhood {
@@ -258,11 +254,8 @@ body {
 }
 
 .recipient-reference {
-  display: -webkit-box;
   font-size: 0.22cm;
   line-height: 1.1;
-  -webkit-box-orient: vertical;
-  -webkit-line-clamp: 2;
 }
 
 .label-footer {
@@ -277,15 +270,11 @@ body {
 }
 
 .label-footer .recipient-notes {
-  display: -webkit-box;
   min-width: 0;
   max-width: 8.8cm;
-  overflow: hidden;
   overflow-wrap: anywhere;
   font-size: 0.22cm;
   line-height: 1.1;
-  -webkit-box-orient: vertical;
-  -webkit-line-clamp: 2;
 }
 
 .cod-badge,
@@ -354,6 +343,10 @@ body {
 
 .field small {
   color: #b00020;
+}
+
+.field .field-hint {
+  color: #666666;
 }
 
 .validation-summary {
