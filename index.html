@@ -39,6 +39,7 @@
         
         <link rel="stylesheet" href="css/styles.css" />
         <link rel="stylesheet" href="css/inventory.css" />
+        <link rel="stylesheet" href="css/labels.css" />
     </head>
     <body>
         <!-- Splash Screen -->
@@ -192,15 +193,13 @@
                 >
                     📦 Inventarios
                 </button>
-                <a
+                <button
                     class="tab-btn"
-                    href="http://localhost:3001"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    aria-label="Abrir Rótulos de envío en una pestaña nueva"
+                    data-tab="shippingLabels"
+                    aria-label="Ir a Rótulos de envío"
                 >
                     🏷️ Rótulos de envío
-                </a>
+                </button>
             </nav>
 
             <main role="main">
@@ -1006,6 +1005,13 @@
                     </div>
                 </section>
 
+                <!-- Pestaña: Rótulos de envío -->
+                <section class="tab-content" id="shippingLabels">
+                    <div id="shippingLabelsApp" class="labels-app">
+                        <!-- Generador de rótulos cargado por src/modules/labels.js -->
+                    </div>
+                </section>
+
                 <!-- Mensajes de estado -->
                 <div
                     id="statusMessage"
@@ -1066,6 +1072,7 @@
             <script src="src/modules/ui.js"></script>
             <script src="src/modules/forms.js"></script>
             <script src="src/modules/order-form.js"></script>
+            <script src="src/modules/labels.js"></script>
 
             <!-- 5. Módulo de inventario de productos (pestaña de stock) -->
             <script src="src/core/inventory.js"></script>
