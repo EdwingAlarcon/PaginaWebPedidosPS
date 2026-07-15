@@ -55,11 +55,13 @@ class InventoryManager {
             // Sanitizar datos si está disponible el módulo de seguridad
             const sanitizedData = this._sanitizeOrderData(orderData);
 
-            // Crear objeto de pedido
+            // Crear objeto de pedido.
+            // orderDate respeta la fecha elegida en el formulario si viene informada
+            // (antes se sobrescribía siempre con "ahora", ignorando la selección del usuario).
             const order = {
                 id: this._generateId(),
                 ...sanitizedData,
-                orderDate: new Date().toISOString(),
+                orderDate: sanitizedData.orderDate || new Date().toISOString(),
                 status: 'pending',
                 createdAt: new Date().toISOString(),
                 updatedAt: new Date().toISOString()

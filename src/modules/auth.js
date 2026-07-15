@@ -38,10 +38,14 @@ class AuthManager {
             // Verificar si hay sesión activa
             const accounts = this.msalInstance.getAllAccounts();
             if (accounts.length > 0) {
-                this.msalInstance.setActiveAccount(accounts[0]);
-                console.log('[Auth] ✅ User session restored:', accounts[0].username);
+                if (await this._isAccountAllowed(accounts[0].username)) {
+                    this.msalInstance.setActiveAccount(accounts[0]);
+                    console.log('[Auth] ✅ User session restored:', accounts[0].username);
+                } else {
+                    console.warn('[Auth] ⛔ Sesión en caché de cuenta no autorizada, ignorando:', accounts[0].username);
+                }
             }
-            
+
             this.isInitialized = true;
             console.log('[Auth] ✅ Auth module initialized');
             return true;
@@ -62,10 +66,17 @@ class AuthManager {
 
             console.log('[Auth] 🔐 Starting login process...');
             const response = await this.msalInstance.loginPopup(this.loginRequest);
-            
+
+            if (!(await this._isAccountAllowed(response.account.username))) {
+                console.warn('[Auth] ⛔ Cuenta no autorizada:', response.account.username);
+                // Mejor esfuerzo: purgar la sesión en caché sin bloquear el mensaje de error.
+                this.msalInstance.logoutPopup({ account: response.account }).catch(() => {});
+                throw new Error('Esta cuenta no tiene acceso a la aplicación. Contacta al administrador.');
+            }
+
             this.msalInstance.setActiveAccount(response.account);
             this.accessToken = response.accessToken;
-            
+
             console.log('[Auth] ✅ Login successful:', response.account.username);
             
             // Guardar en localStorage para persistencia
@@ -191,6 +202,30 @@ class AuthManager {
     updateScopes(scopes) {
         this.loginRequest.scopes = scopes;
         console.log('[Auth] ℹ️ Scopes updated:', scopes);
+    }
+
+    /**
+     * PRIVATE: Verificar si un correo está en la lista blanca de cuentas autorizadas
+     * (Config.authConfig.allowedAccountHashes). Sin lista configurada = sin restricción.
+     */
+    async _isAccountAllowed(username) {
+        const allowedHashes = window.Config?.authConfig?.allowedAccountHashes || [];
+        if (allowedHashes.length === 0) {
+            return true;
+        }
+        const hash = await this._sha256Hex((username || '').trim().toLowerCase());
+        return allowedHashes.includes(hash);
+    }
+
+    /**
+     * PRIVATE: Hash SHA-256 en hexadecimal usando la Web Crypto API nativa del navegador.
+     */
+    async _sha256Hex(text) {
+        const data = new TextEncoder().encode(text);
+        const digestBuffer = await crypto.subtle.digest('SHA-256', data);
+        return Array.from(new Uint8Array(digestBuffer))
+            .map(b => b.toString(16).padStart(2, '0'))
+            .join('');
     }
 }
 

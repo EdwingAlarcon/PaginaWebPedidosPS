@@ -43,7 +43,11 @@ class ExcelManager {
     }
 
     /**
-     * Obtener o crear archivo de Excel en OneDrive
+     * Obtener o crear archivo de Excel en OneDrive.
+     *
+     * Si Config.excelConfig.sharedDriveId/sharedItemId están definidos, apunta SIEMPRE a ese
+     * archivo específico (compartido entre varias cuentas) en vez de buscar/crear un archivo
+     * por nombre en el OneDrive propio de quien inició sesión.
      */
     async ensureExcelFile() {
         try {
@@ -52,12 +56,28 @@ class ExcelManager {
                 throw new Error('Authentication required');
             }
 
-            const fileName = window.Config.excelConfig.fileName;
+            const { sharedDriveId, sharedItemId, fileName } = window.Config.excelConfig;
+
+            if (sharedDriveId && sharedItemId) {
+                console.log('[Excel] 🔍 Verificando acceso al archivo compartido...');
+                const sharedFile = await this._getItem(token, sharedDriveId, sharedItemId);
+                if (!sharedFile) {
+                    throw new Error(
+                        'No se pudo acceder al archivo Excel compartido. Verifica que el dueño ' +
+                        'del archivo lo haya compartido con esta cuenta y que sharedDriveId/sharedItemId sean correctos.'
+                    );
+                }
+                this.driveId = sharedDriveId;
+                this.fileId = sharedItemId;
+                console.log(`[Excel] ✅ Usando archivo compartido: ${sharedFile.name}`);
+                return sharedFile;
+            }
+
             console.log(`[Excel] 🔍 Looking for ${fileName}...`);
 
             // Intentar obtener archivo existente
             const existingFile = await this._findFile(token, fileName);
-            
+
             if (existingFile) {
                 this.fileId = existingFile.id;
                 this.driveId = existingFile.parentReference.driveId;
@@ -68,7 +88,7 @@ class ExcelManager {
             // Crear nuevo archivo
             console.log(`[Excel] 📝 Creating new file: ${fileName}...`);
             const newFile = await this._createFile(token, fileName);
-            
+
             this.fileId = newFile.id;
             this.driveId = newFile.parentReference.driveId;
             console.log(`[Excel] ✅ File created: ${fileName}`);
@@ -96,10 +116,13 @@ class ExcelManager {
             console.log('[Excel] 📖 Reading data...');
 
             const sheetName = window.Config.excelConfig.sheetName;
-            const range = `'${sheetName}'!A:O`; // Ajustar según columnas
 
+            // usedRange detecta automáticamente la extensión real de datos:
+            // evita asumir un nombre de hoja fijo ("Sheet1") o un número de columnas fijo.
+            // /drives/{driveId}/items/{itemId} (no /me/drive/items/{itemId}) funciona tanto para
+            // archivos propios como para archivos compartidos que viven en el drive de otra cuenta.
             const response = await fetch(
-                `https://graph.microsoft.com/v1.0/me/drive/items/${this.fileId}/workbook/worksheets/Sheet1/range(address='${range}')`,
+                `https://graph.microsoft.com/v1.0/drives/${this.driveId}/items/${this.fileId}/workbook/worksheets('${encodeURIComponent(sheetName)}')/usedRange(valuesOnly=true)`,
                 {
                     method: 'GET',
                     headers: {
@@ -139,10 +162,17 @@ class ExcelManager {
             console.log('[Excel] ✍️ Writing data...');
 
             const sheetName = window.Config.excelConfig.sheetName;
-            const range = `'${sheetName}'!A1`;
+
+            // La API de rangos de Graph exige que el address cubra exactamente
+            // las mismas dimensiones que la matriz "values" enviada (Fase D).
+            const numRows = data.length;
+            const numCols = numRows > 0 ? data[0].length : 0;
+            const range = numRows > 0
+                ? `A1:${this._columnLetter(numCols)}${numRows}`
+                : 'A1';
 
             const response = await fetch(
-                `https://graph.microsoft.com/v1.0/me/drive/items/${this.fileId}/workbook/worksheets/Sheet1/range(address='${range}')`,
+                `https://graph.microsoft.com/v1.0/drives/${this.driveId}/items/${this.fileId}/workbook/worksheets('${encodeURIComponent(sheetName)}')/range(address='${range}')`,
                 {
                     method: 'PATCH',
                     headers: {
@@ -209,6 +239,50 @@ class ExcelManager {
         } catch (error) {
             console.error('[Excel] ❌ Sync error:', error);
             throw error;
+        }
+    }
+
+    /**
+     * PRIVATE: Convertir un número de columna (1-based) a letra(s) de columna de Excel.
+     * Ej: 1 → 'A', 14 → 'N', 27 → 'AA'.
+     */
+    _columnLetter(colNumber) {
+        let letters = '';
+        let n = colNumber;
+        while (n > 0) {
+            const remainder = (n - 1) % 26;
+            letters = String.fromCharCode(65 + remainder) + letters;
+            n = Math.floor((n - 1) / 26);
+        }
+        return letters || 'A';
+    }
+
+    /**
+     * PRIVATE: Obtener un item por driveId + itemId (funciona con archivos propios o compartidos).
+     * Devuelve null si no existe o si la cuenta actual no tiene acceso.
+     */
+    async _getItem(token, driveId, itemId) {
+        try {
+            const response = await fetch(
+                `https://graph.microsoft.com/v1.0/drives/${driveId}/items/${itemId}`,
+                {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                }
+            );
+
+            if (!response.ok) {
+                console.error(`[Excel] ❌ No se pudo acceder al item compartido: ${response.status}`);
+                return null;
+            }
+
+            return await response.json();
+        } catch (error) {
+            console.error('[Excel] ❌ Get item error:', error);
+            return null;
         }
     }
 
@@ -287,7 +361,7 @@ class ExcelManager {
             }
 
             const response = await fetch(
-                `https://graph.microsoft.com/v1.0/me/drive/items/${this.fileId}`,
+                `https://graph.microsoft.com/v1.0/drives/${this.driveId}/items/${this.fileId}`,
                 {
                     method: 'GET',
                     headers: {

@@ -32,8 +32,11 @@ const msalConfig = {
     auth: {
         clientId: getEnvVar('VITE_AZURE_CLIENT_ID', ''),
         authority: getEnvVar('VITE_AZURE_AUTHORITY', 'https://login.microsoftonline.com/common'),
-        redirectUri: window.location.origin + '/index.html',
-        postLogoutRedirectUri: window.location.origin
+        // window.location.origin NO incluye la subruta del sitio (p.ej. GitHub Pages sirve en
+        // https://usuario.github.io/PaginaWebPedidosPS/, no en la raíz del dominio) — pathname
+        // sí la incluye, así el redirect URI calculado coincide con la URL real de la página.
+        redirectUri: window.location.origin + window.location.pathname,
+        postLogoutRedirectUri: window.location.origin + window.location.pathname.replace(/index\.html$/, '')
     },
     cache: {
         cacheLocation: 'localStorage',
@@ -62,6 +65,15 @@ const msalScopes = {
 const excelConfig = {
     fileName: 'PedidosInventario.xlsx',
     sheetName: 'Pedidos',
+    // Si se definen, la app usa SIEMPRE este archivo específico (vía Graph /drives/{id}/items/{id})
+    // en vez de buscar/crear "fileName" en el OneDrive propio de quien inicia sesión. Esto permite
+    // que varias personas, cada una con su propia cuenta, lean y escriban el MISMO Excel compartido
+    // — siempre que el dueño del archivo lo haya compartido con esas cuentas. Configúralos en
+    // config.local.js. Se obtienen abriendo la consola del navegador tras iniciar sesión como el
+    // dueño del archivo y ejecutando: await window.ExcelManager.ensureExcelFile()
+    // y luego leyendo window.ExcelManager.driveId / window.ExcelManager.fileId.
+    sharedDriveId: getEnvVar('VITE_EXCEL_DRIVE_ID', ''),
+    sharedItemId: getEnvVar('VITE_EXCEL_ITEM_ID', ''),
     columns: {
         id: 'ID',
         clientName: 'Cliente',
@@ -78,6 +90,22 @@ const excelConfig = {
         orderDate: 'Fecha Pedido',
         notes: 'Notas'
     }
+};
+
+// Configuración de autorización de cuentas.
+// Azure AD no ofrece una lista blanca nativa para cuentas Microsoft personales (solo para
+// cuentas de un tenant administrado), así que la aplicación la implementa por su cuenta:
+// tras el login, AuthManager compara el hash SHA-256 del correo (minúsculas, sin espacios)
+// contra esta lista. No son hashes "secretos" de verdad — igual viajan al navegador — pero
+// evitan publicar los correos en texto plano en el repo (que es público). La protección real
+// contra accesos no autorizados a los DATOS es que el archivo Excel solo está compartido con
+// esas cuentas en OneDrive; esta lista solo controla si la interfaz deja avanzar el login.
+// Si el arreglo queda vacío, no hay restricción (cualquier cuenta Microsoft puede entrar).
+const allowedAccountHashesRaw = getEnvVar('VITE_ALLOWED_ACCOUNT_HASHES', '');
+const authConfig = {
+    allowedAccountHashes: allowedAccountHashesRaw
+        ? allowedAccountHashesRaw.split(',').map(h => h.trim().toLowerCase()).filter(Boolean)
+        : []
 };
 
 // Configuración de UI
@@ -121,6 +149,7 @@ window.Config = {
     getEnvVar,
     msalConfig,
     msalScopes,
+    authConfig,
     excelConfig,
     uiConfig,
     logConfig,
@@ -166,6 +195,7 @@ window.Config = {
         return {
             msalConfig: this.msalConfig,
             msalScopes: this.msalScopes,
+            authConfig: this.authConfig,
             excelConfig: this.excelConfig,
             uiConfig: this.uiConfig,
             logConfig: this.logConfig,

@@ -3,7 +3,7 @@
  * Gestiona stock, productos, movimientos y alertas de inventario
  */
 
-class InventoryManager {
+class ProductInventoryManager {
     constructor() {
         this.products = this.loadFromLocalStorage('inventory_products') || [];
         this.movements = this.loadFromLocalStorage('inventory_movements') || [];
@@ -557,4 +557,4 @@ class InventoryManager {
 }
 
 // Crear instancia global
-const inventory = new InventoryManager();
+const inventory = new ProductInventoryManager();

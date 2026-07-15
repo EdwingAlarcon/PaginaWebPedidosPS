@@ -48,7 +48,6 @@ function initInventoryUI() {
     loadMovementsTable();
     loadAlertsUI();
     loadSettingsUI();
-    initFormHandlers();
     loadCategoryFilter();
 
     console.log('[Inventory UI] ✅ Módulo de inventarios inicializado correctamente');
@@ -487,6 +486,8 @@ function renderMovementsTable(movements) {
 
     // Protección: si el elemento no existe, salir
     if (!tbody) return;
+
+    tbody.innerHTML = movements.map(movement => {
         const product = inventory.getProductById(movement.productId);
         const movementIcon = {
             'aumento': '📈',
@@ -632,6 +633,8 @@ function loadCategories() {
 
     // Protección: si el elemento no existe, salir
     if (!container) return;
+
+    container.innerHTML = categories.map(cat => `
         <div class="category-item">
             <div class="category-color" style="background-color: ${cat.color}"></div>
             <span class="category-name">${cat.name}</span>
@@ -773,6 +776,8 @@ function showInventoryReport() {
 
     const report = inventory.generateInventoryReport();
     console.log('[showInventoryReport] Reporte generado:', report);
+
+    const html = `
         <div class="report-section">
             <h3>📊 Resumen General</h3>
             <table class="report-table">
