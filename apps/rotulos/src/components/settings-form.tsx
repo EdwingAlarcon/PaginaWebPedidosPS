@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { defaultSettings } from "@/lib/defaults";
 import { getLabelStore } from "@/lib/label-store";
 import { formatOrderNumber } from "@/lib/order-number";
@@ -21,6 +21,10 @@ export function SettingsForm({ initialSettings = defaultSettings, onSave = (sett
     city: "Bogota",
     department: "Cundinamarca",
   });
+
+  useEffect(() => {
+    getLabelStore().getSettings().then(setSettings);
+  }, []);
 
   async function saveSettings() {
     if (sequenceDigitsError) return;

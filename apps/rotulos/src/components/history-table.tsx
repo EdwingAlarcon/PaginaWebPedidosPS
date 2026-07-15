@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { getLabelStore } from "@/lib/label-store";
 import type { LabelRecord } from "@/lib/types";
 
@@ -8,6 +8,10 @@ export function HistoryTable({ labels }: { labels: LabelRecord[] }) {
   const [query, setQuery] = useState("");
   const [tableLabels, setTableLabels] = useState(labels);
   const [actionStatus, setActionStatus] = useState("");
+
+  useEffect(() => {
+    getLabelStore().listLabels().then(setTableLabels);
+  }, []);
   const filtered = useMemo(() => {
     const needle = query.trim().toLowerCase();
     if (!needle) return tableLabels;
@@ -19,8 +23,15 @@ export function HistoryTable({ labels }: { labels: LabelRecord[] }) {
   }, [query, tableLabels]);
 
   async function duplicateLabel(id: string) {
-    const draft = await getLabelStore().duplicateLabel(id);
-    setActionStatus(draft ? "Etiqueta duplicada. Abrela en Crear para completarla." : "No se pudo duplicar la etiqueta.");
+    const store = getLabelStore();
+    const draft = await store.duplicateLabel(id);
+    if (!draft) {
+      setActionStatus("No se pudo duplicar la etiqueta.");
+      return;
+    }
+    const duplicate = await store.saveLabel(draft, await store.getSettings());
+    setTableLabels(await store.listLabels());
+    setActionStatus(`Etiqueta ${duplicate.orderNumber} duplicada.`);
   }
 
   async function deleteLabel(id: string) {

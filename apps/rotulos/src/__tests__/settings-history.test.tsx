@@ -1,8 +1,9 @@
 import { fireEvent, render, screen } from "@testing-library/react";
-import { describe, expect, it } from "vitest";
+import { beforeEach, describe, expect, it } from "vitest";
 import { SettingsForm } from "@/components/settings-form";
 import { HistoryTable } from "@/components/history-table";
 import { createBlankLabelDraft } from "@/lib/defaults";
+import { getLabelStore } from "@/lib/label-store";
 import type { LabelRecord } from "@/lib/types";
 
 function createLabel(id: string, fullName: string, phone: string): LabelRecord {
@@ -25,6 +26,10 @@ function createLabel(id: string, fullName: string, phone: string): LabelRecord {
 }
 
 describe("SettingsForm", () => {
+  beforeEach(() => {
+    localStorage.clear();
+  });
+
   it("updates the estimated next order number when its format changes", () => {
     render(<SettingsForm />);
 
@@ -44,9 +49,24 @@ describe("SettingsForm", () => {
     expect(screen.getByText("Los digitos deben ser al menos 1.")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Guardar configuracion" })).toBeDisabled();
   });
+
+  it("loads settings saved in the browser fallback", async () => {
+    await getLabelStore().saveSettings({
+      ...((await getLabelStore().getSettings())),
+      brandPhrase: "Configuracion persistida",
+    });
+
+    render(<SettingsForm />);
+
+    expect(await screen.findByDisplayValue("Configuracion persistida")).toBeInTheDocument();
+  });
 });
 
 describe("HistoryTable", () => {
+  beforeEach(() => {
+    localStorage.clear();
+  });
+
   it("filters labels by recipient name", () => {
     render(<HistoryTable labels={[createLabel("1", "Ana Perez", "3001111111"), createLabel("2", "Luis Gomez", "3002222222")]} />);
 
@@ -81,5 +101,20 @@ describe("HistoryTable", () => {
 
     expect(await screen.findByRole("status")).toHaveTextContent("Etiqueta eliminada.");
     expect(screen.queryByText("Ana Perez")).not.toBeInTheDocument();
+  });
+
+  it("loads browser labels and persists a duplicated record", async () => {
+    const store = getLabelStore();
+    const draft = createBlankLabelDraft();
+    draft.recipient.fullName = "Ana Perez";
+    const saved = await store.saveLabel(draft, await store.getSettings());
+
+    render(<HistoryTable labels={[]} />);
+
+    expect(await screen.findByText("Ana Perez")).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "Duplicar" }));
+
+    expect(await screen.findByText("Etiqueta PS-2026-000002 duplicada.")).toBeInTheDocument();
+    expect(await store.listLabels()).toHaveLength(2);
   });
 });

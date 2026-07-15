@@ -1,10 +1,11 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { createBlankLabelDraft, defaultSettings } from "@/lib/defaults";
+import { getLabelStore } from "@/lib/label-store";
 import { formatOrderNumber } from "@/lib/order-number";
 import { validateLabelDraft } from "@/lib/validation";
-import type { LabelDraft } from "@/lib/types";
+import type { LabelDraft, LabelSettings } from "@/lib/types";
 import { LabelActions } from "@/components/label-actions";
 import { LabelPreview } from "@/components/label-preview";
 import { OrderNumberPreview } from "@/components/order-number-preview";
@@ -16,22 +17,37 @@ export function LabelForm() {
   const [draft, setDraft] = useState<LabelDraft>(() => {
     const initial = createBlankLabelDraft();
     initial.sender = defaultSettings.defaultSender;
-    initial.orderNumber = formatOrderNumber(defaultSettings.orderNumberConfig, {
-      date: new Date(`${initial.date}T00:00:00Z`),
-      sequence: 1,
-      city: initial.recipient.city,
-      department: initial.recipient.department,
-    });
     return initial;
   });
+  const [settings, setSettings] = useState<LabelSettings>(defaultSettings);
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [saveStatus, setSaveStatus] = useState("");
 
-  const nextPreview = useMemo(() => formatOrderNumber(defaultSettings.orderNumberConfig, {
+  useEffect(() => {
+    let active = true;
+    const store = getLabelStore();
+    const labelId = new URLSearchParams(window.location.search).get("id");
+
+    async function loadFallbackData() {
+      const savedSettings = await store.getSettings();
+      const existing = labelId ? await store.getLabel(labelId) : null;
+      if (!active) return;
+      setSettings(savedSettings);
+      setDraft(existing ?? { ...createBlankLabelDraft(), sender: savedSettings.defaultSender });
+    }
+
+    void loadFallbackData();
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  const nextPreview = useMemo(() => formatOrderNumber(settings.orderNumberConfig, {
     date: new Date(`${draft.date}T00:00:00Z`),
     sequence: 1,
     city: draft.recipient.city,
     department: draft.recipient.department,
-  }), [draft.date, draft.recipient.city, draft.recipient.department]);
+  }), [draft.date, draft.recipient.city, draft.recipient.department, settings.orderNumberConfig]);
   const errorMessages = Object.values(errors);
 
   function validateDraft(): boolean {
@@ -40,9 +56,11 @@ export function LabelForm() {
     return result.valid;
   }
 
-  function saveDraft() {
+  async function saveDraft() {
     if (!validateDraft()) return;
-    window.alert("Rotulo validado. La persistencia se conecta en la siguiente tarea.");
+    const saved = await getLabelStore().saveLabel(draft, settings);
+    setDraft(saved);
+    setSaveStatus("Rotulo guardado.");
   }
 
   function printDraft() {
@@ -54,16 +72,16 @@ export function LabelForm() {
     <div className="creator-grid">
       <div className="form-stack">
         <div className="validation-summary" aria-live="polite" role="status">
-          {errorMessages.length ? `Revisa ${errorMessages.length} campo${errorMessages.length === 1 ? "" : "s"} antes de guardar.` : null}
+          {errorMessages.length ? `Revisa ${errorMessages.length} campo${errorMessages.length === 1 ? "" : "s"} antes de guardar.` : saveStatus}
         </div>
         <OrderNumberPreview value={nextPreview} />
         <SenderFields value={draft.sender} onChange={(sender) => setDraft({ ...draft, sender })} errors={errors} />
         <RecipientFields value={draft.recipient} onChange={(recipient) => setDraft({ ...draft, recipient })} errors={errors} />
-        <ShipmentFields value={draft} onChange={setDraft} errors={errors} allowManualEdit={defaultSettings.orderNumberConfig.allowManualEdit} />
+        <ShipmentFields value={draft} onChange={setDraft} errors={errors} allowManualEdit={settings.orderNumberConfig.allowManualEdit} />
         <LabelActions onSave={saveDraft} onPrint={printDraft} />
       </div>
       <div className="preview-rail print-area">
-        <LabelPreview draft={draft} settings={defaultSettings} />
+        <LabelPreview draft={draft} settings={settings} />
       </div>
     </div>
   );

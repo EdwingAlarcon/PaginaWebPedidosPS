@@ -1,8 +1,35 @@
-import { describe, expect, it } from "vitest";
+import { beforeEach, describe, expect, it } from "vitest";
 import { createBlankLabelDraft, defaultSettings } from "@/lib/defaults";
 import { createLocalLabelStore } from "@/lib/label-store";
 
 describe("local label store", () => {
+  beforeEach(() => {
+    localStorage.clear();
+  });
+
+  it("persists labels and settings in browser localStorage", async () => {
+    const store = createLocalLabelStore();
+    const settings = { ...defaultSettings, brandPhrase: "Persistida" };
+    const draft = createBlankLabelDraft();
+    draft.date = "2033-07-15";
+
+    const saved = await store.saveLabel(draft, settings);
+    await store.saveSettings(settings);
+
+    expect(localStorage.getItem("purpleshop.rotulos.labels")).toContain(saved.id);
+    expect(await createLocalLabelStore().getSettings()).toEqual(settings);
+    expect(await createLocalLabelStore().getLabel(saved.id)).toEqual(saved);
+  });
+
+  it("persists deletion in browser localStorage", async () => {
+    const store = createLocalLabelStore();
+    const saved = await store.saveLabel(createBlankLabelDraft(), defaultSettings);
+
+    await store.deleteLabel(saved.id);
+
+    expect(await createLocalLabelStore().getLabel(saved.id)).toBeNull();
+  });
+
   it("assigns the next generated order number when saving a blank draft", async () => {
     const store = createLocalLabelStore();
     const draft = createBlankLabelDraft();
