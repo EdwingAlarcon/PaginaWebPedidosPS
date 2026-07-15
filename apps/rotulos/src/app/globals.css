@@ -461,8 +461,8 @@ body {
 
 .history-row {
   display: grid;
-  min-width: 900px;
-  grid-template-columns: 1.3fr 0.9fr 0.9fr 1fr 0.7fr 2fr;
+  min-width: 1040px;
+  grid-template-columns: 1.3fr 0.9fr 0.9fr 0.8fr 1fr 0.7fr 2fr;
   gap: 12px;
   border-top: 1px solid rgba(17, 17, 17, 0.1);
   padding: 12px 0;
@@ -482,7 +482,10 @@ body {
   gap: 6px;
 }
 
-.row-actions button {
+.row-actions button,
+.row-actions a {
+  color: #111111;
+  text-decoration: none;
   border: 1px solid rgba(17, 17, 17, 0.14);
   border-radius: 6px;
   background: #ffffff;

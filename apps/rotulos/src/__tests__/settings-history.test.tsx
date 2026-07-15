@@ -35,6 +35,15 @@ describe("SettingsForm", () => {
 
     expect(screen.getByText("PS/000001")).toBeInTheDocument();
   });
+
+  it("blocks saving when sequence digits is less than one", () => {
+    render(<SettingsForm />);
+
+    fireEvent.change(screen.getByLabelText("Digitos"), { target: { value: "0" } });
+
+    expect(screen.getByText("Los digitos deben ser al menos 1.")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Guardar configuracion" })).toBeDisabled();
+  });
 });
 
 describe("HistoryTable", () => {
@@ -44,6 +53,33 @@ describe("HistoryTable", () => {
     fireEvent.change(screen.getByLabelText("Buscar por numero de pedido, cliente o telefono"), { target: { value: "luis" } });
 
     expect(screen.getByText("Luis Gomez")).toBeInTheDocument();
+    expect(screen.queryByText("Ana Perez")).not.toBeInTheDocument();
+  });
+
+  it("shows the date column and filters labels by order number and telephone", () => {
+    const ana = createLabel("1", "Ana Perez", "3001111111");
+    ana.date = "2026-07-15";
+    const luis = createLabel("2", "Luis Gomez", "3002222222");
+    render(<HistoryTable labels={[ana, luis]} />);
+
+    expect(screen.getByText("Fecha")).toBeInTheDocument();
+    expect(screen.getAllByText("2026-07-15")).toHaveLength(2);
+
+    fireEvent.change(screen.getByLabelText("Buscar por numero de pedido, cliente o telefono"), { target: { value: ana.orderNumber } });
+    expect(screen.getByText("Ana Perez")).toBeInTheDocument();
+    expect(screen.queryByText("Luis Gomez")).not.toBeInTheDocument();
+
+    fireEvent.change(screen.getByLabelText("Buscar por numero de pedido, cliente o telefono"), { target: { value: "3002222222" } });
+    expect(screen.getByText("Luis Gomez")).toBeInTheDocument();
+    expect(screen.queryByText("Ana Perez")).not.toBeInTheDocument();
+  });
+
+  it("removes a deleted label from the local table and announces the action", async () => {
+    render(<HistoryTable labels={[createLabel("1", "Ana Perez", "3001111111")]} />);
+
+    fireEvent.click(screen.getByRole("button", { name: "Eliminar" }));
+
+    expect(await screen.findByRole("status")).toHaveTextContent("Etiqueta eliminada.");
     expect(screen.queryByText("Ana Perez")).not.toBeInTheDocument();
   });
 });
