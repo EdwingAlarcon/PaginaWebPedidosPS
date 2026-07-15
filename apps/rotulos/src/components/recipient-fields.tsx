@@ -23,8 +23,10 @@ const printableHelp: Record<keyof Recipient, string> = {
   notes: "Maximo 90 caracteres para imprimirlas completas.",
 };
 
-export function RecipientFields({ value, onChange, errors }: { value: Recipient; onChange: (value: Recipient) => void; errors: Record<string, string> }) {
-  const set = (key: keyof Recipient, next: string) => onChange({ ...value, [key]: next });
+type RecipientChange = Recipient | ((current: Recipient) => Recipient);
+
+export function RecipientFields({ value, onChange, errors }: { value: Recipient; onChange: (value: RecipientChange) => void; errors: Record<string, string> }) {
+  const set = (key: keyof Recipient, next: string) => onChange((current) => ({ ...current, [key]: next }));
   return (
     <fieldset className="form-section">
       <legend>Destinatario</legend>
@@ -39,9 +41,9 @@ export function RecipientFields({ value, onChange, errors }: { value: Recipient;
           <label className="field" key={key}>
             <span>{labels[key]}</span>
             {key === "address" || key === "reference" || key === "notes" ? (
-              <textarea value={value[key]} aria-describedby={describedBy} maxLength={maxLength} onChange={(event) => set(key, event.target.value)} rows={key === "address" ? 3 : 2} />
+              <textarea value={value[key]} aria-describedby={describedBy} maxLength={maxLength} onInput={(event) => set(key, event.currentTarget.value)} onChange={(event) => set(key, event.target.value)} rows={key === "address" ? 3 : 2} />
             ) : (
-              <input value={value[key]} aria-describedby={describedBy} maxLength={maxLength} onChange={(event) => set(key, event.target.value)} />
+              <input value={value[key]} aria-describedby={describedBy} maxLength={maxLength} onInput={(event) => set(key, event.currentTarget.value)} onChange={(event) => set(key, event.target.value)} />
             )}
             {helperText ? <small className="field-hint" id={helperId}>{helperText}</small> : null}
             {errors[errorKey] ? <small id={errorId}>{errors[errorKey]}</small> : null}
@@ -51,3 +53,4 @@ export function RecipientFields({ value, onChange, errors }: { value: Recipient;
     </fieldset>
   );
 }
+

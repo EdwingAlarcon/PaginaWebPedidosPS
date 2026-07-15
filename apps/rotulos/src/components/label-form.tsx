@@ -33,7 +33,7 @@ export function LabelForm() {
       const existing = labelId ? await store.getLabel(labelId) : null;
       if (!active) return;
       setSettings(savedSettings);
-      setDraft(existing ?? { ...createBlankLabelDraft(), sender: savedSettings.defaultSender });
+      setDraft((current) => existing ?? { ...current, sender: savedSettings.defaultSender });
     }
 
     void loadFallbackData();
@@ -100,8 +100,8 @@ export function LabelForm() {
           {errorMessages.length ? `Revisa ${errorMessages.length} campo${errorMessages.length === 1 ? "" : "s"} antes de guardar.` : saveStatus}
         </div>
         <OrderNumberPreview value={nextPreview} />
-        <SenderFields value={draft.sender} onChange={(sender) => setDraft({ ...draft, sender })} errors={errors} />
-        <RecipientFields value={draft.recipient} onChange={(recipient) => setDraft({ ...draft, recipient })} errors={errors} />
+        <SenderFields value={draft.sender} onChange={(sender) => setDraft((current) => ({ ...current, sender: typeof sender === "function" ? sender(current.sender) : sender }))} errors={errors} />
+        <RecipientFields value={draft.recipient} onChange={(recipient) => setDraft((current) => ({ ...current, recipient: typeof recipient === "function" ? recipient(current.recipient) : recipient }))} errors={errors} />
         <ShipmentFields value={draft} onChange={setDraft} errors={errors} allowManualEdit={settings.orderNumberConfig.allowManualEdit} />
         <LabelActions onSave={saveDraft} onPrint={printDraft} onDownloadPdf={downloadPdf} />
       </div>
@@ -111,3 +111,4 @@ export function LabelForm() {
     </div>
   );
 }
+

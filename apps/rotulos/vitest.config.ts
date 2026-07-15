@@ -8,6 +8,7 @@ export default defineConfig({
     globals: true,
     passWithNoTests: true,
     setupFiles: ["./src/test/setup.ts"],
+    exclude: ["e2e/**", "node_modules/**", ".next/**"],
   },
   resolve: {
     alias: {
@@ -15,3 +16,4 @@ export default defineConfig({
     },
   },
 });
+

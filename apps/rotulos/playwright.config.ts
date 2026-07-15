@@ -5,12 +5,12 @@ export default defineConfig({
   timeout: 30_000,
   expect: { timeout: 5_000 },
   use: {
-    baseURL: "http://127.0.0.1:3001",
+    baseURL: "http://localhost:3001",
     trace: "on-first-retry",
   },
   webServer: {
     command: "npm run dev",
-    url: "http://127.0.0.1:3001",
+    url: "http://localhost:3001",
     reuseExistingServer: true,
     timeout: 120_000,
   },
@@ -19,3 +19,4 @@ export default defineConfig({
     { name: "mobile", use: { ...devices["Pixel 7"] } }
   ],
 });
+
