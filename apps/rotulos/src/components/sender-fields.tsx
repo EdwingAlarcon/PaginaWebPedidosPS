@@ -5,13 +5,17 @@ export function SenderFields({ value, onChange, errors }: { value: Sender; onCha
   return (
     <fieldset className="form-section">
       <legend>Remitente</legend>
-      {(["name", "phone", "department", "city", "address"] as const).map((key) => (
-        <label className="field" key={key}>
-          <span>{key === "name" ? "Nombre / Empresa" : key === "phone" ? "Telefono" : key === "department" ? "Departamento" : key === "city" ? "Ciudad" : "Direccion"}</span>
-          <input value={value[key]} onChange={(event) => set(key, event.target.value)} />
-          {errors[`sender.${key}`] ? <small>{errors[`sender.${key}`]}</small> : null}
-        </label>
-      ))}
+      {(["name", "phone", "department", "city", "address"] as const).map((key) => {
+        const errorKey = `sender.${key}`;
+        const errorId = `${errorKey}-error`;
+        return (
+          <label className="field" key={key}>
+            <span>{key === "name" ? "Nombre / Empresa" : key === "phone" ? "Telefono" : key === "department" ? "Departamento" : key === "city" ? "Ciudad" : "Direccion"}</span>
+            <input value={value[key]} aria-describedby={errors[errorKey] ? errorId : undefined} onChange={(event) => set(key, event.target.value)} />
+            {errors[errorKey] ? <small id={errorId}>{errors[errorKey]}</small> : null}
+          </label>
+        );
+      })}
     </fieldset>
   );
 }

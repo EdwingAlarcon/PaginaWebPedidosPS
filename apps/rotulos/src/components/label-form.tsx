@@ -32,6 +32,7 @@ export function LabelForm() {
     city: draft.recipient.city,
     department: draft.recipient.department,
   }), [draft.date, draft.recipient.city, draft.recipient.department]);
+  const errorMessages = Object.values(errors);
 
   function saveDraft() {
     const result = validateLabelDraft(draft);
@@ -43,6 +44,9 @@ export function LabelForm() {
   return (
     <div className="creator-grid">
       <div className="form-stack">
+        <div className="validation-summary" aria-live="polite" role="status">
+          {errorMessages.length ? `Revisa ${errorMessages.length} campo${errorMessages.length === 1 ? "" : "s"} antes de guardar.` : null}
+        </div>
         <OrderNumberPreview value={nextPreview} />
         <SenderFields value={draft.sender} onChange={(sender) => setDraft({ ...draft, sender })} errors={errors} />
         <RecipientFields value={draft.recipient} onChange={(recipient) => setDraft({ ...draft, recipient })} errors={errors} />

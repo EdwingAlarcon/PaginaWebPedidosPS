@@ -181,11 +181,14 @@ body {
 .label-grid {
   display: grid;
   height: 6.7cm;
+  min-height: 0;
   grid-template-columns: 0.82fr 1.18fr;
 }
 
 .label-block {
   min-width: 0;
+  min-height: 0;
+  overflow: hidden;
   border-right: 1px solid #111111;
   padding: 0.22cm;
   font-size: 0.25cm;
@@ -217,7 +220,7 @@ body {
 }
 
 .recipient .address {
-  min-height: 1.55cm;
+  min-height: 0;
   border: 1px solid rgba(17, 17, 17, 0.35);
   border-radius: 4px;
   padding: 0.12cm;
@@ -226,14 +229,63 @@ body {
   line-height: 1.18;
 }
 
+.recipient {
+  display: grid;
+  grid-template-rows: auto auto auto minmax(1.65cm, 1fr) auto minmax(0.52cm, 0.74cm);
+  gap: 0.08cm;
+}
+
+.recipient p {
+  margin: 0;
+  min-width: 0;
+  overflow: hidden;
+  overflow-wrap: anywhere;
+}
+
+.recipient .recipient-address {
+  display: -webkit-box;
+  overflow: hidden;
+  padding: 0.1cm;
+  font-size: 0.29cm;
+  line-height: 1.1;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 5;
+}
+
+.recipient-neighborhood {
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.recipient-reference {
+  display: -webkit-box;
+  font-size: 0.22cm;
+  line-height: 1.1;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
 .label-footer {
   display: flex;
   height: 1.34cm;
   align-items: center;
   justify-content: space-between;
+  gap: 0.18cm;
   border-top: 1px solid #111111;
   padding: 0.18cm 0.25cm;
   font-size: 0.27cm;
+}
+
+.label-footer .recipient-notes {
+  display: -webkit-box;
+  min-width: 0;
+  max-width: 8.8cm;
+  overflow: hidden;
+  overflow-wrap: anywhere;
+  font-size: 0.22cm;
+  line-height: 1.1;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
 }
 
 .cod-badge,
@@ -302,6 +354,13 @@ body {
 
 .field small {
   color: #b00020;
+}
+
+.validation-summary {
+  min-height: 0;
+  color: #b00020;
+  font-size: 0.88rem;
+  font-weight: 700;
 }
 
 .order-preview span {

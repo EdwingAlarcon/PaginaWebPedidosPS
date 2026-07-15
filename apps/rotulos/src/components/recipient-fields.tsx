@@ -16,17 +16,21 @@ export function RecipientFields({ value, onChange, errors }: { value: Recipient;
   return (
     <fieldset className="form-section">
       <legend>Destinatario</legend>
-      {(Object.keys(labels) as Array<keyof Recipient>).map((key) => (
-        <label className="field" key={key}>
-          <span>{labels[key]}</span>
-          {key === "address" || key === "reference" || key === "notes" ? (
-            <textarea value={value[key]} onChange={(event) => set(key, event.target.value)} rows={key === "address" ? 3 : 2} />
-          ) : (
-            <input value={value[key]} onChange={(event) => set(key, event.target.value)} />
-          )}
-          {errors[`recipient.${key}`] ? <small>{errors[`recipient.${key}`]}</small> : null}
-        </label>
-      ))}
+      {(Object.keys(labels) as Array<keyof Recipient>).map((key) => {
+        const errorKey = `recipient.${key}`;
+        const errorId = `${errorKey}-error`;
+        return (
+          <label className="field" key={key}>
+            <span>{labels[key]}</span>
+            {key === "address" || key === "reference" || key === "notes" ? (
+              <textarea value={value[key]} aria-describedby={errors[errorKey] ? errorId : undefined} onChange={(event) => set(key, event.target.value)} rows={key === "address" ? 3 : 2} />
+            ) : (
+              <input value={value[key]} aria-describedby={errors[errorKey] ? errorId : undefined} onChange={(event) => set(key, event.target.value)} />
+            )}
+            {errors[errorKey] ? <small id={errorId}>{errors[errorKey]}</small> : null}
+          </label>
+        );
+      })}
     </fieldset>
   );
 }

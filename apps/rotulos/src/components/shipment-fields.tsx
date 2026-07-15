@@ -7,14 +7,14 @@ export function ShipmentFields({ value, onChange, errors, allowManualEdit }: { v
       <legend>Datos del envio</legend>
       <label className="field">
         <span>Numero de pedido</span>
-        <input value={value.orderNumber} disabled={!allowManualEdit} onChange={(event) => set("orderNumber", event.target.value)} />
-        {errors.orderNumber ? <small>{errors.orderNumber}</small> : null}
+        <input value={value.orderNumber} disabled={!allowManualEdit} aria-describedby={errors.orderNumber ? "orderNumber-error" : undefined} onChange={(event) => set("orderNumber", event.target.value)} />
+        {errors.orderNumber ? <small id="orderNumber-error">{errors.orderNumber}</small> : null}
       </label>
       <label className="field"><span>Fecha</span><input type="date" value={value.date} onChange={(event) => set("date", event.target.value)} /></label>
       <label className="field"><span>Transportadora</span><input value={value.carrier} onChange={(event) => set("carrier", event.target.value)} /></label>
       <label className="field"><span>Metodo de pago</span><select value={value.paymentMethod} onChange={(event) => set("paymentMethod", event.target.value as LabelDraft["paymentMethod"])}><option value="pagado">Pagado</option><option value="contraentrega">Contraentrega</option></select></label>
-      <label className="field"><span>Valor contraentrega</span><input type="number" min="0" value={value.codAmount} onChange={(event) => set("codAmount", Number(event.target.value))} />{errors.codAmount ? <small>{errors.codAmount}</small> : null}</label>
-      <label className="field"><span>Cantidad de paquetes</span><input type="number" min="1" value={value.packageCount} onChange={(event) => set("packageCount", Number(event.target.value))} />{errors.packageCount ? <small>{errors.packageCount}</small> : null}</label>
+      <label className="field"><span>Valor contraentrega</span><input type="number" min="0" value={value.codAmount} aria-describedby={errors.codAmount ? "codAmount-error" : undefined} onChange={(event) => set("codAmount", Number(event.target.value))} />{errors.codAmount ? <small id="codAmount-error">{errors.codAmount}</small> : null}</label>
+      <label className="field"><span>Cantidad de paquetes</span><input type="number" min="1" value={value.packageCount} aria-describedby={errors.packageCount ? "packageCount-error" : undefined} onChange={(event) => set("packageCount", Number(event.target.value))} />{errors.packageCount ? <small id="packageCount-error">{errors.packageCount}</small> : null}</label>
     </fieldset>
   );
 }

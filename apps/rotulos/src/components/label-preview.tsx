@@ -38,9 +38,9 @@ export function LabelPreview({ draft, settings }: { draft: LabelDraft; settings:
           <p className="person">{draft.recipient.fullName || "Nombre del cliente"}</p>
           <p className="phone">Tel: {draft.recipient.phone || "310 000 0000"}</p>
           <p>{draft.recipient.city || "Ciudad"}, {draft.recipient.department || "Departamento"}</p>
-          <p className="address">{draft.recipient.address || "Direccion completa del destinatario"}</p>
-          <p>Barrio: {draft.recipient.neighborhood || "Sector"}</p>
-          <p>Ref: {draft.recipient.reference || "Indicaciones de entrega"}</p>
+          <p className="address recipient-address">{draft.recipient.address || "Direccion completa del destinatario"}</p>
+          <p className="recipient-neighborhood">Barrio: {draft.recipient.neighborhood || "Sector"}</p>
+          <p className="recipient-reference">Ref: {draft.recipient.reference || "Indicaciones de entrega"}</p>
         </section>
       </div>
 
@@ -48,7 +48,7 @@ export function LabelPreview({ draft, settings }: { draft: LabelDraft; settings:
         <span className={draft.paymentMethod === "contraentrega" ? "cod-badge" : "paid-badge"}>
           {draft.paymentMethod === "contraentrega" ? `Contraentrega ${formatCop(draft.codAmount)}` : "Pagado"}
         </span>
-        <span>{draft.recipient.notes || "Gracias por comprar en PurpleShop"}</span>
+        <span className="recipient-notes">{draft.recipient.notes || "Gracias por comprar en PurpleShop"}</span>
       </footer>
     </section>
   );

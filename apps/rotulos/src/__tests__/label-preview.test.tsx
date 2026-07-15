@@ -33,4 +33,25 @@ describe("LabelPreview", () => {
     expect(screen.getByText("Ana Perez")).toBeInTheDocument();
     expect(screen.getByAltText("QR de Instagram PurpleShop")).toBeInTheDocument();
   });
+
+  it("keeps long recipient delivery details inside bounded content areas", () => {
+    const draft = createBlankLabelDraft();
+    draft.recipient = {
+      fullName: "Laura Gomez",
+      phone: "3101234567",
+      department: "Cundinamarca",
+      city: "Bogota",
+      address: "Apartamento 1204 Torre 7 Conjunto Residencial Portal de los Andes Entrada por la Calle 170 con Carrera 7 frente al supermercado, usar acceso de visitantes y anunciarse en recepcion",
+      neighborhood: "Portal de los Andes",
+      reference: "Llamar antes de llegar, registrar la placa del vehiculo en porteria y dejar el paquete con administracion si no hay respuesta.",
+      notes: "Entregar unicamente en horario de tarde; confirmar que el empaque este sellado y solicitar nombre de quien recibe.",
+    };
+
+    render(<LabelPreview draft={draft} settings={defaultSettings} />);
+
+    expect(screen.getByTestId("label-canvas")).toBeInTheDocument();
+    expect(screen.getByText(draft.recipient.address)).toHaveClass("recipient-address");
+    expect(screen.getByText(/Llamar antes de llegar/)).toHaveClass("recipient-reference");
+    expect(screen.getByText(/Entregar unicamente/)).toHaveClass("recipient-notes");
+  });
 });
