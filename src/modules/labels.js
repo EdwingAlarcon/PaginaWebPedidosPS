@@ -252,19 +252,19 @@
         const isCod = label.paymentMethod === 'contraentrega';
         const size = LABEL_SIZES[label.size] ? label.size : DEFAULT_LABEL_SIZE;
         return `<article class="shipping-label-preview" id="shippingLabelPreview" data-size="${size}">
-            <span class="lbl-f lbl-cover lbl-sender-name">${escapeHtml(label.sender.name)}</span>
-            <span class="lbl-f lbl-cover lbl-sender-phone">${escapeHtml(label.sender.phone)}</span>
-            <span class="lbl-f lbl-cover lbl-sender-city">${escapeHtml(label.sender.city)}</span>
-            <span class="lbl-f lbl-cover lbl-sender-department">${escapeHtml(label.sender.department)}</span>
-            <span class="lbl-f lbl-cover lbl-multiline lbl-sender-address">${escapeHtml(label.sender.address)}</span>
-            <span class="lbl-f lbl-cover lbl-recipient-name">${escapeHtml(label.recipient.fullName)}</span>
-            <span class="lbl-f lbl-cover lbl-recipient-phone">${escapeHtml(label.recipient.phone)}</span>
-            <span class="lbl-f lbl-cover lbl-recipient-department">${escapeHtml(label.recipient.department)}</span>
-            <span class="lbl-f lbl-cover lbl-recipient-city">${escapeHtml(label.recipient.city)}</span>
-            <span class="lbl-f lbl-cover lbl-multiline lbl-recipient-address">${escapeHtml(label.recipient.address)}</span>
-            <span class="lbl-f lbl-cover lbl-recipient-neighborhood">${escapeHtml(label.recipient.neighborhood)}</span>
-            <span class="lbl-f lbl-cover lbl-recipient-reference">${escapeHtml(label.recipient.reference)}</span>
-            <span class="lbl-f lbl-cover lbl-recipient-notes">${escapeHtml(label.recipient.notes)}</span>
+            <span class="lbl-f lbl-sender-name">${escapeHtml(label.sender.name)}</span>
+            <span class="lbl-f lbl-sender-phone">${escapeHtml(label.sender.phone)}</span>
+            <span class="lbl-f lbl-sender-city">${escapeHtml(label.sender.city)}</span>
+            <span class="lbl-f lbl-sender-department">${escapeHtml(label.sender.department)}</span>
+            <span class="lbl-f lbl-multiline lbl-sender-address">${escapeHtml(label.sender.address)}</span>
+            <span class="lbl-f lbl-recipient-name">${escapeHtml(label.recipient.fullName)}</span>
+            <span class="lbl-f lbl-recipient-phone">${escapeHtml(label.recipient.phone)}</span>
+            <span class="lbl-f lbl-recipient-department">${escapeHtml(label.recipient.department)}</span>
+            <span class="lbl-f lbl-recipient-city">${escapeHtml(label.recipient.city)}</span>
+            <span class="lbl-f lbl-multiline lbl-recipient-address">${escapeHtml(label.recipient.address)}</span>
+            <span class="lbl-f lbl-recipient-neighborhood">${escapeHtml(label.recipient.neighborhood)}</span>
+            <span class="lbl-f lbl-recipient-reference">${escapeHtml(label.recipient.reference)}</span>
+            <span class="lbl-f lbl-recipient-notes">${escapeHtml(label.recipient.notes)}</span>
             <span class="lbl-f lbl-order-number">${escapeHtml(order)}</span>
             <span class="lbl-f lbl-date">${escapeHtml(formatDateDisplay(label.date))}</span>
             <span class="lbl-f lbl-carrier">${escapeHtml(label.carrier)}</span>
