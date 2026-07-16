@@ -4,10 +4,50 @@ create table if not exists public.customers (
   id uuid primary key default gen_random_uuid(),
   full_name text not null,
   phone text not null,
+  email text not null default '',
   department text not null default '',
   city text not null default '',
   address text not null default '',
   neighborhood text not null default '',
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
+create table if not exists public.orders (
+  id uuid primary key default gen_random_uuid(),
+  customer_id uuid references public.customers(id) on delete set null,
+  customer_snapshot jsonb not null,
+  order_date date not null default current_date,
+  status text not null default 'pending' check (status in ('pending', 'completed', 'cancelled')),
+  notes text not null default '',
+  discount numeric not null default 0,
+  shipping_cost numeric not null default 0,
+  subtotal numeric not null default 0,
+  total numeric not null default 0,
+  created_by uuid not null default auth.uid(),
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
+create table if not exists public.order_items (
+  id uuid primary key default gen_random_uuid(),
+  order_id uuid not null references public.orders(id) on delete cascade,
+  product_code text not null default '',
+  product_name text not null,
+  category text not null default '',
+  quantity numeric not null default 1 check (quantity > 0),
+  unit_price numeric not null default 0,
+  total numeric not null default 0,
+  created_at timestamptz not null default now()
+);
+
+create table if not exists public.product_codes (
+  id uuid primary key default gen_random_uuid(),
+  code text not null unique,
+  product_name text not null,
+  category text not null default '',
+  unit_price numeric not null default 0,
+  created_by uuid not null default auth.uid(),
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );
@@ -56,13 +96,25 @@ create index if not exists labels_created_at_idx on public.labels (created_at de
 create index if not exists labels_order_number_idx on public.labels (order_number);
 create index if not exists labels_recipient_city_idx on public.labels ((recipient->>'city'));
 create index if not exists customers_phone_idx on public.customers (phone);
+create unique index if not exists customers_phone_unique_idx on public.customers (phone) where phone <> '';
+create index if not exists customers_full_name_idx on public.customers (full_name);
+create index if not exists orders_created_at_idx on public.orders (created_at desc);
+create index if not exists orders_customer_id_idx on public.orders (customer_id);
+create index if not exists order_items_order_id_idx on public.order_items (order_id);
+create index if not exists product_codes_code_idx on public.product_codes (code);
 
 alter table public.customers enable row level security;
+alter table public.orders enable row level security;
+alter table public.order_items enable row level security;
+alter table public.product_codes enable row level security;
 alter table public.settings enable row level security;
 alter table public.order_sequences enable row level security;
 alter table public.labels enable row level security;
 
 grant select, insert, update, delete on public.customers to authenticated;
+grant select, insert, update, delete on public.orders to authenticated;
+grant select, insert, update, delete on public.order_items to authenticated;
+grant select, insert, update, delete on public.product_codes to authenticated;
 grant select, insert, update, delete on public.settings to authenticated;
 grant select, insert, update, delete on public.labels to authenticated;
 
@@ -81,6 +133,63 @@ create policy "Authenticated users can update customers."
 
 create policy "Authenticated users can delete customers."
   on public.customers for delete to authenticated
+  using (true);
+
+create policy "Authenticated users can read orders."
+  on public.orders for select to authenticated
+  using (true);
+
+create policy "Authenticated users can insert orders."
+  on public.orders for insert to authenticated
+  with check (created_by = auth.uid());
+
+create policy "Authenticated users can update orders."
+  on public.orders for update to authenticated
+  using (true)
+  with check (true);
+
+create policy "Authenticated users can delete orders."
+  on public.orders for delete to authenticated
+  using (true);
+
+create policy "Authenticated users can read order items."
+  on public.order_items for select to authenticated
+  using (true);
+
+create policy "Authenticated users can insert order items."
+  on public.order_items for insert to authenticated
+  with check (
+    exists (
+      select 1 from public.orders
+      where orders.id = order_items.order_id
+        and orders.created_by = auth.uid()
+    )
+  );
+
+create policy "Authenticated users can update order items."
+  on public.order_items for update to authenticated
+  using (true)
+  with check (true);
+
+create policy "Authenticated users can delete order items."
+  on public.order_items for delete to authenticated
+  using (true);
+
+create policy "Authenticated users can read product codes."
+  on public.product_codes for select to authenticated
+  using (true);
+
+create policy "Authenticated users can insert product codes."
+  on public.product_codes for insert to authenticated
+  with check (created_by = auth.uid());
+
+create policy "Authenticated users can update product codes."
+  on public.product_codes for update to authenticated
+  using (true)
+  with check (true);
+
+create policy "Authenticated users can delete product codes."
+  on public.product_codes for delete to authenticated
   using (true);
 
 create policy "Authenticated users can read settings."

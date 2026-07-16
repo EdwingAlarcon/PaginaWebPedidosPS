@@ -10,7 +10,7 @@ export default async function DashboardPage() {
     <main className="page-shell">
       <div className="page-heading">
         <p>Operacion diaria</p>
-        <h1>Rotulos de envio</h1>
+        <h1>PurpleShop</h1>
       </div>
       <DashboardStats labels={labels} />
     </main>

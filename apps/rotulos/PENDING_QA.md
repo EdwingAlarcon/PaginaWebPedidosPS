@@ -39,10 +39,22 @@ Fecha de última revisión: 2026-07-16
 - `LabelPreview` ahora usa `next/image` con `unoptimized` para logo y QR, manteniendo los assets tal como se imprimen/renderizan.
 - Se agregó `apps/rotulos/scripts/qa-final.mjs` para repetir el QA final de breakpoints, teclado, contraste y regresión.
 
-## Pendiente (sin iniciar)
+## Resuelto localmente
 
-- [ ] Definir si la sección legacy `src/modules/labels.js` (en la raíz del repo, Purple Shop) debe quedarse como generador rápido dentro de la app raíz o reemplazarse por un enlace directo a la app Next de `apps/rotulos`.
-- [ ] Configurar `.env.local` con credenciales Supabase antes de validar persistencia real contra base de datos.
-- [ ] Aplicar la migración Supabase (`202607150001_create_rotulos_schema.sql`) en el proyecto remoto antes de producción.
+- [x] La sección legacy `src/modules/labels.js` en la raíz dejó de duplicar el generador. Ahora muestra un puente hacia la app Next en `http://localhost:3001`.
+- [x] El ruido CRLF/LF de `apps/rotulos/next-env.d.ts` y `apps/rotulos/package-lock.json` se resolvió agregando `.gitattributes` en la raíz con LF.
+- [x] Se amplió `apps/rotulos` como base de app central Next/Supabase con rutas iniciales para pedidos y clientes.
+- [x] La migración Supabase ahora incluye `orders`, `order_items` y `product_codes`, además de clientes/rótulos/configuración.
+- [x] Se agregó panel de acceso con Supabase Auth por magic link para que producción use usuarios autenticados antes de guardar datos centrales.
+- [x] Se creó proyecto Vercel `edwingalarcons-projects/rotulos` y quedó en producción en `https://rotulos-xi.vercel.app`.
+- [x] Se creó proyecto Supabase dedicado `purpleshop` (`enrruhuzlnqqjnsabgzq`), se aplicó la migración y se configuraron variables Supabase en Vercel.
+- [x] Se actualizó la shell de Next para parecerse a Purple Shop legacy: logo, sidebar, topbar, Dashboard, Nuevo Pedido, Pedidos, Clientes, Inventario, Reportes, Rótulos e Historial.
+
+## Pendiente externo / requiere credenciales o hardware
+
+- [x] Configurar `.env.local`/Vercel con credenciales Supabase antes de validar persistencia real contra base de datos. En Vercel ya está configurado; local sigue usando fallback si no existe `.env.local`.
+- [x] Configurar en Supabase Auth la URL de Vercel como redirect URL.
+- [x] Aplicar la migración Supabase (`202607150001_create_rotulos_schema.sql`) en el proyecto remoto antes de producción.
+- [ ] Validar manualmente login por magic link y creación real de pedido/rótulo desde `https://rotulos-xi.vercel.app`.
+- [ ] Completar migración 1:1 de Inventario y Reportes contra Supabase; las rutas ya existen, pero Inventario está como base inicial.
 - [ ] Validar manualmente impresión física/PDF con la impresora final a escala 100%.
-- [ ] Revisar por qué `apps/rotulos/next-env.d.ts` y `apps/rotulos/package-lock.json` aparecen modificados en `git status` sin diff de contenido real (solo ruido CRLF/LF) — probablemente basta con `git config core.autocrlf` o un `.gitattributes`, pero no se investigó a fondo.

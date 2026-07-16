@@ -1,6 +1,10 @@
-# Rótulos de envío
+# PurpleShop
 
-App Next.js para crear, guardar, imprimir y descargar rótulos de envío de Purple Shop. La aplicación vive en `apps/rotulos` y se ejecuta localmente en `http://localhost:3001`.
+App Next.js para operar PurpleShop desde web y movil: pedidos, clientes, rótulos de envío, historial, configuración e impresión/PDF. La aplicación vive en `apps/rotulos` y se ejecuta localmente en `http://localhost:3001`.
+
+Producción: `https://rotulos-xi.vercel.app`
+
+Supabase producción: proyecto `purpleshop`, ref `enrruhuzlnqqjnsabgzq`.
 
 ## Requisitos
 
@@ -62,6 +66,10 @@ NEXT_PUBLIC_ROTULOS_BASE_URL=http://localhost:3001
 - `SUPABASE_SERVICE_ROLE_KEY`: llave service role para operaciones del servidor; no la expongas en el navegador.
 - `NEXT_PUBLIC_ROTULOS_BASE_URL`: URL pública o local de la app para enlaces y generación de PDF.
 
+## Acceso
+
+La app usa Supabase Auth con enlace por correo. En producción, configura en Supabase los correos/usuarios permitidos y la URL pública de Vercel como redirect URL. Sin variables Supabase, la app muestra "Modo local de desarrollo" y usa almacenamiento local solo para pruebas.
+
 ## Supabase y migraciones
 
 Las migraciones están en `apps/rotulos/supabase/migrations`.
@@ -74,7 +82,16 @@ supabase db push --workdir apps/rotulos
 
 Si no usas Supabase CLI, abre el SQL de `apps/rotulos/supabase/migrations/202607150001_create_rotulos_schema.sql` y ejecútalo en el SQL editor de Supabase.
 
-La migración crea las tablas, políticas RLS y funciones necesarias para rótulos, clientes, configuración y numeración automática. Verifica que las políticas queden activas antes de usar la app en producción.
+La migración crea las tablas, políticas RLS y funciones necesarias para pedidos, items de pedido, clientes, códigos de producto, rótulos, configuración y numeración automática. Verifica que las políticas queden activas antes de usar la app en producción.
+
+Tablas principales:
+
+- `customers`: clientes centralizados.
+- `orders`: encabezado de pedidos.
+- `order_items`: productos/líneas de cada pedido.
+- `product_codes`: códigos rápidos de productos.
+- `labels`: rótulos de envío.
+- `settings` y `order_sequences`: configuración y numeración.
 
 ## Scripts
 
@@ -117,16 +134,17 @@ Para descargar PDF, guarda primero el rótulo y usa la acción de PDF. El endpoi
 
 ## Despliegue en Vercel
 
-1. Crea un proyecto en Vercel apuntando a `apps/rotulos` como root directory.
-2. Configura las variables de entorno de Supabase y `NEXT_PUBLIC_ROTULOS_BASE_URL` con la URL pública de Vercel.
-3. Aplica las migraciones de Supabase antes de usar producción.
-4. Usa el comando de build estándar:
+1. Proyecto Vercel: `edwingalarcons-projects/rotulos`.
+2. URL pública estable: `https://rotulos-xi.vercel.app`.
+3. Configura las variables de entorno de Supabase y `NEXT_PUBLIC_ROTULOS_BASE_URL` con la URL pública de Vercel.
+4. Aplica las migraciones de Supabase antes de usar producción.
+5. Usa el comando de build estándar:
 
 ```bash
 npm run build
 ```
 
-5. Después del deploy, prueba crear un rótulo, imprimirlo y descargar el PDF.
+6. Después del deploy, prueba crear un pedido, verificar que aparezca en clientes/pedidos, crear un rótulo, imprimirlo y descargar el PDF.
 
 ## Verificación local
 

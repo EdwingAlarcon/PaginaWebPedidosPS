@@ -36,24 +36,41 @@ pusheados a `origin/main` (commit `975c5f6`). Detalle completo en
 No hay ningún bloque de trabajo grande pendiente en este proyecto —
 próximas tareas aquí serían features nuevas, no continuación del rediseño.
 
-## 2. apps/rotulos — Next.js/Supabase: QA de su propio alcance pasado, pero con trabajo real pendiente ⚠️
+## 2. apps/rotulos — Next.js/Supabase/Vercel: producción inicial desplegada ⚠️
 
 Ver detalle completo en `apps/rotulos/PENDING_QA.md`. Resumen de lo que
 falta:
 
-- [ ] Decidir si `src/modules/labels.js` (generador de rótulos legacy en
-  la raíz) se mantiene como atajo rápido o se reemplaza por un enlace
-  directo a `apps/rotulos`.
-- [ ] Configurar `.env.local` con credenciales Supabase reales — sin esto
-  no se ha validado persistencia real contra base de datos, solo mocks/local.
-- [ ] Aplicar la migración `apps/rotulos/supabase/migrations/202607150001_create_rotulos_schema.sql`
-  en el proyecto Supabase remoto.
+- [x] `src/modules/labels.js` ya no mantiene un generador legacy duplicado;
+  ahora la pestaña de Purple Shop enlaza a la app dedicada en
+  `http://localhost:3001`.
+- [x] Producción Vercel configurada con variables Supabase reales. Localmente
+  `.env.local` sigue opcional; sin ese archivo la app usa fallback local de
+  desarrollo.
+- [x] Migración `apps/rotulos/supabase/migrations/202607150001_create_rotulos_schema.sql`
+  aplicada en Supabase remoto.
 - [ ] Validar impresión física/PDF con la impresora final a escala 100%
   (el QA automatizado solo verificó el ratio 14:11 en pantalla).
-- [ ] Investigar por qué `apps/rotulos/next-env.d.ts` y
-  `apps/rotulos/package-lock.json` aparecen modificados en `git status`
-  sin diff de contenido real (ruido CRLF/LF) — quedan sin commitear desde
-  antes de esta sesión.
+- [x] Se agregó `.gitattributes` con LF para neutralizar el ruido CRLF/LF de
+  `apps/rotulos/next-env.d.ts` y `apps/rotulos/package-lock.json`.
+- [x] `apps/rotulos` empezó la migración a app principal Vercel/Supabase:
+  rutas `pedidos`, `pedidos/nuevo` y `clientes`, más tablas Supabase para
+  pedidos, items y códigos de producto.
+- [x] Producción creada en Vercel: `https://rotulos-xi.vercel.app`.
+- [x] Supabase dedicado creado: proyecto `purpleshop`, ref
+  `enrruhuzlnqqjnsabgzq`; migración aplicada y variables configuradas en
+  Vercel.
+- [x] La app de Vercel ya usa una shell visual tipo Purple Shop legacy:
+  sidebar con logo, topbar, Dashboard, Nuevo Pedido, Pedidos, Clientes,
+  Inventario, Reportes, Rótulos e Historial.
+- [ ] Validar manualmente el magic link y crear un pedido real desde
+  producción.
+- [ ] Profundizar la migración 1:1 de Inventario y Reportes; por ahora esas
+  rutas existen en la app Next, pero Inventario conserva una pantalla base
+  preparada para conectar stock/movimientos.
+- [ ] Revocar el Supabase access token compartido durante la sesión desde
+  Supabase Account Settings → Access Tokens. El token no fue guardado en el
+  repo, pero sí quedó expuesto en el chat.
 
 ## 3. Cosas explícitamente fuera de alcance / no tocar sin permiso
 
