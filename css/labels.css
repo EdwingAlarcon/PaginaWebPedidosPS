@@ -321,6 +321,79 @@
     font-weight: 700;
 }
 
+/* Rótulo pequeño (10x9cm): mismo contenido, todo el espaciado y las
+   fuentes reducidos ~25-30% para que quepa sin recortarse ni encimarse. */
+.shipping-label-preview[data-size="10x9"] .shipping-label-header {
+    padding: 0.18cm 0.24cm;
+    gap: 0.16cm;
+}
+
+.shipping-label-preview[data-size="10x9"] .shipping-label-brand,
+.shipping-label-preview[data-size="10x9"] .shipping-label-social {
+    gap: 0.14cm;
+}
+
+.shipping-label-preview[data-size="10x9"] .shipping-label-brand img,
+.shipping-label-preview[data-size="10x9"] .shipping-label-social img {
+    width: 1.05cm;
+    height: 1.05cm;
+}
+
+.shipping-label-preview[data-size="10x9"] .shipping-label-brand strong {
+    font-size: 11pt;
+}
+
+.shipping-label-preview[data-size="10x9"] .shipping-label-brand span,
+.shipping-label-preview[data-size="10x9"] .shipping-label-social span {
+    font-size: 6pt;
+}
+
+.shipping-label-preview[data-size="10x9"] .shipping-label-meta {
+    font-size: 7pt;
+}
+
+.shipping-label-preview[data-size="10x9"] .shipping-label-meta span,
+.shipping-label-preview[data-size="10x9"] .shipping-label-meta strong {
+    padding: 0.08cm 0.12cm;
+}
+
+.shipping-label-preview[data-size="10x9"] .shipping-label-meta strong {
+    font-size: 9.5pt;
+}
+
+.shipping-label-preview[data-size="10x9"] .shipping-label-block {
+    padding: 0.14cm;
+}
+
+.shipping-label-preview[data-size="10x9"] .shipping-label-block h4 {
+    margin: 0 0 0.08cm;
+    font-size: 7pt;
+}
+
+.shipping-label-preview[data-size="10x9"] .shipping-label-block p {
+    margin: 0 0 0.05cm;
+    font-size: 7.2pt;
+}
+
+.shipping-label-preview[data-size="10x9"] .shipping-label-block .person {
+    font-size: 9pt;
+}
+
+.shipping-label-preview[data-size="10x9"] .shipping-label-block .address {
+    padding: 0.08cm;
+    font-size: 8pt;
+    min-height: 1cm;
+}
+
+.shipping-label-preview[data-size="10x9"] .shipping-label-footer {
+    padding: 0.1cm 0.16cm;
+    font-size: 7pt;
+}
+
+.shipping-label-preview[data-size="10x9"] .shipping-label-footer strong {
+    padding: 0.08cm 0.14cm;
+}
+
 @media (max-width: 980px) {
     .labels-grid,
     .labels-form-grid,
