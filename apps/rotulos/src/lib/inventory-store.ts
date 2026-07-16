@@ -139,11 +139,11 @@ export function createLocalInventoryStore(): InventoryStore {
       if (index < 0) throw new Error("producto_no_encontrado");
       const product = products[index];
 
-      if (draft.type === "salida" && product.currentStock < draft.quantity) {
+      const delta = draft.type === "entrada" ? draft.quantity : draft.type === "salida" ? -draft.quantity : draft.quantity;
+
+      if (product.currentStock + delta < 0) {
         throw new Error("stock_insuficiente");
       }
-
-      const delta = draft.type === "entrada" ? draft.quantity : draft.type === "salida" ? -draft.quantity : draft.quantity;
       const now = new Date().toISOString();
       products[index] = {
         ...product,

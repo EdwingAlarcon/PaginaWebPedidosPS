@@ -69,6 +69,21 @@ describe("local inventory store", () => {
     expect(updated.currentStock).toBe(5);
   });
 
+  it("rechaza un ajuste o transferencia que dejaria el stock en negativo", async () => {
+    const store = createLocalInventoryStore();
+    const product = await store.saveProduct({
+      name: "Producto Y", category: "medias", sku: "PY-001", unitPrice: 5000, minStock: 1, maxStock: 50,
+    });
+    await store.recordMovement({ productId: product.id, type: "entrada", quantity: 5, reason: "Stock inicial", supplier: "" });
+
+    await expect(
+      store.recordMovement({ productId: product.id, type: "ajuste", quantity: -10, reason: "Ajuste invalido", supplier: "" }),
+    ).rejects.toThrow("stock_insuficiente");
+
+    const [unchanged] = await store.listProducts();
+    expect(unchanged.currentStock).toBe(5);
+  });
+
   it("calcula alertas de stock bajo, critico y exceso", async () => {
     const store = createLocalInventoryStore();
     const low = await store.saveProduct({ name: "Bajo", category: "medias", sku: "L1", unitPrice: 1000, minStock: 5, maxStock: 100 });
