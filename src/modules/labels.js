@@ -66,6 +66,7 @@
             date: today(),
             carrier: '',
             size: DEFAULT_LABEL_SIZE,
+            fitContent: false,
             paymentMethod: 'pagado',
             codAmount: 0,
             packageCount: 1,
@@ -205,6 +206,7 @@
                             ${field('Fecha', 'date', { type: 'date' })}
                             ${field('Transportadora', 'carrier')}
                             <label class="labels-field"><span>Tamaño del rótulo</span><select data-label-field="size">${Object.entries(LABEL_SIZES).map(([value, info]) => `<option value="${value}" ${draft.size === value ? 'selected' : ''}>${info.label}</option>`).join('')}</select></label>
+                            <label class="labels-field labels-checkbox" title="Recorta el alto impreso al mínimo necesario - útil si vas a imprimir en papel normal y recortar a mano. Si usas stickers precortados a un tamaño fijo, déjalo sin marcar."><span>Ajustar alto al contenido (para recortar a mano)</span><input type="checkbox" data-label-field="fitContent" ${draft.fitContent ? 'checked' : ''}></label>
                             <label class="labels-field"><span>Método de pago</span><select data-label-field="paymentMethod"><option value="pagado" ${draft.paymentMethod === 'pagado' ? 'selected' : ''}>Pagado</option><option value="contraentrega" ${draft.paymentMethod === 'contraentrega' ? 'selected' : ''}>Contraentrega</option></select></label>
                             ${field('Valor contraentrega', 'codAmount', { type: 'number' })}
                             ${field('Cantidad de paquetes', 'packageCount', { type: 'number' })}
@@ -247,7 +249,8 @@
         const neighborhoodLine = label.recipient.neighborhood ? `<p>Barrio: ${escapeHtml(label.recipient.neighborhood)}</p>` : '';
         const referenceLine = label.recipient.reference ? `<p>Ref: ${escapeHtml(label.recipient.reference)}</p>` : '';
         const size = LABEL_SIZES[label.size] ? label.size : DEFAULT_LABEL_SIZE;
-        return `<article class="shipping-label-preview" id="shippingLabelPreview" data-size="${size}">
+        const fit = label.fitContent ? 'content' : '';
+        return `<article class="shipping-label-preview" id="shippingLabelPreview" data-size="${size}" data-fit="${fit}">
             <header class="shipping-label-header">
                 <div class="shipping-label-brand"><img src="${settings.logoUrl}" alt="Logo PurpleShop"><div><strong>PurpleShop</strong><span>${escapeHtml(settings.brandPhrase)}</span></div></div>
                 <div class="shipping-label-social"><img src="${settings.qrUrl}" alt="QR de Instagram PurpleShop"><span>${escapeHtml(settings.instagramUser)}</span></div>
@@ -278,7 +281,7 @@
         app.querySelectorAll('[data-label-field]').forEach((input) => {
             input.addEventListener('input', () => {
                 const path = input.dataset.labelField;
-                const value = input.type === 'number' ? Number(input.value) : input.value;
+                const value = input.type === 'checkbox' ? input.checked : (input.type === 'number' ? Number(input.value) : input.value);
                 setPath(draft, path, value);
                 const preview = document.getElementById('shippingLabelPreview');
                 if (preview) preview.outerHTML = labelHtml(draft);
@@ -390,6 +393,15 @@
 
         iframe.onload = () => {
             const frameWindow = iframe.contentWindow;
+            const frameDoc = iframe.contentDocument;
+            if (label.fitContent) {
+                const article = frameDoc.querySelector('.shipping-label-preview');
+                const pageStyle = frameDoc.getElementById('labelPageSize');
+                if (article && pageStyle) {
+                    const heightCm = (article.getBoundingClientRect().height / 96 * 2.54).toFixed(2);
+                    pageStyle.textContent = `@page{size:${width} ${heightCm}cm;margin:0}`;
+                }
+            }
             const afterPrint = () => {
                 frameWindow.removeEventListener('afterprint', afterPrint);
                 setTimeout(cleanup, 200);
@@ -404,7 +416,7 @@
 
         const size = LABEL_SIZES[label.size] ? label.size : DEFAULT_LABEL_SIZE;
         const { width, height } = LABEL_SIZES[size];
-        iframe.srcdoc = `<!doctype html><html lang="es"><head><title>${pdfMode ? 'PDF' : 'Imprimir'} ${escapeHtml(label.orderNumber || getDisplayOrderNumber())}</title><link rel="stylesheet" href="css/labels.css"><style>@page{size:${width} ${height};margin:0}body{margin:0;background:#fff}.shipping-label-preview{max-width:none}</style></head><body>${labelHtml(label)}</body></html>`;
+        iframe.srcdoc = `<!doctype html><html lang="es"><head><title>${pdfMode ? 'PDF' : 'Imprimir'} ${escapeHtml(label.orderNumber || getDisplayOrderNumber())}</title><link rel="stylesheet" href="css/labels.css"><style id="labelPageSize">@page{size:${width} ${height};margin:0}</style><style>body{margin:0;background:#fff}.shipping-label-preview{max-width:none}</style></head><body>${labelHtml(label)}</body></html>`;
         setStatus(pdfMode ? 'Se abrió el rótulo. En el diálogo de impresión elige “Guardar como PDF”.' : 'Se abrió el diálogo de impresión.');
     }
 

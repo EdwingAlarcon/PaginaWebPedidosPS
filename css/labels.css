@@ -112,6 +112,22 @@
     resize: vertical;
 }
 
+.labels-checkbox {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+}
+
+.labels-checkbox input[type="checkbox"] {
+    width: auto;
+    height: 1.1rem;
+    border: none;
+    padding: 0;
+    accent-color: var(--label-purple-dark);
+}
+
 .labels-subgrid {
     display: grid;
     gap: 1rem;
@@ -167,6 +183,12 @@
     width: 10cm;
     height: 9cm;
     aspect-ratio: 10 / 9;
+}
+
+.shipping-label-preview[data-fit="content"],
+.labels-print-label[data-fit="content"] {
+    height: auto;
+    aspect-ratio: unset;
 }
 
 .shipping-label-preview,
@@ -247,6 +269,9 @@
     padding: 0.22cm;
     border-right: 1pt solid #111;
     overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
 }
 
 .shipping-label-block:last-child {
