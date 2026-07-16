@@ -78,3 +78,6 @@ coverage/
 # Archivos de debug
 debug.log
 .superpowers/
+apps/rotulos/qa-artifacts/
+apps/rotulos/*server*.log
+apps/rotulos/test-results/

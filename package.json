@@ -9,7 +9,8 @@
     "rotulos:dev": "npm --prefix apps/rotulos run dev",
     "rotulos:build": "npm --prefix apps/rotulos run build",
     "rotulos:test": "npm --prefix apps/rotulos run test",
-    "rotulos:e2e": "npm --prefix apps/rotulos run test:e2e"
+    "rotulos:e2e": "npm --prefix apps/rotulos run test:e2e",
+    "rotulos:qa": "npm --prefix apps/rotulos run qa:final"
   },
   "repository": {
     "type": "git",

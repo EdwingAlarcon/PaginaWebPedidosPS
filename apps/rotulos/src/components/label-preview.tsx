@@ -1,3 +1,4 @@
+import Image from "next/image";
 import { formatCop, formatDate } from "@/lib/format";
 import type { LabelDraft, LabelSettings } from "@/lib/types";
 
@@ -6,14 +7,14 @@ export function LabelPreview({ draft, settings }: { draft: LabelDraft; settings:
     <section className="label-canvas" data-testid="label-canvas" aria-label="Vista previa del rotulo">
       <header className="label-header">
         <div className="label-brand">
-          <img src={settings.logoUrl} alt="Logo PurpleShop" />
+          <Image src={settings.logoUrl} alt="Logo PurpleShop" width={62} height={62} unoptimized />
           <div>
             <strong>PurpleShop</strong>
             <span>{settings.brandPhrase}</span>
           </div>
         </div>
         <div className="label-social">
-          <img src={settings.qrUrl} alt="QR de Instagram PurpleShop" />
+          <Image src={settings.qrUrl} alt="QR de Instagram PurpleShop" width={56} height={56} unoptimized />
           <span>{settings.instagramUser}</span>
         </div>
       </header>
