@@ -12,7 +12,17 @@ class FormatHelper {
         }).format(n);
     }
 
-    /** Fecha corta: "16 jul 2026" */
+    /**
+     * Fecha corta: "16 jul 2026"
+     * Las fechas de pedido (orderDate) se guardan como strings de solo-fecha
+     * ("2026-07-16") que `new Date(...)` interpreta siempre como medianoche UTC
+     * (regla de ECMA-262 para strings de fecha sin componente de hora). Si se
+     * formatean con la zona horaria local del navegador (comportamiento por
+     * defecto de Intl.DateTimeFormat), en cualquier zona horaria detrás de UTC
+     * -incluida Colombia, UTC-5- el día se muestra un día antes del elegido.
+     * Se fuerza timeZone: 'UTC' para que el día calendario mostrado coincida
+     * siempre con el que el usuario seleccionó, sin importar su zona horaria.
+     */
     date(value) {
         if (!value) return '—';
         const d = new Date(value);
@@ -20,7 +30,8 @@ class FormatHelper {
         return new Intl.DateTimeFormat('es-CO', {
             day: '2-digit',
             month: 'short',
-            year: 'numeric'
+            year: 'numeric',
+            timeZone: 'UTC'
         }).format(d);
     }
 

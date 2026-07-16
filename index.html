@@ -46,13 +46,13 @@
             rel="stylesheet"
         />
 
-        <link rel="stylesheet" href="css/styles.css?v=20260716j" />
-        <link rel="stylesheet" href="css/inventory.css?v=20260716j" />
-        <link rel="stylesheet" href="css/labels.css?v=20260716j" />
+        <link rel="stylesheet" href="css/styles.css?v=20260716p" />
+        <link rel="stylesheet" href="css/inventory.css?v=20260716p" />
+        <link rel="stylesheet" href="css/labels.css?v=20260716p" />
         <!-- theme.css se carga AL FINAL a propósito: consolida y sobrescribe
              las variables de color/tipografía de los tres archivos anteriores
              (ver comentario de cabecera en css/theme.css). -->
-        <link rel="stylesheet" href="css/theme.css?v=20260716j" />
+        <link rel="stylesheet" href="css/theme.css?v=20260716p" />
     </head>
     <body>
         <!-- Splash Screen -->
@@ -958,48 +958,48 @@
             <script src="https://alcdn.msauth.net/browser/2.30.0/js/msal-browser.min.js"></script>
 
             <!-- 2. Infraestructura (sin dependencias) -->
-            <script src="src/utils/event-bus.js?v=20260716j"></script>
-            <script src="src/utils/notification-service.js?v=20260716j"></script>
-            <script src="src/utils/confirm-modal.js?v=20260716j"></script>
-            <script src="src/utils/icons.js?v=20260716j"></script>
-            <script src="src/utils/format.js?v=20260716j"></script>
-            <script src="src/utils/order-aggregates.js?v=20260716j"></script>
-            <script src="src/utils/logger.js?v=20260716j"></script>
-            <script src="src/utils/performance.js?v=20260716j"></script>
-            <script src="src/utils/sanitize.js?v=20260716j"></script>
-            <script src="src/utils/validation.js?v=20260716j"></script>
+            <script src="src/utils/event-bus.js?v=20260716p"></script>
+            <script src="src/utils/notification-service.js?v=20260716p"></script>
+            <script src="src/utils/confirm-modal.js?v=20260716p"></script>
+            <script src="src/utils/icons.js?v=20260716p"></script>
+            <script src="src/utils/format.js?v=20260716p"></script>
+            <script src="src/utils/order-aggregates.js?v=20260716p"></script>
+            <script src="src/utils/logger.js?v=20260716p"></script>
+            <script src="src/utils/performance.js?v=20260716p"></script>
+            <script src="src/utils/sanitize.js?v=20260716p"></script>
+            <script src="src/utils/validation.js?v=20260716p"></script>
 
             <!-- 3. Configuración (depende de utils) -->
             <!-- config.local.js SÍ se commitea (no es .gitignore): trae el Client ID de Azure AD,
                  que no es secreto en una SPA pública (MSAL Browser usa PKCE, sin client secret).
                  Ver config.local.example.js si hay que recrearlo desde cero. Si el archivo faltara,
                  daría 404 en consola sin romper la carga de los demás scripts; solo no habría login. -->
-            <script src="src/config/config.local.js?v=20260716j"></script>
-            <script src="src/config/config.js?v=20260716j"></script>
+            <script src="src/config/config.local.js?v=20260716p"></script>
+            <script src="src/config/config.js?v=20260716p"></script>
 
             <!-- 4. Módulos de la aplicación (dependen de config + utils) -->
-            <script src="src/modules/auth.js?v=20260716j"></script>
-            <script src="src/modules/inventory.js?v=20260716j"></script>
-            <script src="src/modules/excel.js?v=20260716j"></script>
-            <script src="src/modules/ui.js?v=20260716j"></script>
-            <script src="src/modules/forms.js?v=20260716j"></script>
-            <script src="src/modules/order-form.js?v=20260716j"></script>
-            <script src="src/modules/labels.js?v=20260716j"></script>
-            <script src="src/modules/connection-status.js?v=20260716j"></script>
-            <script src="src/modules/dashboard.js?v=20260716j"></script>
-            <script src="src/modules/orders-view.js?v=20260716j"></script>
-            <script src="src/modules/clients-view.js?v=20260716j"></script>
-            <script src="src/modules/reports-view.js?v=20260716j"></script>
+            <script src="src/modules/auth.js?v=20260716p"></script>
+            <script src="src/modules/inventory.js?v=20260716p"></script>
+            <script src="src/modules/excel.js?v=20260716p"></script>
+            <script src="src/modules/ui.js?v=20260716p"></script>
+            <script src="src/modules/forms.js?v=20260716p"></script>
+            <script src="src/modules/order-form.js?v=20260716p"></script>
+            <script src="src/modules/labels.js?v=20260716p"></script>
+            <script src="src/modules/connection-status.js?v=20260716p"></script>
+            <script src="src/modules/dashboard.js?v=20260716p"></script>
+            <script src="src/modules/orders-view.js?v=20260716p"></script>
+            <script src="src/modules/clients-view.js?v=20260716p"></script>
+            <script src="src/modules/reports-view.js?v=20260716p"></script>
 
             <!-- 5. Módulo de inventario de productos (pestaña de stock) -->
-            <script src="src/core/inventory.js?v=20260716j"></script>
-            <script src="src/core/inventory-ui.js?v=20260716j"></script>
+            <script src="src/core/inventory.js?v=20260716p"></script>
+            <script src="src/core/inventory-ui.js?v=20260716p"></script>
 
             <!-- 6. Optimizaciones de formulario -->
-            <script src="src/utils/form-optimizations.js?v=20260716j"></script>
+            <script src="src/utils/form-optimizations.js?v=20260716p"></script>
 
             <!-- 7. Orquestador principal (debe cargarse al último) -->
-            <script src="src/main.js?v=20260716j"></script>
+            <script src="src/main.js?v=20260716p"></script>
             
             <script>
                 // Inicializar módulo de inventarios cuando se carga

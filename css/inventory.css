@@ -17,7 +17,12 @@
 /* ==================== ESTRUCTURA PRINCIPAL ==================== */
 
 .inventory-module {
-    background: #fff;
+    /* Antes hardcoded a #fff: en modo oscuro quedaba como una tarjeta
+       blanca fija en medio de un shell oscuro (Pedidos/Clientes/Rótulos
+       sí usan var(--surface) y sí cambian). Ver además el bloque
+       [data-theme="dark"] .inventory-module en theme.css para el resto
+       de colores de texto hardcodeados de este módulo. */
+    background: var(--surface, #fff);
     border-radius: 8px;
     padding: 20px;
     margin: 20px 0;

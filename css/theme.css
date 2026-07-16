@@ -45,6 +45,20 @@
     --info-color: #3b82f6;
     --info-hover: #2563eb;
 
+    /* --- Texto de badges de estado (QA Bloque 8, 2026-07-16) ---
+       Los badges pintan el texto con *-hover sobre un fondo mezclado al 18%
+       del color base (ver .badge-* más abajo). En modo claro esa combinación
+       (ej. --success-hover #059669 sobre el verde-18% resultante, ~rgb(212,242,232))
+       da un contraste real de ~3.2:1 y ~2.7:1 — por debajo del 4.5:1 mínimo
+       WCAG AA para texto normal. Se definen tonos dedicados, más oscuros solo
+       en modo claro, sin tocar *-hover (usado en otros sitios como estados
+       de hover de botones, donde sí funciona bien). En modo oscuro se
+       reutilizan los *-hover existentes: ya dan ~8:1 sobre su fondo. */
+    --badge-success-text: #065f46;
+    --badge-warning-text: #92400e;
+    --badge-danger-text: #991b1b;
+    --badge-info-text: #1e40af;
+
     /* --- Fondos y superficies (gris neutro con matiz lavanda) --- */
     --background: #f8f7fb;
     --background-secondary: #f1eef8;
@@ -202,6 +216,13 @@ body {
     --warning-hover: #fcd34d;
     --info-color: #60a5fa;
     --info-hover: #93c5fd;
+
+    /* Texto de badges en modo oscuro: los *-hover ya dan ~8:1 sobre el
+       fondo mezclado al 18% (medido en QA), así que se reutilizan tal cual. */
+    --badge-success-text: var(--success-hover);
+    --badge-warning-text: var(--warning-hover);
+    --badge-danger-text: var(--danger-hover);
+    --badge-info-text: var(--info-hover);
 
     --background: #0f0b17;
     --background-secondary: #171223;
@@ -813,27 +834,27 @@ body {
 .badge-pending,
 .badge-warning {
     background: color-mix(in srgb, var(--warning-color) 18%, transparent);
-    color: var(--warning-hover);
+    color: var(--badge-warning-text);
 }
 
 .badge-completed,
 .badge-success,
 .badge-active {
     background: color-mix(in srgb, var(--success-color) 18%, transparent);
-    color: var(--success-hover);
+    color: var(--badge-success-text);
 }
 
 .badge-cancelled,
 .badge-error,
 .badge-danger {
     background: color-mix(in srgb, var(--danger-color) 18%, transparent);
-    color: var(--danger-hover);
+    color: var(--badge-danger-text);
 }
 
 .badge-processing,
 .badge-info {
     background: color-mix(in srgb, var(--info-color) 18%, transparent);
-    color: var(--info-hover);
+    color: var(--badge-info-text);
 }
 
 /* ===============================================
@@ -1383,4 +1404,77 @@ th.sortable:hover {
 
 .new-client-dialog .form-group {
     margin-bottom: 1rem;
+}
+
+/* ==================== MODO OSCURO — MÓDULO DE INVENTARIOS ====================
+   QA Bloque 8 (2026-07-16): a diferencia de Pedidos/Clientes/Reportes/Rótulos,
+   css/inventory.css tiene bastantes colores de texto y fondo hardcodeados
+   (no usan var(--...)), así que no reaccionaban al cambio de tema — quedaban
+   ilegibles (texto oscuro sobre fondo oscuro) una vez que .inventory-module
+   pasó a usar var(--surface) arriba. Se sobrescriben aquí, scopeados a
+   .inventory-module para no afectar nada fuera de la pestaña Inventario. */
+[data-theme="dark"] .inventory-module .inventory-header h1 {
+    color: var(--color-primary);
+}
+
+[data-theme="dark"] .inventory-module .tab-button {
+    color: var(--text-secondary);
+}
+
+[data-theme="dark"] .inventory-module .tab-button:hover {
+    color: var(--color-primary);
+    background: var(--background-secondary);
+}
+
+[data-theme="dark"] .inventory-module .tab-button.active {
+    color: var(--color-primary);
+}
+
+[data-theme="dark"] .inventory-module .search-box input,
+[data-theme="dark"] .inventory-module .filter-select {
+    background-color: var(--surface);
+    color: var(--text-primary);
+    border-color: var(--border-color-hover);
+}
+
+[data-theme="dark"] .inventory-module .search-box input:focus,
+[data-theme="dark"] .inventory-module .filter-select:focus {
+    background-color: var(--surface);
+}
+
+[data-theme="dark"] .inventory-module .filter-group label,
+[data-theme="dark"] .inventory-module .form-group label {
+    color: var(--text-primary);
+}
+
+[data-theme="dark"] .inventory-module .filter-group span {
+    color: var(--text-secondary);
+}
+
+[data-theme="dark"] .inventory-module .alert-item {
+    background: var(--surface-elevated);
+}
+
+[data-theme="dark"] .inventory-module .alert-header h4,
+[data-theme="dark"] .inventory-module .alert-body strong {
+    color: var(--text-primary);
+}
+
+[data-theme="dark"] .inventory-module .alert-header .sku,
+[data-theme="dark"] .inventory-module .alert-body p,
+[data-theme="dark"] .inventory-module .category-report p,
+[data-theme="dark"] .inventory-module .unit {
+    color: var(--text-secondary);
+}
+
+[data-theme="dark"] .inventory-module .close-btn {
+    color: var(--text-tertiary);
+}
+
+[data-theme="dark"] .inventory-module .close-btn:hover {
+    color: var(--text-primary);
+}
+
+[data-theme="dark"] .inventory-modal-content {
+    background: var(--surface);
 }

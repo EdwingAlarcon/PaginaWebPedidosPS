@@ -153,15 +153,27 @@ class FormOptimizations {
         });
 
         // Escuchar eventos de teclado
+        // Estos atajos son específicos del formulario de "Nuevo Pedido", pero el listener
+        // está en `document` y antes no comprobaba nada más: se disparaban en cualquier
+        // pestaña, y "Escape" (mapeado a "Limpiar formulario") interceptaba con
+        // preventDefault() el Escape nativo que cierra los <dialog> (ej. el modal de
+        // "Ver detalle" de Pedidos), impidiendo que ese modal se cerrara y en su lugar
+        // abriendo el confirm de "¿Limpiar formulario?" de una pestaña que ni siquiera
+        // estaba visible. Se ignoran los atajos si hay un <dialog> abierto o si la
+        // pestaña "Nuevo Pedido" no es la activa.
         document.addEventListener('keydown', (e) => {
+            if (document.querySelector('dialog[open]')) return;
+
             const key = this._getKeyCombo(e);
             const shortcut = this.shortcuts.get(key);
+            if (!shortcut) return;
 
-            if (shortcut) {
-                e.preventDefault();
-                shortcut.action();
-                this._showShortcutFeedback(shortcut.description);
-            }
+            const newOrderTab = document.getElementById('newOrder');
+            if (!newOrderTab || !newOrderTab.classList.contains('active')) return;
+
+            e.preventDefault();
+            shortcut.action();
+            this._showShortcutFeedback(shortcut.description);
         });
 
         // Mostrar ayuda de atajos
@@ -257,6 +269,20 @@ class FormOptimizations {
         helpBtn.addEventListener('click', () => this._showShortcutsModal());
 
         document.body.appendChild(helpBtn);
+
+        // Los atajos que anuncia este botón (Ctrl+Enter, Ctrl+N, Ctrl+K, Escape,
+        // Ctrl+Shift+O) solo se procesan cuando la pestaña "Nuevo Pedido" está
+        // activa (ver _setupKeyboardShortcuts). Antes el botón quedaba fijo y
+        // visible en TODAS las pestañas, lo que además de anunciar atajos que no
+        // aplicaban ahí, tapaba contenido real en viewports angostos (ej. el
+        // total de un pedido en la tarjeta de "Pedidos" a 320px de ancho).
+        // Se oculta fuera de "Nuevo Pedido" y se sincroniza con tab:changed.
+        const newOrderTab = document.getElementById('newOrder');
+        const syncVisibility = () => {
+            helpBtn.style.display = newOrderTab?.classList.contains('active') ? 'flex' : 'none';
+        };
+        syncVisibility();
+        window.EventBus?.on('tab:changed', syncVisibility);
     }
 
     /**

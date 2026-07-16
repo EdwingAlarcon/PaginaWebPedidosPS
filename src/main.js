@@ -345,6 +345,16 @@ class Application {
         });
         overlay?.addEventListener('click', closeMobileSidebar);
 
+        // Cerrar el drawer móvil con Escape (antes solo se cerraba con click en el
+        // overlay o al cambiar de pestaña) — requisito básico de accesibilidad de
+        // teclado para cualquier panel superpuesto.
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && sidebar.classList.contains('open')) {
+                closeMobileSidebar();
+                mobileToggleBtn?.focus();
+            }
+        });
+
         console.log('[Main] ✅ Sidebar setup complete');
     }
 

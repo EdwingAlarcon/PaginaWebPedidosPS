@@ -393,7 +393,7 @@ class OrdersViewManager {
         dialog.querySelector('.order-detail-body').innerHTML = `
             <h2 class="confirm-modal-title">Pedido de ${this._escape(group.clientName)}</h2>
             <dl class="order-detail-meta">
-                <div><dt>Fecha</dt><dd>${window.Format?.dateTime(group.orderDate) || '—'}</dd></div>
+                <div><dt>Fecha</dt><dd>${window.Format?.date(group.orderDate) || '—'}</dd></div>
                 <div><dt>Teléfono</dt><dd>${this._escape(group.phoneNumber) || '—'}</dd></div>
                 <div><dt>Dirección</dt><dd>${this._escape(group.address) || '—'}</dd></div>
                 <div><dt>Estado</dt><dd><span class="badge badge-${group.status}">${this._statusLabel(group.status)}</span></dd></div>
