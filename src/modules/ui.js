@@ -17,6 +17,7 @@ class UIManager {
         try {
             console.log('[UI] 🎨 Initializing...');
             this._setupTheme();
+            this._setupThemeToggle();
             this._setupResponsive();
             console.log('[UI] ✅ Initialized');
             return true;
@@ -265,16 +266,71 @@ class UIManager {
     }
 
     /**
-     * PRIVATE: Configurar tema
+     * PRIVATE: Configurar tema (claro/oscuro) con persistencia real.
+     * Prioridad: preferencia guardada > prefers-color-scheme del SO > Config.uiConfig.theme.
      */
     _setupTheme() {
         try {
-            const theme = window.Config?.uiConfig?.theme || 'light';
-            document.documentElement.setAttribute('data-theme', theme);
+            const stored = localStorage.getItem(this._themeStorageKey);
+            let theme = stored;
+
+            if (theme !== 'light' && theme !== 'dark') {
+                const prefersDark = window.matchMedia?.('(prefers-color-scheme: dark)')?.matches;
+                theme = prefersDark ? 'dark' : (window.Config?.uiConfig?.theme || 'light');
+            }
+
+            this._applyTheme(theme);
             console.log(`[UI] 🎨 Theme set to: ${theme}`);
         } catch (error) {
             console.warn('[UI] ⚠️ Theme setup failed:', error);
         }
+    }
+
+    /** Clave de localStorage para la preferencia de tema del usuario */
+    get _themeStorageKey() {
+        return 'purpleshop.theme';
+    }
+
+    /**
+     * PRIVATE: Aplica un tema al documento y actualiza el botón toggle si existe.
+     */
+    _applyTheme(theme) {
+        document.documentElement.setAttribute('data-theme', theme);
+        const btn = document.getElementById('themeToggleBtn');
+        if (btn) {
+            const isDark = theme === 'dark';
+            btn.setAttribute('aria-pressed', String(isDark));
+            btn.setAttribute(
+                'aria-label',
+                isDark ? 'Cambiar a modo claro' : 'Cambiar a modo oscuro'
+            );
+            btn.dataset.theme = theme;
+        }
+    }
+
+    /**
+     * Alterna entre tema claro y oscuro, y persiste la preferencia.
+     */
+    toggleTheme() {
+        const current = document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'light';
+        const next = current === 'dark' ? 'light' : 'dark';
+        try {
+            localStorage.setItem(this._themeStorageKey, next);
+        } catch (error) {
+            console.warn('[UI] ⚠️ Could not persist theme preference:', error);
+        }
+        this._applyTheme(next);
+        console.log(`[UI] 🎨 Theme toggled to: ${next}`);
+        return next;
+    }
+
+    /**
+     * PRIVATE: Conecta el botón de alternar tema (creado en index.html) si existe.
+     */
+    _setupThemeToggle() {
+        const btn = document.getElementById('themeToggleBtn');
+        if (!btn) return;
+        btn.addEventListener('click', () => this.toggleTheme());
     }
 
     /**

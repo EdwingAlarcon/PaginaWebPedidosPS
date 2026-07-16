@@ -83,7 +83,7 @@
     left: 0;
     width: 100%;
     height: 100vh;
-    background: linear-gradient(135deg, #800b96 0%, #a020c0 50%, #c030d0 100%);
+    background: var(--gradient-brand, linear-gradient(135deg, #5b21b6 0%, #7c3aed 60%, #ec4899 100%));
     display: flex;
     align-items: center;
     justify-content: center;
@@ -222,7 +222,7 @@
     position: absolute;
     width: 60%;
     height: 3px;
-    background: #800b96;
+    background: var(--color-primary);
     top: 50%;
     left: 20%;
     transform: translateY(-50%);
@@ -233,7 +233,7 @@
     position: absolute;
     width: 3px;
     height: 60%;
-    background: #800b96;
+    background: var(--color-primary);
     top: 20%;
     left: 50%;
     transform: translateX(-50%);
@@ -818,26 +818,26 @@ main {
 
 /* Fieldsets y Legends - Diseño Moderno */
 fieldset {
-    border: 2px solid #9ca3af;
+    border: 2px solid var(--border-color-hover);
     border-radius: var(--radius-lg);
     padding: var(--spacing-xl);
     margin-bottom: var(--spacing-lg);
-    background: #fafafa;
+    background: var(--background-secondary);
     transition: all var(--transition-base);
 }
 
 fieldset:hover {
-    border-color: #6d28d9;
-    background: white;
+    border-color: var(--primary-hover);
+    background: var(--surface);
     box-shadow: 0 2px 8px rgba(109, 40, 217, 0.1);
 }
 
 legend {
     font-size: 1.125rem;
     font-weight: 700;
-    color: #5b21b6;
+    color: var(--primary-dark);
     padding: 0 var(--spacing-md);
-    background: white;
+    background: var(--surface);
     border-radius: var(--radius-md);
     box-shadow: var(--shadow-sm);
 }
@@ -886,19 +886,19 @@ legend {
 }
 
 .checkbox-label:hover {
-    background-color: #f3f4f6;
+    background-color: var(--hover-bg);
 }
 
 .checkbox-label input[type="checkbox"] {
     width: auto;
     cursor: pointer;
     transform: scale(1.2);
-    accent-color: #5b21b6;
+    accent-color: var(--primary-dark);
 }
 
 .checkbox-label span {
     font-weight: 600;
-    color: #1f2937;
+    color: var(--text-primary);
 }
 
 /* Inputs y Textareas - Diseño Moderno */
@@ -920,8 +920,8 @@ select {
     -webkit-appearance: none;
     -moz-appearance: none;
     appearance: none;
-    background-color: #ffffff;
-    color: #111827;
+    background-color: var(--surface);
+    color: var(--text-primary);
     font-weight: 500;
 }
 
@@ -943,9 +943,9 @@ input[type="url"]:hover,
 input[type="date"]:hover,
 textarea:hover,
 select:hover {
-    border-color: #6d28d9;
+    border-color: var(--primary-hover);
     box-shadow: 0 0 0 3px rgba(109, 40, 217, 0.15);
-    background-color: #fefefe;
+    background-color: var(--surface);
 }
 
 input[type="text"]:focus,
@@ -956,10 +956,10 @@ input[type="url"]:focus,
 input[type="date"]:focus,
 textarea:focus,
 select:focus {
-    border-color: #5b21b6;
+    border-color: var(--primary-dark);
     box-shadow: 0 0 0 4px rgba(91, 33, 182, 0.25);
     outline: 2px solid transparent;
-    background-color: #ffffff;
+    background-color: var(--surface);
 }
 
 input:invalid:not(:placeholder-shown) {
@@ -1167,7 +1167,7 @@ textarea {
 }
 
 .btn-secondary {
-    background-color: white;
+    background-color: var(--surface);
     color: var(--primary-color);
     border: 2px solid var(--primary-color);
     box-shadow: var(--shadow-sm);
@@ -1616,8 +1616,8 @@ input[id^="productCode_"] {
 }
 
 input[id^="productCode_"]:focus {
-    border-color: #800b96;
-    box-shadow: 0 0 0 3px rgba(128, 11, 150, 0.1);
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.1);
 }
 
 input[id^="productCode_"].code-found {
@@ -1631,7 +1631,7 @@ input[id^="productCode_"].code-not-found {
 }
 
 .btn-save-code {
-    background: linear-gradient(135deg, #800b96 0%, #a020c0 100%);
+    background: var(--gradient-primary);
     color: white;
     border: none;
     padding: 0.625rem 1rem;
@@ -1641,7 +1641,7 @@ input[id^="productCode_"].code-not-found {
     cursor: pointer;
     transition: all 0.3s ease;
     width: 100%;
-    box-shadow: 0 2px 4px rgba(128, 11, 150, 0.2);
+    box-shadow: 0 2px 4px rgba(124, 58, 237, 0.2);
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -1653,20 +1653,21 @@ input[id^="productCode_"].code-not-found {
 }
 
 .btn-save-code:hover {
-    background: linear-gradient(135deg, #a020c0 0%, #800b96 100%);
+    background: var(--gradient-primary);
+    filter: brightness(1.08);
     transform: translateY(-1px);
-    box-shadow: 0 4px 8px rgba(128, 11, 150, 0.3);
+    box-shadow: 0 4px 8px rgba(124, 58, 237, 0.3);
 }
 
 .btn-save-code:active {
     transform: translateY(0);
-    box-shadow: 0 2px 4px rgba(128, 11, 150, 0.2);
+    box-shadow: 0 2px 4px rgba(124, 58, 237, 0.2);
 }
 
 /* Sección de códigos guardados */
 .saved-codes-info {
-    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-    border: 2px solid #dee2e6;
+    background: var(--background-secondary);
+    border: 2px solid var(--border-color);
     border-radius: 8px;
     padding: 1rem;
     margin-bottom: 1.5rem;
@@ -1681,12 +1682,12 @@ input[id^="productCode_"].code-not-found {
 
 .info-header span {
     font-weight: 600;
-    color: #495057;
+    color: var(--text-secondary);
     font-size: 0.95rem;
 }
 
 .btn-toggle-codes {
-    background: #800b96;
+    background: var(--primary-color);
     color: white;
     border: none;
     padding: 0.375rem 0.875rem;
@@ -1698,7 +1699,7 @@ input[id^="productCode_"].code-not-found {
 }
 
 .btn-toggle-codes:hover {
-    background: #a020c0;
+    background: var(--primary-hover);
     transform: translateY(-1px);
 }
 
@@ -1713,16 +1714,16 @@ input[id^="productCode_"].code-not-found {
 }
 
 .code-card {
-    background: white;
-    border: 2px solid #dee2e6;
+    background: var(--surface);
+    border: 2px solid var(--border-color);
     border-radius: 6px;
     padding: 0.75rem;
     transition: all 0.2s ease;
 }
 
 .code-card:hover {
-    border-color: #800b96;
-    box-shadow: 0 2px 8px rgba(128, 11, 150, 0.15);
+    border-color: var(--primary-color);
+    box-shadow: 0 2px 8px rgba(124, 58, 237, 0.15);
 }
 
 .code-header {
@@ -1731,13 +1732,13 @@ input[id^="productCode_"].code-not-found {
     align-items: center;
     margin-bottom: 0.5rem;
     padding-bottom: 0.5rem;
-    border-bottom: 1px solid #e9ecef;
+    border-bottom: 1px solid var(--border-color);
 }
 
 .code-value {
     font-family: "Courier New", monospace;
     font-size: 1rem;
-    color: #800b96;
+    color: var(--primary-color);
     letter-spacing: 1px;
 }
 
@@ -3065,12 +3066,12 @@ footer {
 .total-row.grand-total-row {
     font-size: 1.3em;
     font-weight: bold;
-    color: #800b96;
+    color: var(--primary-color);
 }
 
 .total-divider {
     border: none;
-    border-top: 2px solid #800b96;
+    border-top: 2px solid var(--primary-color);
     margin: 5px 0;
 }
 
@@ -3113,9 +3114,9 @@ footer {
 .optional-fields-content {
     margin-top: 1rem;
     padding: 1rem;
-    background: #fafafa;
+    background: var(--background-secondary);
     border-radius: var(--radius-md);
-    border: 2px solid #e5e7eb;
+    border: 2px solid var(--border-color);
     animation: slideDown 0.3s ease-out;
 }
 
@@ -3143,14 +3144,14 @@ footer {
 
 .legend-toggle {
     width: 100%;
-    background: linear-gradient(135deg, #ffffff 0%, #f9fafb 100%);
+    background: var(--surface);
     border: none;
     padding: 0.75rem 1rem;
     border-radius: var(--radius-md);
     cursor: pointer;
     font-size: 1.125rem;
     font-weight: 700;
-    color: #5b21b6;
+    color: var(--primary-dark);
     transition: all var(--transition-base);
     display: flex;
     align-items: center;
@@ -3159,7 +3160,7 @@ footer {
 }
 
 .legend-toggle:hover {
-    background: linear-gradient(135deg, #f9fafb 0%, #f3f4f6 100%);
+    background: var(--background-secondary);
     box-shadow: var(--shadow-md);
     transform: translateY(-1px);
 }
