@@ -106,6 +106,24 @@ class ConnectionStatusManager {
     setSyncError(message) {
         this._setBadge('error', message || 'Error al sincronizar con OneDrive');
     }
+
+    /** Registra el momento de la última sincronización exitosa (para el Dashboard) */
+    recordSync() {
+        try {
+            localStorage.setItem('purpleshop.lastSyncAt', new Date().toISOString());
+        } catch (error) {
+            console.warn('[ConnectionStatus] ⚠️ Could not persist last sync time:', error);
+        }
+    }
+
+    /** ISO string de la última sincronización registrada, o null si nunca ha ocurrido */
+    getLastSyncAt() {
+        try {
+            return localStorage.getItem('purpleshop.lastSyncAt');
+        } catch (error) {
+            return null;
+        }
+    }
 }
 
 window.ConnectionStatus = new ConnectionStatusManager();

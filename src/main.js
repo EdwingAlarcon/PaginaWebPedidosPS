@@ -68,6 +68,9 @@ class Application {
             // 9b. Estado de conexión/sincronización + sesión OneDrive (B2)
             window.ConnectionStatus?.initialize();
 
+            // 9c. Dashboard (B3) — landing con datos reales de pedidos/inventario
+            window.DashboardManager?.initialize();
+
             // 10. Actualizar UI con datos iniciales
             this._updateUI();
 
@@ -202,6 +205,7 @@ class Application {
                     try {
                         await window.ExcelManager?.syncInventory();
                         window.NotificationService?.success('✅ Sincronizado con Excel');
+                        window.ConnectionStatus?.recordSync();
                         window.ConnectionStatus?.refreshAuthUI();
                     } catch (error) {
                         window.NotificationService?.error(`❌ Error en sincronización: ${error.message}`);
@@ -350,6 +354,7 @@ class Application {
             try {
                 await window.ExcelManager.syncInventory();
                 console.log('[Main] ✅ Auto-sync completed');
+                window.ConnectionStatus?.recordSync();
                 window.ConnectionStatus?.refreshAuthUI();
             } catch (error) {
                 console.warn('[Main] ⚠️ Auto-sync failed:', error);

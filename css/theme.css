@@ -788,3 +788,205 @@ body {
         width: 100%;
     }
 }
+
+/* ===============================================
+   BADGES DE ESTADO
+   ===============================================
+   El JS (ui.js, dashboard.js) ya generaba clases badge/badge-<estado>
+   pero no existía CSS para ellas — se veían como texto plano. */
+.badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    padding: 0.2rem 0.6rem;
+    border-radius: var(--radius-full, 9999px);
+    font-size: var(--text-xs, 0.75rem);
+    font-weight: 700;
+    line-height: 1.4;
+    white-space: nowrap;
+}
+
+.badge-pending,
+.badge-warning {
+    background: color-mix(in srgb, var(--warning-color) 18%, transparent);
+    color: var(--warning-hover);
+}
+
+.badge-completed,
+.badge-success,
+.badge-active {
+    background: color-mix(in srgb, var(--success-color) 18%, transparent);
+    color: var(--success-hover);
+}
+
+.badge-cancelled,
+.badge-error,
+.badge-danger {
+    background: color-mix(in srgb, var(--danger-color) 18%, transparent);
+    color: var(--danger-hover);
+}
+
+.badge-processing,
+.badge-info {
+    background: color-mix(in srgb, var(--info-color) 18%, transparent);
+    color: var(--info-hover);
+}
+
+/* ===============================================
+   DASHBOARD (Bloque 3)
+   =============================================== */
+.kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.kpi-card {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+    padding: 1.1rem 1.25rem;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-lg);
+    background: var(--surface);
+    box-shadow: var(--shadow-sm);
+    text-align: left;
+    cursor: pointer;
+    transition: transform var(--transition-fast, 150ms ease), box-shadow var(--transition-fast, 150ms ease);
+    font-family: var(--font-sans);
+}
+
+.kpi-card:not(:disabled):hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+    border-color: var(--color-primary-light);
+}
+
+.kpi-card:disabled,
+.kpi-card-static {
+    cursor: default;
+}
+
+.kpi-card:focus-visible {
+    outline: 2px solid var(--focus-outline);
+    outline-offset: 2px;
+}
+
+.kpi-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.25rem;
+    height: 2.25rem;
+    border-radius: var(--radius-md);
+    background: var(--color-primary-soft);
+    color: var(--color-primary);
+}
+
+.kpi-value {
+    font-size: var(--text-2xl, 1.5rem);
+    font-weight: 800;
+    color: var(--text-primary);
+    line-height: 1.1;
+}
+
+.kpi-label {
+    font-size: var(--text-sm, 0.875rem);
+    color: var(--text-secondary);
+    font-weight: 600;
+}
+
+.dashboard-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 1.25rem;
+    align-items: start;
+}
+
+.dashboard-panel {
+    background: var(--surface);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-lg);
+    padding: 1.25rem;
+    box-shadow: var(--shadow-sm);
+}
+
+.dashboard-panel-title {
+    margin: 0 0 1rem;
+    font-size: var(--text-lg, 1.125rem);
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+.ranked-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.85rem;
+}
+
+.ranked-item-bar-track {
+    height: 6px;
+    border-radius: var(--radius-full, 9999px);
+    background: var(--background-secondary);
+    overflow: hidden;
+    margin-bottom: 0.35rem;
+}
+
+.ranked-item-bar {
+    height: 100%;
+    border-radius: var(--radius-full, 9999px);
+    background: var(--gradient-primary);
+}
+
+.ranked-item-text {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 0.75rem;
+    font-size: var(--text-sm, 0.875rem);
+}
+
+.ranked-item-label {
+    font-weight: 600;
+    color: var(--text-primary);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.ranked-item-value {
+    color: var(--text-secondary);
+    flex-shrink: 0;
+}
+
+.empty-state {
+    padding: 1.5rem 0.5rem;
+    text-align: center;
+}
+
+.empty-state-title {
+    margin: 0 0 0.25rem;
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+.empty-state-hint {
+    margin: 0;
+    color: var(--text-secondary);
+    font-size: var(--text-sm, 0.875rem);
+}
+
+@media (max-width: 768px) {
+    .kpi-grid {
+        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    }
+
+    .dashboard-grid {
+        grid-template-columns: 1fr;
+    }
+}

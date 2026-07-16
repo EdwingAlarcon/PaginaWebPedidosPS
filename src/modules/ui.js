@@ -32,7 +32,11 @@ class UIManager {
      */
     updateInventoryTable(inventory) {
         try {
-            const tableBody = document.querySelector('tbody');
+            // Antes usaba document.querySelector('tbody') — el PRIMER <tbody>
+            // del documento, sin importar cuál fuera. Con el nuevo Dashboard
+            // (Bloque 3) eso corrompía su tabla de "Pedidos recientes" en vez
+            // de la tabla de Reportes a la que esto realmente pertenece.
+            const tableBody = document.querySelector('#ordersDetailTable tbody');
             if (!tableBody) {
                 console.warn('[UI] ⚠️ Table element not found');
                 return false;
