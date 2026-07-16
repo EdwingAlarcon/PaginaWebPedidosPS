@@ -370,13 +370,28 @@
     }
 
     function printLabel(label, pdfMode = false) {
-        const win = window.open('', '_blank', 'noopener,noreferrer');
-        if (!win) {
-            setStatus('El navegador bloqueó la ventana de impresión.');
-            return;
-        }
-        win.document.write(`<!doctype html><html lang="es"><head><title>${pdfMode ? 'PDF' : 'Imprimir'} ${escapeHtml(label.orderNumber || getDisplayOrderNumber())}</title><link rel="stylesheet" href="css/labels.css"><style>@page{size:14cm 11cm;margin:0}body{margin:0;background:#fff}.shipping-label-preview{max-width:none}</style></head><body>${labelHtml(label)}<script>window.onload=()=>setTimeout(()=>window.print(),200)<\/script></body></html>`);
-        win.document.close();
+        const iframe = document.createElement('iframe');
+        iframe.setAttribute('aria-hidden', 'true');
+        Object.assign(iframe.style, { position: 'fixed', right: '0', bottom: '0', width: '0', height: '0', border: '0' });
+        document.body.appendChild(iframe);
+
+        const cleanup = () => iframe.remove();
+
+        iframe.onload = () => {
+            const frameWindow = iframe.contentWindow;
+            const afterPrint = () => {
+                frameWindow.removeEventListener('afterprint', afterPrint);
+                setTimeout(cleanup, 200);
+            };
+            frameWindow.addEventListener('afterprint', afterPrint);
+            setTimeout(() => {
+                frameWindow.focus();
+                frameWindow.print();
+            }, 200);
+            setTimeout(cleanup, 10000);
+        };
+
+        iframe.srcdoc = `<!doctype html><html lang="es"><head><title>${pdfMode ? 'PDF' : 'Imprimir'} ${escapeHtml(label.orderNumber || getDisplayOrderNumber())}</title><link rel="stylesheet" href="css/labels.css"><style>@page{size:14cm 11cm;margin:0}body{margin:0;background:#fff}.shipping-label-preview{max-width:none}</style></head><body>${labelHtml(label)}</body></html>`;
         setStatus(pdfMode ? 'Se abrió el rótulo. En el diálogo de impresión elige “Guardar como PDF”.' : 'Se abrió el diálogo de impresión.');
     }
 
