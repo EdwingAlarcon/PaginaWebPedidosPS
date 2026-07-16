@@ -71,6 +71,9 @@ class Application {
             // 9c. Dashboard (B3) — landing con datos reales de pedidos/inventario
             window.DashboardManager?.initialize();
 
+            // 9d. Pedidos (B5) — tabla/filtros/detalle sobre datos reales
+            window.OrdersViewManager?.initialize();
+
             // 10. Actualizar UI con datos iniciales
             this._updateUI();
 

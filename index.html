@@ -46,13 +46,13 @@
             rel="stylesheet"
         />
 
-        <link rel="stylesheet" href="css/styles.css?v=20260716c" />
-        <link rel="stylesheet" href="css/inventory.css?v=20260716c" />
-        <link rel="stylesheet" href="css/labels.css?v=20260716c" />
+        <link rel="stylesheet" href="css/styles.css?v=20260716g" />
+        <link rel="stylesheet" href="css/inventory.css?v=20260716g" />
+        <link rel="stylesheet" href="css/labels.css?v=20260716g" />
         <!-- theme.css se carga AL FINAL a propósito: consolida y sobrescribe
              las variables de color/tipografía de los tres archivos anteriores
              (ver comentario de cabecera en css/theme.css). -->
-        <link rel="stylesheet" href="css/theme.css?v=20260716c" />
+        <link rel="stylesheet" href="css/theme.css?v=20260716g" />
     </head>
     <body>
         <!-- Splash Screen -->
@@ -977,30 +977,10 @@
                 </section>
 
                 <!-- Pestaña: Gestión de Pedidos -->
-                <section class="tab-content" id="orders">
+                <section class="tab-content" id="orders" aria-labelledby="orders-title">
                     <div class="form-container">
-                        <h2>Pedidos Registrados</h2>
-                        <div class="orders-actions">
-                            <button
-                                type="button"
-                                class="btn-primary"
-                                id="loadOrdersBtn"
-                                aria-label="Cargar pedidos desde Excel"
-                            >
-                                Cargar Pedidos
-                            </button>
-                            <button
-                                type="button"
-                                class="btn-secondary"
-                                id="exportPdfBtn"
-                                aria-label="Exportar pedidos a PDF"
-                            >
-                                💾 Exportar PDF
-                            </button>
-                        </div>
-                        <div id="ordersContainer" class="orders-list">
-                            <!-- Aquí se mostrarán los pedidos -->
-                        </div>
+                        <h2 id="orders-title" class="sr-only">Pedidos</h2>
+                        <div id="ordersViewContent"><!-- Contenido real: src/modules/orders-view.js --></div>
                     </div>
                 </section>
 
@@ -1224,44 +1204,46 @@
             <script src="https://alcdn.msauth.net/browser/2.30.0/js/msal-browser.min.js"></script>
 
             <!-- 2. Infraestructura (sin dependencias) -->
-            <script src="src/utils/event-bus.js?v=20260716c"></script>
-            <script src="src/utils/notification-service.js?v=20260716c"></script>
-            <script src="src/utils/confirm-modal.js?v=20260716c"></script>
-            <script src="src/utils/icons.js?v=20260716c"></script>
-            <script src="src/utils/format.js?v=20260716c"></script>
-            <script src="src/utils/logger.js?v=20260716c"></script>
-            <script src="src/utils/performance.js?v=20260716c"></script>
-            <script src="src/utils/sanitize.js?v=20260716c"></script>
-            <script src="src/utils/validation.js?v=20260716c"></script>
+            <script src="src/utils/event-bus.js?v=20260716g"></script>
+            <script src="src/utils/notification-service.js?v=20260716g"></script>
+            <script src="src/utils/confirm-modal.js?v=20260716g"></script>
+            <script src="src/utils/icons.js?v=20260716g"></script>
+            <script src="src/utils/format.js?v=20260716g"></script>
+            <script src="src/utils/order-aggregates.js?v=20260716g"></script>
+            <script src="src/utils/logger.js?v=20260716g"></script>
+            <script src="src/utils/performance.js?v=20260716g"></script>
+            <script src="src/utils/sanitize.js?v=20260716g"></script>
+            <script src="src/utils/validation.js?v=20260716g"></script>
 
             <!-- 3. Configuración (depende de utils) -->
             <!-- config.local.js SÍ se commitea (no es .gitignore): trae el Client ID de Azure AD,
                  que no es secreto en una SPA pública (MSAL Browser usa PKCE, sin client secret).
                  Ver config.local.example.js si hay que recrearlo desde cero. Si el archivo faltara,
                  daría 404 en consola sin romper la carga de los demás scripts; solo no habría login. -->
-            <script src="src/config/config.local.js?v=20260716c"></script>
-            <script src="src/config/config.js?v=20260716c"></script>
+            <script src="src/config/config.local.js?v=20260716g"></script>
+            <script src="src/config/config.js?v=20260716g"></script>
 
             <!-- 4. Módulos de la aplicación (dependen de config + utils) -->
-            <script src="src/modules/auth.js?v=20260716c"></script>
-            <script src="src/modules/inventory.js?v=20260716c"></script>
-            <script src="src/modules/excel.js?v=20260716c"></script>
-            <script src="src/modules/ui.js?v=20260716c"></script>
-            <script src="src/modules/forms.js?v=20260716c"></script>
-            <script src="src/modules/order-form.js?v=20260716c"></script>
-            <script src="src/modules/labels.js?v=20260716c"></script>
-            <script src="src/modules/connection-status.js?v=20260716c"></script>
-            <script src="src/modules/dashboard.js?v=20260716c"></script>
+            <script src="src/modules/auth.js?v=20260716g"></script>
+            <script src="src/modules/inventory.js?v=20260716g"></script>
+            <script src="src/modules/excel.js?v=20260716g"></script>
+            <script src="src/modules/ui.js?v=20260716g"></script>
+            <script src="src/modules/forms.js?v=20260716g"></script>
+            <script src="src/modules/order-form.js?v=20260716g"></script>
+            <script src="src/modules/labels.js?v=20260716g"></script>
+            <script src="src/modules/connection-status.js?v=20260716g"></script>
+            <script src="src/modules/dashboard.js?v=20260716g"></script>
+            <script src="src/modules/orders-view.js?v=20260716g"></script>
 
             <!-- 5. Módulo de inventario de productos (pestaña de stock) -->
-            <script src="src/core/inventory.js?v=20260716c"></script>
-            <script src="src/core/inventory-ui.js?v=20260716c"></script>
+            <script src="src/core/inventory.js?v=20260716g"></script>
+            <script src="src/core/inventory-ui.js?v=20260716g"></script>
 
             <!-- 6. Optimizaciones de formulario -->
-            <script src="src/utils/form-optimizations.js?v=20260716c"></script>
+            <script src="src/utils/form-optimizations.js?v=20260716g"></script>
 
             <!-- 7. Orquestador principal (debe cargarse al último) -->
-            <script src="src/main.js?v=20260716c"></script>
+            <script src="src/main.js?v=20260716g"></script>
             
             <script>
                 // Inicializar módulo de inventarios cuando se carga

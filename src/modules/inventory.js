@@ -316,20 +316,28 @@ class InventoryManager {
     }
 
     /**
-     * PRIVATE: Sanitizar datos de pedido
+     * PRIVATE: Sanitizar datos de pedido.
+     *
+     * Solo sanitiza los campos de texto que efectivamente vienen en `data` —
+     * antes forzaba clientName/email/address/productName/notes a '' cuando
+     * faltaban, lo que estaba bien para addOrder() (siempre manda el objeto
+     * completo) pero corrompía updateOrder() con actualizaciones parciales:
+     * updateOrder(id, {status}) borraba el nombre del cliente y del producto
+     * del pedido, porque _sanitizeOrderData({status}) devolvía esos campos
+     * vacíos y Object.assign los pisaba.
      */
     _sanitizeOrderData(data) {
-        if (window.SecurityUtils?.sanitizeText) {
-            return {
-                ...data,
-                clientName: window.SecurityUtils.sanitizeText(data.clientName || ''),
-                email: window.SecurityUtils.sanitizeText(data.email || ''),
-                address: window.SecurityUtils.sanitizeText(data.address || ''),
-                productName: window.SecurityUtils.sanitizeText(data.productName || ''),
-                notes: window.SecurityUtils.sanitizeText(data.notes || '')
-            };
+        if (!window.SecurityUtils?.sanitizeText) {
+            return data;
         }
-        return data;
+
+        const sanitized = { ...data };
+        ['clientName', 'email', 'address', 'productName', 'notes'].forEach((field) => {
+            if (Object.prototype.hasOwnProperty.call(data, field)) {
+                sanitized[field] = window.SecurityUtils.sanitizeText(data[field] || '');
+            }
+        });
+        return sanitized;
     }
 
     /**

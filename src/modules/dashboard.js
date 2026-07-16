@@ -11,7 +11,8 @@
  * `shippingCost` del pedido completo, pero `totalPrice` es solo qty*precio de
  * ESA línea — el total realmente cobrado hay que recalcularlo por grupo
  * (subtotal → descuento % → + envío), igual que hace updateGrandTotal() en
- * order-form.js.
+ * order-form.js. Esa agregación vive en window.OrderAggregates (compartida
+ * también con Pedidos y Reportes) para no duplicarla en cada módulo.
  */
 class DashboardManager {
     constructor() {
@@ -36,32 +37,7 @@ class DashboardManager {
     /* ==================== AGREGACIÓN DE DATOS ==================== */
 
     _groupOrders() {
-        const lines = window.InventoryManager?.getAll() || [];
-        const groups = new Map();
-
-        lines.forEach((line) => {
-            const key = line.orderGroupId || line.id;
-            if (!groups.has(key)) {
-                groups.set(key, {
-                    id: key,
-                    clientName: line.clientName || 'Sin nombre',
-                    orderDate: line.orderDate,
-                    status: line.status || 'pending',
-                    discount: Number(line.discount) || 0,
-                    shippingCost: Number(line.shippingCost) || 0,
-                    subtotal: 0,
-                    productCount: 0
-                });
-            }
-            const group = groups.get(key);
-            group.subtotal += Number(line.totalPrice) || 0;
-            group.productCount += 1;
-        });
-
-        return Array.from(groups.values()).map((g) => ({
-            ...g,
-            total: Math.max(0, g.subtotal * (1 - g.discount / 100) + g.shippingCost)
-        }));
+        return window.OrderAggregates?.groupOrders() || [];
     }
 
     _computeKPIs(groups) {
