@@ -199,20 +199,29 @@
     -webkit-line-clamp: 2;
 }
 
-.lbl-sender-name { top: 40.8%; left: 8.8%; width: 31%; font-size: 3cqw; }
-.lbl-sender-phone { top: 47.4%; left: 8.8%; width: 31%; }
-.lbl-sender-city { top: 54%; left: 8.8%; width: 31%; }
-.lbl-sender-department { top: 60.6%; left: 8.8%; width: 31%; }
-.lbl-sender-address { top: 67%; left: 8.8%; width: 31%; height: 9%; }
+/* Estos campos se colocan justo encima de la etiqueta pequeña impresa
+   en la plantilla (p. ej. "Nombre / Empresa") para taparla con el dato
+   real, en vez de mostrar ambos apilados. */
+.lbl-f.lbl-cover {
+    background: #fbf9f6;
+    padding: 0.05em 0.2em;
+    margin-left: -0.2em;
+}
 
-.lbl-recipient-name { top: 40.2%; left: 52.3%; width: 43.5%; font-size: 3cqw; }
-.lbl-recipient-phone { top: 45.2%; left: 52.3%; width: 43.5%; }
-.lbl-recipient-department { top: 50.4%; left: 52.3%; width: 19%; }
-.lbl-recipient-city { top: 50.4%; left: 78.6%; width: 17%; }
-.lbl-recipient-address { top: 55.5%; left: 52.3%; width: 43.5%; height: 9%; }
-.lbl-recipient-neighborhood { top: 63%; left: 52.3%; width: 43.5%; }
-.lbl-recipient-reference { top: 67.6%; left: 52.3%; width: 43.5%; }
-.lbl-recipient-notes { top: 72.1%; left: 52.3%; width: 43.5%; }
+.lbl-sender-name { top: 43.9%; left: 8.8%; width: 31%; font-size: 3cqw; }
+.lbl-sender-phone { top: 50.5%; left: 8.8%; width: 31%; }
+.lbl-sender-city { top: 57%; left: 8.8%; width: 31%; }
+.lbl-sender-department { top: 63.4%; left: 8.8%; width: 31%; }
+.lbl-sender-address { top: 69.3%; left: 8.8%; width: 31%; height: 9.5%; }
+
+.lbl-recipient-name { top: 43.3%; left: 52.3%; width: 43.5%; font-size: 3cqw; }
+.lbl-recipient-phone { top: 48.3%; left: 52.3%; width: 43.5%; }
+.lbl-recipient-department { top: 53.5%; left: 52.3%; width: 19%; }
+.lbl-recipient-city { top: 53.5%; left: 78.6%; width: 17%; }
+.lbl-recipient-address { top: 57.7%; left: 52.3%; width: 43.5%; height: 9.5%; }
+.lbl-recipient-neighborhood { top: 65.9%; left: 52.3%; width: 43.5%; }
+.lbl-recipient-reference { top: 70.6%; left: 52.3%; width: 43.5%; }
+.lbl-recipient-notes { top: 75.1%; left: 52.3%; width: 43.5%; }
 
 .lbl-order-number { top: 87.6%; left: 5%; width: 13%; font-size: 1.9cqw; }
 .lbl-date { top: 87.6%; left: 23%; width: 10%; font-size: 1.9cqw; }
