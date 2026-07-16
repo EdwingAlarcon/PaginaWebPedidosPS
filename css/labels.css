@@ -220,6 +220,10 @@
     border-right: 1px solid #111;
 }
 
+.shipping-label-meta > :last-child {
+    border-right: 0;
+}
+
 .shipping-label-meta strong {
     color: var(--label-purple-dark);
     font-size: 12pt;
