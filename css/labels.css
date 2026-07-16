@@ -150,9 +150,9 @@
 .shipping-label-preview,
 .labels-print-label {
     width: 14cm;
-    height: 11cm;
+    height: 12cm;
     max-width: 100%;
-    aspect-ratio: 14 / 11;
+    aspect-ratio: 14 / 12;
     border: 1.5pt solid var(--label-purple-dark);
     background: #fff;
     color: var(--label-ink);
@@ -160,6 +160,13 @@
     flex-direction: column;
     overflow: hidden;
     font-family: Arial, Helvetica, sans-serif;
+}
+
+.shipping-label-preview[data-size="10x9"],
+.labels-print-label[data-size="10x9"] {
+    width: 10cm;
+    height: 9cm;
+    aspect-ratio: 10 / 9;
 }
 
 .shipping-label-preview,
@@ -324,5 +331,9 @@
     .shipping-label-preview {
         width: min(100%, 14cm);
         height: auto;
+    }
+
+    .shipping-label-preview[data-size="10x9"] {
+        width: min(100%, 10cm);
     }
 }

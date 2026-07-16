@@ -23,6 +23,12 @@
         allowManualEdit: true
     };
 
+    const LABEL_SIZES = {
+        '10x9': { width: '10cm', height: '9cm', label: 'Pequeño (10 x 9 cm)' },
+        '14x12': { width: '14cm', height: '12cm', label: 'Grande (14 x 12 cm)' }
+    };
+    const DEFAULT_LABEL_SIZE = '14x12';
+
     let labels = [];
     let settings = { ...defaultSettings, sender: { ...defaultSettings.sender } };
     let currentId = null;
@@ -59,6 +65,7 @@
             orderNumber: '',
             date: today(),
             carrier: '',
+            size: DEFAULT_LABEL_SIZE,
             paymentMethod: 'pagado',
             codAmount: 0,
             packageCount: 1,
@@ -197,6 +204,7 @@
                             ${field('Número de pedido', 'orderNumber')}
                             ${field('Fecha', 'date', { type: 'date' })}
                             ${field('Transportadora', 'carrier')}
+                            <label class="labels-field"><span>Tamaño del rótulo</span><select data-label-field="size">${Object.entries(LABEL_SIZES).map(([value, info]) => `<option value="${value}" ${draft.size === value ? 'selected' : ''}>${info.label}</option>`).join('')}</select></label>
                             <label class="labels-field"><span>Método de pago</span><select data-label-field="paymentMethod"><option value="pagado" ${draft.paymentMethod === 'pagado' ? 'selected' : ''}>Pagado</option><option value="contraentrega" ${draft.paymentMethod === 'contraentrega' ? 'selected' : ''}>Contraentrega</option></select></label>
                             ${field('Valor contraentrega', 'codAmount', { type: 'number' })}
                             ${field('Cantidad de paquetes', 'packageCount', { type: 'number' })}
@@ -238,7 +246,8 @@
         const payment = label.paymentMethod === 'contraentrega' ? `Contraentrega $${Number(label.codAmount || 0).toLocaleString('es-CO')}` : 'Pagado';
         const neighborhoodLine = label.recipient.neighborhood ? `<p>Barrio: ${escapeHtml(label.recipient.neighborhood)}</p>` : '';
         const referenceLine = label.recipient.reference ? `<p>Ref: ${escapeHtml(label.recipient.reference)}</p>` : '';
-        return `<article class="shipping-label-preview" id="shippingLabelPreview">
+        const size = LABEL_SIZES[label.size] ? label.size : DEFAULT_LABEL_SIZE;
+        return `<article class="shipping-label-preview" id="shippingLabelPreview" data-size="${size}">
             <header class="shipping-label-header">
                 <div class="shipping-label-brand"><img src="${settings.logoUrl}" alt="Logo PurpleShop"><div><strong>PurpleShop</strong><span>${escapeHtml(settings.brandPhrase)}</span></div></div>
                 <div class="shipping-label-social"><img src="${settings.qrUrl}" alt="QR de Instagram PurpleShop"><span>${escapeHtml(settings.instagramUser)}</span></div>
@@ -393,7 +402,9 @@
             setTimeout(cleanup, 10000);
         };
 
-        iframe.srcdoc = `<!doctype html><html lang="es"><head><title>${pdfMode ? 'PDF' : 'Imprimir'} ${escapeHtml(label.orderNumber || getDisplayOrderNumber())}</title><link rel="stylesheet" href="css/labels.css"><style>@page{size:14cm 11cm;margin:0}body{margin:0;background:#fff}.shipping-label-preview{max-width:none}</style></head><body>${labelHtml(label)}</body></html>`;
+        const size = LABEL_SIZES[label.size] ? label.size : DEFAULT_LABEL_SIZE;
+        const { width, height } = LABEL_SIZES[size];
+        iframe.srcdoc = `<!doctype html><html lang="es"><head><title>${pdfMode ? 'PDF' : 'Imprimir'} ${escapeHtml(label.orderNumber || getDisplayOrderNumber())}</title><link rel="stylesheet" href="css/labels.css"><style>@page{size:${width} ${height};margin:0}body{margin:0;background:#fff}.shipping-label-preview{max-width:none}</style></head><body>${labelHtml(label)}</body></html>`;
         setStatus(pdfMode ? 'Se abrió el rótulo. En el diálogo de impresión elige “Guardar como PDF”.' : 'Se abrió el diálogo de impresión.');
     }
 
