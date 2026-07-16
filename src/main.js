@@ -74,6 +74,9 @@ class Application {
             // 9d. Pedidos (B5) — tabla/filtros/detalle sobre datos reales
             window.OrdersViewManager?.initialize();
 
+            // 9e. Clientes (B6) — derivados de pedidos + registro manual
+            window.ClientsViewManager?.initialize();
+
             // 10. Actualizar UI con datos iniciales
             this._updateUI();
 
