@@ -162,6 +162,13 @@
     font-family: Arial, Helvetica, sans-serif;
 }
 
+.shipping-label-preview,
+.shipping-label-preview * {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+    color-adjust: exact;
+}
+
 .shipping-label-header {
     background: var(--label-purple);
     color: #fff;

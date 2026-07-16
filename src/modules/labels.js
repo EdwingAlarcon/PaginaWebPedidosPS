@@ -236,6 +236,8 @@
     function labelHtml(label) {
         const order = label.orderNumber || getDisplayOrderNumber();
         const payment = label.paymentMethod === 'contraentrega' ? `Contraentrega $${Number(label.codAmount || 0).toLocaleString('es-CO')}` : 'Pagado';
+        const neighborhoodLine = label.recipient.neighborhood ? `<p>Barrio: ${escapeHtml(label.recipient.neighborhood)}</p>` : '';
+        const referenceLine = label.recipient.reference ? `<p>Ref: ${escapeHtml(label.recipient.reference)}</p>` : '';
         return `<article class="shipping-label-preview" id="shippingLabelPreview">
             <header class="shipping-label-header">
                 <div class="shipping-label-brand"><img src="${settings.logoUrl}" alt="Logo PurpleShop"><div><strong>PurpleShop</strong><span>${escapeHtml(settings.brandPhrase)}</span></div></div>
@@ -244,7 +246,7 @@
             <div class="shipping-label-meta"><strong>${escapeHtml(order)}</strong><span>${escapeHtml(label.date || today())}</span><span>${escapeHtml(label.carrier || 'Transportadora')}</span><span>${Number(label.packageCount || 1)} paquete(s)</span></div>
             <div class="shipping-label-body">
                 <section class="shipping-label-block"><h4>Remitente</h4><p class="person">${escapeHtml(label.sender.name || 'PurpleShop')}</p><p>Tel: ${escapeHtml(label.sender.phone || '300 000 0000')}</p><p>${escapeHtml(label.sender.city || 'Ciudad')}, ${escapeHtml(label.sender.department || 'Departamento')}</p><p>${escapeHtml(label.sender.address || 'Dirección del remitente')}</p></section>
-                <section class="shipping-label-block"><h4>Destinatario</h4><p class="person">${escapeHtml(label.recipient.fullName || 'Nombre del cliente')}</p><p>Tel: ${escapeHtml(label.recipient.phone || '310 000 0000')}</p><p>${escapeHtml(label.recipient.city || 'Ciudad')}, ${escapeHtml(label.recipient.department || 'Departamento')}</p><p class="address">${escapeHtml(label.recipient.address || 'Dirección completa del destinatario')}</p><p>Barrio: ${escapeHtml(label.recipient.neighborhood || 'Sector')}</p><p>Ref: ${escapeHtml(label.recipient.reference || 'Indicaciones de entrega')}</p></section>
+                <section class="shipping-label-block"><h4>Destinatario</h4><p class="person">${escapeHtml(label.recipient.fullName || 'Nombre del cliente')}</p><p>Tel: ${escapeHtml(label.recipient.phone || '310 000 0000')}</p><p>${escapeHtml(label.recipient.city || 'Ciudad')}, ${escapeHtml(label.recipient.department || 'Departamento')}</p><p class="address">${escapeHtml(label.recipient.address || 'Dirección completa del destinatario')}</p>${neighborhoodLine}${referenceLine}</section>
             </div>
             <footer class="shipping-label-footer"><strong>${escapeHtml(payment)}</strong><span>${escapeHtml(label.recipient.notes || 'Gracias por comprar en PurpleShop')}</span></footer>
         </article>`;
