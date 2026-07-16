@@ -80,6 +80,7 @@ describe("HistoryTable", () => {
     const ana = createLabel("1", "Ana Perez", "3001111111");
     ana.date = "2026-07-15";
     const luis = createLabel("2", "Luis Gomez", "3002222222");
+    luis.date = "2026-07-15";
     render(<HistoryTable labels={[ana, luis]} />);
 
     expect(screen.getByText("Fecha")).toBeInTheDocument();

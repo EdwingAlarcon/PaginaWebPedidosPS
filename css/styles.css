@@ -2503,6 +2503,21 @@ footer {
         gap: 0;
         overflow-x: auto;
         scrollbar-width: thin;
+        position: relative;
+    }
+
+    /* Pista visual de que hay más pestañas fuera de pantalla (scroll horizontal) */
+    .tabs-navigation::after {
+        content: '';
+        position: sticky;
+        top: 0;
+        right: 0;
+        flex-shrink: 0;
+        width: 24px;
+        height: 100%;
+        margin-left: -24px;
+        background: linear-gradient(to right, transparent, rgba(255, 255, 255, 0.95));
+        pointer-events: none;
     }
 
     .tab-btn {
@@ -3211,9 +3226,21 @@ footer {
     .adjustments-grid {
         flex-direction: column;
     }
-    
+
     .adjustment-field {
         width: 100%;
         min-width: 100%;
+    }
+}
+
+/* Accesibilidad: respetar preferencia de reducir movimiento */
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
     }
 }

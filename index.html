@@ -21,7 +21,7 @@
         <meta property="og:type" content="website" />
         <meta property="og:title" content="Purple Shop - Sistema de Pedidos" />
         <meta property="og:description" content="Sistema de gestión de pedidos e inventarios" />
-        <meta property="og:image" content="assets/images/logo-purple-shop.png" />
+        <meta property="og:image" content="https://edwingalarcon.github.io/PaginaWebPedidosPS/assets/images/logo-purple-shop.png" />
         
         <!-- Twitter -->
         <meta name="twitter:card" content="summary" />
@@ -1036,7 +1036,7 @@
                             Medias, Camisetas, Perfumes o Lociones
                         </p>
                         <p class="copyright">
-                            &copy; 2025 Purple Shop - Todos los derechos
+                            &copy; <span id="footerYear">2025</span> Purple Shop - Todos los derechos
                             reservados
                         </p>
                     </div>
@@ -1145,13 +1145,17 @@
         <!-- Fin de Aplicación Principal -->
 
         <script>
+            // Año del footer
+            const footerYear = document.getElementById("footerYear");
+            if (footerYear) footerYear.textContent = new Date().getFullYear();
+
             // Control de Splash Screen
             window.addEventListener("DOMContentLoaded", () => {
                 const splashScreen = document.getElementById("splashScreen");
                 const mainApp = document.getElementById("mainApp");
 
-                // Duración mínima de la pantalla de carga (2.5 segundos)
-                const minLoadingTime = 2500;
+                // Duración mínima de la pantalla de carga
+                const minLoadingTime = 600;
                 const startTime = Date.now();
 
                 // Función para ocultar splash y mostrar app
