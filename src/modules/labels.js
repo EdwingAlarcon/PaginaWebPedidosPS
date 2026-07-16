@@ -66,7 +66,6 @@
             date: today(),
             carrier: '',
             size: DEFAULT_LABEL_SIZE,
-            fitContent: false,
             paymentMethod: 'pagado',
             codAmount: 0,
             packageCount: 1,
@@ -206,7 +205,6 @@
                             ${field('Fecha', 'date', { type: 'date' })}
                             ${field('Transportadora', 'carrier')}
                             <label class="labels-field"><span>Tamaño del rótulo</span><select data-label-field="size">${Object.entries(LABEL_SIZES).map(([value, info]) => `<option value="${value}" ${draft.size === value ? 'selected' : ''}>${info.label}</option>`).join('')}</select></label>
-                            <label class="labels-field labels-checkbox" title="Recorta el alto impreso al mínimo necesario - útil si vas a imprimir en papel normal y recortar a mano. Si usas stickers precortados a un tamaño fijo, déjalo sin marcar."><span>Ajustar alto al contenido (para recortar a mano)</span><input type="checkbox" data-label-field="fitContent" ${draft.fitContent ? 'checked' : ''}></label>
                             <label class="labels-field"><span>Método de pago</span><select data-label-field="paymentMethod"><option value="pagado" ${draft.paymentMethod === 'pagado' ? 'selected' : ''}>Pagado</option><option value="contraentrega" ${draft.paymentMethod === 'contraentrega' ? 'selected' : ''}>Contraentrega</option></select></label>
                             ${field('Valor contraentrega', 'codAmount', { type: 'number' })}
                             ${field('Cantidad de paquetes', 'packageCount', { type: 'number' })}
@@ -243,24 +241,36 @@
         return `<label class="labels-field ${full ? 'full' : ''}"><span>${label}</span><input type="${type}" data-setting-field="${key}" value="${escapeHtml(settings[key])}"></label>`;
     }
 
+    function formatDateDisplay(isoDate) {
+        const value = isoDate || today();
+        const [year, month, day] = value.split('-');
+        return year && month && day ? `${day}/${month}/${year}` : value;
+    }
+
     function labelHtml(label) {
         const order = label.orderNumber || getDisplayOrderNumber();
-        const payment = label.paymentMethod === 'contraentrega' ? `Contraentrega $${Number(label.codAmount || 0).toLocaleString('es-CO')}` : 'Pagado';
-        const neighborhoodLine = label.recipient.neighborhood ? `<p>Barrio: ${escapeHtml(label.recipient.neighborhood)}</p>` : '';
-        const referenceLine = label.recipient.reference ? `<p>Ref: ${escapeHtml(label.recipient.reference)}</p>` : '';
+        const isCod = label.paymentMethod === 'contraentrega';
         const size = LABEL_SIZES[label.size] ? label.size : DEFAULT_LABEL_SIZE;
-        const fit = label.fitContent ? 'content' : '';
-        return `<article class="shipping-label-preview" id="shippingLabelPreview" data-size="${size}" data-fit="${fit}">
-            <header class="shipping-label-header">
-                <div class="shipping-label-brand"><img src="${settings.logoUrl}" alt="Logo PurpleShop"><div><strong>PurpleShop</strong><span>${escapeHtml(settings.brandPhrase)}</span></div></div>
-                <div class="shipping-label-social"><img src="${settings.qrUrl}" alt="QR de Instagram PurpleShop"><span>${escapeHtml(settings.instagramUser)}</span></div>
-            </header>
-            <div class="shipping-label-meta"><strong>${escapeHtml(order)}</strong><span>${escapeHtml(label.date || today())}</span><span>${escapeHtml(label.carrier || 'Transportadora')}</span><span>${Number(label.packageCount || 1)} paquete(s)</span></div>
-            <div class="shipping-label-body">
-                <section class="shipping-label-block"><h4>Remitente</h4><p class="person">${escapeHtml(label.sender.name || 'PurpleShop')}</p><p>Tel: ${escapeHtml(label.sender.phone || '300 000 0000')}</p><p>${escapeHtml(label.sender.city || 'Ciudad')}, ${escapeHtml(label.sender.department || 'Departamento')}</p><p>${escapeHtml(label.sender.address || 'Dirección del remitente')}</p></section>
-                <section class="shipping-label-block"><h4>Destinatario</h4><p class="person">${escapeHtml(label.recipient.fullName || 'Nombre del cliente')}</p><p>Tel: ${escapeHtml(label.recipient.phone || '310 000 0000')}</p><p>${escapeHtml(label.recipient.city || 'Ciudad')}, ${escapeHtml(label.recipient.department || 'Departamento')}</p><p class="address">${escapeHtml(label.recipient.address || 'Dirección completa del destinatario')}</p>${neighborhoodLine}${referenceLine}</section>
-            </div>
-            <footer class="shipping-label-footer"><strong>${escapeHtml(payment)}</strong><span>${escapeHtml(label.recipient.notes || 'Gracias por comprar en PurpleShop')}</span></footer>
+        return `<article class="shipping-label-preview" id="shippingLabelPreview" data-size="${size}">
+            <span class="lbl-f lbl-sender-name">${escapeHtml(label.sender.name)}</span>
+            <span class="lbl-f lbl-sender-phone">${escapeHtml(label.sender.phone)}</span>
+            <span class="lbl-f lbl-sender-city">${escapeHtml(label.sender.city)}</span>
+            <span class="lbl-f lbl-sender-department">${escapeHtml(label.sender.department)}</span>
+            <span class="lbl-f lbl-multiline lbl-sender-address">${escapeHtml(label.sender.address)}</span>
+            <span class="lbl-f lbl-recipient-name">${escapeHtml(label.recipient.fullName)}</span>
+            <span class="lbl-f lbl-recipient-phone">${escapeHtml(label.recipient.phone)}</span>
+            <span class="lbl-f lbl-recipient-department">${escapeHtml(label.recipient.department)}</span>
+            <span class="lbl-f lbl-recipient-city">${escapeHtml(label.recipient.city)}</span>
+            <span class="lbl-f lbl-multiline lbl-recipient-address">${escapeHtml(label.recipient.address)}</span>
+            <span class="lbl-f lbl-recipient-neighborhood">${escapeHtml(label.recipient.neighborhood)}</span>
+            <span class="lbl-f lbl-recipient-reference">${escapeHtml(label.recipient.reference)}</span>
+            <span class="lbl-f lbl-recipient-notes">${escapeHtml(label.recipient.notes)}</span>
+            <span class="lbl-f lbl-order-number">${escapeHtml(order)}</span>
+            <span class="lbl-f lbl-date">${escapeHtml(formatDateDisplay(label.date))}</span>
+            <span class="lbl-f lbl-carrier">${escapeHtml(label.carrier)}</span>
+            <span class="lbl-f lbl-value">${isCod ? '$' + Number(label.codAmount || 0).toLocaleString('es-CO') : ''}</span>
+            <span class="lbl-f lbl-packages">${Number(label.packageCount || 1)}</span>
+            <span class="lbl-f ${isCod ? 'lbl-check-cod' : 'lbl-check-paid'}">✔</span>
         </article>`;
     }
 
@@ -393,15 +403,6 @@
 
         iframe.onload = () => {
             const frameWindow = iframe.contentWindow;
-            const frameDoc = iframe.contentDocument;
-            if (label.fitContent) {
-                const article = frameDoc.querySelector('.shipping-label-preview');
-                const pageStyle = frameDoc.getElementById('labelPageSize');
-                if (article && pageStyle) {
-                    const heightCm = (article.getBoundingClientRect().height / 96 * 2.54).toFixed(2);
-                    pageStyle.textContent = `@page{size:${width} ${heightCm}cm;margin:0}`;
-                }
-            }
             const afterPrint = () => {
                 frameWindow.removeEventListener('afterprint', afterPrint);
                 setTimeout(cleanup, 200);
@@ -416,7 +417,7 @@
 
         const size = LABEL_SIZES[label.size] ? label.size : DEFAULT_LABEL_SIZE;
         const { width, height } = LABEL_SIZES[size];
-        iframe.srcdoc = `<!doctype html><html lang="es"><head><title>${pdfMode ? 'PDF' : 'Imprimir'} ${escapeHtml(label.orderNumber || getDisplayOrderNumber())}</title><link rel="stylesheet" href="css/labels.css"><style id="labelPageSize">@page{size:${width} ${height};margin:0}</style><style>body{margin:0;background:#fff}.shipping-label-preview{max-width:none}</style></head><body>${labelHtml(label)}</body></html>`;
+        iframe.srcdoc = `<!doctype html><html lang="es"><head><title>${pdfMode ? 'PDF' : 'Imprimir'} ${escapeHtml(label.orderNumber || getDisplayOrderNumber())}</title><link rel="stylesheet" href="css/labels.css"><style>@page{size:${width} ${height};margin:0}body{margin:0;background:#fff}.shipping-label-preview{max-width:none}</style></head><body>${labelHtml(label)}</body></html>`;
         setStatus(pdfMode ? 'Se abrió el rótulo. En el diálogo de impresión elige “Guardar como PDF”.' : 'Se abrió el diálogo de impresión.');
     }
 
