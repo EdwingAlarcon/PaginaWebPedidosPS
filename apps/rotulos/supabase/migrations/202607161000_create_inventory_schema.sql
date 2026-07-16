@@ -68,30 +68,21 @@ set search_path = ''
 as $$
 declare
   v_current_stock numeric;
+  v_delta numeric;
 begin
   select current_stock into v_current_stock from public.products where id = new.product_id for update;
 
-  if new.type = 'salida' and v_current_stock < new.quantity then
+  v_delta := case when new.type = 'salida' then -new.quantity else new.quantity end;
+
+  if v_current_stock + v_delta < 0 then
     raise exception 'stock_insuficiente';
   end if;
 
-  if new.type = 'entrada' then
-    update public.products
-    set current_stock = current_stock + new.quantity,
-        last_restock_date = now(),
-        updated_at = now()
-    where id = new.product_id;
-  elsif new.type = 'salida' then
-    update public.products
-    set current_stock = current_stock - new.quantity,
-        updated_at = now()
-    where id = new.product_id;
-  else
-    update public.products
-    set current_stock = current_stock + new.quantity,
-        updated_at = now()
-    where id = new.product_id;
-  end if;
+  update public.products
+  set current_stock = current_stock + v_delta,
+      last_restock_date = case when new.type = 'entrada' then now() else last_restock_date end,
+      updated_at = now()
+  where id = new.product_id;
 
   return new;
 end;
