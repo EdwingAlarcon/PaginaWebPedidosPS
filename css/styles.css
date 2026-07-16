@@ -851,7 +851,7 @@ legend {
     display: block;
     margin-bottom: 0.5rem;
     font-weight: 600;
-    color: #1f2937;
+    color: var(--text-primary);
     font-size: 0.95rem;
 }
 
@@ -864,7 +864,7 @@ legend {
 .field-hint {
     display: block;
     font-size: 0.85rem;
-    color: #4b5563;
+    color: var(--text-secondary);
     margin-top: 0.25rem;
     font-style: italic;
     font-weight: 500;
@@ -962,12 +962,16 @@ select:focus {
     background-color: var(--surface);
 }
 
-input:invalid:not(:placeholder-shown) {
+/* :user-invalid solo marca error DESPUÉS de que el usuario interactuó con el
+   campo (a diferencia de :invalid, que ya lo marcaba en la carga inicial de
+   la página para campos required sin placeholder — mostraba error antes de
+   que el usuario tocara nada). */
+input:user-invalid {
     border-color: #dc2626;
     background-color: #fef2f2;
 }
 
-input:invalid:not(:placeholder-shown):focus {
+input:user-invalid:focus {
     box-shadow: 0 0 0 4px rgba(220, 38, 38, 0.25);
     border-color: #b91c1c;
 }
@@ -985,7 +989,7 @@ input[readonly] {
 input::placeholder,
 textarea::placeholder,
 select::placeholder {
-    color: #6b7280;
+    color: var(--text-secondary);
     opacity: 1;
     font-weight: 400;
 }
@@ -993,7 +997,7 @@ select::placeholder {
 input:focus::placeholder,
 textarea:focus::placeholder,
 select:focus::placeholder {
-    color: #9ca3af;
+    color: var(--text-tertiary);
 }
 
 textarea {
@@ -1913,7 +1917,7 @@ input[id^="productCode_"].code-not-found {
 }
 
 #clientSearch {
-    background-color: #f8f8f8;
+    background-color: var(--background-secondary);
     border: 2px solid var(--border-color);
 }
 
@@ -3048,19 +3052,19 @@ footer {
     display: flex;
     justify-content: space-between;
     font-size: 0.95em;
-    color: #666;
+    color: var(--text-secondary);
 }
 
 .total-row.subtotal-row {
-    color: #666;
+    color: var(--text-secondary);
 }
 
 .total-row.discount-row {
-    color: #107c10;
+    color: var(--success-color);
 }
 
 .total-row.shipping-row {
-    color: #666;
+    color: var(--text-secondary);
 }
 
 .total-row.grand-total-row {
@@ -3081,9 +3085,9 @@ footer {
 }
 
 .btn-toggle-optional {
-    background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%);
-    color: #374151;
-    border: 2px dashed #9ca3af;
+    background: var(--background-secondary);
+    color: var(--text-secondary);
+    border: 2px dashed var(--border-color-hover);
     padding: 0.75rem 1.25rem;
     border-radius: var(--radius-md);
     cursor: pointer;
@@ -3098,8 +3102,8 @@ footer {
 }
 
 .btn-toggle-optional:hover {
-    background: linear-gradient(135deg, #e5e7eb 0%, #d1d5db 100%);
-    border-color: #6b7280;
+    background: var(--hover-bg);
+    border-color: var(--primary-color);
     transform: translateY(-1px);
     box-shadow: var(--shadow-sm);
 }

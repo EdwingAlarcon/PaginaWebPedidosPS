@@ -564,9 +564,14 @@
     font-size: 14px;
 }
 
-.form-group input,
-.form-group select,
-.form-group textarea {
+/* Prefijadas con .inventory-module: sin el prefijo, estas reglas
+   (misma especificidad que las de styles.css y cargadas después)
+   se filtraban al formulario de "Nuevo Pedido" — que también usa
+   .form-group — y anulaban estados como input:user-invalid o
+   input:focus definidos allí. */
+.inventory-module .form-group input,
+.inventory-module .form-group select,
+.inventory-module .form-group textarea {
     padding: 10px 12px;
     border: 2px solid var(--border-color-hover, #6b7280);
     border-radius: 4px;
@@ -578,9 +583,9 @@
     font-weight: 500;
 }
 
-.form-group input:focus,
-.form-group select:focus,
-.form-group textarea:focus {
+.inventory-module .form-group input:focus,
+.inventory-module .form-group select:focus,
+.inventory-module .form-group textarea:focus {
     outline: none;
     border-color: var(--primary-dark, #5b21b6);
     box-shadow: 0 0 0 3px rgba(91, 33, 182, 0.25);
@@ -588,22 +593,22 @@
 }
 
 /* Placeholders con mejor contraste */
-.form-group input::placeholder,
-.form-group textarea::placeholder {
+.inventory-module .form-group input::placeholder,
+.inventory-module .form-group textarea::placeholder {
     color: var(--text-secondary, #6b7280);
     opacity: 1;
     font-weight: 400;
 }
 
-.form-group input:focus::placeholder,
-.form-group textarea:focus::placeholder {
+.inventory-module .form-group input:focus::placeholder,
+.inventory-module .form-group textarea:focus::placeholder {
     color: var(--text-tertiary, #9ca3af);
 }
 
 /* Estados disabled y readonly con mejor contraste */
-.form-group input:disabled,
-.form-group select:disabled,
-.form-group textarea:disabled {
+.inventory-module .form-group input:disabled,
+.inventory-module .form-group select:disabled,
+.inventory-module .form-group textarea:disabled {
     background-color: var(--disabled-bg, #e5e7eb);
     color: var(--disabled-text, #6b7280);
     cursor: not-allowed;
@@ -611,7 +616,7 @@
     opacity: 0.7;
 }
 
-.form-group input:read-only {
+.inventory-module .form-group input:read-only {
     background-color: var(--background-secondary, #f3f4f6);
     color: var(--text-secondary, #374151);
     border-style: dashed;

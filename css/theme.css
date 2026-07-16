@@ -990,3 +990,63 @@ body {
         grid-template-columns: 1fr;
     }
 }
+
+/* ===============================================
+   NUEVO PEDIDO — layout de 2 columnas (Bloque 4)
+   ===============================================
+   Se preservan todos los IDs/clases que order-form.js y
+   form-optimizations.js necesitan (.product-item, #discount,
+   #grandTotal, etc.) — este bloque solo reorganiza el contenedor. */
+.order-form-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 360px;
+    gap: 1.75rem;
+    align-items: start;
+}
+
+.order-form-main {
+    min-width: 0;
+}
+
+.order-form-summary {
+    position: sticky;
+    top: calc(var(--topbar-height, 68px) + 1rem);
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    background: var(--surface);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-lg);
+    padding: 1.25rem;
+    box-shadow: var(--shadow-md);
+}
+
+.order-form-summary fieldset {
+    margin-bottom: 1rem;
+}
+
+.order-form-summary .total-section {
+    margin: 0 0 1.25rem;
+}
+
+.order-form-summary .form-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    margin-top: 0;
+}
+
+.order-form-summary .form-actions button {
+    width: 100%;
+}
+
+@media (max-width: 1100px) {
+    .order-form-layout {
+        grid-template-columns: 1fr;
+    }
+
+    .order-form-summary {
+        position: static;
+        top: auto;
+    }
+}
