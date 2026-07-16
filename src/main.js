@@ -63,6 +63,7 @@ class Application {
 
             // 9. Setup navegación por pestañas
             this._setupTabNavigation();
+            this._setupSidebar();
 
             // 10. Actualizar UI con datos iniciales
             this._updateUI();
@@ -232,8 +233,98 @@ class Application {
         const selectedBtn = document.querySelector(`[data-tab="${tabName}"]`);
         if (selectedBtn) selectedBtn.classList.add('active');
 
+        this._updatePageTitle(tabName);
+        this._closeMobileSidebar?.();
+
         window.EventBus?.emit('tab:changed', { tab: tabName });
         console.log(`[Main] 🔄 Tab switched to: ${tabName}`);
+    }
+
+    /**
+     * PRIVATE: Mapa de título/subtítulo por pestaña, para el topbar (B1: app-shell).
+     */
+    static get TAB_META() {
+        return {
+            dashboard: { title: 'Dashboard', subtitle: 'Resumen general de tu negocio' },
+            newOrder: { title: 'Nuevo Pedido', subtitle: 'Registra un pedido con uno o varios productos' },
+            orders: { title: 'Pedidos', subtitle: 'Consulta y gestiona los pedidos registrados' },
+            clients: { title: 'Clientes', subtitle: 'Administra tu cartera de clientes' },
+            inventory: { title: 'Inventario', subtitle: 'Stock, movimientos y alertas de productos' },
+            reports: { title: 'Reportes', subtitle: 'Métricas y tendencias de ventas' },
+            shippingLabels: { title: 'Rótulos de envío', subtitle: 'Genera e imprime rótulos para tus pedidos' }
+        };
+    }
+
+    /**
+     * PRIVATE: Actualiza el título/subtítulo del topbar según la pestaña activa.
+     */
+    _updatePageTitle(tabName) {
+        const meta = Application.TAB_META[tabName];
+        if (!meta) return;
+
+        const titleEl = document.getElementById('pageTitle');
+        const subtitleEl = document.getElementById('pageSubtitle');
+        if (titleEl) titleEl.textContent = meta.title;
+        if (subtitleEl) subtitleEl.textContent = meta.subtitle;
+        document.title = `${meta.title} · Purple Shop`;
+    }
+
+    /**
+     * PRIVATE: Configura el sidebar — colapsar/expandir (desktop, persistido) y
+     * drawer con overlay (móvil). No toca el contrato de tabs (main.js._switchTab).
+     */
+    _setupSidebar() {
+        const sidebar = document.getElementById('appSidebar');
+        const collapseBtn = document.getElementById('sidebarCollapseBtn');
+        const mobileToggleBtn = document.getElementById('sidebarToggleBtn');
+        const overlay = document.getElementById('sidebarOverlay');
+        if (!sidebar) return;
+
+        const COLLAPSE_KEY = 'purpleshop.sidebarCollapsed';
+
+        // Restaurar preferencia de colapso (solo aplica en desktop vía CSS)
+        try {
+            if (localStorage.getItem(COLLAPSE_KEY) === 'true') {
+                sidebar.classList.add('collapsed');
+                collapseBtn?.setAttribute('aria-pressed', 'true');
+            }
+        } catch (error) {
+            console.warn('[Main] ⚠️ Could not read sidebar collapse preference:', error);
+        }
+
+        collapseBtn?.addEventListener('click', () => {
+            const collapsed = sidebar.classList.toggle('collapsed');
+            collapseBtn.setAttribute('aria-pressed', String(collapsed));
+            collapseBtn.setAttribute(
+                'aria-label',
+                collapsed ? 'Expandir barra lateral' : 'Contraer barra lateral'
+            );
+            try {
+                localStorage.setItem(COLLAPSE_KEY, String(collapsed));
+            } catch (error) {
+                console.warn('[Main] ⚠️ Could not persist sidebar collapse preference:', error);
+            }
+        });
+
+        const openMobileSidebar = () => {
+            sidebar.classList.add('open');
+            overlay?.removeAttribute('hidden');
+            mobileToggleBtn?.setAttribute('aria-expanded', 'true');
+        };
+        const closeMobileSidebar = () => {
+            sidebar.classList.remove('open');
+            overlay?.setAttribute('hidden', '');
+            mobileToggleBtn?.setAttribute('aria-expanded', 'false');
+        };
+        this._closeMobileSidebar = closeMobileSidebar;
+
+        mobileToggleBtn?.addEventListener('click', () => {
+            const isOpen = sidebar.classList.contains('open');
+            if (isOpen) closeMobileSidebar(); else openMobileSidebar();
+        });
+        overlay?.addEventListener('click', closeMobileSidebar);
+
+        console.log('[Main] ✅ Sidebar setup complete');
     }
 
     /**

@@ -120,25 +120,160 @@
         </div>
 
         <!-- Aplicación Principal -->
-        <div id="mainApp" class="main-app" style="display: none">
-            <header role="banner">
-                <div class="header-content">
-                    <div class="logo-title">
+        <div id="mainApp" class="main-app app-shell" style="display: none">
+            <!-- Botón de menú (solo visible en móvil): abre el sidebar como drawer -->
+            <button
+                id="sidebarToggleBtn"
+                type="button"
+                class="sidebar-toggle-mobile"
+                aria-label="Abrir menú de navegación"
+                aria-expanded="false"
+                aria-controls="appSidebar"
+            >
+                <svg
+                    aria-hidden="true"
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                >
+                    <path d="M3 6h18M3 12h18M3 18h18"></path>
+                </svg>
+            </button>
+
+            <!-- Overlay del drawer móvil -->
+            <div id="sidebarOverlay" class="sidebar-overlay" hidden></div>
+
+            <!-- Barra lateral de navegación -->
+            <aside
+                id="appSidebar"
+                class="app-sidebar"
+                aria-label="Barra lateral de navegación"
+            >
+                <div class="sidebar-header">
+                    <div class="sidebar-brand">
                         <img
                             src="assets/images/logo-purple-shop.png"
                             alt="Purple Shop Logo"
                             class="logo"
                         />
-                        <h1>Purple Shop - Registro de Pedidos</h1>
+                        <span class="sidebar-brand-text">Purple Shop</span>
                     </div>
-                    <div class="header-actions">
-                        <div
-                            id="offlineIndicator"
-                            class="offline-indicator"
-                            style="display: none"
+                    <button
+                        id="sidebarCollapseBtn"
+                        type="button"
+                        class="sidebar-collapse-btn"
+                        aria-label="Contraer barra lateral"
+                        aria-pressed="false"
+                        title="Contraer / expandir barra lateral"
+                    >
+                        <svg
+                            aria-hidden="true"
+                            xmlns="http://www.w3.org/2000/svg"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            stroke-width="2"
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
                         >
-                            🔴 Modo Offline
+                            <path d="M11 19l-7-7 7-7M18 19l-7-7 7-7"></path>
+                        </svg>
+                    </button>
+                </div>
+
+                <nav
+                    class="sidebar-nav"
+                    role="navigation"
+                    aria-label="Navegación principal"
+                >
+                    <button
+                        class="tab-btn active"
+                        data-tab="dashboard"
+                        aria-label="Ir a Dashboard"
+                    >
+                        <span class="tab-btn-icon" aria-hidden="true">🏠</span>
+                        <span class="tab-btn-label">Dashboard</span>
+                    </button>
+                    <button
+                        class="tab-btn"
+                        data-tab="newOrder"
+                        aria-label="Ir a Nuevo Pedido"
+                    >
+                        <span class="tab-btn-icon" aria-hidden="true">🧾</span>
+                        <span class="tab-btn-label">Nuevo Pedido</span>
+                    </button>
+                    <button
+                        class="tab-btn"
+                        data-tab="orders"
+                        aria-label="Ir a Pedidos"
+                    >
+                        <span class="tab-btn-icon" aria-hidden="true">📦</span>
+                        <span class="tab-btn-label">Pedidos</span>
+                    </button>
+                    <button
+                        class="tab-btn"
+                        data-tab="clients"
+                        aria-label="Ir a Clientes"
+                    >
+                        <span class="tab-btn-icon" aria-hidden="true">👥</span>
+                        <span class="tab-btn-label">Clientes</span>
+                    </button>
+                    <button
+                        class="tab-btn"
+                        data-tab="inventory"
+                        aria-label="Ir a Inventarios"
+                    >
+                        <span class="tab-btn-icon" aria-hidden="true">🗃️</span>
+                        <span class="tab-btn-label">Inventario</span>
+                    </button>
+                    <button
+                        class="tab-btn"
+                        data-tab="reports"
+                        aria-label="Ir a Reportes"
+                    >
+                        <span class="tab-btn-icon" aria-hidden="true">📊</span>
+                        <span class="tab-btn-label">Reportes</span>
+                    </button>
+                    <button
+                        class="tab-btn"
+                        data-tab="shippingLabels"
+                        aria-label="Ir a Rótulos de envío"
+                    >
+                        <span class="tab-btn-icon" aria-hidden="true">🏷️</span>
+                        <span class="tab-btn-label">Rótulos de envío</span>
+                    </button>
+                </nav>
+
+                <div class="sidebar-footer">
+                    <div
+                        id="offlineIndicator"
+                        class="connection-badge connection-badge-offline"
+                        style="display: none"
+                        role="status"
+                        title="Sin conexión: los datos se guardan localmente"
+                    >
+                        <span class="connection-dot" aria-hidden="true"></span>
+                        <span class="connection-badge-label">Modo sin conexión</span>
+                    </div>
+                </div>
+            </aside>
+
+            <!-- Contenido principal: topbar + secciones + pie de página -->
+            <div class="app-content-wrap">
+                <header class="app-topbar" role="banner">
+                    <div class="topbar-left">
+                        <div class="topbar-title-group">
+                            <h1 id="pageTitle" class="topbar-title">Dashboard</h1>
+                            <p id="pageSubtitle" class="topbar-subtitle">
+                                Resumen general de tu negocio
+                            </p>
                         </div>
+                    </div>
+                    <div class="topbar-right">
                         <button
                             id="loginBtn"
                             class="btn-onedrive"
@@ -198,63 +333,24 @@
                             </svg>
                         </button>
                     </div>
-                </div>
-            </header>
-
-            <!-- Navegación por Pestañas -->
-            <nav
-                class="tabs-navigation"
-                role="navigation"
-                aria-label="Navegación principal"
-            >
-                <button
-                    class="tab-btn active"
-                    data-tab="newOrder"
-                    aria-label="Ir a Nuevo Pedido"
-                >
-                    🏠 Nuevo Pedido
-                </button>
-                <button
-                    class="tab-btn"
-                    data-tab="clients"
-                    aria-label="Ir a Clientes"
-                >
-                    👥 Clientes
-                </button>
-                <button
-                    class="tab-btn"
-                    data-tab="orders"
-                    aria-label="Ir a Pedidos"
-                >
-                    📦 Pedidos
-                </button>
-                <button
-                    class="tab-btn"
-                    data-tab="reports"
-                    aria-label="Ir a Reportes"
-                >
-                    📊 Reportes
-                </button>
-                <button
-                    class="tab-btn"
-                    data-tab="inventory"
-                    aria-label="Ir a Inventarios"
-                >
-                    📦 Inventarios
-                </button>
-                <button
-                    class="tab-btn"
-                    data-tab="shippingLabels"
-                    aria-label="Ir a Rótulos de envío"
-                >
-                    🏷️ Rótulos de envío
-                </button>
-            </nav>
+                </header>
 
             <main role="main">
-                <!-- Pestaña: Nuevo Pedido -->
+                <!-- Pestaña: Dashboard (contenido real: ver src/modules/dashboard.js) -->
                 <section
                     class="tab-content active"
+                    id="dashboard"
+                    aria-labelledby="dashboard-title"
+                >
+                    <div id="dashboardContent" class="dashboard-content">
+                        <h2 id="dashboard-title" class="sr-only">Dashboard</h2>
+                        <p class="empty-state-text">Cargando resumen…</p>
+                    </div>
+                </section>
+
+                <!-- Pestaña: Nuevo Pedido -->
+                <section
+                    class="tab-content"
                     id="newOrder"
                     aria-labelledby="form-title"
                 >
@@ -1091,6 +1187,8 @@
                     </div>
                 </div>
             </footer>
+            </div>
+            <!-- /app-content-wrap -->
 
             <!-- Scripts -->
             <!-- Orden explícito: dependencias primero, orquestador al final (B4) -->
@@ -1217,7 +1315,9 @@
 
                         setTimeout(() => {
                             splashScreen.style.display = "none";
-                            mainApp.style.display = "block";
+                            // .app-shell es un contenedor flex (sidebar + contenido);
+                            // "block" rompía el layout horizontal.
+                            mainApp.style.display = "flex";
                             mainApp.classList.add("app-fade-in");
                         }, 500);
                     }, remaining);
