@@ -11,7 +11,7 @@
 .labels-toolbar,
 .labels-panel,
 .labels-preview-shell {
-    background: #ffffff;
+    background: var(--surface, #ffffff);
     border: 1px solid rgba(107, 31, 162, 0.16);
     border-radius: 12px;
     box-shadow: 0 10px 30px rgba(59, 10, 87, 0.08);
@@ -34,7 +34,7 @@
 
 .labels-toolbar p {
     margin: 0.25rem 0 0;
-    color: #5f5f68;
+    color: var(--text-secondary, #5f5f68);
 }
 
 .labels-actions {
@@ -104,7 +104,8 @@
     border-radius: 10px;
     padding: 0.7rem 0.8rem;
     font: inherit;
-    background: #fff;
+    background: var(--surface, #fff);
+    color: var(--text-primary);
 }
 
 .labels-field textarea {
@@ -126,14 +127,14 @@
 .labels-metric {
     padding: 0.9rem;
     border-radius: 10px;
-    background: var(--label-paper);
-    border: 1px solid #e6dff0;
+    background: var(--background-secondary, var(--label-paper));
+    border: 1px solid var(--border-color, #e6dff0);
 }
 
 .labels-metric span {
     display: block;
     font-size: 0.75rem;
-    color: #666;
+    color: var(--text-secondary, #666);
 }
 
 .labels-metric strong {

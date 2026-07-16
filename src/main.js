@@ -77,6 +77,9 @@ class Application {
             // 9e. Clientes (B6) — derivados de pedidos + registro manual
             window.ClientsViewManager?.initialize();
 
+            // 9f. Reportes (B7) — igual que Dashboard, explorable por fecha/cliente
+            window.ReportsViewManager?.initialize();
+
             // 10. Actualizar UI con datos iniciales
             this._updateUI();
 
