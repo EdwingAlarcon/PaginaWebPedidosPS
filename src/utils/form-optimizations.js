@@ -221,12 +221,13 @@ class FormOptimizations {
         const helpBtn = document.createElement('button');
         helpBtn.type = 'button';
         helpBtn.className = 'shortcuts-help-btn';
-        helpBtn.innerHTML = '⌨️';
+        helpBtn.innerHTML = window.Icons?.svg('keyboard', { size: 20 }) || '⌨️';
+        helpBtn.setAttribute('aria-label', 'Ver atajos de teclado');
         helpBtn.title = 'Ver atajos de teclado';
         helpBtn.style.cssText = `
             position: fixed;
             bottom: 20px;
-            left: 20px;
+            right: 20px;
             width: 48px;
             height: 48px;
             border-radius: 50%;
@@ -234,6 +235,9 @@ class FormOptimizations {
             color: white;
             border: none;
             cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             font-size: 20px;
             box-shadow: 0 4px 12px rgba(124, 58, 237, 0.4);
             z-index: 999;

@@ -195,7 +195,7 @@
                         data-tab="dashboard"
                         aria-label="Ir a Dashboard"
                     >
-                        <span class="tab-btn-icon" aria-hidden="true">🏠</span>
+                        <span class="tab-btn-icon" aria-hidden="true" data-icon="home"></span>
                         <span class="tab-btn-label">Dashboard</span>
                     </button>
                     <button
@@ -203,7 +203,7 @@
                         data-tab="newOrder"
                         aria-label="Ir a Nuevo Pedido"
                     >
-                        <span class="tab-btn-icon" aria-hidden="true">🧾</span>
+                        <span class="tab-btn-icon" aria-hidden="true" data-icon="receipt"></span>
                         <span class="tab-btn-label">Nuevo Pedido</span>
                     </button>
                     <button
@@ -211,7 +211,7 @@
                         data-tab="orders"
                         aria-label="Ir a Pedidos"
                     >
-                        <span class="tab-btn-icon" aria-hidden="true">📦</span>
+                        <span class="tab-btn-icon" aria-hidden="true" data-icon="package"></span>
                         <span class="tab-btn-label">Pedidos</span>
                     </button>
                     <button
@@ -219,7 +219,7 @@
                         data-tab="clients"
                         aria-label="Ir a Clientes"
                     >
-                        <span class="tab-btn-icon" aria-hidden="true">👥</span>
+                        <span class="tab-btn-icon" aria-hidden="true" data-icon="users"></span>
                         <span class="tab-btn-label">Clientes</span>
                     </button>
                     <button
@@ -227,7 +227,7 @@
                         data-tab="inventory"
                         aria-label="Ir a Inventarios"
                     >
-                        <span class="tab-btn-icon" aria-hidden="true">🗃️</span>
+                        <span class="tab-btn-icon" aria-hidden="true" data-icon="archive"></span>
                         <span class="tab-btn-label">Inventario</span>
                     </button>
                     <button
@@ -235,7 +235,7 @@
                         data-tab="reports"
                         aria-label="Ir a Reportes"
                     >
-                        <span class="tab-btn-icon" aria-hidden="true">📊</span>
+                        <span class="tab-btn-icon" aria-hidden="true" data-icon="bar-chart"></span>
                         <span class="tab-btn-label">Reportes</span>
                     </button>
                     <button
@@ -243,7 +243,7 @@
                         data-tab="shippingLabels"
                         aria-label="Ir a Rótulos de envío"
                     >
-                        <span class="tab-btn-icon" aria-hidden="true">🏷️</span>
+                        <span class="tab-btn-icon" aria-hidden="true" data-icon="tag"></span>
                         <span class="tab-btn-label">Rótulos de envío</span>
                     </button>
                 </nav>
@@ -296,6 +296,16 @@
                             class="user-info"
                             aria-live="polite"
                         ></span>
+                        <button
+                            id="logoutBtn"
+                            type="button"
+                            class="btn-icon-only btn-logout"
+                            style="display: none"
+                            aria-label="Cerrar sesión de OneDrive"
+                            title="Cerrar sesión"
+                        >
+                            <span data-icon="log-out" aria-hidden="true"></span>
+                        </button>
                         <button
                             id="themeToggleBtn"
                             type="button"
@@ -390,7 +400,7 @@
                                     id="favoriteClientsSection"
                                     style="display: none"
                                 >
-                                    <label>⭐ Clientes Frecuentes</label>
+                                    <label><span class="inline-icon" data-icon="star" data-icon-size="16" aria-hidden="true"></span> Clientes Frecuentes</label>
                                     <div
                                         id="favoriteClientsButtons"
                                         class="favorite-clients-grid"
@@ -422,7 +432,8 @@
                                             onclick="switchTab('clients')"
                                             title="Gestionar clientes"
                                         >
-                                            👥 Clientes
+                                            <span class="inline-icon" data-icon="users" data-icon-size="16" aria-hidden="true"></span>
+                                            Clientes
                                         </button>
                                     </div>
                                     <div
@@ -430,8 +441,9 @@
                                         style="display: none"
                                         class="client-suggestion"
                                     >
+                                        <span class="inline-icon" data-icon="alert-triangle" data-icon-size="16" aria-hidden="true"></span>
                                         <span
-                                            >⚠️ Cliente no encontrado. Puedes
+                                            >Cliente no encontrado. Puedes
                                             agregarlo en la pestaña de
                                             Clientes.</span
                                         >
@@ -481,7 +493,8 @@
                                 <!-- Campos Opcionales Colapsables -->
                                 <div class="optional-fields-section">
                                     <button type="button" class="btn-toggle-optional" id="toggleOptionalFieldsBtn">
-                                        ➕ Agregar Email (opcional)
+                                        <span class="inline-icon" data-icon="plus" data-icon-size="16" aria-hidden="true"></span>
+                                        Agregar Email (opcional)
                                     </button>
                                     <div id="optionalClientFields" class="optional-fields-content" style="display: none;">
                                         <div class="form-group">
@@ -529,8 +542,9 @@
                                     style="display: none"
                                 >
                                     <div class="info-header">
+                                        <span class="inline-icon" data-icon="zap" data-icon-size="16" aria-hidden="true"></span>
                                         <span
-                                            >⚡ Códigos Rápidos
+                                            >Códigos Rápidos
                                             Guardados</span
                                         >
                                         <button
@@ -600,7 +614,7 @@
                                                         font-weight: normal;
                                                         color: #666;
                                                     "
-                                                    >⚡ Opcional - Ej:
+                                                    >Opcional — Ej:
                                                     A001</small
                                                 >
                                             </label>
@@ -711,7 +725,8 @@
                                                 title="Guardar este producto con su código para uso futuro"
                                                 aria-label="Guardar este producto como código rápido"
                                             >
-                                                💾 Guardar Código Rápido
+                                                <span class="inline-icon" data-icon="save" data-icon-size="16" aria-hidden="true"></span>
+                                                Guardar Código Rápido
                                             </button>
                                         </div>
 
@@ -721,7 +736,7 @@
                                             aria-label="Eliminar producto"
                                             style="display: none"
                                         >
-                                            ✕
+                                            <span data-icon="x" data-icon-size="14" aria-hidden="true"></span>
                                         </button>
                                     </div>
                                 </div>
@@ -732,13 +747,14 @@
                                     class="btn-secondary"
                                     aria-label="Agregar otro producto"
                                 >
-                                    + Agregar Producto
+                                    <span class="inline-icon" data-icon="plus" data-icon-size="16" aria-hidden="true"></span>
+                                    Agregar Producto
                                 </button>
                             </fieldset>
 
                             <!-- Calculadora de Descuentos y Envío -->
                             <fieldset>
-                                <legend>💰 Ajustes al Total</legend>
+                                <legend><span class="inline-icon" data-icon="dollar-sign" data-icon-size="16" aria-hidden="true"></span> Ajustes al Total</legend>
                                 <div class="adjustments-grid">
                                     <div class="adjustment-field">
                                         <label for="discount"
@@ -815,8 +831,9 @@
                             <fieldset class="collapsible-fieldset collapsed">
                                 <legend>
                                     <button type="button" class="legend-toggle" aria-expanded="false">
-                                        📝 Notas Adicionales (opcional)
-                                        <span class="toggle-icon">▶</span>
+                                        <span class="inline-icon" data-icon="file-text" data-icon-size="16" aria-hidden="true"></span>
+                                        Notas Adicionales (opcional)
+                                        <span class="toggle-icon" data-icon="chevron-right" data-icon-size="14" aria-hidden="true"></span>
                                     </button>
                                 </legend>
                                 <div class="collapsible-content" style="display: none;">
@@ -842,7 +859,8 @@
                                     Guardar Pedido
                                 </button>
                                 <button
-                                    type="reset"
+                                    type="button"
+                                    id="clearOrderFormBtn"
                                     class="btn-secondary"
                                     aria-label="Limpiar formulario"
                                 >
@@ -1199,6 +1217,8 @@
             <!-- 2. Infraestructura (sin dependencias) -->
             <script src="src/utils/event-bus.js"></script>
             <script src="src/utils/notification-service.js"></script>
+            <script src="src/utils/confirm-modal.js"></script>
+            <script src="src/utils/icons.js"></script>
             <script src="src/utils/logger.js"></script>
             <script src="src/utils/performance.js"></script>
             <script src="src/utils/sanitize.js"></script>
@@ -1220,6 +1240,7 @@
             <script src="src/modules/forms.js"></script>
             <script src="src/modules/order-form.js"></script>
             <script src="src/modules/labels.js"></script>
+            <script src="src/modules/connection-status.js"></script>
 
             <!-- 5. Módulo de inventario de productos (pestaña de stock) -->
             <script src="src/core/inventory.js"></script>

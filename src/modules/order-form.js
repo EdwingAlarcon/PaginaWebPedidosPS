@@ -68,6 +68,7 @@ class OrderFormManager {
             this._setupSaveCodeButtonDelegation();
             this._setupToggleSavedCodesButton();
             this._setupOrderFormSubmit();
+            this._setupClearButton();
             this._setupClientSearchRefresh();
             this._renderSavedCodesList();
             this._refreshClientsDatalist();
@@ -701,6 +702,47 @@ class OrderFormManager {
 
         const suggestion = document.getElementById('newClientSuggestion');
         if (suggestion) suggestion.style.display = 'none';
+    }
+
+    /**
+     * Botón "Limpiar": pide confirmación solo si el usuario ya escribió algo,
+     * para no interrumpir con un diálogo cuando el formulario está vacío.
+     */
+    _setupClearButton() {
+        const clearBtn = document.getElementById('clearOrderFormBtn');
+        if (!clearBtn) return;
+
+        clearBtn.addEventListener('click', async () => {
+            if (!this._hasUnsavedData()) {
+                this._resetFormAfterSubmit();
+                return;
+            }
+
+            const confirmed = await window.ConfirmModal?.show({
+                title: '¿Limpiar formulario?',
+                message: 'Se perderán los datos que hayas escrito en este pedido. Esta acción no se puede deshacer.',
+                confirmLabel: 'Sí, limpiar',
+                cancelLabel: 'Cancelar',
+                danger: true
+            });
+
+            if (confirmed) {
+                this._resetFormAfterSubmit();
+                window.NotificationService?.info('Formulario limpiado');
+            }
+        });
+    }
+
+    /** PRIVATE: ¿hay algo escrito que se perdería al limpiar? */
+    _hasUnsavedData() {
+        const fieldIds = ['clientName', 'clientPhone', 'clientEmail', 'clientAddress', 'notes'];
+        const hasClientData = fieldIds.some((id) => document.getElementById(id)?.value?.trim());
+        const hasProductData = Array.from(document.querySelectorAll('.product-item')).some((item) => {
+            return Array.from(item.querySelectorAll('input[type="text"], input[type="number"]')).some(
+                (input) => input.value && input.value !== '1' && input.value !== '0'
+            );
+        });
+        return hasClientData || hasProductData;
     }
 }
 

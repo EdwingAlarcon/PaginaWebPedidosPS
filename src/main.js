@@ -65,6 +65,9 @@ class Application {
             this._setupTabNavigation();
             this._setupSidebar();
 
+            // 9b. Estado de conexión/sincronización + sesión OneDrive (B2)
+            window.ConnectionStatus?.initialize();
+
             // 10. Actualizar UI con datos iniciales
             this._updateUI();
 
@@ -131,6 +134,7 @@ class Application {
 
                         this._setupAutoSync();
                         this._updateUI();
+                        window.ConnectionStatus?.refreshAuthUI();
                     } catch (error) {
                         window.NotificationService?.error(`❌ Error en login: ${error.message}`);
                     } finally {
@@ -149,6 +153,7 @@ class Application {
                         await window.AuthManager?.handleLogout();
                         window.NotificationService?.success('✅ Cerraste sesión correctamente');
                         this._updateUI();
+                        window.ConnectionStatus?.refreshAuthUI();
                     } catch (error) {
                         window.NotificationService?.error(`❌ Error en logout: ${error.message}`);
                     } finally {
@@ -193,11 +198,14 @@ class Application {
             if (syncBtn) {
                 syncBtn.addEventListener('click', async () => {
                     window.UIManager?.toggleLoading(true);
+                    window.ConnectionStatus?.setSyncing();
                     try {
                         await window.ExcelManager?.syncInventory();
                         window.NotificationService?.success('✅ Sincronizado con Excel');
+                        window.ConnectionStatus?.refreshAuthUI();
                     } catch (error) {
                         window.NotificationService?.error(`❌ Error en sincronización: ${error.message}`);
+                        window.ConnectionStatus?.setSyncError(error.message);
                     } finally {
                         window.UIManager?.toggleLoading(false);
                     }
@@ -338,11 +346,14 @@ class Application {
         }
 
         this._syncIntervalId = setInterval(async () => {
+            window.ConnectionStatus?.setSyncing();
             try {
                 await window.ExcelManager.syncInventory();
                 console.log('[Main] ✅ Auto-sync completed');
+                window.ConnectionStatus?.refreshAuthUI();
             } catch (error) {
                 console.warn('[Main] ⚠️ Auto-sync failed:', error);
+                window.ConnectionStatus?.setSyncError(error.message);
             }
         }, 5 * 60 * 1000);
 
