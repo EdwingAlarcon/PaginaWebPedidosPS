@@ -71,6 +71,19 @@ falta:
 - [ ] Revocar el Supabase access token compartido durante la sesión desde
   Supabase Account Settings → Access Tokens. El token no fue guardado en el
   repo, pero sí quedó expuesto en el chat.
+- [x] Inventario de stock (productos, movimientos, alertas) migrado a
+  Supabase (`products`, `stock_movements`), con UI de alta de producto,
+  registro de movimiento y listado con alertas en `apps/rotulos/src/app/inventario`,
+  y metricas agregadas en Reportes. La vista de historial de movimientos
+  por producto y la eliminacion de producto desde la UI quedan pendientes
+  (la logica ya existe en `inventory-store.ts` — `listMovements()`,
+  `deleteProduct()` — falta solo conectarla a un componente).
+- [ ] Aplicar la migración `202607161000_create_inventory_schema.sql` en
+  el proyecto Supabase remoto `purpleshop`.
+- [ ] Validar en producción el flujo completo de inventario (crear
+  producto, registrar entrada/salida, ver alertas).
+- [ ] Apagar GitHub Pages y borrar el codigo legacy de la raiz una vez
+  validado el corte.
 
 ## 3. Cosas explícitamente fuera de alcance / no tocar sin permiso
 
