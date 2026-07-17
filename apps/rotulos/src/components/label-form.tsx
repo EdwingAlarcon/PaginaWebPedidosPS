@@ -5,6 +5,7 @@ import { createBlankLabelDraft, defaultSettings } from "@/lib/defaults";
 import { getLabelStore } from "@/lib/label-store";
 import { formatOrderNumber } from "@/lib/order-number";
 import { validateLabelDraft } from "@/lib/validation";
+import { LABEL_SIZES } from "@/lib/types";
 import type { LabelDraft, LabelSettings } from "@/lib/types";
 import { LabelActions } from "@/components/label-actions";
 import { LabelPreview } from "@/components/label-preview";
@@ -68,6 +69,15 @@ export function LabelForm() {
 
   function printDraft() {
     if (!validateDraft()) return;
+    const { widthCm, heightCm } = LABEL_SIZES[draft.size];
+    const styleId = "dynamic-page-size";
+    let styleEl = document.getElementById(styleId) as HTMLStyleElement | null;
+    if (!styleEl) {
+      styleEl = document.createElement("style");
+      styleEl.id = styleId;
+      document.head.appendChild(styleEl);
+    }
+    styleEl.textContent = `@page { size: ${widthCm}cm ${heightCm}cm; margin: 0; }`;
     window.print();
   }
 
@@ -109,7 +119,7 @@ export function LabelForm() {
         <LabelActions onSave={saveDraft} onPrint={printDraft} onDownloadPdf={downloadPdf} />
       </div>
       <div className="preview-rail print-area">
-        <LabelPreview draft={draft} settings={settings} />
+        <LabelPreview draft={draft} />
       </div>
     </div>
   );
