@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { LoginCard } from "./login-card";
+import { ThemeToggle } from "@/components/theme-toggle";
 
 export const metadata: Metadata = {
   title: "Iniciar sesion — PurpleShop",
@@ -14,6 +15,7 @@ export default async function LoginPage({
 
   return (
     <main className="login-screen">
+      <ThemeToggle />
       <section className="login-hero">
         <div className="login-hero-brand">
           <img src="/purple-shop-logo.png" alt="Purple Shop" width={64} height={64} />

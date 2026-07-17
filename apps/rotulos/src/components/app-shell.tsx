@@ -22,6 +22,7 @@ import {
 } from "lucide-react";
 import { UserMenu } from "@/components/user-menu";
 import { SyncStatus } from "@/components/sync-status";
+import { ThemeToggle } from "@/components/theme-toggle";
 
 const COLLAPSE_STORAGE_KEY = "purpleshop.sidebar-collapsed";
 
@@ -153,6 +154,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           ))}
         </nav>
         <div className="legacy-sidebar-footer">
+          <ThemeToggle />
           <SyncStatus />
           <UserMenu />
         </div>
@@ -165,6 +167,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             <h1>{pageMeta.description}</h1>
           </div>
           <div className="legacy-topbar-actions">
+            <ThemeToggle />
             <SyncStatus />
             <UserMenu />
           </div>

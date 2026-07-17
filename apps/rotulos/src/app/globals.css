@@ -250,36 +250,6 @@ body {
   color: var(--color-primary-active);
 }
 
-.auth-panel {
-  display: grid;
-  gap: 8px;
-  border: 1px solid var(--border-color);
-  border-radius: 8px;
-  background: var(--surface);
-  padding: 10px;
-  color: var(--color-primary-active);
-  font-size: 0.82rem;
-  font-weight: 700;
-}
-
-.auth-panel input {
-  min-width: 0;
-  border: 1px solid var(--border-color);
-  border-radius: 6px;
-  padding: 8px;
-  background: var(--surface);
-  color: var(--text-primary);
-}
-
-.auth-panel button {
-  border: 0;
-  border-radius: 6px;
-  background: var(--color-primary);
-  color: var(--text-inverse);
-  padding: 8px;
-  font-weight: 800;
-}
-
 .panel,
 .metric-card {
   border: 1px solid var(--border-color);
@@ -1140,12 +1110,12 @@ body {
 }
 
 .legacy-sidebar.collapsed {
-  width: 88px;
+  width: 72px;
   padding: 22px 12px;
 }
 
 .legacy-sidebar.collapsed ~ .legacy-content-wrap {
-  padding-left: 88px;
+  padding-left: 72px;
 }
 
 .legacy-sidebar.collapsed .nav-link {

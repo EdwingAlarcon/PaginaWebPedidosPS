@@ -6,6 +6,7 @@ import { AppShell } from "@/components/app-shell";
 vi.mock("next/navigation", () => ({ usePathname: () => "/pedidos" }));
 vi.mock("@/components/user-menu", () => ({ UserMenu: () => <div>UserMenu</div> }));
 vi.mock("@/components/sync-status", () => ({ SyncStatus: () => <div>SyncStatus</div> }));
+vi.mock("@/components/theme-toggle", () => ({ ThemeToggle: () => <div>ThemeToggle</div> }));
 
 describe("AppShell", () => {
   beforeEach(() => {
