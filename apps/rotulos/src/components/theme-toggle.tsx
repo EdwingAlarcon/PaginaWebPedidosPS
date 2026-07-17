@@ -18,9 +18,11 @@ export function ThemeToggle() {
   const [theme, setTheme] = useState<Theme>("light");
 
   useEffect(() => {
-    const initial = readInitialTheme();
-    setTheme(initial);
-    document.documentElement.setAttribute("data-theme", initial);
+    Promise.resolve().then(() => {
+      const initial = readInitialTheme();
+      setTheme(initial);
+      document.documentElement.setAttribute("data-theme", initial);
+    });
   }, []);
 
   function toggle() {

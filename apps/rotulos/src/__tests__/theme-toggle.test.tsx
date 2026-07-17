@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react";
+import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it } from "vitest";
 import { ThemeToggle } from "@/components/theme-toggle";
@@ -9,24 +9,24 @@ describe("ThemeToggle", () => {
     document.documentElement.removeAttribute("data-theme");
   });
 
-  it("aplica el tema guardado en localStorage al montar", () => {
+  it("aplica el tema guardado en localStorage al montar", async () => {
     localStorage.setItem("purpleshop.theme", "dark");
 
     render(<ThemeToggle />);
 
-    expect(document.documentElement.getAttribute("data-theme")).toBe("dark");
+    await waitFor(() => expect(document.documentElement.getAttribute("data-theme")).toBe("dark"));
   });
 
-  it("por defecto usa tema claro si no hay preferencia guardada", () => {
+  it("por defecto usa tema claro si no hay preferencia guardada", async () => {
     render(<ThemeToggle />);
 
-    expect(document.documentElement.getAttribute("data-theme")).toBe("light");
+    await waitFor(() => expect(document.documentElement.getAttribute("data-theme")).toBe("light"));
   });
 
   it("alterna el tema al hacer click y lo persiste en localStorage", async () => {
     const user = userEvent.setup();
     render(<ThemeToggle />);
-    expect(document.documentElement.getAttribute("data-theme")).toBe("light");
+    await waitFor(() => expect(document.documentElement.getAttribute("data-theme")).toBe("light"));
 
     await user.click(screen.getByRole("button"));
 
