@@ -1,56 +1,30 @@
-import Image from "next/image";
+import type { LabelDraft } from "@/lib/types";
 import { formatCop, formatDate } from "@/lib/format";
-import type { LabelDraft, LabelSettings } from "@/lib/types";
 
-export function LabelPreview({ draft, settings }: { draft: LabelDraft; settings: LabelSettings }) {
+export function LabelPreview({ draft }: { draft: LabelDraft }) {
+  const isCod = draft.paymentMethod === "contraentrega";
+
   return (
-    <section className="label-canvas" data-testid="label-canvas" aria-label="Vista previa del rotulo">
-      <header className="label-header">
-        <div className="label-brand">
-          <Image src={settings.logoUrl} alt="Logo PurpleShop" width={62} height={62} unoptimized />
-          <div>
-            <strong>PurpleShop</strong>
-            <span>{settings.brandPhrase}</span>
-          </div>
-        </div>
-        <div className="label-social">
-          <Image src={settings.qrUrl} alt="QR de Instagram PurpleShop" width={56} height={56} unoptimized />
-          <span>{settings.instagramUser}</span>
-        </div>
-      </header>
-
-      <div className="label-meta">
-        <strong>{draft.orderNumber || "PS-2026-000001"}</strong>
-        <span>{formatDate(draft.date)}</span>
-        <span>{draft.carrier || "Transportadora"}</span>
-        <span>{draft.packageCount} paquete{draft.packageCount === 1 ? "" : "s"}</span>
-      </div>
-
-      <div className="label-grid">
-        <section className="label-block sender">
-          <h2>Remitente</h2>
-          <p className="person">{draft.sender.name || "PurpleShop"}</p>
-          <p>Tel: {draft.sender.phone || "300 000 0000"}</p>
-          <p>{draft.sender.city || "Ciudad"}, {draft.sender.department || "Departamento"}</p>
-          <p>{draft.sender.address || "Direccion del remitente"}</p>
-        </section>
-        <section className="label-block recipient">
-          <h2>Destinatario</h2>
-          <p className="person">{draft.recipient.fullName || "Nombre del cliente"}</p>
-          <p className="phone">Tel: {draft.recipient.phone || "310 000 0000"}</p>
-          <p>{draft.recipient.city || "Ciudad"}, {draft.recipient.department || "Departamento"}</p>
-          <p className="address recipient-address">{draft.recipient.address || "Direccion completa del destinatario"}</p>
-          <p className="recipient-neighborhood">Barrio: {draft.recipient.neighborhood || "Sector"}</p>
-          <p className="recipient-reference">Ref: {draft.recipient.reference || "Indicaciones de entrega"}</p>
-        </section>
-      </div>
-
-      <footer className="label-footer">
-        <span className={draft.paymentMethod === "contraentrega" ? "cod-badge" : "paid-badge"}>
-          {draft.paymentMethod === "contraentrega" ? `Contraentrega ${formatCop(draft.codAmount)}` : "Pagado"}
-        </span>
-        <span className="recipient-notes">{draft.recipient.notes || "Gracias por comprar en PurpleShop"}</span>
-      </footer>
+    <section className="label-canvas" data-testid="label-canvas" data-size={draft.size} aria-label="Vista previa del rotulo">
+      <span className="lbl-f lbl-sender-name">{draft.sender.name}</span>
+      <span className="lbl-f lbl-sender-phone">{draft.sender.phone}</span>
+      <span className="lbl-f lbl-sender-city">{draft.sender.city}</span>
+      <span className="lbl-f lbl-sender-department">{draft.sender.department}</span>
+      <span className="lbl-f lbl-multiline lbl-sender-address">{draft.sender.address}</span>
+      <span className="lbl-f lbl-recipient-name">{draft.recipient.fullName}</span>
+      <span className="lbl-f lbl-recipient-phone">{draft.recipient.phone}</span>
+      <span className="lbl-f lbl-recipient-department">{draft.recipient.department}</span>
+      <span className="lbl-f lbl-recipient-city">{draft.recipient.city}</span>
+      <span className="lbl-f lbl-multiline lbl-recipient-address">{draft.recipient.address}</span>
+      <span className="lbl-f lbl-recipient-neighborhood">{draft.recipient.neighborhood}</span>
+      <span className="lbl-f lbl-recipient-reference">{draft.recipient.reference}</span>
+      <span className="lbl-f lbl-recipient-notes">{draft.recipient.notes}</span>
+      <span className="lbl-f lbl-order-number">{draft.orderNumber}</span>
+      <span className="lbl-f lbl-date">{formatDate(draft.date)}</span>
+      <span className="lbl-f lbl-carrier">{draft.carrier}</span>
+      <span className="lbl-f lbl-value">{isCod ? formatCop(draft.codAmount) : ""}</span>
+      <span className="lbl-f lbl-packages">{draft.packageCount}</span>
+      <span className={`lbl-f ${isCod ? "lbl-check-cod" : "lbl-check-paid"}`}>&#10003;</span>
     </section>
   );
 }
