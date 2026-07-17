@@ -1058,3 +1058,28 @@ body {
 .user-menu-signout:hover {
   background: var(--hover-bg);
 }
+
+/* ==================== SYNC STATUS ==================== */
+.sync-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--text-secondary);
+}
+
+.sync-status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  background: var(--success-color);
+}
+
+.sync-status[data-state="offline"] .sync-status-dot {
+  background: var(--danger-color);
+}
+
+.sync-status-label {
+  white-space: nowrap;
+}
