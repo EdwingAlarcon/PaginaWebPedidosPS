@@ -1,4 +1,5 @@
 import type { LabelDraft, LabelSettings, OrderNumberConfig } from "@/lib/types";
+import { DEFAULT_LABEL_SIZE } from "@/lib/types";
 
 export const defaultOrderNumberConfig: OrderNumberConfig = {
   prefix: "PS",
@@ -39,6 +40,7 @@ export const defaultSettings: LabelSettings = {
 export function createBlankLabelDraft(): LabelDraft {
   return {
     orderNumber: "",
+    size: DEFAULT_LABEL_SIZE,
     date: new Date().toISOString().slice(0, 10),
     sender: { ...defaultSettings.defaultSender },
     recipient: {
