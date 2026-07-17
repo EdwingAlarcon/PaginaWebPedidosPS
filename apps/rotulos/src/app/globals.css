@@ -391,199 +391,82 @@ body {
 }
 
 .label-canvas {
+  position: relative;
   width: 14cm;
-  height: 11cm;
+  height: 12cm;
   overflow: hidden;
-  border: 1px solid #111111;
   border-radius: 6px;
-  background: #ffffff;
   box-shadow: 0 18px 50px rgba(17, 17, 17, 0.16);
-  color: #111111;
+  color: #1a0630;
   font-family: Arial, Helvetica, sans-serif;
+  container-type: inline-size;
+  background-image: url("/label-template-bg.png");
+  background-size: 100% 100%;
+  background-repeat: no-repeat;
+  background-color: #ffffff;
 }
 
-.label-header {
-  display: flex;
-  height: 2.2cm;
-  align-items: center;
-  justify-content: space-between;
-  background: #6b1fa2;
-  color: #ffffff;
-  padding: 0.22cm 0.35cm;
+.label-canvas[data-size="10x9"] {
+  width: 10cm;
+  height: 9cm;
 }
 
-.label-brand {
-  display: flex;
-  align-items: center;
-  gap: 0.22cm;
+.label-canvas,
+.label-canvas * {
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
 }
 
-.label-brand img {
-  width: 1.38cm;
-  height: 1.38cm;
-  object-fit: contain;
-  border-radius: 4px;
-  background: #ffffff;
-}
-
-.label-brand strong {
-  display: block;
-  font-size: 0.48cm;
-  line-height: 1;
-}
-
-.label-brand span,
-.label-social span {
-  display: block;
-  font-size: 0.24cm;
-}
-
-.label-social {
-  display: grid;
-  justify-items: center;
-  gap: 0.08cm;
-}
-
-.label-social img {
-  width: 1.55cm;
-  height: 1.55cm;
-  object-fit: contain;
-  background: #ffffff;
-  padding: 0.05cm;
-}
-
-.label-meta {
-  display: grid;
-  grid-template-columns: 1.7fr repeat(3, 1fr);
-  border-bottom: 1px solid #111111;
-  font-size: 0.25cm;
-}
-
-.label-meta > * {
-  min-width: 0;
-  border-right: 1px solid #111111;
-  padding: 0.12cm 0.16cm;
-}
-
-.label-meta > *:last-child {
-  border-right: 0;
-}
-
-.label-grid {
-  display: grid;
-  height: 6.7cm;
-  min-height: 0;
-  grid-template-columns: 0.82fr 1.18fr;
-}
-
-.label-block {
-  min-width: 0;
-  min-height: 0;
-  overflow: hidden;
-  border-right: 1px solid #111111;
-  padding: 0.22cm;
-  font-size: 0.25cm;
-}
-
-.label-block:last-child {
-  border-right: 0;
-}
-
-.label-block h2 {
-  margin: 0 0 0.12cm;
-  color: #3b0a57;
-  font-size: 0.26cm;
-  text-transform: uppercase;
-}
-
-.label-block p {
-  margin: 0 0 0.11cm;
-  overflow-wrap: anywhere;
-}
-
-.label-block .person {
-  font-size: 0.36cm;
-  font-weight: 800;
-}
-
-.recipient .person {
-  font-size: 0.48cm;
-}
-
-.recipient .address {
-  min-height: 0;
-  border: 1px solid rgba(17, 17, 17, 0.35);
-  border-radius: 4px;
-  padding: 0.12cm;
-  font-size: 0.34cm;
+/* Datos superpuestos sobre las lineas en blanco de la plantilla
+   (label-template-bg.png). Posiciones en % del contenedor, calculadas
+   a partir de los pixeles de esa imagen (1310x1201) - funcionan igual
+   para los dos tamanos porque el fondo se estira con background-size:
+   100% 100%. */
+.lbl-f {
+  position: absolute;
   font-weight: 700;
-  line-height: 1.18;
-}
-
-.recipient {
-  display: grid;
-  grid-template-rows: auto auto auto minmax(1.65cm, 1fr) auto minmax(0.52cm, 0.74cm);
-  gap: 0.08cm;
-}
-
-.recipient p {
-  margin: 0;
-  min-width: 0;
-  overflow: hidden;
-  overflow-wrap: anywhere;
-}
-
-.recipient .recipient-address {
-  padding: 0.1cm;
-  font-size: 0.29cm;
-  line-height: 1.1;
-}
-
-.recipient-neighborhood {
+  line-height: 1.15;
+  font-size: 2.7cqw;
   white-space: nowrap;
+  overflow: hidden;
   text-overflow: ellipsis;
 }
 
-.recipient-reference {
-  font-size: 0.22cm;
-  line-height: 1.1;
+.lbl-f.lbl-multiline {
+  white-space: normal;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
 }
 
-.label-footer {
-  display: flex;
-  height: 1.34cm;
-  align-items: center;
-  justify-content: space-between;
-  gap: 0.18cm;
-  border-top: 1px solid #111111;
-  padding: 0.18cm 0.25cm;
-  font-size: 0.27cm;
-}
+.lbl-sender-name { top: 40.8%; left: 8.8%; width: 31%; font-size: 3cqw; }
+.lbl-sender-phone { top: 47.4%; left: 8.8%; width: 31%; }
+.lbl-sender-city { top: 54%; left: 8.8%; width: 31%; }
+.lbl-sender-department { top: 60.6%; left: 8.8%; width: 31%; }
+.lbl-sender-address { top: 67%; left: 8.8%; width: 31%; height: 9%; }
 
-.label-footer .recipient-notes {
-  min-width: 0;
-  max-width: 8.8cm;
-  overflow-wrap: anywhere;
-  font-size: 0.22cm;
-  line-height: 1.1;
-}
+.lbl-recipient-name { top: 40.2%; left: 52.3%; width: 43.5%; font-size: 3cqw; }
+.lbl-recipient-phone { top: 45.2%; left: 52.3%; width: 43.5%; }
+.lbl-recipient-department { top: 50.4%; left: 52.3%; width: 19%; }
+.lbl-recipient-city { top: 50.4%; left: 78.6%; width: 17%; }
+.lbl-recipient-address { top: 55.5%; left: 52.3%; width: 43.5%; height: 9%; }
+.lbl-recipient-neighborhood { top: 63%; left: 52.3%; width: 43.5%; }
+.lbl-recipient-reference { top: 67.6%; left: 52.3%; width: 43.5%; }
+.lbl-recipient-notes { top: 72.1%; left: 52.3%; width: 43.5%; }
 
-.cod-badge,
-.paid-badge {
-  border-radius: 999px;
-  padding: 0.12cm 0.24cm;
-  font-weight: 800;
+.lbl-order-number { top: 87.6%; left: 5%; width: 13%; font-size: 1.9cqw; }
+.lbl-date { top: 87.6%; left: 23%; width: 10%; font-size: 1.9cqw; }
+.lbl-carrier { top: 87.6%; left: 38.5%; width: 13.7%; font-size: 1.6cqw; }
+.lbl-value { top: 87.6%; left: 74%; width: 7%; font-size: 1.9cqw; }
+.lbl-packages { top: 87.6%; left: 88%; width: 9%; font-size: 1.9cqw; text-align: center; }
+.lbl-check-paid,
+.lbl-check-cod {
+  top: 88.8%;
+  font-size: 2.2cqw;
+  width: 3%;
 }
-
-.cod-badge {
-  background: #111111;
-  color: #ffffff;
-}
-
-.paid-badge {
-  background: #f5f5f7;
-  color: #111111;
-}
+.lbl-check-paid { left: 55.2%; }
+.lbl-check-cod { left: 62.3%; }
 
 .creator-grid {
   display: grid;
@@ -712,7 +595,6 @@ body {
 
 @media print {
   @page {
-    size: 14cm 11cm;
     margin: 0;
   }
 
@@ -736,9 +618,14 @@ body {
 
   .label-canvas {
     width: 14cm;
-    height: 11cm;
+    height: 12cm;
     border-radius: 0;
     box-shadow: none;
+  }
+
+  .label-canvas[data-size="10x9"] {
+    width: 10cm;
+    height: 9cm;
   }
 }
 
