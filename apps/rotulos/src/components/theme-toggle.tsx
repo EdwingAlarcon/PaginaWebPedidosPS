@@ -1,35 +1,51 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useSyncExternalStore } from "react";
 
 const STORAGE_KEY = "purpleshop.theme";
 
 type Theme = "light" | "dark";
 
-function readInitialTheme(): Theme {
-  if (typeof window === "undefined") return "light";
+const listeners = new Set<() => void>();
+
+function computeTheme(): Theme {
   const stored = window.localStorage.getItem(STORAGE_KEY);
   if (stored === "light" || stored === "dark") return stored;
-  const prefersDark = window.matchMedia?.("(prefers-color-scheme: dark)").matches ?? false;
-  return prefersDark ? "dark" : "light";
+  return window.matchMedia?.("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+}
+
+function subscribe(listener: () => void) {
+  listeners.add(listener);
+  return () => listeners.delete(listener);
+}
+
+function getSnapshot(): Theme {
+  return computeTheme();
+}
+
+function getServerSnapshot(): Theme {
+  return "light";
+}
+
+function applyTheme(theme: Theme) {
+  document.documentElement.setAttribute("data-theme", theme);
+}
+
+function setTheme(theme: Theme) {
+  window.localStorage.setItem(STORAGE_KEY, theme);
+  applyTheme(theme);
+  listeners.forEach((listener) => listener());
 }
 
 export function ThemeToggle() {
-  const [theme, setTheme] = useState<Theme>("light");
+  const theme = useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
 
   useEffect(() => {
-    Promise.resolve().then(() => {
-      const initial = readInitialTheme();
-      setTheme(initial);
-      document.documentElement.setAttribute("data-theme", initial);
-    });
-  }, []);
+    applyTheme(theme);
+  }, [theme]);
 
   function toggle() {
-    const next: Theme = theme === "dark" ? "light" : "dark";
-    setTheme(next);
-    document.documentElement.setAttribute("data-theme", next);
-    window.localStorage.setItem(STORAGE_KEY, next);
+    setTheme(theme === "dark" ? "light" : "dark");
   }
 
   return (

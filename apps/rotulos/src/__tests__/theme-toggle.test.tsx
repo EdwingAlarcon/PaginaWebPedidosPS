@@ -38,4 +38,23 @@ describe("ThemeToggle", () => {
     expect(document.documentElement.getAttribute("data-theme")).toBe("light");
     expect(localStorage.getItem("purpleshop.theme")).toBe("light");
   });
+
+  it("mantiene sincronizados dos instancias del boton al hacer click en una de ellas", async () => {
+    const user = userEvent.setup();
+    render(
+      <>
+        <ThemeToggle />
+        <ThemeToggle />
+      </>,
+    );
+    const [first, second] = screen.getAllByRole("button");
+
+    await waitFor(() => expect(first).toHaveTextContent("☀️"));
+    expect(second).toHaveTextContent("☀️");
+
+    await user.click(first);
+
+    await waitFor(() => expect(first).toHaveTextContent("🌙"));
+    expect(second).toHaveTextContent("🌙");
+  });
 });
