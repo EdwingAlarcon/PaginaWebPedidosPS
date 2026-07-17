@@ -1,10 +1,23 @@
+"use client";
+
 import Link from "next/link";
+import { useEffect, useState } from "react";
 import { getInventoryStore } from "@/lib/inventory-store";
 import { formatCop } from "@/lib/format";
+import type { Product, StockAlerts } from "@/lib/inventory-types";
 
-export default async function ReportsPage() {
-  const store = getInventoryStore();
-  const [products, alerts] = await Promise.all([store.listProducts(), store.getStockAlerts()]);
+const emptyAlerts: StockAlerts = { lowStock: [], critical: [], overstocked: [] };
+
+export default function ReportsPage() {
+  const [products, setProducts] = useState<Product[]>([]);
+  const [alerts, setAlerts] = useState<StockAlerts>(emptyAlerts);
+
+  useEffect(() => {
+    const store = getInventoryStore();
+    store.listProducts().then(setProducts).catch(() => setProducts([]));
+    store.getStockAlerts().then(setAlerts).catch(() => setAlerts(emptyAlerts));
+  }, []);
+
   const totalValue = products.reduce((sum, product) => sum + product.currentStock * product.unitPrice, 0);
 
   return (
