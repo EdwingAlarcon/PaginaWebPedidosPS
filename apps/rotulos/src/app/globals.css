@@ -848,9 +848,17 @@ body {
 
 /* ==================== LOGIN ==================== */
 .login-screen {
+  position: relative;
   display: grid;
   grid-template-columns: 1.1fr 1fr;
   min-height: 100vh;
+}
+
+.login-theme-toggle {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  z-index: 1;
 }
 
 .login-hero {

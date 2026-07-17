@@ -15,7 +15,9 @@ export default async function LoginPage({
 
   return (
     <main className="login-screen">
-      <ThemeToggle />
+      <div className="login-theme-toggle">
+        <ThemeToggle />
+      </div>
       <section className="login-hero">
         <div className="login-hero-brand">
           <img src="/purple-shop-logo.png" alt="Purple Shop" width={64} height={64} />
