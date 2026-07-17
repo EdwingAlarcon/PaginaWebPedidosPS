@@ -57,4 +57,5 @@ Fecha de última revisión: 2026-07-16
 - [x] Aplicar la migración Supabase (`202607150001_create_rotulos_schema.sql`) en el proyecto remoto antes de producción.
 - [ ] Validar manualmente login por magic link y creación real de pedido/rótulo desde `https://rotulos-xi.vercel.app`.
 - [x] Completar migración 1:1 de Inventario y Reportes contra Supabase; las rutas ya existen, pero Inventario está como base inicial. Inventario y Reportes ya están conectados a Supabase (`products`/`stock_movements`), con fallback local vía `inventory-store.ts`.
+- [ ] Construir la vista de historial de movimientos por producto y la accion de eliminar producto en la UI de Inventario — `listMovements()` y `deleteProduct()` ya existen y estan probados en `inventory-store.ts`, pero no tienen UI que los invoque todavia. El MVP actual solo cubre alta de producto, registro de movimiento y listado con alertas.
 - [ ] Validar manualmente impresión física/PDF con la impresora final a escala 100%.

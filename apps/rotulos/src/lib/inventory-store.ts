@@ -18,7 +18,7 @@ export type InventoryStore = {
   getStockAlerts(): Promise<StockAlerts>;
 };
 
-type ProductRow = {
+export type ProductRow = {
   id: string;
   name: string;
   category: string;
@@ -32,7 +32,7 @@ type ProductRow = {
   updated_at: string;
 };
 
-type StockMovementRow = {
+export type StockMovementRow = {
   id: string;
   product_id: string;
   type: StockMovementDraft["type"];
@@ -47,7 +47,7 @@ const storageKeys = {
   movements: "purpleshop.inventory.movements",
 };
 
-function rowToProduct(row: ProductRow): Product {
+export function rowToProduct(row: ProductRow): Product {
   return {
     id: row.id,
     name: row.name,
@@ -63,7 +63,7 @@ function rowToProduct(row: ProductRow): Product {
   };
 }
 
-function rowToMovement(row: StockMovementRow): StockMovement {
+export function rowToMovement(row: StockMovementRow): StockMovement {
   return {
     id: row.id,
     productId: row.product_id,
