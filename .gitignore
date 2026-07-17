@@ -82,3 +82,6 @@ debug.log
 apps/rotulos/qa-artifacts/
 apps/rotulos/*server*.log
 apps/rotulos/test-results/
+
+# Grafo de conocimiento generado por graphify (regenerable con `graphify update .`)
+graphify-out/
