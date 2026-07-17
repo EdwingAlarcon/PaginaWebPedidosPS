@@ -5,11 +5,11 @@ import { useEffect, useState } from "react";
 type ConnectionState = "online" | "offline";
 
 export function SyncStatus() {
-  const [state, setState] = useState<ConnectionState>(() =>
-    navigator.onLine ? "online" : "offline"
-  );
+  const [state, setState] = useState<ConnectionState>("online");
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setState(navigator.onLine ? "online" : "offline");
     const handleOnline = () => setState("online");
     const handleOffline = () => setState("offline");
     window.addEventListener("online", handleOnline);
