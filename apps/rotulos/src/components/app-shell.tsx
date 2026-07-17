@@ -2,6 +2,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { Archive, BarChart3, ClipboardList, Home, PackagePlus, Receipt, Settings, Tags, Users } from "lucide-react";
 import { AuthPanel } from "@/components/auth-panel";
+import { ThemeToggle } from "@/components/theme-toggle";
 
 export function AppShell({ children }: { children: React.ReactNode }) {
   const navItems = [
@@ -38,6 +39,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           })}
         </nav>
         <div className="legacy-sidebar-footer">
+          <ThemeToggle />
           <AuthPanel />
         </div>
       </aside>
@@ -47,7 +49,10 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             <p>Purple Shop Online</p>
             <h1>Sistema de Gestion de Pedidos e Inventario</h1>
           </div>
-          <AuthPanel />
+          <div className="legacy-topbar-actions">
+            <ThemeToggle />
+            <AuthPanel />
+          </div>
         </header>
         <header className="legacy-mobile-header">
           <div className="legacy-brand compact">
