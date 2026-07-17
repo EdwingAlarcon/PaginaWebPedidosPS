@@ -1,6 +1,6 @@
 "use client";
 
-import { useLayoutEffect, useState } from "react";
+import { useEffect, useState } from "react";
 
 const STORAGE_KEY = "purpleshop.theme";
 
@@ -15,11 +15,13 @@ function readInitialTheme(): Theme {
 }
 
 export function ThemeToggle() {
-  const [theme, setTheme] = useState<Theme>(() => readInitialTheme());
+  const [theme, setTheme] = useState<Theme>("light");
 
-  useLayoutEffect(() => {
-    document.documentElement.setAttribute("data-theme", theme);
-  }, [theme]);
+  useEffect(() => {
+    const initial = readInitialTheme();
+    setTheme(initial);
+    document.documentElement.setAttribute("data-theme", initial);
+  }, []);
 
   function toggle() {
     const next: Theme = theme === "dark" ? "light" : "dark";
