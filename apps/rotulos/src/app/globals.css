@@ -1007,3 +1007,54 @@ body {
     max-width: none;
   }
 }
+
+/* ==================== USER MENU ==================== */
+.user-menu {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.user-menu-avatar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 999px;
+  background: var(--purple-100);
+  color: var(--purple-800);
+  font-size: 0.72rem;
+  font-weight: 800;
+  flex-shrink: 0;
+}
+
+[data-theme="dark"] .user-menu-avatar {
+  background: var(--purple-900);
+  color: var(--purple-200);
+}
+
+.user-menu-email {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 160px;
+  color: var(--text-secondary);
+  font-size: 0.82rem;
+  font-weight: 700;
+}
+
+.user-menu-signout {
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  background: var(--surface);
+  color: var(--text-primary);
+  padding: 6px 10px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.user-menu-signout:hover {
+  background: var(--hover-bg);
+}
