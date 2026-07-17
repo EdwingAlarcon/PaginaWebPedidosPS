@@ -875,3 +875,135 @@ body {
   -webkit-backdrop-filter: var(--glass-blur);
   backdrop-filter: var(--glass-blur);
 }
+
+/* ==================== LOGIN ==================== */
+.login-screen {
+  display: grid;
+  grid-template-columns: 1.1fr 1fr;
+  min-height: 100vh;
+}
+
+.login-hero {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 20px;
+  padding: 48px;
+  color: var(--text-inverse);
+  background: var(--gradient-brand, linear-gradient(135deg, var(--purple-800) 0%, var(--purple-600) 60%, var(--color-secondary) 100%));
+}
+
+.login-hero-brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 1.1rem;
+  font-weight: 800;
+}
+
+.login-hero .text-display {
+  color: var(--text-inverse);
+  max-width: 26ch;
+}
+
+.login-benefits {
+  display: grid;
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-weight: 600;
+  opacity: 0.95;
+}
+
+.login-benefits li {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.login-benefits li::before {
+  content: "";
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  background: var(--text-inverse);
+  flex-shrink: 0;
+}
+
+.login-panel {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 32px;
+  background: var(--background);
+}
+
+.login-card {
+  display: grid;
+  gap: 14px;
+  width: 100%;
+  max-width: 380px;
+  padding: 32px;
+  border-radius: 16px;
+  background: var(--surface);
+  border: 1px solid var(--border-color);
+  box-shadow: 0 24px 60px rgba(17, 24, 39, 0.08);
+}
+
+.login-card-subtitle {
+  margin: -6px 0 4px;
+  color: var(--text-secondary);
+}
+
+.login-microsoft-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  min-height: 48px;
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
+  background: var(--surface);
+  color: var(--text-primary);
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.login-microsoft-btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.login-microsoft-btn:hover:not(:disabled) {
+  background: var(--hover-bg);
+}
+
+.login-card-error {
+  margin: 0;
+  color: var(--danger-color);
+  font-size: 0.88rem;
+  font-weight: 700;
+}
+
+.login-card-notice {
+  margin: 4px 0 0;
+  color: var(--text-tertiary);
+  font-size: 0.78rem;
+}
+
+@media (max-width: 900px) {
+  .login-screen {
+    grid-template-columns: 1fr;
+  }
+
+  .login-hero {
+    padding: 32px 24px;
+    min-height: 260px;
+  }
+
+  .login-hero .text-display {
+    font-size: 1.5rem;
+    max-width: none;
+  }
+}
