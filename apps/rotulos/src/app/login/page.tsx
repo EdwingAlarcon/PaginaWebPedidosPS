@@ -27,7 +27,7 @@ export default async function LoginPage({
       </div>
 
       <div className="login-card w-full max-w-[440px] rounded-lg border border-border bg-surface p-9 shadow-card">
-        <div className="flex items-center gap-3">
+        <div className="flex items-center justify-center gap-3">
           <img
             src="/purple-shop-logo.png"
             alt=""
