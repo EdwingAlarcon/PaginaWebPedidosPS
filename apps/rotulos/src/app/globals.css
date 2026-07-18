@@ -869,78 +869,60 @@ body {
 /* ==================== LOGIN ==================== */
 .login-screen {
   position: relative;
-  display: grid;
-  grid-template-columns: 2fr 3fr;
+  display: flex;
   min-height: 100vh;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  padding: 24px;
+  background: var(--background);
+}
+
+.login-screen::before {
+  content: "";
+  position: absolute;
+  inset: -20%;
+  z-index: 0;
+  background:
+    radial-gradient(circle at 28% 22%, var(--purple-100) 0%, transparent 45%),
+    radial-gradient(circle at 78% 78%, var(--purple-50) 0%, transparent 42%);
+  opacity: 0.8;
+  pointer-events: none;
+}
+
+[data-theme="dark"] .login-screen::before {
+  background:
+    radial-gradient(circle at 28% 22%, var(--purple-900) 0%, transparent 45%),
+    radial-gradient(circle at 78% 78%, var(--purple-950) 0%, transparent 42%);
+  opacity: 0.4;
 }
 
 .login-theme-toggle {
   position: absolute;
   top: 20px;
   right: 20px;
+  z-index: 2;
+}
+
+.login-card {
+  position: relative;
   z-index: 1;
 }
 
-.login-hero {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  gap: 20px;
-  padding: 48px;
-  color: var(--text-inverse);
-  background: linear-gradient(160deg, var(--purple-900) 0%, var(--purple-700) 100%);
-}
-
-.login-hero-brand {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  font-size: 1.1rem;
-  font-weight: 800;
-}
-
-.login-hero .text-display {
-  color: var(--text-inverse);
-  max-width: 26ch;
-}
-
-.login-benefits {
-  display: grid;
-  gap: 10px;
-  margin: 0;
-  padding: 0;
-  list-style: none;
-  font-weight: 600;
-  opacity: 0.95;
-}
-
-.login-benefits li {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.login-panel {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 32px;
-  background: var(--background);
-}
-
-@media (max-width: 900px) {
+@media (max-width: 480px) {
   .login-screen {
-    grid-template-columns: 1fr;
+    padding: 0;
   }
 
-  .login-hero {
-    padding: 32px 24px;
-    min-height: 260px;
-  }
-
-  .login-hero .text-display {
-    font-size: 1.5rem;
+  .login-card {
     max-width: none;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    border: none;
+    border-radius: 0;
+    box-shadow: none;
   }
 }
 
