@@ -254,26 +254,6 @@ body {
   padding: 28px;
 }
 
-.page-heading {
-  margin-bottom: 24px;
-}
-
-.page-heading p {
-  margin: 0 0 6px;
-  color: var(--color-primary);
-  font-size: 0.82rem;
-  font-weight: 700;
-  text-transform: uppercase;
-}
-
-.page-heading h1 {
-  margin: 0;
-  color: var(--foreground);
-  font-size: 1.75rem;
-  font-weight: 700;
-  line-height: 1.25;
-}
-
 .nav-link,
 .mobile-nav-link {
   display: inline-flex;
@@ -521,96 +501,11 @@ body {
   gap: 14px;
 }
 
-.form-section {
-  border: 1px solid var(--border-color);
-  border-radius: 8px;
-  background: var(--surface);
-  padding: 16px;
-}
-
-.form-section legend {
-  color: var(--color-primary-active);
-  font-weight: 800;
-}
-
-.field {
-  display: grid;
-  gap: 6px;
-  margin-top: 12px;
-}
-
-.field span {
-  font-size: 0.82rem;
-  font-weight: 700;
-  color: var(--text-primary);
-}
-
-.field input,
-.field select,
-.field textarea {
-  width: 100%;
-  border: 1px solid var(--border-color);
-  border-radius: 6px;
-  padding: 10px 11px;
-  font: inherit;
-  background: var(--surface);
-  color: var(--text-primary);
-}
-
-.field small {
-  color: var(--danger-color);
-}
-
-.field .field-hint {
-  color: var(--text-secondary);
-}
-
 .validation-summary {
   min-height: 0;
   color: var(--danger-color);
   font-size: 0.88rem;
   font-weight: 700;
-}
-
-.button-primary,
-.button-secondary {
-  min-height: 40px;
-  border: 1px solid transparent;
-  border-radius: 8px;
-  padding: 0 16px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: background-color 160ms ease, border-color 160ms ease;
-}
-
-.button-primary {
-  background: var(--primary);
-  color: var(--primary-foreground);
-}
-
-.button-primary:hover:not(:disabled) {
-  background: var(--primary-hover);
-}
-
-.button-secondary {
-  background: var(--surface);
-  color: var(--foreground);
-  border-color: var(--border);
-}
-
-.button-secondary:hover:not(:disabled) {
-  background: var(--surface-muted);
-}
-
-.button-primary:focus-visible,
-.button-secondary:focus-visible {
-  outline: 2px solid var(--focus-ring);
-  outline-offset: 2px;
-}
-
-.button-secondary:disabled {
-  cursor: not-allowed;
-  opacity: 0.5;
 }
 
 .preview-rail {
@@ -1014,8 +909,8 @@ body {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 32px;
-  height: 32px;
+  width: 40px;
+  height: 40px;
   border: 1px solid var(--border-color);
   border-radius: 8px;
   background: var(--surface);
