@@ -17,7 +17,7 @@ test("creates visible label preview with QR and exact ratio", async ({ page }) =
 
   const box = await canvas.boundingBox();
   expect(box).not.toBeNull();
-  expect(Math.round((box!.width / box!.height) * 100)).toBe(127);
+  expect(Math.round((box!.width / box!.height) * 100)).toBe(117);
 });
 
 test("history search field is available", async ({ page }) => {

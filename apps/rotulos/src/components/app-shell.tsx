@@ -114,7 +114,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       <aside className={`legacy-sidebar${collapsed ? " collapsed" : ""}`}>
         <div className="legacy-sidebar-header">
           <div className="legacy-brand">
-            <Image src="/purple-shop-logo.png" alt="Purple Shop" width={40} height={40} priority />
+            <Image src="/purple-shop-logo.png" alt="Purple Shop" width={40} height={40} priority className="size-10" />
             {!collapsed && (
               <div>
                 <strong>Purple Shop</strong>

@@ -42,7 +42,7 @@ export function LoginCard({ initialUnauthorized }: { initialUnauthorized: boolea
             loading={status === "loading"}
           >
             {status !== "loading" && (
-              <img src="/microsoft-logo.svg" alt="" width={18} height={18} aria-hidden="true" />
+              <img src="/microsoft-logo.svg" alt="" width={18} height={18} aria-hidden="true" className="size-[18px]" />
             )}
             {status === "loading" ? "Conectando..." : "Continuar con Microsoft"}
           </Button>

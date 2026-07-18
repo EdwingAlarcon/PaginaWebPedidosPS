@@ -27,7 +27,7 @@ export default async function LoginPage({
       </div>
       <section className="login-hero">
         <div className="login-hero-brand">
-          <img src="/purple-shop-logo.png" alt="" width={48} height={48} />
+          <img src="/purple-shop-logo.png" alt="" width={48} height={48} className="size-12" />
           <span>Purple Shop</span>
         </div>
         <h1 className="text-display">Gestiona pedidos, clientes y envios en un solo lugar</h1>

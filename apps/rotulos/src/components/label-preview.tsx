@@ -25,6 +25,8 @@ export function LabelPreview({ draft }: { draft: LabelDraft }) {
       <span className="lbl-f lbl-value">{isCod ? formatCop(draft.codAmount) : ""}</span>
       <span className="lbl-f lbl-packages">{draft.packageCount}</span>
       <span className={`lbl-f ${isCod ? "lbl-check-cod" : "lbl-check-paid"}`}>&#10003;</span>
+      {/* eslint-disable-next-line @next/next/no-img-element -- capa accesible sobre el QR ya impreso en label-template-bg.png; no se imprime */}
+      <img src="/purple-shop-qr.png" alt="QR de Instagram PurpleShop" className="lbl-qr-a11y" />
     </section>
   );
 }

@@ -493,6 +493,22 @@ body {
 .lbl-check-paid { left: 55.2%; }
 .lbl-check-cod { left: 62.3%; }
 
+/*
+ * El QR ya esta impreso en label-template-bg.png (diseno fijo, con logo de
+ * Instagram). Esta capa no se ve ni se imprime: solo le da nombre accesible
+ * al QR para lectores de pantalla, posicionada exactamente sobre el grafico
+ * real para que un lector de pantalla lo anuncie en el lugar correcto.
+ */
+.lbl-qr-a11y {
+  position: absolute;
+  top: 3.7%;
+  left: 63%;
+  width: 19.5%;
+  height: 23%;
+  opacity: 0;
+  pointer-events: none;
+}
+
 .creator-grid {
   display: grid;
   gap: 24px;
