@@ -1,16 +1,13 @@
 {
   "name": "paginawebpedidosps",
   "version": "1.0.0",
-  "description": "Sistema web accesible para registrar pedidos de negocio con integración a Excel en OneDrive",
-  "main": "index.html",
+  "description": "Purple Shop - gestion de pedidos, inventario y rotulos (Next.js/Supabase)",
   "scripts": {
-    "start": "python -m http.server 8000",
-    "serve": "npx http-server -p 8000",
-    "rotulos:dev": "npm --prefix apps/rotulos run dev",
-    "rotulos:build": "npm --prefix apps/rotulos run build",
-    "rotulos:test": "npm --prefix apps/rotulos run test",
-    "rotulos:e2e": "npm --prefix apps/rotulos run test:e2e",
-    "rotulos:qa": "npm --prefix apps/rotulos run qa:final"
+    "dev": "npm --prefix apps/rotulos run dev",
+    "build": "npm --prefix apps/rotulos run build",
+    "test": "npm --prefix apps/rotulos run test",
+    "test:e2e": "npm --prefix apps/rotulos run test:e2e",
+    "qa": "npm --prefix apps/rotulos run qa:final"
   },
   "repository": {
     "type": "git",
@@ -18,10 +15,10 @@
   },
   "keywords": [
     "pedidos",
-    "onedrive",
-    "excel",
-    "microsoft-graph",
-    "order-management",
+    "inventario",
+    "rotulos",
+    "supabase",
+    "nextjs",
     "business",
     "accessibility",
     "responsive"
