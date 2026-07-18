@@ -1,53 +1,38 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, type FormEvent } from "react";
 import { getInventoryStore } from "@/lib/inventory-store";
 import type { Product, StockMovementType } from "@/lib/inventory-types";
+import { FormField } from "@/components/ui/form-field";
+import { Input, Select } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Alert } from "@/components/ui/alert";
+
+const MOVEMENT_TYPES: { value: StockMovementType; label: string }[] = [
+  { value: "entrada", label: "Entrada" },
+  { value: "salida", label: "Salida" },
+  { value: "ajuste", label: "Ajuste" },
+  { value: "transferencia", label: "Transferencia" },
+];
 
 export function StockMovementForm({ onSaved }: { onSaved: () => void }) {
   const [products, setProducts] = useState<Product[]>([]);
-  const [status, setStatus] = useState("");
-
-  const [name, setName] = useState("");
-  const [category, setCategory] = useState("");
-  const [sku, setSku] = useState("");
-  const [unitPrice, setUnitPrice] = useState("");
-  const [minStock, setMinStock] = useState("5");
-  const [maxStock, setMaxStock] = useState("");
-
   const [productId, setProductId] = useState("");
   const [type, setType] = useState<StockMovementType>("entrada");
   const [quantity, setQuantity] = useState("");
   const [reason, setReason] = useState("");
   const [supplier, setSupplier] = useState("");
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState("");
 
   useEffect(() => {
     getInventoryStore().listProducts().then(setProducts).catch(() => setProducts([]));
   }, []);
 
-  async function handleCreateProduct(event: React.FormEvent) {
+  async function handleSubmit(event: FormEvent) {
     event.preventDefault();
-    setStatus("");
-    try {
-      await getInventoryStore().saveProduct({
-        name,
-        category,
-        sku,
-        unitPrice: Number(unitPrice) || 0,
-        minStock: Number(minStock) || 0,
-        maxStock: maxStock ? Number(maxStock) : null,
-      });
-      setName(""); setCategory(""); setSku(""); setUnitPrice(""); setMinStock("5"); setMaxStock("");
-      setProducts(await getInventoryStore().listProducts());
-      onSaved();
-    } catch {
-      setStatus("No se pudo guardar el producto.");
-    }
-  }
-
-  async function handleRecordMovement(event: React.FormEvent) {
-    event.preventDefault();
-    setStatus("");
+    setError("");
+    setSaving(true);
     try {
       await getInventoryStore().recordMovement({
         productId,
@@ -56,78 +41,57 @@ export function StockMovementForm({ onSaved }: { onSaved: () => void }) {
         reason,
         supplier,
       });
-      setQuantity(""); setReason(""); setSupplier("");
+      setQuantity("");
+      setReason("");
+      setSupplier("");
       onSaved();
-    } catch (error) {
-      setStatus(error instanceof Error && error.message === "stock_insuficiente" ? "Stock insuficiente para esa salida." : "No se pudo registrar el movimiento.");
+    } catch (movementError) {
+      setError(
+        movementError instanceof Error && movementError.message === "stock_insuficiente"
+          ? "Stock insuficiente para esa salida."
+          : "No se pudo registrar el movimiento.",
+      );
+    } finally {
+      setSaving(false);
     }
   }
 
   return (
-    <div className="business-forms-grid">
-      <form className="panel" onSubmit={handleCreateProduct}>
-        <div className="panel-title">Nuevo producto</div>
-        <label className="field">
-          <span>Nombre del producto</span>
-          <input value={name} onChange={(event) => setName(event.target.value)} required />
-        </label>
-        <label className="field">
-          <span>Categoria</span>
-          <input value={category} onChange={(event) => setCategory(event.target.value)} required />
-        </label>
-        <label className="field">
-          <span>SKU</span>
-          <input value={sku} onChange={(event) => setSku(event.target.value)} />
-        </label>
-        <label className="field">
-          <span>Precio</span>
-          <input type="number" value={unitPrice} onChange={(event) => setUnitPrice(event.target.value)} required />
-        </label>
-        <label className="field">
-          <span>Stock minimo</span>
-          <input type="number" value={minStock} onChange={(event) => setMinStock(event.target.value)} />
-        </label>
-        <label className="field">
-          <span>Stock maximo</span>
-          <input type="number" value={maxStock} onChange={(event) => setMaxStock(event.target.value)} />
-        </label>
-        <button type="submit" className="primary-action">Guardar producto</button>
-      </form>
-      <form className="panel" onSubmit={handleRecordMovement}>
-        <div className="panel-title">Registrar movimiento</div>
-        <label className="field">
-          <span>Producto</span>
-          <select value={productId} onChange={(event) => setProductId(event.target.value)} required>
-            <option value="" disabled>Selecciona un producto</option>
-            {products.map((product) => (
-              <option key={product.id} value={product.id}>{product.name}</option>
-            ))}
-          </select>
-        </label>
-        <label className="field">
-          <span>Tipo de movimiento</span>
-          <select value={type} onChange={(event) => setType(event.target.value as StockMovementType)}>
-            <option value="entrada">Entrada</option>
-            <option value="salida">Salida</option>
-            <option value="ajuste">Ajuste</option>
-            <option value="transferencia">Transferencia</option>
-          </select>
-        </label>
-        <label className="field">
-          <span>Cantidad</span>
-          <input type="number" value={quantity} onChange={(event) => setQuantity(event.target.value)} required />
-        </label>
-        <label className="field">
-          <span>Motivo</span>
-          <input value={reason} onChange={(event) => setReason(event.target.value)} />
-        </label>
-        <label className="field">
-          <span>Proveedor</span>
-          <input value={supplier} onChange={(event) => setSupplier(event.target.value)} />
-        </label>
-        <button type="submit" className="primary-action">Registrar movimiento</button>
-      </form>
-      {status && <p role="alert">{status}</p>}
-    </div>
+    <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+      {error ? <Alert variant="danger">{error}</Alert> : null}
+      <FormField label="Producto" required>
+        <Select value={productId} onChange={(event) => setProductId(event.target.value)} required>
+          <option value="" disabled>
+            Selecciona un producto
+          </option>
+          {products.map((product) => (
+            <option key={product.id} value={product.id}>
+              {product.name}
+            </option>
+          ))}
+        </Select>
+      </FormField>
+      <FormField label="Tipo de movimiento">
+        <Select value={type} onChange={(event) => setType(event.target.value as StockMovementType)}>
+          {MOVEMENT_TYPES.map((option) => (
+            <option key={option.value} value={option.value}>
+              {option.label}
+            </option>
+          ))}
+        </Select>
+      </FormField>
+      <FormField label="Cantidad" required>
+        <Input type="number" min={1} value={quantity} onChange={(event) => setQuantity(event.target.value)} required />
+      </FormField>
+      <FormField label="Motivo">
+        <Input value={reason} onChange={(event) => setReason(event.target.value)} />
+      </FormField>
+      <FormField label="Proveedor">
+        <Input value={supplier} onChange={(event) => setSupplier(event.target.value)} />
+      </FormField>
+      <Button type="submit" loading={saving} className="mt-2">
+        Registrar movimiento
+      </Button>
+    </form>
   );
 }

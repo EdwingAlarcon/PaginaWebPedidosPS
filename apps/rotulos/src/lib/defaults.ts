@@ -1,5 +1,5 @@
 import type { LabelDraft, LabelSettings, OrderNumberConfig } from "@/lib/types";
-import { DEFAULT_LABEL_SIZE } from "@/lib/types";
+import { DEFAULT_LABEL_SIZE, LABEL_SIZES } from "@/lib/types";
 
 export const defaultOrderNumberConfig: OrderNumberConfig = {
   prefix: "PS",
@@ -32,7 +32,10 @@ export const defaultSettings: LabelSettings = {
     paper: "#F5F5F7",
     ink: "#111111",
   },
-  labelSize: { widthCm: 14, heightCm: 11 },
+  labelSize: {
+    widthCm: LABEL_SIZES[DEFAULT_LABEL_SIZE].widthCm,
+    heightCm: LABEL_SIZES[DEFAULT_LABEL_SIZE].heightCm,
+  },
   defaultTemplate: "purpleshop-classic",
   orderNumberConfig: defaultOrderNumberConfig,
 };

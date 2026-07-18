@@ -1,0 +1,26 @@
+import { forwardRef } from "react";
+import type { InputHTMLAttributes } from "react";
+import { Calendar } from "lucide-react";
+import { cn } from "@/lib/cn";
+
+export const DatePicker = forwardRef<
+  HTMLInputElement,
+  Omit<InputHTMLAttributes<HTMLInputElement>, "type">
+>(({ className, ...props }, ref) => (
+  <div className="relative">
+    <Calendar
+      className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-foreground-muted"
+      aria-hidden="true"
+    />
+    <input
+      ref={ref}
+      type="date"
+      className={cn(
+        "h-10 w-full rounded-md border border-border bg-surface pl-9 pr-3 text-sm text-foreground transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring disabled:cursor-not-allowed disabled:opacity-50",
+        className,
+      )}
+      {...props}
+    />
+  </div>
+));
+DatePicker.displayName = "DatePicker";

@@ -14,24 +14,6 @@ describe("StockMovementForm", () => {
     localStorage.clear();
   });
 
-  it("crea un producto nuevo con el formulario de alta", async () => {
-    const user = userEvent.setup();
-    const onSaved = vi.fn();
-    render(<StockMovementForm onSaved={onSaved} />);
-
-    await user.type(screen.getByLabelText(/nombre del producto/i), "Perfume 100ml");
-    await user.type(screen.getByLabelText(/categoria/i), "perfumes");
-    await user.type(screen.getByLabelText(/precio/i), "60000");
-    await user.click(screen.getByRole("button", { name: /guardar producto/i }));
-
-    await waitFor(async () => {
-      const products = await createLocalInventoryStore().listProducts();
-      expect(products).toHaveLength(1);
-      expect(products[0].name).toBe("Perfume 100ml");
-    });
-    expect(onSaved).toHaveBeenCalled();
-  });
-
   it("registra un movimiento de entrada para un producto existente", async () => {
     const user = userEvent.setup();
     const store = createLocalInventoryStore();
@@ -46,7 +28,7 @@ describe("StockMovementForm", () => {
       expect(screen.getByRole("option", { name: "Medias largas" })).toBeInTheDocument();
     });
 
-    await user.selectOptions(screen.getByLabelText(/^producto$/i), product.id);
+    await user.selectOptions(screen.getByLabelText(/^producto/i), product.id);
     await user.selectOptions(screen.getByLabelText(/tipo de movimiento/i), "entrada");
     await user.type(screen.getByLabelText(/cantidad/i), "10");
     await user.click(screen.getByRole("button", { name: /registrar movimiento/i }));

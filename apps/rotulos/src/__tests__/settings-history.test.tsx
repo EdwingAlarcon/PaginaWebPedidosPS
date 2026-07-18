@@ -1,10 +1,20 @@
 import { fireEvent, render, screen } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it } from "vitest";
 import { SettingsForm } from "@/components/settings-form";
 import { HistoryTable } from "@/components/history-table";
+import { ToastProvider } from "@/components/ui/toast";
 import { createBlankLabelDraft } from "@/lib/defaults";
 import { getLabelStore } from "@/lib/label-store";
 import type { LabelRecord } from "@/lib/types";
+
+function renderHistoryTable(labels: LabelRecord[]) {
+  return render(
+    <ToastProvider>
+      <HistoryTable labels={labels} />
+    </ToastProvider>,
+  );
+}
 
 function createLabel(id: string, fullName: string, phone: string): LabelRecord {
   return {
@@ -68,7 +78,7 @@ describe("HistoryTable", () => {
   });
 
   it("filters labels by recipient name", () => {
-    render(<HistoryTable labels={[createLabel("1", "Ana Perez", "3001111111"), createLabel("2", "Luis Gomez", "3002222222")]} />);
+    renderHistoryTable([createLabel("1", "Ana Perez", "3001111111"), createLabel("2", "Luis Gomez", "3002222222")]);
 
     fireEvent.change(screen.getByLabelText("Buscar por numero de pedido, cliente o telefono"), { target: { value: "luis" } });
 
@@ -81,7 +91,7 @@ describe("HistoryTable", () => {
     ana.date = "2026-07-15";
     const luis = createLabel("2", "Luis Gomez", "3002222222");
     luis.date = "2026-07-15";
-    render(<HistoryTable labels={[ana, luis]} />);
+    renderHistoryTable([ana, luis]);
 
     expect(screen.getByText("Fecha")).toBeInTheDocument();
     expect(screen.getAllByText("2026-07-15")).toHaveLength(2);
@@ -95,12 +105,19 @@ describe("HistoryTable", () => {
     expect(screen.queryByText("Ana Perez")).not.toBeInTheDocument();
   });
 
-  it("removes a deleted label from the local table and announces the action", async () => {
-    render(<HistoryTable labels={[createLabel("1", "Ana Perez", "3001111111")]} />);
+  it("removes a deleted label from the local table after confirming", async () => {
+    const store = getLabelStore();
+    const draft = createBlankLabelDraft();
+    draft.recipient.fullName = "Ana Perez";
+    const saved = await store.saveLabel(draft, await store.getSettings());
+    const user = userEvent.setup();
+    renderHistoryTable([saved]);
 
-    fireEvent.click(screen.getByRole("button", { name: "Eliminar" }));
+    await user.click(screen.getByRole("button", { name: `Acciones para el rotulo ${saved.orderNumber}` }));
+    await user.click(screen.getByRole("menuitem", { name: "Eliminar" }));
+    await user.click(screen.getByRole("button", { name: "Eliminar" }));
 
-    expect(await screen.findByRole("status")).toHaveTextContent("Etiqueta eliminada.");
+    expect(await screen.findByText("Etiqueta eliminada.")).toBeInTheDocument();
     expect(screen.queryByText("Ana Perez")).not.toBeInTheDocument();
   });
 
@@ -109,11 +126,13 @@ describe("HistoryTable", () => {
     const draft = createBlankLabelDraft();
     draft.recipient.fullName = "Ana Perez";
     const saved = await store.saveLabel(draft, await store.getSettings());
+    const user = userEvent.setup();
 
-    render(<HistoryTable labels={[]} />);
+    renderHistoryTable([]);
 
     expect(await screen.findByText("Ana Perez")).toBeInTheDocument();
-    fireEvent.click(screen.getByRole("button", { name: "Duplicar" }));
+    await user.click(screen.getByRole("button", { name: `Acciones para el rotulo ${saved.orderNumber}` }));
+    await user.click(screen.getByRole("menuitem", { name: "Duplicar" }));
 
     expect(await screen.findByText("Etiqueta PS-2026-000002 duplicada.")).toBeInTheDocument();
     expect(await store.listLabels()).toHaveLength(2);

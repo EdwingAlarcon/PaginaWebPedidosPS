@@ -15,13 +15,12 @@ vi.mock("@/lib/supabase/client", () => ({
 }));
 
 describe("UserMenu", () => {
-  it("muestra el correo del usuario autenticado y sus iniciales", async () => {
+  it("muestra las iniciales del usuario autenticado en el disparador", async () => {
     getUser.mockResolvedValue({ data: { user: { email: "vendedor@purpleshop.co" } } });
 
     render(<UserMenu />);
 
-    await waitFor(() => expect(screen.getByText("vendedor@purpleshop.co")).toBeInTheDocument());
-    expect(screen.getByText("VE")).toBeInTheDocument();
+    await waitFor(() => expect(screen.getByText("VE")).toBeInTheDocument());
   });
 
   it("no renderiza nada si no hay usuario autenticado", async () => {
@@ -33,14 +32,18 @@ describe("UserMenu", () => {
     expect(container).toBeEmptyDOMElement();
   });
 
-  it("cierra sesion y redirige a /login al hacer click en Cerrar sesion", async () => {
+  it("muestra el correo y cierra sesion al elegir Cerrar sesion en el menu", async () => {
     getUser.mockResolvedValue({ data: { user: { email: "vendedor@purpleshop.co" } } });
     const user = userEvent.setup();
 
     render(<UserMenu />);
-    await waitFor(() => expect(screen.getByText("vendedor@purpleshop.co")).toBeInTheDocument());
+    await waitFor(() => expect(screen.getByText("VE")).toBeInTheDocument());
 
-    await user.click(screen.getByRole("button", { name: /cerrar sesion/i }));
+    await user.click(screen.getByRole("button", { name: /cuenta de vendedor@purpleshop.co/i }));
+
+    expect(await screen.findByText("vendedor@purpleshop.co")).toBeInTheDocument();
+
+    await user.click(screen.getByRole("menuitem", { name: /cerrar sesion/i }));
 
     expect(signOut).toHaveBeenCalled();
     expect(push).toHaveBeenCalledWith("/login");

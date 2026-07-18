@@ -29,6 +29,7 @@ test("history search field is available", async ({ page }) => {
 
 test("settings shows estimated next order number", async ({ page }) => {
   await page.goto("/configuracion");
+  await page.getByRole("tab", { name: "Numeracion" }).click();
 
   await expect(page.getByText("PS-2026-000001")).toBeVisible();
 });

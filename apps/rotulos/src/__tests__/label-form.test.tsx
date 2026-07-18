@@ -96,7 +96,7 @@ describe("LabelForm", () => {
     const body = JSON.parse(String(fetchMock.mock.calls[0][1]?.body));
     expect(body.label.id).toBe(saved.id);
     expect(body.label.orderNumber).toBe("PS-2026-000123");
-    expect(body.settings.labelSize).toEqual({ widthCm: 14, heightCm: 11 });
+    expect(body.settings.labelSize).toEqual({ widthCm: 14, heightCm: 12 });
     expect(createObjectUrl).toHaveBeenCalled();
     expect(revokeObjectUrl).toHaveBeenCalledWith("blob:pdf");
   });

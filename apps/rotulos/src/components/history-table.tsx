@@ -1,43 +1,53 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import Link from "next/link";
+import { useEffect, useState } from "react";
+import { MoreHorizontal, Plus, Printer, Copy, Pencil, Trash2, Download } from "lucide-react";
 import { getLabelStore } from "@/lib/label-store";
 import type { LabelRecord } from "@/lib/types";
+import { DataTable, type DataTableColumn } from "@/components/ui/data-table";
+import { LabelStatusBadge } from "@/components/ui/badge";
+import { Button, IconButton } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { ConfirmDialog } from "@/components/ui/confirm-dialog";
+import { useToast } from "@/components/ui/toast";
 
 export function HistoryTable({ labels }: { labels: LabelRecord[] }) {
-  const [query, setQuery] = useState("");
   const [tableLabels, setTableLabels] = useState(labels);
-  const [actionStatus, setActionStatus] = useState("");
+  const [pendingDelete, setPendingDelete] = useState<LabelRecord | null>(null);
+  const [deleting, setDeleting] = useState(false);
+  const toast = useToast();
 
   useEffect(() => {
     getLabelStore().listLabels().then(setTableLabels);
   }, []);
-  const filtered = useMemo(() => {
-    const needle = query.trim().toLowerCase();
-    if (!needle) return tableLabels;
-    return tableLabels.filter((label) =>
-      label.orderNumber.toLowerCase().includes(needle) ||
-      label.recipient.fullName.toLowerCase().includes(needle) ||
-      label.recipient.phone.toLowerCase().includes(needle),
-    );
-  }, [query, tableLabels]);
 
   async function duplicateLabel(id: string) {
     const store = getLabelStore();
     const draft = await store.duplicateLabel(id);
     if (!draft) {
-      setActionStatus("No se pudo duplicar la etiqueta.");
+      toast.push({ variant: "danger", title: "No se pudo duplicar la etiqueta." });
       return;
     }
     const duplicate = await store.saveLabel(draft, await store.getSettings());
     setTableLabels(await store.listLabels());
-    setActionStatus(`Etiqueta ${duplicate.orderNumber} duplicada.`);
+    toast.push({ variant: "success", title: `Etiqueta ${duplicate.orderNumber} duplicada.` });
   }
 
-  async function deleteLabel(id: string) {
-    await getLabelStore().deleteLabel(id);
-    setTableLabels((current) => current.filter((label) => label.id !== id));
-    setActionStatus("Etiqueta eliminada.");
+  async function confirmDelete() {
+    if (!pendingDelete) return;
+    setDeleting(true);
+    await getLabelStore().deleteLabel(pendingDelete.id);
+    setTableLabels((current) => current.filter((label) => label.id !== pendingDelete.id));
+    toast.push({ variant: "success", title: "Etiqueta eliminada." });
+    setDeleting(false);
+    setPendingDelete(null);
   }
 
   async function downloadPdf(label: LabelRecord) {
@@ -48,7 +58,7 @@ export function HistoryTable({ labels }: { labels: LabelRecord[] }) {
       body: JSON.stringify({ label, settings }),
     });
     if (!response.ok) {
-      setActionStatus("No se pudo generar el PDF.");
+      toast.push({ variant: "danger", title: "No se pudo generar el PDF." });
       return;
     }
     const blob = await response.blob();
@@ -60,38 +70,99 @@ export function HistoryTable({ labels }: { labels: LabelRecord[] }) {
     link.click();
     link.remove();
     URL.revokeObjectURL(url);
-    setActionStatus(`PDF ${label.orderNumber} descargado.`);
+    toast.push({ variant: "success", title: `PDF ${label.orderNumber} descargado.` });
   }
 
+  const columns: DataTableColumn<LabelRecord>[] = [
+    { key: "customer", header: "Cliente", render: (l) => l.recipient.fullName, sortValue: (l) => l.recipient.fullName },
+    { key: "phone", header: "Telefono", render: (l) => l.recipient.phone || "-" },
+    { key: "city", header: "Ciudad", render: (l) => l.recipient.city || "-" },
+    { key: "date", header: "Fecha", render: (l) => l.date, sortValue: (l) => l.date },
+    { key: "order", header: "Pedido", render: (l) => l.orderNumber },
+    { key: "status", header: "Estado", render: (l) => <LabelStatusBadge status={l.status} /> },
+    {
+      key: "actions",
+      header: "Acciones",
+      align: "right",
+      render: (label) => (
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <IconButton label={`Acciones para el rotulo ${label.orderNumber}`} size="sm">
+              <MoreHorizontal className="size-4" aria-hidden="true" />
+            </IconButton>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end">
+            <DropdownMenuItem asChild>
+              <a href={`/crear?id=${label.id}&print=1`}>
+                <Printer className="size-4" aria-hidden="true" />
+                Imprimir
+              </a>
+            </DropdownMenuItem>
+            <DropdownMenuItem onSelect={() => downloadPdf(label)}>
+              <Download className="size-4" aria-hidden="true" />
+              Descargar PDF
+            </DropdownMenuItem>
+            <DropdownMenuItem onSelect={() => duplicateLabel(label.id)}>
+              <Copy className="size-4" aria-hidden="true" />
+              Duplicar
+            </DropdownMenuItem>
+            <DropdownMenuItem asChild>
+              <a href={`/crear?id=${label.id}`}>
+                <Pencil className="size-4" aria-hidden="true" />
+                Editar
+              </a>
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem
+              onSelect={() => setPendingDelete(label)}
+              className="text-danger data-[highlighted]:bg-[var(--danger-soft)]"
+            >
+              <Trash2 className="size-4" aria-hidden="true" />
+              Eliminar
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      ),
+    },
+  ];
+
   return (
-    <section className="panel">
-      <label className="field">
-        <span>Buscar por numero de pedido, cliente o telefono</span>
-        <input value={query} onChange={(event) => setQuery(event.target.value)} />
-      </label>
-      <p role="status">{actionStatus}</p>
-      <div className="history-table">
-        <div className="history-row history-head">
-          <span>Cliente</span><span>Telefono</span><span>Ciudad</span><span>Fecha</span><span>Pedido</span><span>Estado</span><span>Acciones</span>
-        </div>
-        {filtered.map((label) => (
-          <div className="history-row" key={label.id}>
-            <span>{label.recipient.fullName}</span>
-            <span>{label.recipient.phone}</span>
-            <span>{label.recipient.city}</span>
-            <span>{label.date}</span>
-            <span>{label.orderNumber}</span>
-            <span>{label.status}</span>
-            <span className="row-actions">
-              <a href={`/crear?id=${label.id}&print=1`}>Imprimir</a>
-              <button type="button" onClick={() => downloadPdf(label)}>PDF</button>
-              <button type="button" onClick={() => duplicateLabel(label.id)}>Duplicar</button>
-              <a href={`/crear?id=${label.id}`}>Editar</a>
-              <button type="button" onClick={() => deleteLabel(label.id)}>Eliminar</button>
-            </span>
-          </div>
-        ))}
-      </div>
-    </section>
+    <>
+      <DataTable
+        columns={columns}
+        data={tableLabels}
+        getRowId={(label) => label.id}
+        searchPlaceholder="Buscar por numero de pedido, cliente o telefono"
+        searchPredicate={(label, query) =>
+          label.orderNumber.toLowerCase().includes(query) ||
+          label.recipient.fullName.toLowerCase().includes(query) ||
+          label.recipient.phone.toLowerCase().includes(query)
+        }
+        emptyTitle="No hay rotulos todavia"
+        emptyDescription="Genera tu primer rotulo de envio para verlo en el historial."
+        emptyAction={
+          <Button size="sm" asChild>
+            <Link href="/crear">
+              <Plus className="size-4" aria-hidden="true" />
+              Crear rotulo
+            </Link>
+          </Button>
+        }
+      />
+      <ConfirmDialog
+        open={pendingDelete !== null}
+        onOpenChange={(open) => !open && setPendingDelete(null)}
+        title="Eliminar rotulo"
+        description={
+          pendingDelete
+            ? `Esta accion eliminara el rotulo ${pendingDelete.orderNumber} de forma permanente.`
+            : undefined
+        }
+        confirmLabel="Eliminar"
+        variant="danger"
+        loading={deleting}
+        onConfirm={confirmDelete}
+      />
+    </>
   );
 }

@@ -5,7 +5,7 @@
 :root {
   color-scheme: light;
 
-  /* Escala de marca PurpleShop Commerce OS (swatch fijo, igual en ambos temas) */
+  /* Escala de marca PurpleShop (swatch fijo, igual en ambos temas) */
   --purple-950: #2E1065;
   --purple-900: #4C1D95;
   --purple-800: #5B21B6;
@@ -18,67 +18,95 @@
   --purple-100: #EDE9FE;
   --purple-50: #F5F3FF;
 
-  --color-primary: var(--purple-600);
-  --color-primary-hover: var(--purple-700);
+  /* ---- Tokens semanticos (fuente de verdad) ---- */
+  --background: #f8f7fb;
+  --surface: #ffffff;
+  --surface-muted: #f1eef8;
+  --foreground: #16121f;
+  --foreground-muted: #635d72;
+  --border: #e4dff2;
+  --primary: var(--purple-600);
+  --primary-hover: var(--purple-700);
+  --primary-foreground: #ffffff;
+  --success: #10b981;
+  --warning: #f59e0b;
+  --danger: #ef4444;
+  --focus-ring: var(--purple-600);
+
+  /* Tintes translucidos para fondos sutiles (badges, alerts) — mismo valor en ambos temas */
+  --primary-soft: rgba(124, 58, 237, 0.12);
+  --success-soft: rgba(16, 185, 129, 0.12);
+  --warning-soft: rgba(245, 158, 11, 0.14);
+  --danger-soft: rgba(239, 68, 68, 0.12);
+
+  --font-sans: var(--font-inter), 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+
+  /*
+   * ---- Alias heredados (deprecados) ----
+   * El CSS de las 11 pantallas aun no migradas a src/components/ui/ usa estos
+   * nombres. Se eliminan a medida que cada pantalla se migra (ver Fase 3) y
+   * deben quedar retirados por completo al cerrar la Fase 4. No agregar
+   * nuevos usos de estos nombres — usar los tokens semanticos de arriba.
+   */
+  --color-primary: var(--primary);
+  --color-primary-hover: var(--primary-hover);
   --color-primary-active: var(--purple-800);
   --color-primary-light: var(--purple-400);
   --color-primary-soft: #f1e9fe;
   --color-secondary: #ec4899;
   --color-secondary-hover: #db2777;
-
-  --danger-color: #ef4444;
-  --success-color: #10b981;
-  --warning-color: #f59e0b;
+  --danger-color: var(--danger);
+  --success-color: var(--success);
+  --warning-color: var(--warning);
   --info-color: #3b82f6;
-
-  --background: #f8f7fb;
-  --background-secondary: #f1eef8;
-  --surface: #ffffff;
-  --surface-elevated: #ffffff;
-
-  --text-primary: #16121f;
-  --text-secondary: #635d72;
+  --background-secondary: var(--surface-muted);
+  --surface-elevated: var(--surface);
+  --text-primary: var(--foreground);
+  --text-secondary: var(--foreground-muted);
   --text-tertiary: #9993a8;
-  --text-inverse: #ffffff;
-
-  --border-color: #e4dff2;
+  --text-inverse: var(--primary-foreground);
+  --border-color: var(--border);
   --border-color-hover: #d3caea;
-  --focus-outline: var(--color-primary);
-
+  --focus-outline: var(--focus-ring);
   --hover-bg: #f4f1fa;
-
-  --font-sans: var(--font-plus-jakarta), 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
 [data-theme="dark"] {
   color-scheme: dark;
 
-  --color-primary: #a78bfa;
-  --color-primary-hover: #c4b5fd;
+  --background: #0f0b17;
+  --surface: #1c1728;
+  --surface-muted: #171223;
+  --foreground: #f3f0fa;
+  --foreground-muted: #b9b0cc;
+  --border: #322a45;
+  --primary: #a78bfa;
+  --primary-hover: #c4b5fd;
+  --primary-foreground: #16121f;
+  --success: #34d399;
+  --warning: #fbbf24;
+  --danger: #f87171;
+  --focus-ring: #a78bfa;
+
+  --color-primary: var(--primary);
+  --color-primary-hover: var(--primary-hover);
   --color-primary-active: #8b5cf6;
   --color-primary-light: #c4b5fd;
   --color-primary-soft: #241c33;
   --color-secondary: #f472b6;
   --color-secondary-hover: #f9a8d4;
-
-  --danger-color: #f87171;
-  --success-color: #34d399;
-  --warning-color: #fbbf24;
+  --danger-color: var(--danger);
+  --success-color: var(--success);
+  --warning-color: var(--warning);
   --info-color: #60a5fa;
-
-  --background: #0f0b17;
-  --background-secondary: #171223;
-  --surface: #1c1728;
+  --background-secondary: var(--surface-muted);
   --surface-elevated: #241d33;
-
-  --text-primary: #f3f0fa;
-  --text-secondary: #b9b0cc;
+  --text-primary: var(--foreground);
+  --text-secondary: var(--foreground-muted);
   --text-tertiary: #857c99;
-  --text-inverse: #16121f;
-
-  --border-color: #322a45;
+  --text-inverse: var(--primary-foreground);
+  --border-color: var(--border);
   --border-color-hover: #443a5c;
-
   --hover-bg: #241d33;
 }
 
@@ -109,13 +137,13 @@ body {
   position: fixed;
   inset: 0 auto 0 0;
   display: flex;
-  width: 286px;
+  width: 248px;
   flex-direction: column;
   border-right: 1px solid var(--border-color);
   background: var(--surface);
-  box-shadow: 10px 0 30px rgba(17, 24, 39, 0.06);
-  padding: 22px 18px;
+  padding: 20px 14px;
   z-index: 30;
+  transition: width 160ms ease;
 }
 
 .legacy-brand {
@@ -154,16 +182,10 @@ body {
   margin-top: 28px;
 }
 
-.legacy-sidebar-footer {
-  margin-top: auto;
-  padding-top: 22px;
-  display: grid;
-  gap: 10px;
-}
-
 .legacy-content-wrap {
   min-height: 100vh;
-  padding-left: 286px;
+  padding-left: 248px;
+  transition: padding-left 160ms ease;
 }
 
 .legacy-topbar {
@@ -172,36 +194,55 @@ body {
   z-index: 20;
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: 18px;
+  gap: 14px;
   border-bottom: 1px solid var(--border-color);
   background: var(--surface);
-  padding: 18px 28px;
-  backdrop-filter: blur(14px);
+  padding: 14px 28px;
+}
+
+.topbar-menu-toggle {
+  display: none;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
+  background: var(--surface);
+  color: var(--text-primary);
+  cursor: pointer;
+}
+
+.legacy-topbar-title {
+  min-width: 0;
+  flex: 1 1 auto;
 }
 
 .legacy-topbar-actions {
   display: flex;
+  flex-shrink: 0;
   align-items: center;
-  gap: 12px;
+  gap: 10px;
 }
 
 .legacy-topbar p {
-  margin: 0 0 4px;
-  color: var(--color-primary);
-  font-size: 0.78rem;
-  font-weight: 800;
+  margin: 0 0 2px;
+  color: var(--foreground-muted);
+  font-size: 0.72rem;
+  font-weight: 700;
   text-transform: uppercase;
+  letter-spacing: 0.04em;
 }
 
 .legacy-topbar h1 {
   margin: 0;
-  color: var(--text-primary);
-  font-size: 1.05rem;
-}
-
-.legacy-mobile-header {
-  display: none;
+  overflow: hidden;
+  color: var(--foreground);
+  font-size: 0.95rem;
+  font-weight: 600;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .legacy-main {
@@ -227,9 +268,10 @@ body {
 
 .page-heading h1 {
   margin: 0;
-  color: var(--color-primary-active);
-  font-size: clamp(2rem, 4vw, 3rem);
-  line-height: 1;
+  color: var(--foreground);
+  font-size: 1.75rem;
+  font-weight: 700;
+  line-height: 1.25;
 }
 
 .nav-link,
@@ -463,9 +505,7 @@ body {
   gap: 14px;
 }
 
-.form-section,
-.order-preview,
-.label-actions {
+.form-section {
   border: 1px solid var(--border-color);
   border-radius: 8px;
   background: var(--surface);
@@ -516,43 +556,40 @@ body {
   font-weight: 700;
 }
 
-.order-preview span {
-  display: block;
-  color: var(--text-secondary);
-  font-size: 0.8rem;
-  font-weight: 700;
-}
-
-.order-preview strong {
-  display: block;
-  margin-top: 4px;
-  color: var(--color-primary-active);
-  font-size: 1.45rem;
-}
-
-.label-actions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-}
-
 .button-primary,
 .button-secondary {
-  border: 0;
-  border-radius: 7px;
-  padding: 11px 14px;
-  font-weight: 800;
+  min-height: 40px;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  padding: 0 16px;
+  font-weight: 600;
   cursor: pointer;
+  transition: background-color 160ms ease, border-color 160ms ease;
 }
 
 .button-primary {
-  background: var(--color-primary);
-  color: var(--text-inverse);
+  background: var(--primary);
+  color: var(--primary-foreground);
+}
+
+.button-primary:hover:not(:disabled) {
+  background: var(--primary-hover);
 }
 
 .button-secondary {
-  background: var(--background-secondary);
-  color: var(--text-primary);
+  background: var(--surface);
+  color: var(--foreground);
+  border-color: var(--border);
+}
+
+.button-secondary:hover:not(:disabled) {
+  background: var(--surface-muted);
+}
+
+.button-primary:focus-visible,
+.button-secondary:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 2px;
 }
 
 .button-secondary:disabled {
@@ -658,8 +695,7 @@ body {
 }
 
 @media (max-width: 1024px) {
-  .legacy-sidebar,
-  .legacy-topbar {
+  .legacy-sidebar {
     display: none;
   }
 
@@ -667,28 +703,22 @@ body {
     padding-left: 0;
   }
 
-  .legacy-mobile-header {
-    position: sticky;
-    top: 0;
-    z-index: 20;
-    display: block;
-    border-bottom: 1px solid var(--border-color);
-    background: var(--surface);
-    padding: 12px;
-    backdrop-filter: blur(14px);
+  .topbar-menu-toggle {
+    display: inline-flex;
   }
 
-  .legacy-mobile-nav {
-    display: flex;
-    gap: 8px;
-    margin-top: 12px;
-    overflow-x: auto;
-    padding-bottom: 4px;
+  .legacy-topbar {
+    padding: 12px 16px;
+  }
+}
+
+@media (max-width: 640px) {
+  .legacy-topbar p {
+    display: none;
   }
 
-  .mobile-nav-link {
-    flex: 0 0 auto;
-    background: var(--background);
+  .sync-status-label {
+    display: none;
   }
 }
 
@@ -789,68 +819,42 @@ body {
   outline-offset: 2px;
 }
 
-/* ==================== TIPOGRAFIA — PurpleShop Commerce OS ==================== */
+/* ==================== TIPOGRAFIA ==================== */
 .text-display {
-  font-size: 2rem;
-  line-height: 1.15;
-  font-weight: 800;
-  color: var(--text-primary);
+  font-size: 2rem; /* 32px — titulo de página grande (login hero) */
+  line-height: 1.2;
+  font-weight: 700;
+  color: var(--foreground);
+  letter-spacing: -0.01em;
 }
 
 .text-page-title {
-  font-size: 1.75rem;
-  line-height: 1.2;
-  font-weight: 800;
-  color: var(--text-primary);
+  font-size: 1.75rem; /* 28px — titulo de pagina */
+  line-height: 1.25;
+  font-weight: 700;
+  color: var(--foreground);
+  letter-spacing: -0.01em;
 }
 
 .text-section-title {
-  font-size: 1.375rem;
-  line-height: 1.25;
-  font-weight: 700;
-  color: var(--text-primary);
+  font-size: 1.25rem; /* 20px — titulo de seccion */
+  line-height: 1.3;
+  font-weight: 600;
+  color: var(--foreground);
 }
 
 .text-card-title {
-  font-size: 1.0625rem;
-  line-height: 1.3;
-  font-weight: 700;
-  color: var(--text-primary);
-}
-
-/* ==================== UTILIDADES GLASS ==================== */
-:root {
-  --glass-bg: rgba(255, 255, 255, 0.72);
-  --glass-border: rgba(124, 58, 237, 0.14);
-  --glass-blur: blur(16px);
-  --glass-bg-strong: rgba(255, 255, 255, 0.85);
-}
-
-[data-theme="dark"] {
-  --glass-bg: rgba(28, 23, 40, 0.72);
-  --glass-border: rgba(167, 139, 250, 0.18);
-  --glass-bg-strong: rgba(36, 29, 51, 0.85);
-}
-
-.glass {
-  background: var(--glass-bg);
-  border: 1px solid var(--glass-border);
-  -webkit-backdrop-filter: var(--glass-blur);
-  backdrop-filter: var(--glass-blur);
-}
-
-.glass-strong {
-  background: var(--glass-bg-strong);
-  border: 1px solid var(--glass-border);
-  -webkit-backdrop-filter: var(--glass-blur);
-  backdrop-filter: var(--glass-blur);
+  font-size: 1rem; /* 16px — titulo de tarjeta */
+  line-height: 1.35;
+  font-weight: 600;
+  color: var(--foreground);
 }
 
 /* ==================== LOGIN ==================== */
 .login-screen {
   position: relative;
   display: grid;
-  grid-template-columns: 1.1fr 1fr;
+  grid-template-columns: 2fr 3fr;
   min-height: 100vh;
 }
 
@@ -868,7 +872,7 @@ body {
   gap: 20px;
   padding: 48px;
   color: var(--text-inverse);
-  background: var(--gradient-brand, linear-gradient(135deg, var(--purple-800) 0%, var(--purple-600) 60%, var(--color-secondary) 100%));
+  background: linear-gradient(160deg, var(--purple-900) 0%, var(--purple-700) 100%);
 }
 
 .login-hero-brand {
@@ -900,74 +904,12 @@ body {
   gap: 10px;
 }
 
-.login-benefits li::before {
-  content: "";
-  width: 8px;
-  height: 8px;
-  border-radius: 999px;
-  background: var(--text-inverse);
-  flex-shrink: 0;
-}
-
 .login-panel {
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 32px;
   background: var(--background);
-}
-
-.login-card {
-  display: grid;
-  gap: 14px;
-  width: 100%;
-  max-width: 380px;
-  padding: 32px;
-  border-radius: 16px;
-  background: var(--surface);
-  border: 1px solid var(--border-color);
-  box-shadow: 0 24px 60px rgba(17, 24, 39, 0.08);
-}
-
-.login-card-subtitle {
-  margin: -6px 0 4px;
-  color: var(--text-secondary);
-}
-
-.login-microsoft-btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 10px;
-  min-height: 48px;
-  border: 1px solid var(--border-color);
-  border-radius: 10px;
-  background: var(--surface);
-  color: var(--text-primary);
-  font-weight: 700;
-  cursor: pointer;
-}
-
-.login-microsoft-btn:disabled {
-  cursor: not-allowed;
-  opacity: 0.6;
-}
-
-.login-microsoft-btn:hover:not(:disabled) {
-  background: var(--hover-bg);
-}
-
-.login-card-error {
-  margin: 0;
-  color: var(--danger-color);
-  font-size: 0.88rem;
-  font-weight: 700;
-}
-
-.login-card-notice {
-  margin: 4px 0 0;
-  color: var(--text-tertiary);
-  font-size: 0.78rem;
 }
 
 @media (max-width: 900px) {

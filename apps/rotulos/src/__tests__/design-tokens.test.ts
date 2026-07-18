@@ -6,19 +6,28 @@ import { describe, expect, it } from "vitest";
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const css = readFileSync(join(__dirname, "../app/globals.css"), "utf-8");
 
-describe("design tokens de PurpleShop Commerce OS", () => {
-  it("define la escala de marca purple-50..950", () => {
-    expect(css).toContain("--purple-950: #2E1065");
-    expect(css).toContain("--purple-900: #4C1D95");
-    expect(css).toContain("--purple-800: #5B21B6");
-    expect(css).toContain("--purple-700: #6D28D9");
-    expect(css).toContain("--purple-600: #7C3AED");
-    expect(css).toContain("--purple-500: #8B5CF6");
-    expect(css).toContain("--purple-400: #A78BFA");
-    expect(css).toContain("--purple-300: #C4B5FD");
-    expect(css).toContain("--purple-200: #DDD6FE");
-    expect(css).toContain("--purple-100: #EDE9FE");
-    expect(css).toContain("--purple-50: #F5F3FF");
+describe("design tokens de PurpleShop", () => {
+  it("define los tokens semanticos en :root", () => {
+    expect(css).toContain("--background:");
+    expect(css).toContain("--surface:");
+    expect(css).toContain("--surface-muted:");
+    expect(css).toContain("--foreground:");
+    expect(css).toContain("--foreground-muted:");
+    expect(css).toContain("--border:");
+    expect(css).toContain("--primary:");
+    expect(css).toContain("--primary-hover:");
+    expect(css).toContain("--primary-foreground:");
+    expect(css).toContain("--success:");
+    expect(css).toContain("--warning:");
+    expect(css).toContain("--danger:");
+    expect(css).toContain("--focus-ring:");
+  });
+
+  it("redefine los tokens semanticos para [data-theme=dark]", () => {
+    const darkBlock = css.split('[data-theme="dark"] {')[1] ?? "";
+    expect(darkBlock).toContain("--background: #0f0b17");
+    expect(darkBlock).toContain("--primary: #a78bfa");
+    expect(darkBlock).toContain("--focus-ring:");
   });
 
   it("define la escala tipografica de utilidades", () => {
@@ -28,14 +37,13 @@ describe("design tokens de PurpleShop Commerce OS", () => {
     expect(css).toContain(".text-card-title {");
   });
 
-  it("define utilidades glass para ambos temas", () => {
-    expect(css).toContain(".glass {");
-    expect(css).toContain(".glass-strong {");
-    expect(css).toContain("--glass-bg: rgba(255, 255, 255, 0.72)");
-    expect(css).toContain("--glass-bg: rgba(28, 23, 40, 0.72)");
+  it("no usa utilidades glassmorphism", () => {
+    expect(css).not.toContain(".glass {");
+    expect(css).not.toContain(".glass-strong {");
+    expect(css).not.toContain("--glass-bg");
   });
 
-  it("usa la fuente Plus Jakarta Sans como principal", () => {
-    expect(css).toContain("--font-sans: var(--font-plus-jakarta)");
+  it("usa Inter como fuente principal", () => {
+    expect(css).toContain("--font-sans: var(--font-inter)");
   });
 });

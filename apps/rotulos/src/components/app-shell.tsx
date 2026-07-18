@@ -153,16 +153,20 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             </div>
           ))}
         </nav>
-        <div className="legacy-sidebar-footer">
-          <ThemeToggle />
-          <SyncStatus />
-          <UserMenu />
-        </div>
       </aside>
 
       <div className="legacy-content-wrap">
         <header className="legacy-topbar">
-          <div>
+          <button
+            type="button"
+            className="topbar-menu-toggle"
+            onClick={() => setMobileOpen(true)}
+            aria-label="Abrir menu de navegacion"
+            ref={mobileToggleRef}
+          >
+            <Menu size={20} />
+          </button>
+          <div className="legacy-topbar-title">
             <p>{pageMeta.title}</p>
             <h1>{pageMeta.description}</h1>
           </div>
@@ -170,24 +174,6 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             <ThemeToggle />
             <SyncStatus />
             <UserMenu />
-          </div>
-        </header>
-
-        <header className="legacy-mobile-header">
-          <div className="legacy-mobile-header-row">
-            <div className="legacy-brand compact">
-              <Image src="/purple-shop-logo.png" alt="Purple Shop" width={36} height={36} />
-              <strong>Purple Shop</strong>
-            </div>
-            <button
-              type="button"
-              className="mobile-nav-toggle"
-              onClick={() => setMobileOpen(true)}
-              aria-label="Abrir menu de navegacion"
-              ref={mobileToggleRef}
-            >
-              <Menu size={22} />
-            </button>
           </div>
         </header>
 
