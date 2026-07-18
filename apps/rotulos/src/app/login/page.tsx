@@ -4,13 +4,13 @@ import { LoginCard } from "./login-card";
 import { ThemeToggle } from "@/components/theme-toggle";
 
 export const metadata: Metadata = {
-  title: "Iniciar sesion — PurpleShop",
+  title: "Iniciar sesión — PurpleShop",
 };
 
 const BENEFITS = [
-  { icon: PackageCheck, label: "Pedidos e inventario sincronizados en tiempo real" },
-  { icon: Tags, label: "Rotulos de envio listos para imprimir en segundos" },
-  { icon: BarChart3, label: "Reportes claros para tomar decisiones rapido" },
+  { icon: PackageCheck, label: "Controla pedidos e inventario en tiempo real." },
+  { icon: Tags, label: "Genera rótulos listos para imprimir." },
+  { icon: BarChart3, label: "Consulta información clara de tu operación." },
 ];
 
 export default async function LoginPage({
@@ -25,24 +25,36 @@ export default async function LoginPage({
       <div className="login-theme-toggle">
         <ThemeToggle />
       </div>
-      <section className="login-hero">
-        <div className="login-hero-brand">
-          <img src="/purple-shop-logo.png" alt="" width={48} height={48} className="size-12" />
-          <span>Purple Shop</span>
+
+      <div className="login-card w-full max-w-[440px] rounded-lg border border-border bg-surface p-9 shadow-card">
+        <div className="flex items-center gap-2.5">
+          <img
+            src="/purple-shop-logo.png"
+            alt=""
+            width={40}
+            height={40}
+            className="size-10 rounded-[10px] object-contain"
+          />
+          <span className="text-lg font-semibold text-foreground">PurpleShop</span>
         </div>
-        <h1 className="text-display">Gestiona pedidos, clientes y envios en un solo lugar</h1>
-        <ul className="login-benefits">
+
+        <p className="mt-3.5 text-base leading-relaxed text-foreground-muted">
+          Gestiona tus pedidos, clientes, inventario y envíos desde un solo lugar.
+        </p>
+
+        <ul className="mt-4 grid gap-2">
           {BENEFITS.map(({ icon: Icon, label }) => (
-            <li key={label}>
-              <Icon className="size-4 shrink-0" aria-hidden="true" />
+            <li key={label} className="flex items-center gap-2 text-[13px] font-medium text-foreground-muted">
+              <Icon className="size-4 shrink-0 text-primary" aria-hidden="true" />
               {label}
             </li>
           ))}
         </ul>
-      </section>
-      <section className="login-panel">
+
+        <hr className="my-6 border-border" />
+
         <LoginCard initialUnauthorized={unauthorized === "1"} />
-      </section>
+      </div>
     </main>
   );
 }

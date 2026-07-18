@@ -34,7 +34,7 @@ describe("LoginCard", () => {
     await user.click(screen.getByRole("button", { name: /continuar con microsoft/i }));
 
     await waitFor(() =>
-      expect(screen.getByRole("alert")).toHaveTextContent(/no se pudo iniciar sesion/i),
+      expect(screen.getByRole("alert")).toHaveTextContent(/no se pudo iniciar sesión/i),
     );
   });
 

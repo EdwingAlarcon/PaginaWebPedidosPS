@@ -22,15 +22,17 @@ export function LoginCard({ initialUnauthorized }: { initialUnauthorized: boolea
   }
 
   return (
-    <div className="w-full max-w-[440px] rounded-lg border border-border bg-surface p-8 shadow-card">
-      <h2 className="text-section-title">Bienvenido de vuelta</h2>
+    <div>
+      <h2 className="text-2xl font-semibold leading-tight tracking-[-0.01em] text-foreground">
+        Inicia sesión
+      </h2>
       <p className="mt-1 text-sm text-foreground-muted">
-        Inicia sesion con tu cuenta de Microsoft para continuar.
+        Accede con tu cuenta Microsoft autorizada para continuar.
       </p>
 
       <div className="mt-6">
         {!hasSupabaseEnv() ? (
-          <Alert variant="danger">La aplicacion no tiene configurada la conexion con la base de datos.</Alert>
+          <Alert variant="danger">La aplicación no tiene configurada la conexión con la base de datos.</Alert>
         ) : (
           <Button
             type="button"
@@ -51,7 +53,7 @@ export function LoginCard({ initialUnauthorized }: { initialUnauthorized: boolea
 
       {status === "error" ? (
         <div className="mt-4">
-          <Alert variant="danger">No se pudo iniciar sesion. Intenta de nuevo.</Alert>
+          <Alert variant="danger">No se pudo iniciar sesión. Intenta de nuevo.</Alert>
         </div>
       ) : null}
 
@@ -61,8 +63,8 @@ export function LoginCard({ initialUnauthorized }: { initialUnauthorized: boolea
         </div>
       ) : null}
 
-      <p className="mt-5 text-center text-xs text-foreground-muted">
-        Acceso restringido a cuentas autorizadas de PurpleShop.
+      <p className="mt-5 text-center text-xs font-medium text-foreground-muted">
+        Acceso exclusivo para personal autorizado de PurpleShop.
       </p>
     </div>
   );

@@ -16,8 +16,8 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="es">
-      <body className={inter.variable}>
+    <html lang="es" className={inter.variable}>
+      <body>
         <ToastProvider>{children}</ToastProvider>
       </body>
     </html>
