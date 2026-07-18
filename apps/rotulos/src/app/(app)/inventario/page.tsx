@@ -14,6 +14,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardTitle } from "@/components/ui/card";
 import { EmptyState } from "@/components/ui/empty-state";
 import { Badge } from "@/components/ui/badge";
+import { PageHeading } from "@/components/ui/page-heading";
 
 export default function InventoryPage() {
   const [refreshKey, setRefreshKey] = useState(0);
@@ -21,6 +22,13 @@ export default function InventoryPage() {
   const [movementDrawerOpen, setMovementDrawerOpen] = useState(false);
   const [movements, setMovements] = useState<StockMovement[]>([]);
   const [products, setProducts] = useState<Product[]>([]);
+  const [activeTab, setActiveTab] = useState("productos");
+  const [productFilter, setProductFilter] = useState("");
+
+  function viewProduct(name: string) {
+    setProductFilter(name);
+    setActiveTab("productos");
+  }
 
   useEffect(() => {
     getInventoryStore().listMovements().then(setMovements).catch(() => setMovements([]));
@@ -40,12 +48,9 @@ export default function InventoryPage() {
 
   return (
     <main className="page-shell">
-      <div className="page-heading">
-        <p>Control de stock</p>
-        <h1>Inventario</h1>
-      </div>
+      <PageHeading eyebrow="Control de stock" title="Inventario" />
 
-      <Tabs defaultValue="productos">
+      <Tabs value={activeTab} onValueChange={setActiveTab}>
         <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
           <TabsList>
             <TabsTrigger value="productos">Productos</TabsTrigger>
@@ -75,7 +80,7 @@ export default function InventoryPage() {
               </DrawerContent>
             </Drawer>
           </div>
-          <ProductsTable key={refreshKey} />
+          <ProductsTable key={`${refreshKey}-${productFilter}`} initialQuery={productFilter} />
         </TabsContent>
 
         <TabsContent value="movimientos">
@@ -126,11 +131,17 @@ export default function InventoryPage() {
               {outOfStock.length === 0 ? (
                 <p className="mt-3 text-sm text-foreground-muted">No hay productos sin stock.</p>
               ) : (
-                <ul className="mt-3 flex flex-col gap-2">
+                <ul className="mt-3 flex flex-col gap-1">
                   {outOfStock.map((product) => (
-                    <li key={product.id} className="flex items-center justify-between text-sm">
-                      <span className="text-foreground">{product.name}</span>
-                      <Badge variant="danger">0 unidades</Badge>
+                    <li key={product.id}>
+                      <button
+                        type="button"
+                        onClick={() => viewProduct(product.name)}
+                        className="-mx-1 flex w-full items-center justify-between gap-2 rounded-md px-1 py-1 text-left text-sm hover:bg-surface-muted"
+                      >
+                        <span className="text-foreground">{product.name}</span>
+                        <Badge variant="danger">0 unidades</Badge>
+                      </button>
                     </li>
                   ))}
                 </ul>
@@ -141,11 +152,17 @@ export default function InventoryPage() {
               {lowStock.length === 0 ? (
                 <p className="mt-3 text-sm text-foreground-muted">No hay productos con bajo stock.</p>
               ) : (
-                <ul className="mt-3 flex flex-col gap-2">
+                <ul className="mt-3 flex flex-col gap-1">
                   {lowStock.map((product) => (
-                    <li key={product.id} className="flex items-center justify-between text-sm">
-                      <span className="text-foreground">{product.name}</span>
-                      <Badge variant="warning">{product.currentStock} unidades</Badge>
+                    <li key={product.id}>
+                      <button
+                        type="button"
+                        onClick={() => viewProduct(product.name)}
+                        className="-mx-1 flex w-full items-center justify-between gap-2 rounded-md px-1 py-1 text-left text-sm hover:bg-surface-muted"
+                      >
+                        <span className="text-foreground">{product.name}</span>
+                        <Badge variant="warning">{product.currentStock} unidades</Badge>
+                      </button>
                     </li>
                   ))}
                 </ul>
@@ -156,13 +173,19 @@ export default function InventoryPage() {
               {overstocked.length === 0 ? (
                 <p className="mt-3 text-sm text-foreground-muted">No hay productos con exceso de stock.</p>
               ) : (
-                <ul className="mt-3 flex flex-col gap-2">
+                <ul className="mt-3 flex flex-col gap-1">
                   {overstocked.map((product) => (
-                    <li key={product.id} className="flex items-center justify-between text-sm">
-                      <span className="text-foreground">{product.name}</span>
-                      <Badge variant="primary">
-                        {product.currentStock} / {product.maxStock} {formatCop(product.unitPrice)}
-                      </Badge>
+                    <li key={product.id}>
+                      <button
+                        type="button"
+                        onClick={() => viewProduct(product.name)}
+                        className="-mx-1 flex w-full items-center justify-between gap-2 rounded-md px-1 py-1 text-left text-sm hover:bg-surface-muted"
+                      >
+                        <span className="text-foreground">{product.name}</span>
+                        <Badge variant="primary">
+                          {product.currentStock} / {product.maxStock} {formatCop(product.unitPrice)}
+                        </Badge>
+                      </button>
                     </li>
                   ))}
                 </ul>

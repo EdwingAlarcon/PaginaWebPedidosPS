@@ -1,12 +1,10 @@
 import { SettingsForm } from "@/components/settings-form";
+import { PageHeading } from "@/components/ui/page-heading";
 
 export default function SettingsPage() {
   return (
     <main className="page-shell">
-      <div className="page-heading">
-        <p>Preferencias</p>
-        <h1>Configuracion</h1>
-      </div>
+      <PageHeading eyebrow="Preferencias" title="Configuracion" />
       <SettingsForm />
     </main>
   );

@@ -31,6 +31,7 @@ interface DataTableProps<T> {
   loading?: boolean;
   pageSize?: number;
   onRowClick?: (row: T) => void;
+  initialQuery?: string;
 }
 
 export function DataTable<T>({
@@ -46,8 +47,9 @@ export function DataTable<T>({
   loading,
   pageSize = 10,
   onRowClick,
+  initialQuery = "",
 }: DataTableProps<T>) {
-  const [query, setQuery] = useState("");
+  const [query, setQuery] = useState(initialQuery);
   const [sort, setSort] = useState<{ key: string; direction: "asc" | "desc" } | null>(null);
   const [page, setPage] = useState(1);
 

@@ -16,7 +16,7 @@ function stockAlert(product: Product): { label: string; variant: "warning" | "da
   return null;
 }
 
-export function ProductsTable() {
+export function ProductsTable({ initialQuery }: { initialQuery?: string } = {}) {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [status, setStatus] = useState("Cargando productos...");
@@ -70,6 +70,7 @@ export function ProductsTable() {
         data={products}
         getRowId={(product) => product.id}
         loading={loading}
+        initialQuery={initialQuery}
         searchPlaceholder="Buscar por nombre, SKU o categoria"
         searchPredicate={(product, query) =>
           product.name.toLowerCase().includes(query) ||

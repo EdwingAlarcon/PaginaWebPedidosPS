@@ -1,12 +1,10 @@
 import { OrderForm } from "@/components/order-form";
+import { PageHeading } from "@/components/ui/page-heading";
 
 export default function NewOrderPage() {
   return (
     <main className="page-shell">
-      <div className="page-heading">
-        <p>Ventas</p>
-        <h1>Nuevo pedido</h1>
-      </div>
+      <PageHeading eyebrow="Ventas" title="Nuevo pedido" />
       <OrderForm />
     </main>
   );

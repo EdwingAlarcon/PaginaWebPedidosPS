@@ -12,6 +12,7 @@ import { MetricCard, Card, CardTitle } from "@/components/ui/card";
 import { DatePicker } from "@/components/ui/date-picker";
 import { FormField } from "@/components/ui/form-field";
 import { EmptyState } from "@/components/ui/empty-state";
+import { PageHeading } from "@/components/ui/page-heading";
 import { DollarSign, Package, Receipt, Ticket, TriangleAlert, Users } from "lucide-react";
 
 const emptyAlerts: StockAlerts = { lowStock: [], critical: [], overstocked: [] };
@@ -111,10 +112,7 @@ export default function ReportsPage() {
   return (
     <main className="page-shell">
       <div className="mb-6 flex flex-wrap items-end justify-between gap-4">
-        <div className="page-heading !mb-0">
-          <p>Analitica</p>
-          <h1>Reportes</h1>
-        </div>
+        <PageHeading eyebrow="Analitica" title="Reportes" className="mb-0" />
         <div className="flex flex-wrap items-end gap-3">
           <FormField label="Desde">
             <DatePicker value={from} onChange={(event) => setFrom(event.target.value)} />

@@ -1,12 +1,10 @@
 import { OrdersTable } from "@/components/orders-table";
+import { PageHeading } from "@/components/ui/page-heading";
 
 export default function OrdersPage() {
   return (
     <main className="page-shell">
-      <div className="page-heading">
-        <p>Operacion diaria</p>
-        <h1>Pedidos</h1>
-      </div>
+      <PageHeading eyebrow="Operacion diaria" title="Pedidos" />
       <OrdersTable />
     </main>
   );
