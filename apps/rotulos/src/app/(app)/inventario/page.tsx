@@ -80,7 +80,11 @@ export default function InventoryPage() {
               </DrawerContent>
             </Drawer>
           </div>
-          <ProductsTable key={`${refreshKey}-${productFilter}`} initialQuery={productFilter} />
+          <ProductsTable
+            key={`${refreshKey}-${productFilter}`}
+            initialQuery={productFilter}
+            onProductDeleted={() => setRefreshKey((key) => key + 1)}
+          />
         </TabsContent>
 
         <TabsContent value="movimientos">
