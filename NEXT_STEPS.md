@@ -11,7 +11,7 @@
 y los tres planes en `docs/superpowers/plans/` de esa fecha para el detalle
 completo de lo decidido y hecho.
 
-**Producción:** `https://rotulos-xi.vercel.app` — ya incluye pedidos,
+**Producción:** `https://purpleshoponline.vercel.app` — ya incluye pedidos,
 clientes, inventario (con alertas de stock), reportes, y el generador de
 rótulos con el diseño ilustrado aprobado (fondo `label-template-bg.png` +
 datos superpuestos). Validado visualmente por Edwing el 2026-07-17

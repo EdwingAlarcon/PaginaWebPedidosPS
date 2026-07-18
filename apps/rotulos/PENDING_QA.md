@@ -46,7 +46,7 @@ Fecha de última revisión: 2026-07-16
 - [x] Se amplió `apps/rotulos` como base de app central Next/Supabase con rutas iniciales para pedidos y clientes.
 - [x] La migración Supabase ahora incluye `orders`, `order_items` y `product_codes`, además de clientes/rótulos/configuración.
 - [x] Se agregó panel de acceso con Supabase Auth por magic link para que producción use usuarios autenticados antes de guardar datos centrales.
-- [x] Se creó proyecto Vercel `edwingalarcons-projects/rotulos` y quedó en producción en `https://rotulos-xi.vercel.app`.
+- [x] Se creó proyecto Vercel `edwingalarcons-projects/rotulos` y quedó en producción en `https://purpleshoponline.vercel.app`.
 - [x] Se creó proyecto Supabase dedicado `purpleshop` (`enrruhuzlnqqjnsabgzq`), se aplicó la migración y se configuraron variables Supabase en Vercel.
 - [x] Se actualizó la shell de Next para parecerse a Purple Shop legacy: logo, sidebar, topbar, Dashboard, Nuevo Pedido, Pedidos, Clientes, Inventario, Reportes, Rótulos e Historial.
 
@@ -55,7 +55,7 @@ Fecha de última revisión: 2026-07-16
 - [x] Configurar `.env.local`/Vercel con credenciales Supabase antes de validar persistencia real contra base de datos. En Vercel ya está configurado; local sigue usando fallback si no existe `.env.local`.
 - [x] Configurar en Supabase Auth la URL de Vercel como redirect URL.
 - [x] Aplicar la migración Supabase (`202607150001_create_rotulos_schema.sql`) en el proyecto remoto antes de producción.
-- [ ] Validar manualmente login por magic link y creación real de pedido/rótulo desde `https://rotulos-xi.vercel.app`.
+- [ ] Validar manualmente login por magic link y creación real de pedido/rótulo desde `https://purpleshoponline.vercel.app`.
 - [x] Completar migración 1:1 de Inventario y Reportes contra Supabase; las rutas ya existen, pero Inventario está como base inicial. Inventario y Reportes ya están conectados a Supabase (`products`/`stock_movements`), con fallback local vía `inventory-store.ts`.
 - [ ] Construir la vista de historial de movimientos por producto y la accion de eliminar producto en la UI de Inventario — `listMovements()` y `deleteProduct()` ya existen y estan probados en `inventory-store.ts`, pero no tienen UI que los invoque todavia. El MVP actual solo cubre alta de producto, registro de movimiento y listado con alertas.
 - [ ] Validar manualmente impresión física/PDF con la impresora final a escala 100%.

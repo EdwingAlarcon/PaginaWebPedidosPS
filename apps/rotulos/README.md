@@ -2,7 +2,7 @@
 
 App Next.js para operar PurpleShop desde web y movil: pedidos, clientes, rótulos de envío, historial, configuración e impresión/PDF. La aplicación vive en `apps/rotulos` y se ejecuta localmente en `http://localhost:3001`.
 
-Producción: `https://rotulos-xi.vercel.app`
+Producción: `https://purpleshoponline.vercel.app`
 
 Supabase producción: proyecto `purpleshop`, ref `enrruhuzlnqqjnsabgzq`.
 
@@ -135,7 +135,7 @@ Para descargar PDF, guarda primero el rótulo y usa la acción de PDF. El endpoi
 ## Despliegue en Vercel
 
 1. Proyecto Vercel: `edwingalarcons-projects/rotulos`.
-2. URL pública estable: `https://rotulos-xi.vercel.app`.
+2. URL pública estable: `https://purpleshoponline.vercel.app`.
 3. Configura las variables de entorno de Supabase y `NEXT_PUBLIC_ROTULOS_BASE_URL` con la URL pública de Vercel.
 4. Aplica las migraciones de Supabase antes de usar producción.
 5. Usa el comando de build estándar:
