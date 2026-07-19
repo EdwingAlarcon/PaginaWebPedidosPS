@@ -336,14 +336,14 @@ body {
 .lbl-recipient-reference { top: 67.6%; left: 52.3%; width: 43.5%; }
 .lbl-recipient-notes { top: 72.1%; left: 52.3%; width: 43.5%; }
 
-.lbl-order-number { top: 87.6%; left: 5%; width: 13%; font-size: 1.9cqw; }
-.lbl-date { top: 87.6%; left: 23%; width: 10%; font-size: 1.9cqw; }
-.lbl-carrier { top: 87.6%; left: 38.5%; width: 13.7%; font-size: 1.6cqw; }
-.lbl-value { top: 87.6%; left: 74%; width: 7%; font-size: 1.9cqw; }
-.lbl-packages { top: 87.6%; left: 88%; width: 9%; font-size: 1.9cqw; text-align: center; }
+.lbl-order-number { top: 85.4%; left: 5%; width: 13%; font-size: 1.9cqw; }
+.lbl-date { top: 85.4%; left: 23%; width: 10%; font-size: 1.9cqw; }
+.lbl-carrier { top: 85.4%; left: 38.5%; width: 13.7%; font-size: 1.6cqw; }
+.lbl-value { top: 85.4%; left: 74%; width: 7%; font-size: 1.9cqw; }
+.lbl-packages { top: 85.4%; left: 88%; width: 9%; font-size: 1.9cqw; text-align: center; }
 .lbl-check-paid,
 .lbl-check-cod {
-  top: 88.8%;
+  top: 86.8%;
   font-size: 2.2cqw;
   width: 3%;
 }
