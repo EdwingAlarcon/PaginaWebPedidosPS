@@ -1,6 +1,7 @@
 import { createBlankLabelDraft, defaultSettings } from "@/lib/defaults";
 import { formatOrderNumber, getSequenceScope } from "@/lib/order-number";
 import { createClient } from "@/lib/supabase/client";
+import { normalizeLabelDraft, normalizeLabelSettings } from "@/lib/normalize";
 import type { LabelDraft, LabelRecord, LabelSettings } from "@/lib/types";
 
 export type LabelStore = {
@@ -137,20 +138,21 @@ function createSupabaseLabelStore(): LabelStore | null {
       return data ? rowToLabel(data) : null;
     },
     async saveLabel(draft, settings) {
-      const manual = draft.orderNumber.trim();
+      const normalizedDraft = normalizeLabelDraft(draft);
+      const manual = normalizedDraft.orderNumber.trim();
       if (manual) {
         const { data: duplicates, error: duplicateError } = await supabase
           .from("labels")
           .select("id")
           .eq("order_number", manual)
-          .neq("id", draft.id ?? "00000000-0000-0000-0000-000000000000");
+          .neq("id", normalizedDraft.id ?? "00000000-0000-0000-0000-000000000000");
         if (duplicateError) throw duplicateError;
         if ((duplicates ?? []).length > 0) throw new Error("duplicate_order_number");
       }
-      const orderNumber = manual || await reserveSupabaseOrderNumber(draft, settings);
-      const row = labelToRow(draft, orderNumber);
-      const request = draft.id
-        ? supabase.from("labels").update(row).eq("id", draft.id).select("*").single<LabelRow>()
+      const orderNumber = manual || await reserveSupabaseOrderNumber(normalizedDraft, settings);
+      const row = labelToRow(normalizedDraft, orderNumber);
+      const request = normalizedDraft.id
+        ? supabase.from("labels").update(row).eq("id", normalizedDraft.id).select("*").single<LabelRow>()
         : supabase.from("labels").insert(row).select("*").single<LabelRow>();
       const { data, error } = await request;
       if (error) throw error;
@@ -180,9 +182,10 @@ function createSupabaseLabelStore(): LabelStore | null {
       return rowToSettings(data ?? null);
     },
     async saveSettings(settings) {
-      const { error } = await supabase.from("settings").insert(settingsToRow(settings));
+      const normalizedSettings = normalizeLabelSettings(settings);
+      const { error } = await supabase.from("settings").insert(settingsToRow(normalizedSettings));
       if (error) throw error;
-      return settings;
+      return normalizedSettings;
     },
     async estimateNextOrderNumber(settings, draft) {
       return createLocalLabelStore().estimateNextOrderNumber(settings, draft);
@@ -300,27 +303,28 @@ export function createLocalLabelStore(): LabelStore {
       return readLabels().find((label) => label.id === id) ?? null;
     },
     async saveLabel(draft, settings) {
+      const normalizedDraft = normalizeLabelDraft(draft);
       const labels = readLabels();
       const sequences = readSequences();
-      const manual = draft.orderNumber.trim();
-      if (manual && labels.some((label) => label.orderNumber === manual && label.id !== draft.id)) {
+      const manual = normalizedDraft.orderNumber.trim();
+      if (manual && labels.some((label) => label.orderNumber === manual && label.id !== normalizedDraft.id)) {
         throw new Error("duplicate_order_number");
       }
-      const index = labels.findIndex((label) => label.id === draft.id);
+      const index = labels.findIndex((label) => label.id === normalizedDraft.id);
       const existing = index >= 0 ? labels[index] : undefined;
-      const nextSequence = manual ? undefined : getNextSequence(settings, draft, sequences);
+      const nextSequence = manual ? undefined : getNextSequence(settings, normalizedDraft, sequences);
       const orderNumber = manual || formatOrderNumber(settings.orderNumberConfig, {
-        date: new Date(`${draft.date}T00:00:00Z`),
+        date: new Date(`${normalizedDraft.date}T00:00:00Z`),
         sequence: nextSequence!.value,
-        city: draft.recipient.city,
-        department: draft.recipient.department,
+        city: normalizedDraft.recipient.city,
+        department: normalizedDraft.recipient.department,
       });
       if (nextSequence) {
         sequences.set(nextSequence.scope, nextSequence.value);
         writeSequences(sequences);
       }
-      const status = existing ? draft.status : draft.status === "borrador" ? "generado" : draft.status;
-      const record = toRecord({ ...draft, orderNumber, status }, existing);
+      const status = existing ? normalizedDraft.status : normalizedDraft.status === "borrador" ? "generado" : normalizedDraft.status;
+      const record = toRecord({ ...normalizedDraft, orderNumber, status }, existing);
       if (index >= 0) labels[index] = record;
       else labels.unshift(record);
       writeLabels(labels);
@@ -347,8 +351,9 @@ export function createLocalLabelStore(): LabelStore {
       return readSettings();
     },
     async saveSettings(settings) {
-      writeSettings(settings);
-      return settings;
+      const normalizedSettings = normalizeLabelSettings(settings);
+      writeSettings(normalizedSettings);
+      return normalizedSettings;
     },
     async estimateNextOrderNumber(settings, draft) {
       const nextSequence = getNextSequence(settings, draft, readSequences());

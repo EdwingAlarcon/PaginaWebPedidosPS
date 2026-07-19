@@ -53,7 +53,7 @@ describe("LabelForm", () => {
 
     render(<LabelForm />);
 
-    expect(await screen.findByDisplayValue("Ana Perez")).toBeInTheDocument();
+    expect(await screen.findByDisplayValue("ANA PEREZ")).toBeInTheDocument();
   });
 
   it("posts the loaded browser-fallback label when downloading PDF", async () => {
@@ -85,7 +85,7 @@ describe("LabelForm", () => {
     vi.spyOn(HTMLAnchorElement.prototype, "click").mockImplementation(() => undefined);
 
     render(<LabelForm />);
-    expect(await screen.findByDisplayValue("Ana Perez")).toBeInTheDocument();
+    expect(await screen.findByDisplayValue("ANA PEREZ")).toBeInTheDocument();
     fireEvent.click(screen.getByRole("button", { name: "Descargar PDF" }));
 
     expect(await screen.findByText("PDF descargado.")).toBeInTheDocument();

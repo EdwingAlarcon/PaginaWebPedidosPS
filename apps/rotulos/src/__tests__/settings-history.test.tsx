@@ -130,7 +130,7 @@ describe("HistoryTable", () => {
 
     renderHistoryTable([]);
 
-    expect(await screen.findByText("Ana Perez")).toBeInTheDocument();
+    expect(await screen.findByText("ANA PEREZ")).toBeInTheDocument();
     await user.click(screen.getByRole("button", { name: `Acciones para el rotulo ${saved.orderNumber}` }));
     await user.click(screen.getByRole("menuitem", { name: "Duplicar" }));
 

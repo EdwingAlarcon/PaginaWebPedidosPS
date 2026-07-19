@@ -14,10 +14,10 @@ describe("local label store", () => {
     draft.date = "2033-07-15";
 
     const saved = await store.saveLabel(draft, settings);
-    await store.saveSettings(settings);
+    const savedSettings = await store.saveSettings(settings);
 
     expect(localStorage.getItem("purpleshop.rotulos.labels")).toContain(saved.id);
-    expect(await createLocalLabelStore().getSettings()).toEqual(settings);
+    expect(await createLocalLabelStore().getSettings()).toEqual(savedSettings);
     expect(await createLocalLabelStore().getLabel(saved.id)).toEqual(saved);
   });
 
@@ -109,6 +109,6 @@ describe("local label store", () => {
 
     expect(updated.createdAt).toBe(created.createdAt);
     expect(updated.status).toBe("impreso");
-    expect(updated.carrier).toBe("Coordinadora");
+    expect(updated.carrier).toBe("COORDINADORA");
   });
 });
