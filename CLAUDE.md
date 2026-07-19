@@ -12,6 +12,22 @@ codigo fuente ahi para entender convenciones.
 
 **Produccion:** https://purpleshoponline.vercel.app
 
+## Estado operativo reciente
+
+- 2026-07-18 noche: la mejora importante de formularios de ubicacion ya
+  esta desplegada. Los selectores de departamento/ciudad usan datos de
+  Colombia; para Bogota se pide Localidad y Barrio/Sector con validacion.
+  Supabase remoto ya tiene `customers.locality`.
+- Exportar PDF funciona en produccion desde `Crear rotulo` y desde
+  `Historial`. Se abandono la generacion con navegador/Chromium en Vercel
+  y ahora el PDF se genera con `pdf-lib` en `apps/rotulos/src/lib/pdf.ts`.
+- El pie del rotulo fue compactado y alineado: numero de pedido, fecha,
+  transportadora, valor, paquetes y check de metodo de pago deben verse
+  completos dentro de la franja inferior tanto en vista previa como en PDF.
+  Coordenadas sincronizadas en `apps/rotulos/src/app/globals.css` y
+  `apps/rotulos/src/lib/pdf.ts`.
+- Ultimo commit funcional verificado: `35a38cd fix(rotulos): compactar textos del pie`.
+
 ## Cosas explicitamente fuera de alcance / no tocar sin permiso
 
 - **No sincronizar contra el workbook Excel real del negocio**
