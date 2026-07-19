@@ -1,6 +1,6 @@
 # Purple Shop — Próximos pasos / handoff
 
-> Última actualización: 2026-07-18 (push del retiro de legacy hecho, tokens de Supabase revocados).
+> Última actualización: 2026-07-18 (push del retiro de legacy hecho, tokens de Supabase revocados; normalización de texto a MAYÚSCULA desplegada a producción).
 
 ## Estado actual: migración de GitHub Pages a Vercel/Supabase completada
 
@@ -23,6 +23,28 @@ migraciones existentes ya están aplicadas en remoto:
 `202607150001_create_rotulos_schema.sql`,
 `202607161000_create_inventory_schema.sql`,
 `202607162000_add_label_size.sql`.
+
+## Hecho recientemente
+
+- **Normalización de texto a MAYÚSCULA** (2026-07-18): todo campo de texto
+  operativo (nombres, direcciones, ciudades, barrios, observaciones,
+  referencias, remitente/destinatario, productos/categorías, motivos de
+  movimiento, notas de pedidos) se guarda ahora en mayúscula
+  (`trim().toUpperCase()`) antes de persistir en Supabase o en el fallback
+  de `localStorage`, en los tres stores (`label-store.ts`,
+  `inventory-store.ts`, `business-store.ts`). Módulo centralizado:
+  `apps/rotulos/src/lib/normalize.ts`. Campos excluidos a propósito:
+  `phone`, `email`, URLs, `instagramUser`, `brandPhrase`,
+  `orderNumberConfig.*`, colores hex, ids/timestamps. Plan completo en
+  `docs/superpowers/plans/2026-07-18-normalizar-texto-mayuscula.md`.
+  Desplegado a producción (`vercel deploy --prod`) el mismo día.
+  **Riesgo aceptado, no bloqueante:** los registros guardados *antes* de
+  este cambio no se re-normalizan retroactivamente — mantienen su casing
+  original hasta que se editen y regraben. Caso concreto: `saveProductCode`
+  usa `code` como clave de deduplicación; un código viejo en minúscula ya
+  no colisiona con uno nuevo en mayúscula del "mismo" producto (quedarían
+  como dos registros separados). No se pidió migración de datos
+  históricos — si hace falta, es tarea aparte.
 
 ## Pendiente
 
