@@ -1,3 +1,6 @@
+import { readFile } from "node:fs/promises";
+import { join } from "node:path";
+import { PDFDocument, StandardFonts, rgb, type PDFFont, type PDFPage } from "pdf-lib";
 import { formatCop, formatDate } from "@/lib/format";
 import { LABEL_SIZES } from "@/lib/types";
 import type { LabelDraft, LabelRecord, LabelSettings } from "@/lib/types";
@@ -8,6 +11,18 @@ type PdfHtmlOptions = {
 
 type PdfRenderOptions = PdfHtmlOptions & {
   timeoutMs?: number;
+};
+
+const CM_TO_POINTS = 28.3464567;
+const PDF_TEXT_COLOR = rgb(0.102, 0.024, 0.188);
+
+type PdfFieldOptions = {
+  topPct: number;
+  leftPct: number;
+  widthPct: number;
+  fontSizePct: number;
+  align?: "left" | "center";
+  maxLines?: number;
 };
 
 function escapeHtml(value: unknown): string {
@@ -24,10 +39,6 @@ function assetUrl(value: string, origin?: string): string {
   if (!/^\/[a-zA-Z0-9/_\-.]+$/.test(trimmed)) return "";
   if (!origin) return trimmed;
   return new URL(trimmed, origin).toString();
-}
-
-function shouldUseServerlessChromium(): boolean {
-  return process.env.VERCEL === "1" || Boolean(process.env.AWS_LAMBDA_FUNCTION_NAME || process.env.AWS_EXECUTION_ENV);
 }
 
 export function renderLabelPdfHtml(label: LabelDraft | LabelRecord, settings: LabelSettings, options: PdfHtmlOptions = {}): string {
@@ -125,63 +136,109 @@ export function renderLabelPdfHtml(label: LabelDraft | LabelRecord, settings: La
 }
 
 export async function renderLabelPdfBuffer(label: LabelDraft | LabelRecord, settings: LabelSettings, options: PdfRenderOptions = {}): Promise<Buffer> {
-  if (shouldUseServerlessChromium()) {
-    return renderServerlessLabelPdfBuffer(label, settings, options);
-  }
+  void settings;
+  void options;
 
-  const { chromium } = await import("playwright");
-  const browser = await chromium.launch({ headless: true });
-  try {
-    const size = LABEL_SIZES[label.size] ?? LABEL_SIZES["14x12"];
-    const page = await browser.newPage({
-      viewport: { width: Math.round(size.widthCm * 37.8), height: Math.round(size.heightCm * 37.8) },
-    });
-    await page.setContent(renderLabelPdfHtml(label, settings, options), {
-      waitUntil: "networkidle",
-      timeout: options.timeoutMs ?? 15_000,
-    });
-    return await page.pdf({
-      width: `${size.widthCm}cm`,
-      height: `${size.heightCm}cm`,
-      margin: { top: "0", right: "0", bottom: "0", left: "0" },
-      printBackground: true,
-      preferCSSPageSize: true,
-    });
-  } finally {
-    await browser.close();
-  }
+  const size = LABEL_SIZES[label.size] ?? LABEL_SIZES["14x12"];
+  const pageWidth = size.widthCm * CM_TO_POINTS;
+  const pageHeight = size.heightCm * CM_TO_POINTS;
+  const pdfDoc = await PDFDocument.create();
+  const page = pdfDoc.addPage([pageWidth, pageHeight]);
+  const [font, boldFont] = await Promise.all([
+    pdfDoc.embedFont(StandardFonts.Helvetica),
+    pdfDoc.embedFont(StandardFonts.HelveticaBold),
+  ]);
+  const template = await readFile(join(process.cwd(), "public", "label-template-bg.png"));
+  const background = await pdfDoc.embedPng(template);
+  page.drawImage(background, { x: 0, y: 0, width: pageWidth, height: pageHeight });
+
+  const isCod = label.paymentMethod === "contraentrega";
+  const draw = (value: unknown, field: PdfFieldOptions) => drawPdfField(page, boldFont, String(value ?? ""), field);
+
+  draw(label.sender.name, { topPct: 40.8, leftPct: 8.8, widthPct: 31, fontSizePct: 3 });
+  draw(label.sender.phone, { topPct: 47.4, leftPct: 8.8, widthPct: 31, fontSizePct: 2.7 });
+  draw(label.sender.city, { topPct: 54, leftPct: 8.8, widthPct: 31, fontSizePct: 2.7 });
+  draw(label.sender.department, { topPct: 60.6, leftPct: 8.8, widthPct: 31, fontSizePct: 2.7 });
+  draw(label.sender.address, { topPct: 67, leftPct: 8.8, widthPct: 31, fontSizePct: 2.7, maxLines: 2 });
+  draw(label.recipient.fullName, { topPct: 40.2, leftPct: 52.3, widthPct: 43.5, fontSizePct: 3 });
+  draw(label.recipient.phone, { topPct: 45.2, leftPct: 52.3, widthPct: 43.5, fontSizePct: 2.7 });
+  draw(label.recipient.department, { topPct: 50.4, leftPct: 52.3, widthPct: 19, fontSizePct: 2.7 });
+  draw(label.recipient.city, { topPct: 50.4, leftPct: 78.6, widthPct: 17, fontSizePct: 2.7 });
+  draw(label.recipient.address, { topPct: 55.5, leftPct: 52.3, widthPct: 43.5, fontSizePct: 2.7, maxLines: 2 });
+  draw(label.recipient.neighborhood, { topPct: 63, leftPct: 52.3, widthPct: 43.5, fontSizePct: 2.7 });
+  draw(label.recipient.reference, { topPct: 67.6, leftPct: 52.3, widthPct: 43.5, fontSizePct: 2.7 });
+  draw(label.recipient.notes, { topPct: 72.1, leftPct: 52.3, widthPct: 43.5, fontSizePct: 2.7 });
+  draw(label.orderNumber, { topPct: 87.6, leftPct: 5, widthPct: 13, fontSizePct: 1.9 });
+  draw(formatDate(label.date), { topPct: 87.6, leftPct: 23, widthPct: 10, fontSizePct: 1.9 });
+  draw(label.carrier, { topPct: 87.6, leftPct: 38.5, widthPct: 13.7, fontSizePct: 1.6 });
+  draw(isCod ? formatCop(label.codAmount) : "", { topPct: 87.6, leftPct: 74, widthPct: 7, fontSizePct: 1.9 });
+  draw(label.packageCount, { topPct: 87.6, leftPct: 88, widthPct: 9, fontSizePct: 1.9, align: "center" });
+  drawPdfCheck(page, isCod ? 62.3 : 55.2, 88.8, pageWidth, pageHeight);
+
+  const bytes = await pdfDoc.save();
+  return Buffer.from(bytes);
 }
 
-async function renderServerlessLabelPdfBuffer(label: LabelDraft | LabelRecord, settings: LabelSettings, options: PdfRenderOptions): Promise<Buffer> {
-  const [{ default: chromium }, { default: puppeteer }] = await Promise.all([
-    import("@sparticuz/chromium"),
-    import("puppeteer-core"),
-  ]);
-  const browser = await puppeteer.launch({
-    args: chromium.args,
-    executablePath: await chromium.executablePath(),
-    headless: true,
-  });
-  try {
-    const size = LABEL_SIZES[label.size] ?? LABEL_SIZES["14x12"];
-    const page = await browser.newPage();
-    await page.setViewport({
-      width: Math.round(size.widthCm * 37.8),
-      height: Math.round(size.heightCm * 37.8),
-    });
-    await page.setContent(renderLabelPdfHtml(label, settings, options), {
-      waitUntil: "load",
-      timeout: options.timeoutMs ?? 15_000,
-    });
-    const pdf = await page.pdf({
-      width: `${size.widthCm}cm`,
-      height: `${size.heightCm}cm`,
-      margin: { top: "0", right: "0", bottom: "0", left: "0" },
-      printBackground: true,
-      preferCSSPageSize: true,
-    });
-    return Buffer.from(pdf);
-  } finally {
-    await browser.close();
+function sanitizePdfText(value: string): string {
+  return value.normalize("NFKD").replace(/[^\x20-\x7E]/g, "").trim();
+}
+
+function truncatePdfText(font: PDFFont, text: string, fontSize: number, maxWidth: number): string {
+  const clean = sanitizePdfText(text);
+  if (font.widthOfTextAtSize(clean, fontSize) <= maxWidth) return clean;
+  let truncated = clean;
+  while (truncated.length > 0 && font.widthOfTextAtSize(`${truncated}...`, fontSize) > maxWidth) {
+    truncated = truncated.slice(0, -1);
   }
+  return truncated ? `${truncated}...` : "";
+}
+
+function drawPdfField(page: PDFPage, font: PDFFont, value: string, options: PdfFieldOptions): void {
+  const { width, height } = page.getSize();
+  const fontSize = width * (options.fontSizePct / 100);
+  const x = width * (options.leftPct / 100);
+  const maxWidth = width * (options.widthPct / 100);
+  const lineHeight = fontSize * 1.15;
+  const lines = wrapPdfText(font, value, fontSize, maxWidth, options.maxLines ?? 1);
+
+  lines.forEach((line, index) => {
+    const textWidth = font.widthOfTextAtSize(line, fontSize);
+    page.drawText(line, {
+      x: options.align === "center" ? x + (maxWidth - textWidth) / 2 : x,
+      y: height - (height * (options.topPct / 100)) - fontSize - index * lineHeight,
+      size: fontSize,
+      font,
+      color: PDF_TEXT_COLOR,
+    });
+  });
+}
+
+function wrapPdfText(font: PDFFont, value: string, fontSize: number, maxWidth: number, maxLines: number): string[] {
+  const clean = sanitizePdfText(value);
+  if (maxLines <= 1) return [truncatePdfText(font, clean, fontSize, maxWidth)];
+  const words = clean.split(/\s+/).filter(Boolean);
+  const lines: string[] = [];
+  let current = "";
+  for (const word of words) {
+    const next = current ? `${current} ${word}` : word;
+    if (font.widthOfTextAtSize(next, fontSize) <= maxWidth) {
+      current = next;
+      continue;
+    }
+    if (current) lines.push(current);
+    current = word;
+    if (lines.length === maxLines - 1) break;
+  }
+  if (current && lines.length < maxLines) lines.push(current);
+  if (lines.length === maxLines) {
+    lines[maxLines - 1] = truncatePdfText(font, lines[maxLines - 1], fontSize, maxWidth);
+  }
+  return lines;
+}
+
+function drawPdfCheck(page: PDFPage, leftPct: number, topPct: number, width: number, height: number): void {
+  const x = width * (leftPct / 100);
+  const y = height - height * (topPct / 100);
+  page.drawLine({ start: { x, y }, end: { x: x + width * 0.008, y: y - height * 0.012 }, thickness: 1.4, color: PDF_TEXT_COLOR });
+  page.drawLine({ start: { x: x + width * 0.008, y: y - height * 0.012 }, end: { x: x + width * 0.026, y: y + height * 0.018 }, thickness: 1.4, color: PDF_TEXT_COLOR });
 }
