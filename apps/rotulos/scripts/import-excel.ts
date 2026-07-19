@@ -19,8 +19,8 @@ async function readWorkbookRows(filePath: string): Promise<{ sheetName: string; 
       for (let col = 1; col <= worksheet.columnCount; col++) {
         const raw = row.getCell(col).value;
         const value =
-          raw !== null && typeof raw === "object" && "result" in (raw as Record<string, unknown>)
-            ? ((raw as { result: CellValue }).result ?? null)
+          raw !== null && typeof raw === "object" && "result" in (raw as unknown as Record<string, unknown>)
+            ? ((raw as unknown as { result: CellValue }).result ?? null)
             : ((raw as CellValue) ?? null);
         values.push(value);
       }
