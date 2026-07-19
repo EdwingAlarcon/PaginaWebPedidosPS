@@ -10,6 +10,9 @@ type PdfRenderOptions = PdfHtmlOptions & {
   timeoutMs?: number;
 };
 
+type PlaywrightChromium = typeof import("playwright").chromium;
+type ChromiumLaunchOptions = Parameters<PlaywrightChromium["launch"]>[0];
+
 function escapeHtml(value: unknown): string {
   return String(value ?? "")
     .replaceAll("&", "&amp;")
@@ -24,6 +27,23 @@ function assetUrl(value: string, origin?: string): string {
   if (!/^\/[a-zA-Z0-9/_\-.]+$/.test(trimmed)) return "";
   if (!origin) return trimmed;
   return new URL(trimmed, origin).toString();
+}
+
+function shouldUseServerlessChromium(): boolean {
+  return process.env.VERCEL === "1" || Boolean(process.env.AWS_LAMBDA_FUNCTION_NAME || process.env.AWS_EXECUTION_ENV);
+}
+
+async function launchPdfBrowser() {
+  const { chromium: playwrightChromium } = await import("playwright");
+  const launchOptions: ChromiumLaunchOptions = { headless: true };
+
+  if (shouldUseServerlessChromium()) {
+    const { default: chromium } = await import("@sparticuz/chromium");
+    launchOptions.args = chromium.args;
+    launchOptions.executablePath = await chromium.executablePath();
+  }
+
+  return playwrightChromium.launch(launchOptions);
 }
 
 export function renderLabelPdfHtml(label: LabelDraft | LabelRecord, settings: LabelSettings, options: PdfHtmlOptions = {}): string {
@@ -121,8 +141,7 @@ export function renderLabelPdfHtml(label: LabelDraft | LabelRecord, settings: La
 }
 
 export async function renderLabelPdfBuffer(label: LabelDraft | LabelRecord, settings: LabelSettings, options: PdfRenderOptions = {}): Promise<Buffer> {
-  const { chromium } = await import("playwright");
-  const browser = await chromium.launch({ headless: true });
+  const browser = await launchPdfBrowser();
   try {
     const size = LABEL_SIZES[label.size] ?? LABEL_SIZES["14x12"];
     const page = await browser.newPage({
