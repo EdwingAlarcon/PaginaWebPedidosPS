@@ -8,8 +8,8 @@ describe("label validation", () => {
     draft.sender = {
       name: "PurpleShop",
       phone: "3001234567",
-      department: "Cundinamarca",
-      city: "Bogota",
+      department: "Valle del Cauca",
+      city: "Cali",
       address: "Calle 1 # 2-3",
     };
     draft.recipient = {
@@ -34,8 +34,8 @@ describe("label validation", () => {
     const draft = createBlankLabelDraft();
     draft.sender.name = "PurpleShop";
     draft.sender.phone = "3001234567";
-    draft.sender.department = "Cundinamarca";
-    draft.sender.city = "Bogota";
+    draft.sender.department = "Valle del Cauca";
+    draft.sender.city = "Cali";
     draft.sender.address = "Calle 1 # 2-3";
     draft.recipient.fullName = "Ana Perez";
     draft.recipient.phone = "3101234567";
@@ -56,8 +56,8 @@ describe("label validation", () => {
     const draft = createBlankLabelDraft();
     draft.sender.name = "PurpleShop";
     draft.sender.phone = "3001234567";
-    draft.sender.department = "Cundinamarca";
-    draft.sender.city = "Bogota";
+    draft.sender.department = "Valle del Cauca";
+    draft.sender.city = "Cali";
     draft.sender.address = "Calle 1 # 2-3";
     draft.recipient.fullName = "Ana Perez";
     draft.recipient.phone = "3101234567";
@@ -93,13 +93,13 @@ describe("label validation", () => {
     const draft = createCompleteDraft();
     draft.sender.name = "s".repeat(50);
     draft.sender.phone = "p".repeat(20);
-    draft.sender.department = "d".repeat(35);
-    draft.sender.city = "c".repeat(35);
+    draft.sender.department = "ARCHIPIÉLAGO DE SAN ANDRÉS, PROVIDENCIA Y SANTA CATALINA";
+    draft.sender.city = "SAN ANDRÉS";
     draft.sender.address = "a".repeat(120);
     draft.recipient.fullName = "f".repeat(55);
     draft.recipient.phone = "p".repeat(20);
-    draft.recipient.department = "d".repeat(35);
-    draft.recipient.city = "c".repeat(35);
+    draft.recipient.department = "VALLE DEL CAUCA";
+    draft.recipient.city = "CALI";
     draft.recipient.address = "a".repeat(170);
     draft.recipient.reference = "r".repeat(90);
     draft.recipient.notes = "n".repeat(90);
@@ -154,8 +154,8 @@ function createCompleteDraft() {
   draft.sender = {
     name: "PurpleShop",
     phone: "3001234567",
-    department: "Cundinamarca",
-    city: "Bogota",
+    department: "Valle del Cauca",
+    city: "Cali",
     address: "Calle 1 # 2-3",
   };
   draft.recipient = {

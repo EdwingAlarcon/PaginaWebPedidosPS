@@ -19,6 +19,7 @@ type CustomerRow = {
   email: string;
   department: string;
   city: string;
+  locality: string;
   address: string;
   neighborhood: string;
   created_at: string;
@@ -79,6 +80,7 @@ export function createBlankOrderDraft(): OrderDraft {
       email: "",
       department: "",
       city: "",
+      locality: "",
       address: "",
       neighborhood: "",
     },
@@ -99,6 +101,7 @@ function rowToCustomer(row: CustomerRow): Customer {
     email: row.email,
     department: row.department,
     city: row.city,
+    locality: row.locality,
     address: row.address,
     neighborhood: row.neighborhood,
     createdAt: row.created_at,
@@ -243,6 +246,7 @@ function createSupabaseBusinessStore(): BusinessStore | null {
         email: normalizedDraft.customer.email,
         department: normalizedDraft.customer.department,
         city: normalizedDraft.customer.city,
+        locality: normalizedDraft.customer.locality ?? "",
         address: normalizedDraft.customer.address,
         neighborhood: normalizedDraft.customer.neighborhood,
       };

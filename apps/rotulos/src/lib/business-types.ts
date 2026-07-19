@@ -5,6 +5,7 @@ export type Customer = {
   email: string;
   department: string;
   city: string;
+  locality?: string;
   address: string;
   neighborhood: string;
   createdAt: string;

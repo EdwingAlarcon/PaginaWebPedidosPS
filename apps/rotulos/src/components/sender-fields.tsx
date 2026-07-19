@@ -3,13 +3,11 @@ import { PRINTABLE_LABEL_LIMITS } from "@/lib/validation";
 import { Card, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { FormField } from "@/components/ui/form-field";
+import { LocationFields } from "@/components/location-fields";
 
-const LABELS: Record<keyof Sender, string> = {
+const LABELS: Record<"name" | "phone", string> = {
   name: "Nombre / Empresa",
   phone: "Telefono",
-  department: "Departamento",
-  city: "Ciudad",
-  address: "Direccion",
 };
 
 type SenderChange = Sender | ((current: Sender) => Sender);
@@ -20,7 +18,7 @@ export function SenderFields({ value, onChange, errors }: { value: Sender; onCha
     <Card role="group" aria-label="Remitente">
       <CardTitle>Remitente</CardTitle>
       <div className="mt-4 grid gap-4 sm:grid-cols-2">
-        {(["name", "phone", "department", "city", "address"] as const).map((key) => {
+        {(["name", "phone"] as const).map((key) => {
           const errorKey = `sender.${key}`;
           const maxLength = PRINTABLE_LABEL_LIMITS.sender[key];
           return (
@@ -29,7 +27,6 @@ export function SenderFields({ value, onChange, errors }: { value: Sender; onCha
               label={LABELS[key]}
               hint={`Maximo ${maxLength} caracteres para imprimirlo completo.`}
               error={errors[errorKey]}
-              className={key === "address" ? "sm:col-span-2" : undefined}
             >
               <Input
                 value={value[key]}
@@ -40,6 +37,21 @@ export function SenderFields({ value, onChange, errors }: { value: Sender; onCha
             </FormField>
           );
         })}
+        <LocationFields
+          value={value}
+          onChange={onChange}
+          errors={errors}
+          prefix="sender"
+          includeNeighborhood
+          required
+          limits={{
+            department: PRINTABLE_LABEL_LIMITS.sender.department,
+            city: PRINTABLE_LABEL_LIMITS.sender.city,
+            locality: PRINTABLE_LABEL_LIMITS.location.locality,
+            neighborhood: PRINTABLE_LABEL_LIMITS.location.neighborhood,
+            address: PRINTABLE_LABEL_LIMITS.sender.address,
+          }}
+        />
       </div>
     </Card>
   );

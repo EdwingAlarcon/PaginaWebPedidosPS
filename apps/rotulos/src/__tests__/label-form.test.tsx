@@ -1,4 +1,4 @@
-import { fireEvent, render, screen, within } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { LabelForm } from "@/components/label-form";
 import { createBlankLabelDraft, defaultSettings } from "@/lib/defaults";
@@ -29,13 +29,15 @@ describe("LabelForm", () => {
     const shipment = within(screen.getByRole("group", { name: "Datos del envio" }));
 
     fireEvent.change(sender.getByLabelText(/Telefono/), { target: { value: "3001234567" } });
-    fireEvent.change(sender.getByLabelText(/Departamento/), { target: { value: "Cundinamarca" } });
-    fireEvent.change(sender.getByLabelText(/Ciudad/), { target: { value: "Bogota" } });
+    fireEvent.change(sender.getByLabelText(/Departamento/), { target: { value: "VALLE DEL CAUCA" } });
+    await waitFor(() => expect(sender.getByRole("option", { name: "SANTIAGO DE CALI" })).toBeInTheDocument());
+    fireEvent.change(sender.getByLabelText(/Ciudad/), { target: { value: "SANTIAGO DE CALI" } });
     fireEvent.change(sender.getByLabelText(/Direccion/), { target: { value: "Calle 1 # 2-3" } });
     fireEvent.change(recipient.getByLabelText(/Nombre y apellidos/), { target: { value: "Ana Perez" } });
     fireEvent.change(recipient.getByLabelText(/Telefono/), { target: { value: "3101234567" } });
-    fireEvent.change(recipient.getByLabelText(/Departamento/), { target: { value: "Antioquia" } });
-    fireEvent.change(recipient.getByLabelText(/Ciudad/), { target: { value: "Medellin" } });
+    fireEvent.change(recipient.getByLabelText(/Departamento/), { target: { value: "ANTIOQUIA" } });
+    await waitFor(() => expect(recipient.getByRole("option", { name: "MEDELLÍN" })).toBeInTheDocument());
+    fireEvent.change(recipient.getByLabelText(/Ciudad/), { target: { value: "MEDELLÍN" } });
     fireEvent.change(recipient.getByLabelText(/Direccion completa/), { target: { value: "Carrera 45 # 10-20" } });
     fireEvent.change(shipment.getByLabelText(/Transportadora/), { target: { value: "Coordinadora" } });
 
@@ -63,8 +65,8 @@ describe("LabelForm", () => {
     draft.sender = {
       name: "PurpleShop",
       phone: "3001234567",
-      department: "Cundinamarca",
-      city: "Bogota",
+      department: "VALLE DEL CAUCA",
+      city: "CALI",
       address: "Calle 1 # 2-3",
     };
     draft.recipient = {

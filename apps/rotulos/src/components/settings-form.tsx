@@ -13,6 +13,7 @@ import { Input, Select } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from "@/components/ui/button";
 import { Alert } from "@/components/ui/alert";
+import { LocationFields } from "@/components/location-fields";
 
 type SettingsFormProps = {
   initialSettings?: LabelSettings;
@@ -200,15 +201,18 @@ export function SettingsForm({ initialSettings = defaultSettings, onSave = (sett
               <FormField label="Telefono">
                 <Input value={settings.defaultSender.phone} onChange={(event) => updateSender("phone", event.target.value)} />
               </FormField>
-              <FormField label="Departamento">
-                <Input value={settings.defaultSender.department} onChange={(event) => updateSender("department", event.target.value)} />
-              </FormField>
-              <FormField label="Ciudad">
-                <Input value={settings.defaultSender.city} onChange={(event) => updateSender("city", event.target.value)} />
-              </FormField>
-              <FormField label="Direccion" className="sm:col-span-2">
-                <Input value={settings.defaultSender.address} onChange={(event) => updateSender("address", event.target.value)} />
-              </FormField>
+              <LocationFields
+                value={settings.defaultSender}
+                onChange={(sender) =>
+                  setSettings((current) => ({
+                    ...current,
+                    defaultSender: typeof sender === "function" ? sender(current.defaultSender) : sender,
+                  }))
+                }
+                errors={{}}
+                prefix="defaultSender"
+                includeNeighborhood
+              />
             </div>
           </Card>
         </TabsContent>

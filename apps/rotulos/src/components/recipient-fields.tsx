@@ -3,14 +3,11 @@ import { PRINTABLE_LABEL_LIMITS } from "@/lib/validation";
 import { Card, CardTitle } from "@/components/ui/card";
 import { Input, Textarea } from "@/components/ui/input";
 import { FormField } from "@/components/ui/form-field";
+import { LocationFields } from "@/components/location-fields";
 
-const LABELS: Record<keyof Recipient, string> = {
+const LABELS: Record<"fullName" | "phone" | "reference" | "notes", string> = {
   fullName: "Nombre y apellidos",
   phone: "Telefono",
-  department: "Departamento",
-  city: "Ciudad",
-  address: "Direccion completa",
-  neighborhood: "Barrio / sector",
   reference: "Referencia o indicaciones",
   notes: "Observaciones",
 };
@@ -20,6 +17,7 @@ const PRINTABLE_HELP: Record<keyof Recipient, string> = {
   phone: "Maximo 20 caracteres para imprimirlo completo.",
   department: "Maximo 35 caracteres para imprimirlo completo.",
   city: "Maximo 35 caracteres para imprimirla completa.",
+  locality: "Solo se pide para entregas en Bogota.",
   address: "Maximo 170 caracteres para imprimirla completa.",
   neighborhood: "Maximo 45 caracteres para imprimirlo completo.",
   reference: "Maximo 90 caracteres para imprimirla completa.",
@@ -36,7 +34,7 @@ export function RecipientFields({ value, onChange, errors }: { value: Recipient;
     <Card role="group" aria-label="Destinatario">
       <CardTitle>Destinatario</CardTitle>
       <div className="mt-4 grid gap-4 sm:grid-cols-2">
-        {(Object.keys(LABELS) as Array<keyof Recipient>).map((key) => {
+        {(Object.keys(LABELS) as Array<keyof typeof LABELS>).map((key) => {
           const errorKey = `recipient.${key}`;
           const maxLength = PRINTABLE_LABEL_LIMITS.recipient[key];
           const isTextarea = TEXTAREA_FIELDS.has(key);
@@ -46,13 +44,12 @@ export function RecipientFields({ value, onChange, errors }: { value: Recipient;
               label={LABELS[key]}
               hint={PRINTABLE_HELP[key]}
               error={errors[errorKey]}
-              className={key === "address" ? "sm:col-span-2" : undefined}
             >
               {isTextarea ? (
                 <Textarea
                   value={value[key]}
                   maxLength={maxLength}
-                  rows={key === "address" ? 3 : 2}
+                  rows={2}
                   onInput={(event) => set(key, event.currentTarget.value)}
                   onChange={(event) => set(key, event.target.value)}
                 />
@@ -67,6 +64,24 @@ export function RecipientFields({ value, onChange, errors }: { value: Recipient;
             </FormField>
           );
         })}
+        <LocationFields
+          value={value}
+          onChange={onChange}
+          errors={errors}
+          prefix="recipient"
+          addressLabel="Direccion completa"
+          addressAsTextarea
+          addressRows={3}
+          includeNeighborhood
+          required
+          limits={{
+            department: PRINTABLE_LABEL_LIMITS.recipient.department,
+            city: PRINTABLE_LABEL_LIMITS.recipient.city,
+            locality: PRINTABLE_LABEL_LIMITS.location.locality,
+            neighborhood: PRINTABLE_LABEL_LIMITS.recipient.neighborhood,
+            address: PRINTABLE_LABEL_LIMITS.recipient.address,
+          }}
+        />
       </div>
     </Card>
   );

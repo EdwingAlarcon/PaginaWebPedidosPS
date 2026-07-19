@@ -12,12 +12,14 @@ import { CurrencyInput } from "@/components/ui/currency-input";
 import { DatePicker } from "@/components/ui/date-picker";
 import { Button, IconButton } from "@/components/ui/button";
 import { Alert } from "@/components/ui/alert";
+import { LocationFields } from "@/components/location-fields";
+import { isBogotaLocation, isValidBogotaLocality, isValidBogotaNeighborhoodForLocality, validateDepartmentCity } from "@/lib/location";
 
 export function OrderForm() {
   const [draft, setDraft] = useState<OrderDraft>(() => createBlankOrderDraft());
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [productCodes, setProductCodes] = useState<ProductCode[]>([]);
-  const [errors, setErrors] = useState<{ customer?: string; items?: string }>({});
+  const [errors, setErrors] = useState<Record<string, string>>({});
   const [status, setStatus] = useState<{ tone: "success" | "danger"; message: string } | null>(null);
   const [saving, setSaving] = useState(false);
   const customerListId = useId();
@@ -50,6 +52,7 @@ export function OrderForm() {
           email: match.email,
           department: match.department,
           city: match.city,
+          locality: match.locality ?? "",
           address: match.address,
           neighborhood: match.neighborhood,
         },
@@ -95,9 +98,21 @@ export function OrderForm() {
     if (saving) return;
     setStatus(null);
 
-    const nextErrors: typeof errors = {};
+    const nextErrors: Record<string, string> = {};
     if (!draft.customer.fullName.trim()) nextErrors.customer = "El nombre del cliente es obligatorio.";
     if (!draft.items.some((item) => item.productName.trim())) nextErrors.items = "Agrega al menos un producto.";
+    const locationError = validateDepartmentCity(draft.customer);
+    if (locationError === "department") nextErrors["customer.department"] = "Selecciona un departamento valido.";
+    if (locationError === "city") nextErrors["customer.city"] = "Selecciona una ciudad que pertenezca al departamento.";
+    if (isBogotaLocation(draft.customer) && !draft.customer.locality?.trim()) {
+      nextErrors["customer.locality"] = "Selecciona la localidad.";
+    }
+    if (isBogotaLocation(draft.customer) && draft.customer.locality && !isValidBogotaLocality(draft.customer.locality)) {
+      nextErrors["customer.locality"] = "Selecciona una localidad valida de Bogota.";
+    }
+    if (isBogotaLocation(draft.customer) && draft.customer.locality && draft.customer.neighborhood && !isValidBogotaNeighborhoodForLocality(draft.customer.locality, draft.customer.neighborhood)) {
+      nextErrors["customer.neighborhood"] = "Selecciona un barrio que pertenezca a la localidad.";
+    }
     setErrors(nextErrors);
     if (Object.keys(nextErrors).length > 0) return;
 
@@ -150,22 +165,21 @@ export function OrderForm() {
                 onChange={(event) => setCustomerField("email", event.target.value)}
               />
             </FormField>
-            <FormField label="Ciudad">
-              <Input value={draft.customer.city} onChange={(event) => setCustomerField("city", event.target.value)} />
-            </FormField>
-            <FormField label="Departamento">
-              <Input
-                value={draft.customer.department}
-                onChange={(event) => setCustomerField("department", event.target.value)}
-              />
-            </FormField>
-            <FormField label="Direccion" className="sm:col-span-2">
-              <Textarea
-                value={draft.customer.address}
-                onChange={(event) => setCustomerField("address", event.target.value)}
-                rows={2}
-              />
-            </FormField>
+            <LocationFields
+              value={draft.customer}
+              onChange={(customer) =>
+                setDraft((current) => ({
+                  ...current,
+                  customer: typeof customer === "function" ? customer(current.customer) : customer,
+                }))
+              }
+              errors={errors}
+              prefix="customer"
+              addressLabel="Direccion"
+              addressAsTextarea
+              addressRows={2}
+              includeNeighborhood
+            />
           </div>
         </Card>
 

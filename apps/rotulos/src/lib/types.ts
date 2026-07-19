@@ -17,6 +17,8 @@ export type Sender = {
   phone: string;
   department: string;
   city: string;
+  locality?: string;
+  neighborhood?: string;
   address: string;
 };
 
@@ -25,6 +27,7 @@ export type Recipient = {
   phone: string;
   department: string;
   city: string;
+  locality?: string;
   address: string;
   neighborhood: string;
   reference: string;

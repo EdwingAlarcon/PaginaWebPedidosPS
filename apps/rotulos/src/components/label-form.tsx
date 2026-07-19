@@ -36,7 +36,10 @@ export function LabelForm() {
       const existing = labelId ? await store.getLabel(labelId) : null;
       if (!active) return;
       setSettings(savedSettings);
-      setDraft((current) => existing ?? { ...current, sender: savedSettings.defaultSender });
+      setDraft((current) => {
+        const senderIsEmpty = !current.sender.phone && !current.sender.department && !current.sender.city && !current.sender.locality && !current.sender.neighborhood && !current.sender.address;
+        return existing ?? { ...current, sender: senderIsEmpty ? savedSettings.defaultSender : current.sender };
+      });
       if (existing && shouldPrint) window.setTimeout(() => window.print(), 150);
     }
 
@@ -124,4 +127,3 @@ export function LabelForm() {
     </div>
   );
 }
-

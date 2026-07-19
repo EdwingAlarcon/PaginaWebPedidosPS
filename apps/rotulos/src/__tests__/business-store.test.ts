@@ -13,6 +13,7 @@ describe("local business store", () => {
     draft.customer.email = "ana@example.com";
     draft.customer.phone = "3101234567";
     draft.customer.city = "medellin";
+    draft.customer.locality = "kennedy";
     draft.notes = "entregar en la manana";
     draft.items = [{ productCode: "med-001", productName: "medias largas", category: "medias", quantity: 1, unitPrice: 15000 }];
 
@@ -22,6 +23,7 @@ describe("local business store", () => {
     expect(saved.customer.email).toBe("ana@example.com");
     expect(saved.customer.phone).toBe("3101234567");
     expect(saved.customer.city).toBe("MEDELLIN");
+    expect(saved.customer.locality).toBe("KENNEDY");
     expect(saved.notes).toBe("ENTREGAR EN LA MANANA");
     expect(saved.items[0].productName).toBe("MEDIAS LARGAS");
     expect(saved.items[0].productCode).toBe("MED-001");

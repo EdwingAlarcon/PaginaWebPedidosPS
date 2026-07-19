@@ -12,6 +12,8 @@ export function normalizeSender(sender: Sender): Sender {
     name: normalizeText(sender.name),
     department: normalizeText(sender.department),
     city: normalizeText(sender.city),
+    ...(sender.locality !== undefined ? { locality: normalizeText(sender.locality) } : {}),
+    ...(sender.neighborhood !== undefined ? { neighborhood: normalizeText(sender.neighborhood) } : {}),
     address: normalizeText(sender.address),
   };
 }
@@ -22,6 +24,7 @@ export function normalizeRecipient(recipient: Recipient): Recipient {
     fullName: normalizeText(recipient.fullName),
     department: normalizeText(recipient.department),
     city: normalizeText(recipient.city),
+    ...(recipient.locality !== undefined ? { locality: normalizeText(recipient.locality) } : {}),
     address: normalizeText(recipient.address),
     neighborhood: normalizeText(recipient.neighborhood),
     reference: normalizeText(recipient.reference),
@@ -50,6 +53,7 @@ type CustomerTextFields = {
   fullName: string;
   department: string;
   city: string;
+  locality?: string;
   address: string;
   neighborhood: string;
 };
@@ -60,6 +64,7 @@ export function normalizeCustomerFields<T extends CustomerTextFields>(customer: 
     fullName: normalizeText(customer.fullName),
     department: normalizeText(customer.department),
     city: normalizeText(customer.city),
+    ...(customer.locality !== undefined ? { locality: normalizeText(customer.locality) } : {}),
     address: normalizeText(customer.address),
     neighborhood: normalizeText(customer.neighborhood),
   };
