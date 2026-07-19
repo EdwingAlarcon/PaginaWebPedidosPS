@@ -1,6 +1,6 @@
 # Purple Shop — Próximos pasos / handoff
 
-> Última actualización: 2026-07-18.
+> Última actualización: 2026-07-18 (push del retiro de legacy hecho, tokens de Supabase revocados).
 
 ## Estado actual: migración de GitHub Pages a Vercel/Supabase completada
 
@@ -26,12 +26,6 @@ migraciones existentes ya están aplicadas en remoto:
 
 ## Pendiente
 
-- **Revocar el Supabase access token** que quedó expuesto en el chat de
-  una sesión anterior (2026-07-16) — hacerlo desde Supabase Account
-  Settings → Access Tokens.
-- **Push del commit que retira la raíz legacy** (`8f52271`) a
-  `origin/main` — pendiente de confirmación explícita del usuario antes
-  de correrlo (repo de un solo dev sin PRs, pero este cambio es grande).
 - Impresión física real del rótulo con impresora final todavía no
   probada (solo validación en pantalla/PDF hasta ahora).
 
@@ -43,5 +37,6 @@ migraciones existentes ya están aplicadas en remoto:
 - **No hacer push sin confirmación explícita del usuario**, salvo que ya
   lo haya pedido explícitamente (Edwing pidió el 2026-07-16 que se
   commitee y pushee sin repreguntar tras cada fix verificado — repo de un
-  solo dev, sin PRs de por medio; este commit de retiro de legacy es la
-  excepción que sí pide confirmación explícita por su tamaño).
+  solo dev, sin PRs de por medio). El commit de retiro de legacy pidió
+  confirmación aparte por su tamaño, ya se dio y ya se hizo el push
+  (2026-07-18).
