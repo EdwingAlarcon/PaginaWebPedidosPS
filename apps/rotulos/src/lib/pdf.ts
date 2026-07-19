@@ -10,9 +10,6 @@ type PdfRenderOptions = PdfHtmlOptions & {
   timeoutMs?: number;
 };
 
-type PlaywrightChromium = typeof import("playwright").chromium;
-type ChromiumLaunchOptions = Parameters<PlaywrightChromium["launch"]>[0];
-
 function escapeHtml(value: unknown): string {
   return String(value ?? "")
     .replaceAll("&", "&amp;")
@@ -31,19 +28,6 @@ function assetUrl(value: string, origin?: string): string {
 
 function shouldUseServerlessChromium(): boolean {
   return process.env.VERCEL === "1" || Boolean(process.env.AWS_LAMBDA_FUNCTION_NAME || process.env.AWS_EXECUTION_ENV);
-}
-
-async function launchPdfBrowser() {
-  const { chromium: playwrightChromium } = await import("playwright");
-  const launchOptions: ChromiumLaunchOptions = { headless: true };
-
-  if (shouldUseServerlessChromium()) {
-    const { default: chromium } = await import("@sparticuz/chromium");
-    launchOptions.args = chromium.args;
-    launchOptions.executablePath = await chromium.executablePath();
-  }
-
-  return playwrightChromium.launch(launchOptions);
 }
 
 export function renderLabelPdfHtml(label: LabelDraft | LabelRecord, settings: LabelSettings, options: PdfHtmlOptions = {}): string {
@@ -141,7 +125,12 @@ export function renderLabelPdfHtml(label: LabelDraft | LabelRecord, settings: La
 }
 
 export async function renderLabelPdfBuffer(label: LabelDraft | LabelRecord, settings: LabelSettings, options: PdfRenderOptions = {}): Promise<Buffer> {
-  const browser = await launchPdfBrowser();
+  if (shouldUseServerlessChromium()) {
+    return renderServerlessLabelPdfBuffer(label, settings, options);
+  }
+
+  const { chromium } = await import("playwright");
+  const browser = await chromium.launch({ headless: true });
   try {
     const size = LABEL_SIZES[label.size] ?? LABEL_SIZES["14x12"];
     const page = await browser.newPage({
@@ -158,6 +147,40 @@ export async function renderLabelPdfBuffer(label: LabelDraft | LabelRecord, sett
       printBackground: true,
       preferCSSPageSize: true,
     });
+  } finally {
+    await browser.close();
+  }
+}
+
+async function renderServerlessLabelPdfBuffer(label: LabelDraft | LabelRecord, settings: LabelSettings, options: PdfRenderOptions): Promise<Buffer> {
+  const [{ default: chromium }, { default: puppeteer }] = await Promise.all([
+    import("@sparticuz/chromium"),
+    import("puppeteer-core"),
+  ]);
+  const browser = await puppeteer.launch({
+    args: chromium.args,
+    executablePath: await chromium.executablePath(),
+    headless: true,
+  });
+  try {
+    const size = LABEL_SIZES[label.size] ?? LABEL_SIZES["14x12"];
+    const page = await browser.newPage();
+    await page.setViewport({
+      width: Math.round(size.widthCm * 37.8),
+      height: Math.round(size.heightCm * 37.8),
+    });
+    await page.setContent(renderLabelPdfHtml(label, settings, options), {
+      waitUntil: "load",
+      timeout: options.timeoutMs ?? 15_000,
+    });
+    const pdf = await page.pdf({
+      width: `${size.widthCm}cm`,
+      height: `${size.heightCm}cm`,
+      margin: { top: "0", right: "0", bottom: "0", left: "0" },
+      printBackground: true,
+      preferCSSPageSize: true,
+    });
+    return Buffer.from(pdf);
   } finally {
     await browser.close();
   }
