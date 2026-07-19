@@ -27,7 +27,7 @@ describe("ProductForm", () => {
     await waitFor(async () => {
       const products = await createLocalInventoryStore().listProducts();
       expect(products).toHaveLength(1);
-      expect(products[0].name).toBe("Perfume 100ml");
+      expect(products[0].name).toBe("PERFUME 100ML");
     });
     expect(onSaved).toHaveBeenCalled();
   });

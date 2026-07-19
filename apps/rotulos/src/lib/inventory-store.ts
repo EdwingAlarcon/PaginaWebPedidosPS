@@ -1,6 +1,7 @@
 "use client";
 
 import { createClient } from "@/lib/supabase/client";
+import { normalizeProductDraft, normalizeStockMovementDraft } from "@/lib/normalize";
 import type {
   Product,
   ProductDraft,
@@ -102,19 +103,20 @@ export function createLocalInventoryStore(): InventoryStore {
       return readStorage<Product[]>(storageKeys.products, []);
     },
     async saveProduct(draft, id) {
+      const normalizedDraft = normalizeProductDraft(draft);
       const now = new Date().toISOString();
       const products = readStorage<Product[]>(storageKeys.products, []);
       const index = id ? products.findIndex((p) => p.id === id) : -1;
       const existing = index >= 0 ? products[index] : undefined;
       const record: Product = {
         id: existing?.id ?? crypto.randomUUID(),
-        name: draft.name,
-        category: draft.category,
-        sku: draft.sku,
-        unitPrice: draft.unitPrice,
+        name: normalizedDraft.name,
+        category: normalizedDraft.category,
+        sku: normalizedDraft.sku,
+        unitPrice: normalizedDraft.unitPrice,
         currentStock: existing?.currentStock ?? 0,
-        minStock: draft.minStock,
-        maxStock: draft.maxStock,
+        minStock: normalizedDraft.minStock,
+        maxStock: normalizedDraft.maxStock,
         lastRestockDate: existing?.lastRestockDate ?? null,
         createdAt: existing?.createdAt ?? now,
         updatedAt: now,
@@ -134,12 +136,13 @@ export function createLocalInventoryStore(): InventoryStore {
       return [...filtered].sort((a, b) => b.createdAt.localeCompare(a.createdAt));
     },
     async recordMovement(draft) {
+      const normalizedDraft = normalizeStockMovementDraft(draft);
       const products = readStorage<Product[]>(storageKeys.products, []);
-      const index = products.findIndex((p) => p.id === draft.productId);
+      const index = products.findIndex((p) => p.id === normalizedDraft.productId);
       if (index < 0) throw new Error("producto_no_encontrado");
       const product = products[index];
 
-      const delta = draft.type === "entrada" ? draft.quantity : draft.type === "salida" ? -draft.quantity : draft.quantity;
+      const delta = normalizedDraft.type === "entrada" ? normalizedDraft.quantity : normalizedDraft.type === "salida" ? -normalizedDraft.quantity : normalizedDraft.quantity;
 
       if (product.currentStock + delta < 0) {
         throw new Error("stock_insuficiente");
@@ -148,18 +151,18 @@ export function createLocalInventoryStore(): InventoryStore {
       products[index] = {
         ...product,
         currentStock: product.currentStock + delta,
-        lastRestockDate: draft.type === "entrada" ? now : product.lastRestockDate,
+        lastRestockDate: normalizedDraft.type === "entrada" ? now : product.lastRestockDate,
         updatedAt: now,
       };
       writeStorage(storageKeys.products, products);
 
       const movement: StockMovement = {
         id: crypto.randomUUID(),
-        productId: draft.productId,
-        type: draft.type,
-        quantity: draft.quantity,
-        reason: draft.reason,
-        supplier: draft.supplier,
+        productId: normalizedDraft.productId,
+        type: normalizedDraft.type,
+        quantity: normalizedDraft.quantity,
+        reason: normalizedDraft.reason,
+        supplier: normalizedDraft.supplier,
         createdAt: now,
       };
       const movements = readStorage<StockMovement[]>(storageKeys.movements, []);
@@ -182,13 +185,14 @@ function createSupabaseInventoryStore(): InventoryStore | null {
       return (data ?? []).map(rowToProduct);
     },
     async saveProduct(draft, id) {
+      const normalizedDraft = normalizeProductDraft(draft);
       const payload = {
-        name: draft.name,
-        category: draft.category,
-        sku: draft.sku,
-        unit_price: draft.unitPrice,
-        min_stock: draft.minStock,
-        max_stock: draft.maxStock,
+        name: normalizedDraft.name,
+        category: normalizedDraft.category,
+        sku: normalizedDraft.sku,
+        unit_price: normalizedDraft.unitPrice,
+        min_stock: normalizedDraft.minStock,
+        max_stock: normalizedDraft.maxStock,
       };
       const request = id
         ? supabase.from("products").update(payload).eq("id", id).select("*").single<ProductRow>()
@@ -209,14 +213,15 @@ function createSupabaseInventoryStore(): InventoryStore | null {
       return (data ?? []).map(rowToMovement);
     },
     async recordMovement(draft) {
+      const normalizedDraft = normalizeStockMovementDraft(draft);
       const { data, error } = await supabase
         .from("stock_movements")
         .insert({
-          product_id: draft.productId,
-          type: draft.type,
-          quantity: draft.quantity,
-          reason: draft.reason,
-          supplier: draft.supplier,
+          product_id: normalizedDraft.productId,
+          type: normalizedDraft.type,
+          quantity: normalizedDraft.quantity,
+          reason: normalizedDraft.reason,
+          supplier: normalizedDraft.supplier,
         })
         .select("*")
         .single<StockMovementRow>();

@@ -25,7 +25,7 @@ describe("StockMovementForm", () => {
 
     // Wait for the product to be loaded into the select
     await waitFor(() => {
-      expect(screen.getByRole("option", { name: "Medias largas" })).toBeInTheDocument();
+      expect(screen.getByRole("option", { name: "MEDIAS LARGAS" })).toBeInTheDocument();
     });
 
     await user.selectOptions(screen.getByLabelText(/^producto/i), product.id);
