@@ -3,11 +3,100 @@ import path from "node:path";
 import crypto from "node:crypto";
 import { writeFile } from "node:fs/promises";
 import ExcelJS from "exceljs";
+import { createClient } from "@supabase/supabase-js";
 import { parseSheetRows } from "../src/lib/excel-import/parser";
 import { applyTotalValidation } from "../src/lib/excel-import/validate";
 import { buildImportPlan } from "../src/lib/excel-import/map-to-db";
 import { buildReportText } from "../src/lib/excel-import/report";
 import type { CellValue, SheetParseResult } from "../src/lib/excel-import/types";
+import type { ImportPlan } from "../src/lib/excel-import/map-to-db";
+
+async function commitImportPlan(plan: ImportPlan): Promise<void> {
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  if (!supabaseUrl || !serviceRoleKey) {
+    console.error("Faltan NEXT_PUBLIC_SUPABASE_URL / SUPABASE_SERVICE_ROLE_KEY en el entorno.");
+    process.exit(1);
+  }
+  const supabase = createClient(supabaseUrl, serviceRoleKey, { auth: { persistSession: false } });
+
+  const { data: existingRows, error: existingError } = await supabase
+    .from("orders")
+    .select("import_row_key")
+    .eq("source", "excel_import");
+  if (existingError) throw existingError;
+  const existingKeys = new Set((existingRows ?? []).map((row) => row.import_row_key as string));
+
+  const customerIdByName = new Map<string, string>();
+  let createdOrders = 0;
+  let skippedExisting = 0;
+
+  for (const order of plan.orders) {
+    if (existingKeys.has(order.importRowKey)) {
+      skippedExisting++;
+      continue;
+    }
+
+    let customerId = customerIdByName.get(order.customerFullName);
+    if (!customerId) {
+      const { data: existingCustomer, error: lookupError } = await supabase
+        .from("customers")
+        .select("id")
+        .eq("full_name", order.customerFullName)
+        .eq("phone", "")
+        .maybeSingle();
+      if (lookupError) throw lookupError;
+
+      if (existingCustomer) {
+        customerId = existingCustomer.id as string;
+      } else {
+        const { data: newCustomer, error: insertError } = await supabase
+          .from("customers")
+          .insert({ full_name: order.customerFullName })
+          .select("id")
+          .single();
+        if (insertError) throw insertError;
+        customerId = newCustomer.id as string;
+      }
+      customerIdByName.set(order.customerFullName, customerId);
+    }
+
+    const { data: newOrder, error: orderError } = await supabase
+      .from("orders")
+      .insert({
+        customer_id: customerId,
+        customer_snapshot: { fullName: order.customerFullName },
+        order_date: order.orderDate,
+        status: "completed",
+        notes: order.notes,
+        subtotal: order.subtotal,
+        shipping_cost: order.shippingCost,
+        total: order.total,
+        source: "excel_import",
+        import_batch_id: plan.runId,
+        import_row_key: order.importRowKey,
+      })
+      .select("id")
+      .single();
+    if (orderError) throw orderError;
+
+    const { error: itemsError } = await supabase.from("order_items").insert(
+      order.items.map((item) => ({
+        order_id: newOrder.id,
+        product_code: item.productCode,
+        product_name: item.productName,
+        quantity: item.quantity,
+        unit_price: item.unitPrice,
+        total: item.total,
+      })),
+    );
+    if (itemsError) throw itemsError;
+
+    createdOrders++;
+  }
+
+  console.log(`\nImportación completada. Pedidos creados: ${createdOrders}. Ya existentes (omitidos): ${skippedExisting}.`);
+}
 
 async function readWorkbookRows(filePath: string): Promise<{ sheetName: string; rows: CellValue[][] }[]> {
   const workbook = new ExcelJS.Workbook();
@@ -58,7 +147,7 @@ async function main() {
     return;
   }
 
-  console.log("\n--commit todavía no está implementado en esta versión del script.");
+  await commitImportPlan(plan);
 }
 
 main().catch((error) => {
