@@ -50,17 +50,54 @@ describe("parseSheetRows", () => {
     expect(result.blocks[1].shippingDeclared).toBeNull();
   });
 
-  it("marca error si el nombre de cliente cambia dentro del mismo bloque", () => {
+  it("detecta un bloque nuevo por cambio de cliente sin header repetido, cuando cada uno tiene su propio SUBTOTAL (formato OCT 2025)", () => {
     const rows: SheetRow[] = [
       HEADER,
-      ["Z1335", "ANDREA", "SET 3 ARETES", 1, null, null, 13500],
-      ["P778", "OTRA", "PULSERA PERLAS", 1, null, null, 16500],
-      [null, null, null, "SUBTOTAL", null, null, 30000],
+      ["Z2903", "ANDREA", "TOPO CORAZON ANIMAL PRINT", 1, null, null, 16000],
+      ["J1415-2", "ANDREA", "ANILLO PERLA Y CORAZON", 1, null, null, 16000],
+      [null, null, null, "SUBTOTAL", null, null, 32000],
+      ["Z1464", "ZAIDA", "EARCUFF DECORADO 3 COLORES", 1, null, null, 10000],
+      [null, null, null, "SUBTOTAL", null, null, 10000],
     ];
 
-    const result = parseSheetRows("SEPT 2025", rows);
+    const result = parseSheetRows("OCT 2025", rows);
 
-    expect(result.blocks[0].errors.some((e) => e.includes("inconsistente"))).toBe(true);
+    expect(result.blocks).toHaveLength(2);
+    expect(result.blocks[0].clientName).toBe("ANDREA");
+    expect(result.blocks[0].items).toHaveLength(2);
+    expect(result.blocks[0].subtotalDeclared).toBe(32000);
+    expect(result.blocks[0].warnings).toEqual([]);
+    expect(result.blocks[1].clientName).toBe("ZAIDA");
+    expect(result.blocks[1].items).toHaveLength(1);
+    expect(result.blocks[1].subtotalDeclared).toBe(10000);
+    expect(result.blocks[1].warnings).toEqual([]);
+  });
+
+  it("divide por cliente y marca SUBTOTAL/ENVIO/TOTAL como no atribuibles cuando varios clientes comparten un cierre (formato FEB 2026)", () => {
+    const rows: SheetRow[] = [
+      HEADER,
+      ["ACC1624", "ANDREA", "KIT DIADEMA", 1, null, null, 20000],
+      ["A744", "ZAIDA", "ANILLO CORAZON ZIRCONES", 1, null, null, 13000],
+      ["A227", "ZAIDA", "ANILLO PIEDRA VERDE", 1, null, null, 13000],
+      ["ACC1740", "CAROLINA", "AUDIFONOS DEPORTIVOS", 1, null, null, 10000],
+      [null, null, null, "SUBTOTAL", null, null, 56000],
+      [null, null, null, "ENVIO", null, null, 8500],
+      [null, null, null, "TOTAL", null, null, 64500],
+    ];
+
+    const result = parseSheetRows("FEB 2026", rows);
+
+    expect(result.blocks).toHaveLength(3);
+    expect(result.blocks.map((b) => b.clientName)).toEqual(["ANDREA", "ZAIDA", "CAROLINA"]);
+    for (const block of result.blocks) {
+      expect(block.subtotalDeclared).toBeNull();
+      expect(block.shippingDeclared).toBeNull();
+      expect(block.totalDeclared).toBeNull();
+      expect(block.warnings).toContain(
+        "SUBTOTAL/ENVIO/TOTAL de esta sección de la hoja son compartidos entre varios clientes; no se pudo atribuir un monto individual a este pedido",
+      );
+      expect(block.errors).toEqual([]);
+    }
   });
 
   it("marca error 'sin ningún ítem' si el bloque no tiene ítems", () => {
