@@ -31,6 +31,7 @@ async function commitImportPlan(plan: ImportPlan): Promise<void> {
       .from("orders")
       .select("import_row_key")
       .eq("source", "excel_import")
+      .order("id")
       .range(from, from + EXISTING_KEYS_PAGE_SIZE - 1);
     if (existingError) throw existingError;
     for (const row of existingRows ?? []) existingKeys.add(row.import_row_key as string);
