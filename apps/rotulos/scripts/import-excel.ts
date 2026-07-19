@@ -11,6 +11,11 @@ import { buildReportText } from "../src/lib/excel-import/report";
 import type { CellValue, SheetParseResult } from "../src/lib/excel-import/types";
 import type { ImportPlan } from "../src/lib/excel-import/map-to-db";
 
+// created_by no tiene FK a auth.users; el service role no trae auth.uid(),
+// así que hay que fijarlo a mano para satisfacer el not null de orders.created_by.
+const IMPORT_SYSTEM_USER_ID = "00000000-0000-0000-0000-000000000000";
+const EXISTING_KEYS_PAGE_SIZE = 1000;
+
 async function commitImportPlan(plan: ImportPlan): Promise<void> {
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
@@ -20,12 +25,17 @@ async function commitImportPlan(plan: ImportPlan): Promise<void> {
   }
   const supabase = createClient(supabaseUrl, serviceRoleKey, { auth: { persistSession: false } });
 
-  const { data: existingRows, error: existingError } = await supabase
-    .from("orders")
-    .select("import_row_key")
-    .eq("source", "excel_import");
-  if (existingError) throw existingError;
-  const existingKeys = new Set((existingRows ?? []).map((row) => row.import_row_key as string));
+  const existingKeys = new Set<string>();
+  for (let from = 0; ; from += EXISTING_KEYS_PAGE_SIZE) {
+    const { data: existingRows, error: existingError } = await supabase
+      .from("orders")
+      .select("import_row_key")
+      .eq("source", "excel_import")
+      .range(from, from + EXISTING_KEYS_PAGE_SIZE - 1);
+    if (existingError) throw existingError;
+    for (const row of existingRows ?? []) existingKeys.add(row.import_row_key as string);
+    if (!existingRows || existingRows.length < EXISTING_KEYS_PAGE_SIZE) break;
+  }
 
   const customerIdByName = new Map<string, string>();
   let createdOrders = 0;
@@ -52,7 +62,7 @@ async function commitImportPlan(plan: ImportPlan): Promise<void> {
       } else {
         const { data: newCustomer, error: insertError } = await supabase
           .from("customers")
-          .insert({ full_name: order.customerFullName })
+          .insert({ full_name: order.customerFullName, phone: "" })
           .select("id")
           .single();
         if (insertError) throw insertError;
@@ -75,6 +85,7 @@ async function commitImportPlan(plan: ImportPlan): Promise<void> {
         source: "excel_import",
         import_batch_id: plan.runId,
         import_row_key: order.importRowKey,
+        created_by: IMPORT_SYSTEM_USER_ID,
       })
       .select("id")
       .single();
@@ -90,7 +101,12 @@ async function commitImportPlan(plan: ImportPlan): Promise<void> {
         total: item.total,
       })),
     );
-    if (itemsError) throw itemsError;
+    if (itemsError) {
+      // evita dejar un pedido huérfano sin ítems que luego bloquee reintentos
+      // (import_row_key ya quedaría "existente" para siempre si no se borra).
+      await supabase.from("orders").delete().eq("id", newOrder.id);
+      throw itemsError;
+    }
 
     createdOrders++;
   }
