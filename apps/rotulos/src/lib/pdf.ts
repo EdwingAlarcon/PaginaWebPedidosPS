@@ -99,12 +99,12 @@ export function renderLabelPdfHtml(label: LabelDraft | LabelRecord, settings: La
     .lbl-recipient-neighborhood { top: 63%; left: 52.3%; width: 43.5%; }
     .lbl-recipient-reference { top: 67.6%; left: 52.3%; width: 43.5%; }
     .lbl-recipient-notes { top: 72.1%; left: 52.3%; width: 43.5%; }
-    .lbl-order-number { top: 85.4%; left: 5%; width: 13%; font-size: 1.9cqw; }
-    .lbl-date { top: 85.4%; left: 23%; width: 10%; font-size: 1.9cqw; }
-    .lbl-carrier { top: 85.4%; left: 38.5%; width: 13.7%; font-size: 1.6cqw; }
-    .lbl-value { top: 85.4%; left: 74%; width: 7%; font-size: 1.9cqw; }
-    .lbl-packages { top: 85.4%; left: 88%; width: 9%; font-size: 1.9cqw; text-align: center; }
-    .lbl-check-paid, .lbl-check-cod { top: 86.8%; font-size: 2.2cqw; width: 3%; }
+    .lbl-order-number { top: 85.7%; left: 4.9%; width: 15.2%; font-size: 1.35cqw; }
+    .lbl-date { top: 85.7%; left: 22.8%; width: 11.6%; font-size: 1.35cqw; }
+    .lbl-carrier { top: 85.8%; left: 38.3%; width: 14.2%; font-size: 1.25cqw; }
+    .lbl-value { top: 85.7%; left: 72.9%; width: 8.5%; font-size: 1.35cqw; }
+    .lbl-packages { top: 85.7%; left: 88.5%; width: 8%; font-size: 1.35cqw; text-align: center; }
+    .lbl-check-paid, .lbl-check-cod { top: 86.15%; font-size: 1.55cqw; width: 3%; }
     .lbl-check-paid { left: 55.2%; }
     .lbl-check-cod { left: 62.3%; }
   </style>
@@ -168,12 +168,12 @@ export async function renderLabelPdfBuffer(label: LabelDraft | LabelRecord, sett
   draw(label.recipient.neighborhood, { topPct: 63, leftPct: 52.3, widthPct: 43.5, fontSizePct: 2.7 });
   draw(label.recipient.reference, { topPct: 67.6, leftPct: 52.3, widthPct: 43.5, fontSizePct: 2.7 });
   draw(label.recipient.notes, { topPct: 72.1, leftPct: 52.3, widthPct: 43.5, fontSizePct: 2.7 });
-  draw(label.orderNumber, { topPct: 85.4, leftPct: 5, widthPct: 13, fontSizePct: 1.9 });
-  draw(formatDate(label.date), { topPct: 85.4, leftPct: 23, widthPct: 10, fontSizePct: 1.9 });
-  draw(label.carrier, { topPct: 85.4, leftPct: 38.5, widthPct: 13.7, fontSizePct: 1.6 });
-  draw(isCod ? formatCop(label.codAmount) : "", { topPct: 85.4, leftPct: 74, widthPct: 7, fontSizePct: 1.9 });
-  draw(label.packageCount, { topPct: 85.4, leftPct: 88, widthPct: 9, fontSizePct: 1.9, align: "center" });
-  drawPdfCheck(page, isCod ? 62.3 : 55.2, 86.8, pageWidth, pageHeight);
+  draw(label.orderNumber, { topPct: 85.7, leftPct: 4.9, widthPct: 15.2, fontSizePct: 1.35 });
+  draw(formatDate(label.date), { topPct: 85.7, leftPct: 22.8, widthPct: 11.6, fontSizePct: 1.35 });
+  draw(label.carrier, { topPct: 85.8, leftPct: 38.3, widthPct: 14.2, fontSizePct: 1.25 });
+  draw(isCod ? formatCop(label.codAmount) : "", { topPct: 85.7, leftPct: 72.9, widthPct: 8.5, fontSizePct: 1.35 });
+  draw(label.packageCount, { topPct: 85.7, leftPct: 88.5, widthPct: 8, fontSizePct: 1.35, align: "center" });
+  drawPdfCheck(page, isCod ? 62.3 : 55.2, 86.15, pageWidth, pageHeight);
 
   const bytes = await pdfDoc.save();
   return Buffer.from(bytes);
