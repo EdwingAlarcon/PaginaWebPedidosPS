@@ -39,7 +39,7 @@ describe("ProductsTable", () => {
 
     renderProductsTable();
 
-    await waitFor(() => expect(screen.getByText("Medias largas")).toBeInTheDocument());
+    await waitFor(() => expect(screen.getByText("MEDIAS LARGAS")).toBeInTheDocument());
     expect(screen.getByText(/stock bajo/i)).toBeInTheDocument();
   });
 
@@ -53,11 +53,11 @@ describe("ProductsTable", () => {
     const user = userEvent.setup();
     renderProductsTable();
 
-    await screen.findByText("Medias largas");
-    await user.click(screen.getByRole("button", { name: "Acciones para Medias largas" }));
+    await screen.findByText("MEDIAS LARGAS");
+    await user.click(screen.getByRole("button", { name: "Acciones para MEDIAS LARGAS" }));
     await user.click(screen.getByRole("menuitem", { name: "Ver movimientos" }));
 
-    expect(await screen.findByText("Compra inicial")).toBeInTheDocument();
+    expect(await screen.findByText("COMPRA INICIAL")).toBeInTheDocument();
     expect(screen.getByText("entrada")).toBeInTheDocument();
   });
 
@@ -70,13 +70,13 @@ describe("ProductsTable", () => {
     const user = userEvent.setup();
     renderProductsTable();
 
-    await screen.findByText("Medias largas");
-    await user.click(screen.getByRole("button", { name: "Acciones para Medias largas" }));
+    await screen.findByText("MEDIAS LARGAS");
+    await user.click(screen.getByRole("button", { name: "Acciones para MEDIAS LARGAS" }));
     await user.click(screen.getByRole("menuitem", { name: "Eliminar producto" }));
     await user.click(screen.getByRole("button", { name: "Eliminar" }));
 
-    expect(await screen.findByText("Medias largas eliminado.")).toBeInTheDocument();
-    await waitFor(() => expect(screen.queryByText("Medias largas")).not.toBeInTheDocument());
+    expect(await screen.findByText("MEDIAS LARGAS eliminado.")).toBeInTheDocument();
+    await waitFor(() => expect(screen.queryByText("MEDIAS LARGAS")).not.toBeInTheDocument());
     expect(await store.listProducts()).toHaveLength(0);
   });
 });
