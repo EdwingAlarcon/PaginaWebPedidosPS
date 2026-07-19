@@ -1,6 +1,7 @@
 "use client";
 
 import { createClient } from "@/lib/supabase/client";
+import { normalizeOrderDraft, normalizeProductCode } from "@/lib/normalize";
 import type { Customer, OrderDraft, OrderItem, OrderRecord, ProductCode } from "@/lib/business-types";
 
 export type BusinessStore = {
@@ -171,28 +172,29 @@ function createLocalBusinessStore(): BusinessStore {
       return readStorage<OrderRecord[]>(storageKeys.orders, []).sort((a, b) => b.createdAt.localeCompare(a.createdAt));
     },
     async saveOrder(draft) {
+      const normalizedDraft = normalizeOrderDraft(draft);
       const now = new Date().toISOString();
       const current = readStorage<OrderRecord[]>(storageKeys.orders, []);
-      const computed = totals(draft.items, draft.discount, draft.shippingCost);
+      const computed = totals(normalizedDraft.items, normalizedDraft.discount, normalizedDraft.shippingCost);
       const record: OrderRecord = {
         id: crypto.randomUUID(),
         customerId: null,
-        customer: draft.customer,
-        orderDate: draft.orderDate,
-        status: draft.status,
-        notes: draft.notes,
-        discount: draft.discount,
-        shippingCost: draft.shippingCost,
+        customer: normalizedDraft.customer,
+        orderDate: normalizedDraft.orderDate,
+        status: normalizedDraft.status,
+        notes: normalizedDraft.notes,
+        discount: normalizedDraft.discount,
+        shippingCost: normalizedDraft.shippingCost,
         subtotal: computed.subtotal,
         total: computed.total,
-        items: draft.items.map((item) => ({ ...item, id: crypto.randomUUID(), total: item.quantity * item.unitPrice })),
+        items: normalizedDraft.items.map((item) => ({ ...item, id: crypto.randomUUID(), total: item.quantity * item.unitPrice })),
         createdAt: now,
         updatedAt: now,
       };
       writeStorage(storageKeys.orders, [record, ...current]);
       const customers = readStorage<Customer[]>(storageKeys.customers, []);
-      if (draft.customer.fullName && !customers.some((customer) => customer.fullName.toLowerCase() === draft.customer.fullName.toLowerCase())) {
-        customers.unshift({ ...draft.customer, id: crypto.randomUUID(), createdAt: now, updatedAt: now });
+      if (normalizedDraft.customer.fullName && !customers.some((customer) => customer.fullName.toLowerCase() === normalizedDraft.customer.fullName.toLowerCase())) {
+        customers.unshift({ ...normalizedDraft.customer, id: crypto.randomUUID(), createdAt: now, updatedAt: now });
         writeStorage(storageKeys.customers, customers);
       }
       return record;
@@ -204,10 +206,11 @@ function createLocalBusinessStore(): BusinessStore {
       return readStorage<ProductCode[]>(storageKeys.productCodes, []);
     },
     async saveProductCode(code) {
+      const normalizedCode = normalizeProductCode(code);
       const now = new Date().toISOString();
-      const record = { ...code, id: crypto.randomUUID(), createdAt: now, updatedAt: now };
+      const record = { ...normalizedCode, id: crypto.randomUUID(), createdAt: now, updatedAt: now };
       const current = readStorage<ProductCode[]>(storageKeys.productCodes, []);
-      writeStorage(storageKeys.productCodes, [record, ...current.filter((item) => item.code !== code.code)]);
+      writeStorage(storageKeys.productCodes, [record, ...current.filter((item) => item.code !== normalizedCode.code)]);
       return record;
     },
   };
@@ -227,20 +230,21 @@ function createSupabaseBusinessStore(): BusinessStore | null {
       return (data ?? []).map(rowToOrder);
     },
     async saveOrder(draft) {
-      const computed = totals(draft.items, draft.discount, draft.shippingCost);
-      const { data: existingCustomer, error: lookupError } = draft.customer.phone
-        ? await supabase.from("customers").select("*").eq("phone", draft.customer.phone).maybeSingle<CustomerRow>()
+      const normalizedDraft = normalizeOrderDraft(draft);
+      const computed = totals(normalizedDraft.items, normalizedDraft.discount, normalizedDraft.shippingCost);
+      const { data: existingCustomer, error: lookupError } = normalizedDraft.customer.phone
+        ? await supabase.from("customers").select("*").eq("phone", normalizedDraft.customer.phone).maybeSingle<CustomerRow>()
         : { data: null, error: null };
       if (lookupError) throw lookupError;
 
       const customerPayload = {
-        full_name: draft.customer.fullName,
-        phone: draft.customer.phone,
-        email: draft.customer.email,
-        department: draft.customer.department,
-        city: draft.customer.city,
-        address: draft.customer.address,
-        neighborhood: draft.customer.neighborhood,
+        full_name: normalizedDraft.customer.fullName,
+        phone: normalizedDraft.customer.phone,
+        email: normalizedDraft.customer.email,
+        department: normalizedDraft.customer.department,
+        city: normalizedDraft.customer.city,
+        address: normalizedDraft.customer.address,
+        neighborhood: normalizedDraft.customer.neighborhood,
       };
       const customerRequest = existingCustomer
         ? supabase
@@ -261,12 +265,12 @@ function createSupabaseBusinessStore(): BusinessStore | null {
         .from("orders")
         .insert({
           customer_id: customer.id,
-          customer_snapshot: draft.customer,
-          order_date: draft.orderDate,
-          status: draft.status,
-          notes: draft.notes,
-          discount: draft.discount,
-          shipping_cost: draft.shippingCost,
+          customer_snapshot: normalizedDraft.customer,
+          order_date: normalizedDraft.orderDate,
+          status: normalizedDraft.status,
+          notes: normalizedDraft.notes,
+          discount: normalizedDraft.discount,
+          shipping_cost: normalizedDraft.shippingCost,
           subtotal: computed.subtotal,
           total: computed.total,
         })
@@ -276,7 +280,7 @@ function createSupabaseBusinessStore(): BusinessStore | null {
 
       const { data: items, error: itemsError } = await supabase
         .from("order_items")
-        .insert(draft.items.map((item) => ({
+        .insert(normalizedDraft.items.map((item) => ({
           order_id: order.id,
           product_code: item.productCode,
           product_name: item.productName,
@@ -301,9 +305,10 @@ function createSupabaseBusinessStore(): BusinessStore | null {
       return (data ?? []).map(rowToProductCode);
     },
     async saveProductCode(code) {
+      const normalizedCode = normalizeProductCode(code);
       const { data, error } = await supabase
         .from("product_codes")
-        .upsert({ code: code.code, product_name: code.productName, category: code.category, unit_price: code.unitPrice }, { onConflict: "code" })
+        .upsert({ code: normalizedCode.code, product_name: normalizedCode.productName, category: normalizedCode.category, unit_price: normalizedCode.unitPrice }, { onConflict: "code" })
         .select("*")
         .single<ProductCodeRow>();
       if (error) throw error;
