@@ -92,21 +92,38 @@ export function parseSheetRows(sheetName: string, rows: SheetRow[]): SheetParseR
     const cantidadCell = normCell(row[COL_CANTIDAD]);
 
     if (cantidadCell === "SUBTOTAL") {
+      if (phase === "closed") {
+        // El bloque ya tiene un SUBTOTAL declarado: esta fila es un dato
+        // repetido/inesperado, no debe sobreescribir el valor ya guardado.
+        pushUnexpectedCellsFrom(row, rowNumber, 0);
+        return;
+      }
       current.subtotalDeclared = toNumber(row[COL_PRECIO_TOTAL]);
       current.endRow = rowNumber;
       phase = "closed";
+      pushUnexpectedCellsFrom(row, rowNumber, COL_PRECIO_TOTAL + 1);
       return;
     }
     if (cantidadCell === "ENVIO") {
+      if (current.shippingRowSeen) {
+        pushUnexpectedCellsFrom(row, rowNumber, 0);
+        return;
+      }
       current.shippingRowSeen = true;
       current.shippingDeclared = toNumber(row[COL_PRECIO_TOTAL]);
       current.endRow = rowNumber;
+      pushUnexpectedCellsFrom(row, rowNumber, COL_PRECIO_TOTAL + 1);
       return;
     }
     if (cantidadCell === "TOTAL") {
+      if (current.totalRowSeen) {
+        pushUnexpectedCellsFrom(row, rowNumber, 0);
+        return;
+      }
       current.totalRowSeen = true;
       current.totalDeclared = toNumber(row[COL_PRECIO_TOTAL]);
       current.endRow = rowNumber;
+      pushUnexpectedCellsFrom(row, rowNumber, COL_PRECIO_TOTAL + 1);
       return;
     }
 

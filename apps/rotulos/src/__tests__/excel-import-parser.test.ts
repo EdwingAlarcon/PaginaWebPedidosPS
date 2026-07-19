@@ -115,4 +115,30 @@ describe("parseSheetRows", () => {
     expect(result.blocks[0].subtotalDeclared).toBeNull();
     expect(result.blocks[1].clientName).toBe("CARO");
   });
+
+  it("registra unexpectedCells en columna extra de una fila SUBTOTAL", () => {
+    const rows: SheetRow[] = [
+      HEADER,
+      ["Z1335", "ANDREA", "SET 3 ARETES", 1, null, null, 13500],
+      [null, null, null, "SUBTOTAL", null, null, 13500, "DATO SUELTO"],
+    ];
+
+    const result = parseSheetRows("SEPT 2025", rows);
+
+    expect(result.unexpectedCells).toEqual([{ rowNumber: 3, columnIndex: 7, value: "DATO SUELTO" }]);
+  });
+
+  it("trata una fila SUBTOTAL duplicada tras cerrar el bloque como dato inesperado, sin sobreescribir el valor ya declarado", () => {
+    const rows: SheetRow[] = [
+      HEADER,
+      ["Z1335", "ANDREA", "SET 3 ARETES", 1, null, null, 13500],
+      [null, null, null, "SUBTOTAL", null, null, 13500],
+      [null, null, null, "SUBTOTAL", null, null, 99999],
+    ];
+
+    const result = parseSheetRows("SEPT 2025", rows);
+
+    expect(result.blocks[0].subtotalDeclared).toBe(13500);
+    expect(result.unexpectedCells).toEqual([{ rowNumber: 4, columnIndex: 3, value: "SUBTOTAL" }, { rowNumber: 4, columnIndex: 6, value: 99999 }]);
+  });
 });
