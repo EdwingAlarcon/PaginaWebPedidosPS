@@ -19,7 +19,7 @@ type CustomerRow = {
   email: string;
   department: string;
   city: string;
-  locality: string;
+  locality?: string;
   address: string;
   neighborhood: string;
   created_at: string;
@@ -101,7 +101,7 @@ function rowToCustomer(row: CustomerRow): Customer {
     email: row.email,
     department: row.department,
     city: row.city,
-    locality: row.locality,
+    locality: row.locality ?? "",
     address: row.address,
     neighborhood: row.neighborhood,
     createdAt: row.created_at,
@@ -154,6 +154,12 @@ function rowToProductCode(row: ProductCodeRow): ProductCode {
 function totals(items: OrderDraft["items"], discount: number, shippingCost: number) {
   const subtotal = items.reduce((sum, item) => sum + item.quantity * item.unitPrice, 0);
   return { subtotal, total: Math.max(0, subtotal - discount + shippingCost) };
+}
+
+function isMissingLocalityColumnError(error: unknown): boolean {
+  if (!error || typeof error !== "object") return false;
+  const maybeError = error as { code?: string; message?: string };
+  return maybeError.code === "PGRST204" && (maybeError.message ?? "").includes("locality");
 }
 
 function readStorage<T>(key: string, fallback: T): T {
@@ -250,20 +256,27 @@ function createSupabaseBusinessStore(): BusinessStore | null {
         address: normalizedDraft.customer.address,
         neighborhood: normalizedDraft.customer.neighborhood,
       };
-      const customerRequest = existingCustomer
+      const saveCustomer = (payload: typeof customerPayload | Omit<typeof customerPayload, "locality">) => existingCustomer
         ? supabase
           .from("customers")
-          .update(customerPayload)
+          .update(payload)
           .eq("id", existingCustomer.id)
           .select("*")
           .single<CustomerRow>()
         : supabase
           .from("customers")
-          .insert(customerPayload)
+          .insert(payload)
           .select("*")
           .single<CustomerRow>();
-      const { data: customer, error: customerError } = await customerRequest;
+      let { data: customer, error: customerError } = await saveCustomer(customerPayload);
+      if (isMissingLocalityColumnError(customerError)) {
+        const { locality: _locality, ...fallbackPayload } = customerPayload;
+        const retry = await saveCustomer(fallbackPayload);
+        customer = retry.data;
+        customerError = retry.error;
+      }
       if (customerError) throw customerError;
+      if (!customer) throw new Error("customer_save_failed");
 
       const { data: order, error: orderError } = await supabase
         .from("orders")
