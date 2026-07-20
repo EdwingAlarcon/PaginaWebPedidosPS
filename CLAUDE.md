@@ -70,7 +70,22 @@ repositorio y resumen rapido.
     (`apps/rotulos/src/components/order-form.tsx`).
   - En `Reportes`, `Pedidos por estado` ya no muestra barras para estados en
     cero; `BarList` usa ancho `0%` cuando `value <= 0`.
+- 2026-07-20: cierre de auditoría técnica pre-agosto (antes de operar con
+  pedidos reales). Se agregó exportación/backup de datos (`Configuración` →
+  "Exportar datos", CSV por tabla + backup JSON completo, ruta
+  `GET /api/export` protegida por sesión + `allowed_users`), se protegió
+  `/api/labels/pdf` con el mismo chequeo de sesión (antes quedaba fuera del
+  middleware, que excluye `api/` de su matcher), y se eliminó
+  `/api/labels/[id]/pdf` (ruta muerta, nunca funcionaba). El hallazgo de
+  escrituras sin transacción en `saveOrder`/`updateOrder`/`mergeCustomers`
+  quedó documentado (no bloqueante) en
+  `docs/superpowers/specs/2026-07-20-transacciones-rpc-design.md`. También
+  se corrigió el sidebar (`.legacy-sidebar`) para que haga scroll en
+  pantallas de poca altura — antes cortaba "Configuración". Desplegado y
+  verificado con checklist manual completo por Edwing.
 - Commits recientes relevantes:
+  - `91f8847 fix(rotulos): permitir scroll en sidebar cuando el alto de ventana es chico`
+  - `b467ea6 fix(rotulos): backup/export de datos y proteger rutas API sin sesion`
   - `4d1bd7c feat(rotulos): unificar y eliminar clientes`
   - `f92a024 fix(rotulos): sincronizar nombres actuales en pedidos`
   - `db9af72 fix(rotulos): evitar clientes duplicados en nuevo pedido`

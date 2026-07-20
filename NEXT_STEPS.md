@@ -1,6 +1,6 @@
 # Purple Shop — Próximos pasos / handoff
 
-> Última actualización: 2026-07-19 noche Colombia (clientes/pedidos sincronizados, unificación de clientes, dedupe en Nuevo pedido y reportes corregidos).
+> Última actualización: 2026-07-20 Colombia (cierre de auditoría pre-agosto: backup/export de datos, rutas API protegidas, fix de sidebar cortado; checklist manual post-deploy verificado por Edwing).
 
 ## Estado actual: migración de GitHub Pages a Vercel/Supabase completada
 
@@ -139,9 +139,36 @@ como `text not null default ''`.
   en Productos correspondia a `sku` vacio; ahora se muestra "Sin SKU". En
   la columna Alerta, si no hay alerta, la celda queda vacia en vez de
   mostrar `-`.
+- **Cierre de auditoría pre-agosto** (2026-07-20): auditoría técnica/seguridad
+  completa antes de operar con pedidos reales de agosto (código, RLS, tests,
+  build — sin bugs bloqueantes). Se cerraron los 2 hallazgos accionables:
+  - **Backup/exportación**: nueva sección "Exportar datos" en
+    `Configuración` (`src/components/data-export.tsx`) — CSV de
+    clientes/pedidos/order_items/catálogo y backup JSON completo, via
+    `GET /api/export` (protegida por sesión + `allowed_users`, usa
+    `SUPABASE_SERVICE_ROLE_KEY` server-side).
+  - **Rutas API públicas**: `/api/labels/pdf` ahora exige sesión
+    (`src/lib/require-session.ts`); `/api/labels/[id]/pdf` se eliminó por
+    estar muerta y rota (nunca funcionaba, sin uso en la app).
+  - El tercer hallazgo (escrituras sin transacción en `saveOrder`/
+    `updateOrder`/`mergeCustomers`) se documentó como propuesta de RPC en
+    `docs/superpowers/specs/2026-07-20-transacciones-rpc-design.md`, no
+    bloqueante, pendiente para una fase siguiente.
+  - Fix adicional: `.legacy-sidebar` no tenía scroll y en pantallas de poca
+    altura cortaba los últimos items del menú (ej. "Configuración"); se
+    agregó `overflow-y: auto`.
+  - Desplegado a producción y verificado con checklist manual completo
+    (login, crear cliente, crear pedido, PDF, exportar CSV/JSON, editar
+    cliente, unificar cliente, editar pedido) — **confirmado OK por
+    Edwing**.
 
 ## Pendiente
 
+- **RPC transaccional para saveOrder/updateOrder/mergeCustomers.** Hoy son
+  varias escrituras HTTP secuenciales sin transacción de base de datos; ver
+  diseño propuesto en
+  `docs/superpowers/specs/2026-07-20-transacciones-rpc-design.md`. No
+  bloqueante, prioridad media.
 - **Inventario real vinculado a pedidos.** La edición actual cambia el
   pedido como documento comercial, no el stock. Para que los pedidos
   descuenten/devuelvan inventario hace falta diseño y migración aparte:
