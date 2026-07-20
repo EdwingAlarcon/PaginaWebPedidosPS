@@ -27,15 +27,23 @@ codigo fuente ahi para entender convenciones.
   Coordenadas sincronizadas en `apps/rotulos/src/app/globals.css` y
   `apps/rotulos/src/lib/pdf.ts`.
 - Ultimo commit funcional verificado: `35a38cd fix(rotulos): compactar textos del pie`.
+- 2026-07-19: importador de data historica desde Excel (`REFERENCIAS.xlsx`)
+  implementado y corrido contra produccion (23 pedidos, 9 clientes nuevos).
+  Ver `NEXT_STEPS.md` seccion "Importador de data historica" para detalle
+  completo y `docs/superpowers/specs/2026-07-19-importador-excel-historico-design.md`
+  para el diseño. Diseño de "editar clientes" (para completar datos de los
+  clientes importados) aprobado, pendiente de implementar — ver
+  `NEXT_STEPS.md` seccion "Pendiente".
 
 ## Cosas explicitamente fuera de alcance / no tocar sin permiso
 
-- **No sincronizar contra el workbook Excel real del negocio**
-  ("REFERENCIAS", en OneDrive del gerente) — nunca estuvo conectado a esta
-  app y no debe conectarse sin diseñar antes un importador que entienda su
-  estructura real (un worksheet por mes, bloques variables por cliente).
-  Ver `docs/superpowers/` para el historial de decisiones si hace falta
-  mas contexto.
+- **El Excel real del negocio** ("REFERENCIAS", en OneDrive del gerente)
+  ya se importo una vez (2026-07-19) con un importador que entiende su
+  estructura real (un worksheet por mes, bloques variables por cliente) —
+  ver detalle en `NEXT_STEPS.md`. El importador es idempotente y se puede
+  correr de nuevo a mano si hay meses nuevos que cargar. Lo que sigue
+  fuera de alcance sin permiso explicito es **automatizar** esa
+  sincronizacion (cron, webhook, etc.) — debe seguir siendo manual.
 
 ## Historia
 

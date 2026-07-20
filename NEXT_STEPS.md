@@ -1,6 +1,6 @@
 # Purple Shop — Próximos pasos / handoff
 
-> Última actualización: 2026-07-18 noche Colombia (formularios de ubicación Colombia/Bogotá desplegados; exportar PDF corregido; pie del rótulo compactado y validado en producción).
+> Última actualización: 2026-07-19 noche Colombia (importador de Excel histórico completado y corrido contra producción; diseño de "editar cliente" listo para implementar).
 
 ## Estado actual: migración de GitHub Pages a Vercel/Supabase completada
 
@@ -30,6 +30,24 @@ como `text not null default ''`.
 
 ## Hecho recientemente
 
+- **Importador de data histórica desde Excel** (2026-07-19): 23 pedidos
+  históricos de `REFERENCIAS.xlsx` (SEPT 2025 → JULIO 2026) ya están
+  cargados en Supabase producción, corridos y verificados idempotentes
+  (`orders.import_row_key` único). Diseño completo en
+  `docs/superpowers/specs/2026-07-19-importador-excel-historico-design.md`,
+  plan en `docs/superpowers/plans/2026-07-19-importador-excel-historico.md`.
+  Script CLI: `apps/rotulos/scripts/import-excel.ts` (`npm run import:excel
+  -- <ruta.xlsx> [--commit]`), lógica pura testeada en
+  `apps/rotulos/src/lib/excel-import/`. Dos migraciones nuevas ya
+  aplicadas en remoto: `202607190001_add_excel_import_tracking.sql`
+  (`orders.source`/`import_batch_id`/`import_row_key`) y
+  `202607190002_add_customer_import_source.sql` (`customers.source`, usado
+  para el dedupe de clientes del importador — **no** confundir con
+  clientes reales, ver más abajo). 1 bloque quedó excluido por error real
+  de datos (ZAIDA, hoja JULIO 2026, fila 2: falta cantidad/precio) — sin
+  resolver, revisar a mano contra el Excel si hace falta rescatarlo.
+  El script no se toca la app en vivo (nadie en `src/` lo importa); no
+  requirió deploy.
 - **Formularios de ubicación Colombia/Bogotá** (2026-07-18): los campos de
   ubicación de remitente/destinatario usan departamentos y ciudades de
   Colombia. Para Bogotá se habilitan `Localidad` y `Barrio/Sector` con
@@ -74,6 +92,42 @@ como `text not null default ''`.
 
 ## Pendiente
 
+- **Editar clientes** (pedido por Edwing el 2026-07-19, motivado por los
+  clientes importados del Excel que quedaron con datos incompletos:
+  `phone`/`department`/`city`/`address`/`neighborhood` vacíos). Diseño
+  brainstormeado y **aprobado por Edwing, sin implementar todavía**:
+  - Hoy `apps/rotulos/src/components/customers-table.tsx` (y la página
+    `apps/rotulos/src/app/(app)/clientes/page.tsx`) es de **solo lectura**
+    — no hay ningún patrón de "editar entidad" en el codebase (Productos
+    solo tiene crear + borrar, no editar).
+  - Patrón elegido: click en la fila de `CustomersTable` abre un
+    `Drawer` (`apps/rotulos/src/components/ui/drawer.tsx`, mismo
+    componente que ya usa `ProductsTable` para "ver movimientos") con un
+    formulario de edición nuevo, `customer-edit-form.tsx`.
+  - El formulario reusa el selector de departamento/ciudad/localidad/
+    barrio de Colombia ya usado en `order-form.tsx`
+    (`apps/rotulos/src/lib/location.ts`, `validateDepartmentCity`,
+    `getBogotaLocalities`, etc.) — **pero sin bloquear el guardado** si
+    esos campos quedan vacíos (a diferencia de Crear pedido, donde sí son
+    obligatorios). `fullName` sigue siendo el único campo realmente
+    obligatorio.
+  - Falta agregar `updateCustomer(id, patch)` a la interfaz
+    `BusinessStore` (`apps/rotulos/src/lib/business-store.ts:7-13`) y a
+    sus dos implementaciones (`createLocalBusinessStore`,
+    `createSupabaseBusinessStore`). La política RLS de `customers` ya
+    permite `update` libre a usuarios autenticados
+    (`202607150001_create_rotulos_schema.sql:129-132`, `using(true) with
+    check(true)`, sin columna `created_by` en esa tabla) — no hace falta
+    tocar Supabase para esto.
+  - Normalizar con `normalizeCustomerFields` (ya existe en
+    `apps/rotulos/src/lib/normalize.ts`) antes de guardar, igual que en
+    `saveOrder`.
+  - Nota importante: `customers.source` (agregada por la migración
+    `202607190002` de arriba) es **solo** para que el importador de Excel
+    identifique a los clientes que él mismo creó (evita fusionarse con
+    clientes reales). El formulario de editar cliente no debe tocar ni
+    exponer ese campo — es interno del importador, no una clasificación
+    de negocio.
 - Impresión física real del rótulo con impresora final todavía no
   probada (solo validación en pantalla/PDF hasta ahora).
 - Si se hacen nuevos ajustes al diseño del rótulo, mantener sincronizadas
@@ -82,9 +136,15 @@ como `text not null default ''`.
 
 ## Cosas explícitamente fuera de alcance / no tocar sin permiso
 
-- **No sincronizar contra el workbook Excel real del negocio**
-  ("REFERENCIAS") — nunca estuvo conectado a esta app, y no cambia con
-  la migración. Ver advertencia en `CLAUDE.md` de la raíz.
+- **El Excel real ("REFERENCIAS") ya no está fuera de alcance** — se
+  importó una vez (2026-07-19, ver arriba) con diseño explícito aprobado
+  por Edwing. Si se necesita volver a importar (ej. meses nuevos que se
+  sigan cargando ahí), el script ya existe
+  (`apps/rotulos/scripts/import-excel.ts`) y es idempotente — correrlo de
+  nuevo con el mismo archivo no duplica lo ya importado. Lo que sigue
+  fuera de alcance sin permiso explícito es **automatizar** esa
+  sincronización (ej. un cron o webhook que lea el Excel solo) — el
+  importador es y debe seguir siendo manual, corrido a mano por Edwing.
 - **No hacer push sin confirmación explícita del usuario**, salvo que ya
   lo haya pedido explícitamente (Edwing pidió el 2026-07-16 que se
   commitee y pushee sin repreguntar tras cada fix verificado — repo de un
