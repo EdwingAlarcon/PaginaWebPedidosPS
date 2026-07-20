@@ -50,11 +50,15 @@ async function commitImportPlan(plan: ImportPlan): Promise<void> {
 
     let customerId = customerIdByName.get(order.customerFullName);
     if (!customerId) {
+      // phone='' NO alcanza para identificar clientes creados por este
+      // importador: la app tambien permite crear clientes reales sin
+      // telefono. Se filtra por source='excel_import' (migracion
+      // 202607190002) para nunca fusionar con un cliente real.
       const { data: existingCustomer, error: lookupError } = await supabase
         .from("customers")
         .select("id")
         .eq("full_name", order.customerFullName)
-        .eq("phone", "")
+        .eq("source", "excel_import")
         .maybeSingle();
       if (lookupError) throw lookupError;
 
@@ -63,7 +67,7 @@ async function commitImportPlan(plan: ImportPlan): Promise<void> {
       } else {
         const { data: newCustomer, error: insertError } = await supabase
           .from("customers")
-          .insert({ full_name: order.customerFullName, phone: "" })
+          .insert({ full_name: order.customerFullName, phone: "", source: "excel_import" })
           .select("id")
           .single();
         if (insertError) throw insertError;
@@ -110,6 +114,7 @@ async function commitImportPlan(plan: ImportPlan): Promise<void> {
     }
 
     createdOrders++;
+    console.log(`  [${createdOrders + skippedExisting}/${plan.orders.length}] pedido creado: ${order.customerFullName} (${order.sheetName})`);
   }
 
   console.log(`\nImportación completada. Pedidos creados: ${createdOrders}. Ya existentes (omitidos): ${skippedExisting}.`);

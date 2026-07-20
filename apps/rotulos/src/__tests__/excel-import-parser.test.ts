@@ -121,6 +121,19 @@ describe("parseSheetRows", () => {
     expect(result.blocks[0].errors.some((e) => e.includes("Ítem inválido"))).toBe(true);
   });
 
+  it("marca error de ítem inválido cuando la cantidad es cero o negativa", () => {
+    const rows: SheetRow[] = [
+      HEADER,
+      ["Z1335", "ANDREA", "SET 3 ARETES", 0, null, null, 13500],
+      [null, null, null, "SUBTOTAL", null, null, 0],
+    ];
+
+    const result = parseSheetRows("SEPT 2025", rows);
+
+    expect(result.blocks[0].items).toHaveLength(0);
+    expect(result.blocks[0].errors.some((e) => e.includes("Ítem inválido"))).toBe(true);
+  });
+
   it("ignora filas completamente vacías sin cerrar el bloque", () => {
     const rows: SheetRow[] = [
       HEADER,

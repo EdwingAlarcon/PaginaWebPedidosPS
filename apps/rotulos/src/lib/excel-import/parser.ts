@@ -182,7 +182,7 @@ export function parseSheetRows(sheetName: string, rows: SheetRow[]): SheetParseR
 
     if (!current.clientName && clientName) current.clientName = clientName;
 
-    if (!ref || !description || quantity === null || lineTotal === null) {
+    if (!ref || !description || quantity === null || quantity <= 0 || lineTotal === null) {
       current.errors.push(`Ítem inválido en fila ${rowNumber}: falta ref/descripción/cantidad/precio total`);
     } else {
       current.items.push({ rowNumber, ref, clientName, description, quantity, lineTotal });
