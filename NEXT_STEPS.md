@@ -110,8 +110,14 @@ como `text not null default ''`.
   esos pedidos reciben el nuevo snapshot. Tambien hay una opcion
   "Completar datos faltantes en pedidos relacionados": solo llena campos
   vacios de cliente en pedidos relacionados/historicos y no sobrescribe
-  valores existentes ni cambia productos, cantidades o totales. No se
-  actualizan `labels.recipient` de rotulos ya creados.
+  valores existentes ni cambia productos, cantidades o totales. Para
+  historicos importados, la relacion reconoce `customer_id`, nombre exacto
+  y nombres cortos que sean prefijo claro del cliente maestro (ej. `ZAIDA`
+  -> `ZAIDA SUAREZ`); esos nombres cortos se usan para detectar relacion,
+  pero no se renombran en `customer_snapshot`. La tabla de Pedidos muestra
+  fallback visual desde `customers` cuando el snapshot no tiene telefono o
+  trae un nombre corto seguro. No se actualizan `labels.recipient` de
+  rotulos ya creados.
 - **Ajustes comerciales de pedidos sin inventario** (2026-07-19): desde el
   drawer de pedido se pueden corregir cantidades/precios y eliminar lineas.
   Si cambian lineas se pide "Motivo del ajuste"; por ahora se guarda en

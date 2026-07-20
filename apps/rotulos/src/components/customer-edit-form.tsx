@@ -81,12 +81,26 @@ function isEmpty(value: string | undefined): boolean {
   return !String(value ?? "").trim();
 }
 
+function normalizeName(value: string): string {
+  return value.trim().replace(/\s+/g, " ").toUpperCase();
+}
+
+function isShortNameOf(shortName: string, fullName: string): boolean {
+  const short = normalizeName(shortName);
+  const full = normalizeName(fullName);
+  return Boolean(short) && short !== full && full.startsWith(`${short} `);
+}
+
 function isRelatedOrder(order: OrderRecord, customer: Pick<Customer, "id" | "fullName">): boolean {
-  return order.customerId === customer.id || order.customer.fullName.trim().toUpperCase() === customer.fullName.trim().toUpperCase();
+  return (
+    order.customerId === customer.id ||
+    normalizeName(order.customer.fullName) === normalizeName(customer.fullName) ||
+    isShortNameOf(order.customer.fullName, customer.fullName)
+  );
 }
 
 function hasMissingCustomerData(order: OrderRecord): boolean {
-  return ["phone", "email", "department", "city", "locality", "address", "neighborhood"].some((field) =>
+  return ["fullName", "phone", "email", "department", "city", "locality", "address", "neighborhood"].some((field) =>
     isEmpty(order.customer[field as keyof OrderRecord["customer"]]),
   );
 }
@@ -116,10 +130,11 @@ export function CustomerEditForm({ customer, onSaved, onCancel, onDirtyChange }:
   const [syncPendingOrders, setSyncPendingOrders] = useState(false);
   const [fillMissingOrderData, setFillMissingOrderData] = useState(false);
   const dirty = JSON.stringify(value) !== JSON.stringify(initialValue);
+  const actionable = dirty || syncPendingOrders || fillMissingOrderData;
 
   useEffect(() => {
-    onDirtyChange?.(dirty);
-  }, [dirty, onDirtyChange]);
+    onDirtyChange?.(actionable);
+  }, [actionable, onDirtyChange]);
 
   useEffect(() => {
     let mounted = true;
@@ -132,7 +147,10 @@ export function CustomerEditForm({ customer, onSaved, onCancel, onDirtyChange }:
         setMissingDataOrderCount(related.filter((order) => hasMissingCustomerData(order)).length);
       })
       .catch(() => {
-        if (mounted) setPendingOrderCount(0);
+        if (mounted) {
+          setPendingOrderCount(0);
+          setMissingDataOrderCount(0);
+        }
       });
     return () => {
       mounted = false;
@@ -179,12 +197,16 @@ export function CustomerEditForm({ customer, onSaved, onCancel, onDirtyChange }:
         setSyncPendingOrders(false);
       }
       if (fillMissingOrderData) {
-        if (!window.confirm("Se completaran solo campos vacios del cliente en pedidos relacionados. No se modificaran datos ya existentes ni productos, cantidades o totales. ¿Quieres continuar?")) {
+        const orders = await store.listOrders();
+        const affectedOrders = orders.filter((order) => isRelatedOrder(order, saved) && hasMissingCustomerData(order));
+        if (
+          !window.confirm(
+            `Se completaran solo campos vacios del cliente en ${affectedOrders.length} pedido(s) relacionado(s). No se modificaran datos ya existentes ni productos, cantidades o totales. ¿Quieres continuar?`,
+          )
+        ) {
           setSaving(false);
           return;
         }
-        const orders = await store.listOrders();
-        const affectedOrders = orders.filter((order) => isRelatedOrder(order, saved) && hasMissingCustomerData(order));
         await Promise.all(
           affectedOrders.map((order) =>
             store.updateOrder(order.id, {
@@ -281,6 +303,7 @@ export function CustomerEditForm({ customer, onSaved, onCancel, onDirtyChange }:
               <span className="block font-medium text-foreground">Completar datos faltantes en pedidos relacionados</span>
               <span className="mt-1 block text-foreground-muted">
                 Solo se llenaran campos vacios del cliente en {missingDataOrderCount} pedido(s) relacionado(s). No se modificaran datos que ya tengan valor ni se cambiaran productos, cantidades o totales.
+                {missingDataOrderCount > 0 ? " Los nombres cortos no se sobrescriben; solo se usan para detectar relacion." : ""}
               </span>
             </span>
           </label>
@@ -291,7 +314,7 @@ export function CustomerEditForm({ customer, onSaved, onCancel, onDirtyChange }:
         <Button type="button" variant="secondary" onClick={cancel}>
           Cancelar
         </Button>
-        <Button type="submit" loading={saving} disabled={!dirty}>
+        <Button type="submit" loading={saving} disabled={!actionable}>
           Guardar cambios
         </Button>
       </div>

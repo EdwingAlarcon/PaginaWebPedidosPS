@@ -98,6 +98,66 @@ describe("business tables", () => {
     expect(order.customer.neighborhood).toBe("CASTILLA");
   });
 
+  it("fills missing fields for completed orders matched by a short snapshot name without renaming the snapshot", async () => {
+    vi.spyOn(window, "confirm").mockReturnValue(true);
+    const store = getBusinessStore();
+    const draft = createBlankOrderDraft();
+    draft.customer.fullName = "zaida";
+    draft.customer.phone = "";
+    draft.customer.city = "";
+    draft.status = "completed";
+    const savedOrder = await store.saveOrder(draft);
+    const [customer] = await store.listCustomers();
+    const updatedCustomer = await store.updateCustomer(customer.id, {
+      fullName: "zaida suarez",
+      phone: "3004825458",
+      department: "bogota, d.c.",
+      city: "bogota, d.c.",
+      address: "cra 72 c bis a # 54 a - 51 sur",
+    });
+    await store.updateOrder(savedOrder.id, {
+      customer: {
+        ...savedOrder.customer,
+        fullName: "ZAIDA",
+        phone: "",
+        department: "",
+        city: "",
+        address: "",
+      },
+    });
+    const user = userEvent.setup();
+
+    renderWithToast(<CustomersTable />);
+
+    await user.click(await screen.findByText(updatedCustomer.fullName));
+    await user.click(screen.getByLabelText("Completar datos faltantes en pedidos relacionados"));
+    await user.click(screen.getByRole("button", { name: "Guardar cambios" }));
+
+    expect(await screen.findByText(/pedido\(s\) relacionado\(s\) actualizado\(s\)/i)).toBeInTheDocument();
+    const [order] = (await store.listOrders()).filter((item) => item.id === savedOrder.id);
+    expect(order.customer.fullName).toBe("ZAIDA");
+    expect(order.customer.phone).toBe("3004825458");
+    expect(order.customer.city).toBe("BOGOTA, D.C.");
+    expect(order.customer.address).toBe("CRA 72 C BIS A # 54 A - 51 SUR");
+    expect(order.status).toBe("completed");
+  });
+
+  it("shows customer fallback data in orders when the snapshot is short or missing phone", async () => {
+    const store = getBusinessStore();
+    const draft = createBlankOrderDraft();
+    draft.customer.fullName = "zaida";
+    draft.customer.phone = "";
+    const savedOrder = await store.saveOrder(draft);
+    const [customer] = await store.listCustomers();
+    await store.updateCustomer(customer.id, { fullName: "zaida suarez", phone: "3004825458" });
+    await store.updateOrder(savedOrder.id, { customer: { ...savedOrder.customer, fullName: "ZAIDA", phone: "" } });
+
+    renderWithToast(<OrdersTable />);
+
+    expect(await screen.findByText("ZAIDA SUAREZ")).toBeInTheDocument();
+    expect(screen.getByText("3004825458")).toBeInTheDocument();
+  });
+
   it("opens an order detail drawer with customer, items, and totals", async () => {
     const store = getBusinessStore();
     const draft = createBlankOrderDraft();

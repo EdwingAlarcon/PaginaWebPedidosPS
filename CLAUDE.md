@@ -37,8 +37,11 @@ codigo fuente ahi para entender convenciones.
   `customer_snapshot`; editar un cliente no modifica historicos por
   defecto. En el formulario de cliente existe una opcion explicita para
   aplicar cambios a pedidos `pending` y otra para completar solo campos
-  vacios en pedidos relacionados/historicos. Pedidos `completed`/
-  `cancelled` y rotulos ya creados no se sobrescriben automaticamente.
+  vacios en pedidos relacionados/historicos. La relacion tambien reconoce
+  snapshots con nombre corto cuando son prefijo claro del cliente maestro
+  (ej. `ZAIDA` -> `ZAIDA SUAREZ`), pero no sobrescribe nombres no vacios.
+  Pedidos `completed`/`cancelled` y rotulos ya creados no se sobrescriben
+  automaticamente.
 - 2026-07-19 noche: la edicion de pedidos permite corregir cantidades,
   precios y eliminar lineas como documento comercial, recalculando
   subtotal/total sin tocar inventario. El motivo del ajuste queda en

@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { Plus } from "lucide-react";
 import { getBusinessStore } from "@/lib/business-store";
-import type { OrderRecord } from "@/lib/business-types";
+import type { Customer, OrderRecord } from "@/lib/business-types";
 import { DataTable, type DataTableColumn } from "@/components/ui/data-table";
 import { StatusBadge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -13,15 +13,51 @@ import { OrderDetailDrawer } from "@/components/order-detail-drawer";
 import { OrderEditForm } from "@/components/order-edit-form";
 import { useToast } from "@/components/ui/toast";
 
-const columns: DataTableColumn<OrderRecord>[] = [
+type OrderTableRow = OrderRecord & {
+  displayCustomerName: string;
+  displayPhone: string;
+};
+
+function normalizeName(value: string): string {
+  return value.trim().replace(/\s+/g, " ").toUpperCase();
+}
+
+function isShortNameOf(shortName: string, fullName: string): boolean {
+  const short = normalizeName(shortName);
+  const full = normalizeName(fullName);
+  return Boolean(short) && short !== full && full.startsWith(`${short} `);
+}
+
+function relatedCustomer(order: OrderRecord, customers: Customer[]): Customer | undefined {
+  return customers.find((customer) =>
+    order.customerId === customer.id ||
+    normalizeName(order.customer.fullName) === normalizeName(customer.fullName) ||
+    isShortNameOf(order.customer.fullName, customer.fullName),
+  );
+}
+
+function orderToRow(order: OrderRecord, customers: Customer[]): OrderTableRow {
+  const customer = relatedCustomer(order, customers);
+  const displayCustomerName =
+    !order.customer.fullName.trim() || (customer && isShortNameOf(order.customer.fullName, customer.fullName))
+      ? customer?.fullName ?? order.customer.fullName
+      : order.customer.fullName;
+  return {
+    ...order,
+    displayCustomerName,
+    displayPhone: order.customer.phone || customer?.phone || "",
+  };
+}
+
+const columns: DataTableColumn<OrderTableRow>[] = [
   { key: "date", header: "Fecha", render: (order) => order.orderDate, sortValue: (order) => order.orderDate },
   {
     key: "customer",
     header: "Cliente",
-    render: (order) => order.customer.fullName,
-    sortValue: (order) => order.customer.fullName,
+    render: (order) => order.displayCustomerName,
+    sortValue: (order) => order.displayCustomerName,
   },
-  { key: "phone", header: "Telefono", render: (order) => order.customer.phone || "-" },
+  { key: "phone", header: "Telefono", render: (order) => order.displayPhone || "-" },
   { key: "items", header: "Items", render: (order) => order.items.length, align: "center" },
   {
     key: "total",
@@ -35,6 +71,7 @@ const columns: DataTableColumn<OrderRecord>[] = [
 
 export function OrdersTable() {
   const [orders, setOrders] = useState<OrderRecord[]>([]);
+  const [customers, setCustomers] = useState<Customer[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedOrder, setSelectedOrder] = useState<OrderRecord | null>(null);
   const [mode, setMode] = useState<"detail" | "edit">("detail");
@@ -42,9 +79,15 @@ export function OrdersTable() {
   const toast = useToast();
 
   useEffect(() => {
-    getBusinessStore()
-      .listOrders()
-      .then(setOrders)
+    const store = getBusinessStore();
+    Promise.all([
+      store.listOrders(),
+      store.listCustomers().catch(() => []),
+    ])
+      .then(([ordersResult, customersResult]) => {
+        setOrders(ordersResult);
+        setCustomers(customersResult);
+      })
       .finally(() => setLoading(false));
   }, []);
 
@@ -78,14 +121,14 @@ export function OrdersTable() {
     <>
       <DataTable
         columns={columns}
-        data={orders}
+        data={orders.map((order) => orderToRow(order, customers))}
         getRowId={(order) => order.id}
         loading={loading}
         onRowClick={openOrder}
         searchPlaceholder="Buscar por cliente, telefono o producto"
         searchPredicate={(order, query) =>
-          order.customer.fullName.toLowerCase().includes(query) ||
-          order.customer.phone.includes(query) ||
+          order.displayCustomerName.toLowerCase().includes(query) ||
+          order.displayPhone.includes(query) ||
           order.items.some((item) => item.productName.toLowerCase().includes(query))
         }
         emptyTitle="No hay pedidos todavia"
