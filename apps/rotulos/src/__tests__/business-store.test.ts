@@ -83,6 +83,49 @@ describe("local business store", () => {
     expect(order.customer.city).toBe("BOGOTA");
   });
 
+  it("merges a misspelled customer into the correct customer and updates related order snapshots", async () => {
+    const store = getBusinessStore();
+    const sourceDraft = createBlankOrderDraft();
+    sourceDraft.customer.fullName = "pili";
+    sourceDraft.customer.phone = "";
+    sourceDraft.customer.city = "bogota";
+    const sourceOrder = await store.saveOrder(sourceDraft);
+    const targetDraft = createBlankOrderDraft();
+    targetDraft.customer.fullName = "pilar congote";
+    targetDraft.customer.phone = "3001234567";
+    targetDraft.customer.city = "bogota";
+    await store.saveOrder(targetDraft);
+    const customers = await store.listCustomers();
+    const source = customers.find((customer) => customer.fullName === "PILI");
+    const target = customers.find((customer) => customer.fullName === "PILAR CONGOTE");
+
+    const result = await store.mergeCustomers(source!.id, target!.id);
+
+    expect(result.updatedOrders).toBe(1);
+    expect((await store.listCustomers()).map((customer) => customer.fullName)).toEqual(["PILAR CONGOTE"]);
+    const updatedOrder = (await store.listOrders()).find((order) => order.id === sourceOrder.id);
+    expect(updatedOrder?.customerId).toBe(target!.id);
+    expect(updatedOrder?.customer.fullName).toBe("PILAR CONGOTE");
+    expect(updatedOrder?.customer.phone).toBe("3001234567");
+  });
+
+  it("deletes only the customer and keeps its orders as historical records", async () => {
+    const store = getBusinessStore();
+    const draft = createBlankOrderDraft();
+    draft.customer.fullName = "cliente temporal";
+    draft.customer.phone = "3000000000";
+    const savedOrder = await store.saveOrder(draft);
+    const [customer] = await store.listCustomers();
+
+    await store.deleteCustomer(customer.id);
+
+    expect(await store.listCustomers()).toHaveLength(0);
+    const [order] = await store.listOrders();
+    expect(order.id).toBe(savedOrder.id);
+    expect(order.customerId).toBeNull();
+    expect(order.customer.fullName).toBe("CLIENTE TEMPORAL");
+  });
+
   it("normalizes a product code but leaves unitPrice untouched", async () => {
     const store = getBusinessStore();
 

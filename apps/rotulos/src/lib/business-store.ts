@@ -10,6 +10,8 @@ export type BusinessStore = {
   updateOrder(id: string, patch: OrderPatch): Promise<OrderRecord>;
   listCustomers(): Promise<Customer[]>;
   updateCustomer(id: string, patch: CustomerPatch): Promise<Customer>;
+  deleteCustomer(id: string): Promise<void>;
+  mergeCustomers(sourceId: string, targetId: string): Promise<{ updatedOrders: number }>;
   listProductCodes(): Promise<ProductCode[]>;
   saveProductCode(code: Omit<ProductCode, "id" | "createdAt" | "updatedAt">): Promise<ProductCode>;
 };
@@ -161,6 +163,32 @@ function rowToProductCode(row: ProductCodeRow): ProductCode {
     unitPrice: Number(row.unit_price),
     createdAt: row.created_at,
     updatedAt: row.updated_at,
+  };
+}
+
+function normalizeForMatch(value: string) {
+  return value.trim().replace(/\s+/g, " ").toLowerCase();
+}
+
+function isRelatedOrderToCustomer(order: OrderRecord, customer: Customer): boolean {
+  if (order.customerId === customer.id) return true;
+  const orderName = normalizeForMatch(order.customer.fullName);
+  const customerName = normalizeForMatch(customer.fullName);
+  if (!orderName || !customerName) return false;
+  if (orderName === customerName) return true;
+  return orderName.length >= 4 && customerName.startsWith(`${orderName} `);
+}
+
+function snapshotFromCustomer(customer: Customer): OrderDraft["customer"] {
+  return {
+    fullName: customer.fullName,
+    phone: customer.phone,
+    email: customer.email,
+    department: customer.department,
+    city: customer.city,
+    locality: customer.locality ?? "",
+    address: customer.address,
+    neighborhood: customer.neighborhood,
   };
 }
 
@@ -369,6 +397,37 @@ function createLocalBusinessStore(): BusinessStore {
       writeStorage(storageKeys.customers, customers);
       return updated;
     },
+    async deleteCustomer(id) {
+      const customers = readStorage<Customer[]>(storageKeys.customers, []);
+      const orders = readStorage<OrderRecord[]>(storageKeys.orders, []);
+      const customerExists = customers.some((customer) => customer.id === id);
+      if (!customerExists) throw new Error("customer_not_found");
+      const now = new Date().toISOString();
+      writeStorage(storageKeys.customers, customers.filter((customer) => customer.id !== id));
+      writeStorage(
+        storageKeys.orders,
+        orders.map((order) => (order.customerId === id ? { ...order, customerId: null, updatedAt: now } : order)),
+      );
+    },
+    async mergeCustomers(sourceId, targetId) {
+      if (sourceId === targetId) throw new Error("same_customer");
+      const customers = readStorage<Customer[]>(storageKeys.customers, []);
+      const source = customers.find((customer) => customer.id === sourceId);
+      const target = customers.find((customer) => customer.id === targetId);
+      if (!source || !target) throw new Error("customer_not_found");
+      const orders = readStorage<OrderRecord[]>(storageKeys.orders, []);
+      const now = new Date().toISOString();
+      const targetSnapshot = snapshotFromCustomer(target);
+      let updatedOrders = 0;
+      const nextOrders = orders.map((order) => {
+        if (!isRelatedOrderToCustomer(order, source)) return order;
+        updatedOrders += 1;
+        return { ...order, customerId: target.id, customer: targetSnapshot, updatedAt: now };
+      });
+      writeStorage(storageKeys.orders, nextOrders);
+      writeStorage(storageKeys.customers, customers.filter((customer) => customer.id !== source.id));
+      return { updatedOrders };
+    },
     async listProductCodes() {
       return readStorage<ProductCode[]>(storageKeys.productCodes, []);
     },
@@ -551,6 +610,41 @@ function createSupabaseBusinessStore(): BusinessStore | null {
         .single<CustomerRow>();
       if (error) throw error;
       return rowToCustomer(data);
+    },
+    async deleteCustomer(id) {
+      const { error } = await supabase.from("customers").delete().eq("id", id);
+      if (error) throw error;
+    },
+    async mergeCustomers(sourceId, targetId) {
+      if (sourceId === targetId) throw new Error("same_customer");
+      const [{ data: sourceRow, error: sourceError }, { data: targetRow, error: targetError }, { data: ordersData, error: ordersError }] = await Promise.all([
+        supabase.from("customers").select("*").eq("id", sourceId).single<CustomerRow>(),
+        supabase.from("customers").select("*").eq("id", targetId).single<CustomerRow>(),
+        supabase.from("orders").select("*, order_items(*)").returns<OrderRow[]>(),
+      ]);
+      if (sourceError) throw sourceError;
+      if (targetError) throw targetError;
+      if (ordersError) throw ordersError;
+      const source = rowToCustomer(sourceRow);
+      const target = rowToCustomer(targetRow);
+      const targetSnapshot = snapshotFromCustomer(target);
+      const affectedOrders = (ordersData ?? []).map(rowToOrder).filter((order) => isRelatedOrderToCustomer(order, source));
+
+      for (const order of affectedOrders) {
+        const { error } = await supabase
+          .from("orders")
+          .update({
+            customer_id: target.id,
+            customer_snapshot: targetSnapshot,
+            updated_at: new Date().toISOString(),
+          })
+          .eq("id", order.id);
+        if (error) throw error;
+      }
+
+      const { error: deleteError } = await supabase.from("customers").delete().eq("id", source.id);
+      if (deleteError) throw deleteError;
+      return { updatedOrders: affectedOrders.length };
     },
     async listProductCodes() {
       const { data, error } = await supabase.from("product_codes").select("*").order("code").returns<ProductCodeRow[]>();
