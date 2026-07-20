@@ -1,13 +1,15 @@
 "use client";
 
 import { createClient } from "@/lib/supabase/client";
-import { normalizeOrderDraft, normalizeProductCode } from "@/lib/normalize";
-import type { Customer, OrderDraft, OrderItem, OrderRecord, ProductCode } from "@/lib/business-types";
+import { normalizeCustomerFields, normalizeOrderDraft, normalizeProductCode } from "@/lib/normalize";
+import type { Customer, CustomerPatch, OrderDraft, OrderItem, OrderPatch, OrderRecord, ProductCode } from "@/lib/business-types";
 
 export type BusinessStore = {
   listOrders(): Promise<OrderRecord[]>;
   saveOrder(draft: OrderDraft): Promise<OrderRecord>;
+  updateOrder(id: string, patch: OrderPatch): Promise<OrderRecord>;
   listCustomers(): Promise<Customer[]>;
+  updateCustomer(id: string, patch: CustomerPatch): Promise<Customer>;
   listProductCodes(): Promise<ProductCode[]>;
   saveProductCode(code: Omit<ProductCode, "id" | "createdAt" | "updatedAt">): Promise<ProductCode>;
 };
@@ -122,10 +124,21 @@ function rowToOrderItem(row: OrderItemRow): OrderItem {
 }
 
 function rowToOrder(row: OrderRow): OrderRecord {
+  const customer = {
+    fullName: row.customer_snapshot.fullName ?? "",
+    phone: row.customer_snapshot.phone ?? "",
+    email: row.customer_snapshot.email ?? "",
+    department: row.customer_snapshot.department ?? "",
+    city: row.customer_snapshot.city ?? "",
+    locality: row.customer_snapshot.locality ?? "",
+    address: row.customer_snapshot.address ?? "",
+    neighborhood: row.customer_snapshot.neighborhood ?? "",
+  };
+
   return {
     id: row.id,
     customerId: row.customer_id,
-    customer: row.customer_snapshot,
+    customer,
     orderDate: row.order_date,
     status: row.status,
     notes: row.notes,
@@ -151,8 +164,62 @@ function rowToProductCode(row: ProductCodeRow): ProductCode {
   };
 }
 
+function customerPayload(customer: CustomerPatch) {
+  return {
+    ...(customer.fullName !== undefined ? { full_name: customer.fullName } : {}),
+    ...(customer.phone !== undefined ? { phone: customer.phone } : {}),
+    ...(customer.email !== undefined ? { email: customer.email } : {}),
+    ...(customer.department !== undefined ? { department: customer.department } : {}),
+    ...(customer.city !== undefined ? { city: customer.city } : {}),
+    ...(customer.locality !== undefined ? { locality: customer.locality ?? "" } : {}),
+    ...(customer.address !== undefined ? { address: customer.address } : {}),
+    ...(customer.neighborhood !== undefined ? { neighborhood: customer.neighborhood } : {}),
+  };
+}
+
+function normalizeCustomerPatch(patch: CustomerPatch): CustomerPatch {
+  const withDefaults = {
+    fullName: patch.fullName ?? "",
+    department: patch.department ?? "",
+    city: patch.city ?? "",
+    locality: patch.locality ?? "",
+    address: patch.address ?? "",
+    neighborhood: patch.neighborhood ?? "",
+  };
+  const normalized = normalizeCustomerFields(withDefaults);
+  return {
+    ...patch,
+    ...(patch.fullName !== undefined ? { fullName: normalized.fullName } : {}),
+    ...(patch.department !== undefined ? { department: normalized.department } : {}),
+    ...(patch.city !== undefined ? { city: normalized.city } : {}),
+    ...(patch.locality !== undefined ? { locality: normalized.locality } : {}),
+    ...(patch.address !== undefined ? { address: normalized.address } : {}),
+    ...(patch.neighborhood !== undefined ? { neighborhood: normalized.neighborhood } : {}),
+  };
+}
+
+function normalizeOrderPatch(patch: OrderPatch): OrderPatch {
+  const notes = patch.notes !== undefined ? normalizeCustomerFields({
+    fullName: "",
+    department: "",
+    city: "",
+    address: patch.notes,
+    neighborhood: "",
+  }).address : undefined;
+  return {
+    ...patch,
+    ...(patch.customer !== undefined ? { customer: normalizeCustomerFields(patch.customer) } : {}),
+    ...(notes !== undefined ? { notes } : {}),
+  };
+}
+
 function totals(items: OrderDraft["items"], discount: number, shippingCost: number) {
   const subtotal = items.reduce((sum, item) => sum + item.quantity * item.unitPrice, 0);
+  return { subtotal, total: Math.max(0, subtotal - discount + shippingCost) };
+}
+
+function totalsFromOrder(order: Pick<OrderRecord, "items">, discount: number, shippingCost: number) {
+  const subtotal = order.items.reduce((sum, item) => sum + item.quantity * item.unitPrice, 0);
   return { subtotal, total: Math.max(0, subtotal - discount + shippingCost) };
 }
 
@@ -208,8 +275,40 @@ function createLocalBusinessStore(): BusinessStore {
       }
       return record;
     },
+    async updateOrder(id, patch) {
+      const orders = readStorage<OrderRecord[]>(storageKeys.orders, []);
+      const index = orders.findIndex((order) => order.id === id);
+      if (index < 0) throw new Error("order_not_found");
+      const normalizedPatch = normalizeOrderPatch(patch);
+      const current = orders[index];
+      const discount = normalizedPatch.discount ?? current.discount;
+      const shippingCost = normalizedPatch.shippingCost ?? current.shippingCost;
+      const computed = totalsFromOrder(current, discount, shippingCost);
+      const updated: OrderRecord = {
+        ...current,
+        ...normalizedPatch,
+        discount,
+        shippingCost,
+        subtotal: computed.subtotal,
+        total: computed.total,
+        updatedAt: new Date().toISOString(),
+      };
+      orders[index] = updated;
+      writeStorage(storageKeys.orders, orders);
+      return updated;
+    },
     async listCustomers() {
       return readStorage<Customer[]>(storageKeys.customers, []);
+    },
+    async updateCustomer(id, patch) {
+      const customers = readStorage<Customer[]>(storageKeys.customers, []);
+      const index = customers.findIndex((customer) => customer.id === id);
+      if (index < 0) throw new Error("customer_not_found");
+      const normalizedPatch = normalizeCustomerPatch(patch);
+      const updated = { ...customers[index], ...normalizedPatch, updatedAt: new Date().toISOString() };
+      customers[index] = updated;
+      writeStorage(storageKeys.customers, customers);
+      return updated;
     },
     async listProductCodes() {
       return readStorage<ProductCode[]>(storageKeys.productCodes, []);
@@ -311,10 +410,58 @@ function createSupabaseBusinessStore(): BusinessStore | null {
       if (itemsError) throw itemsError;
       return rowToOrder({ ...order, order_items: items ?? [] });
     },
+    async updateOrder(id, patch) {
+      const normalizedPatch = normalizeOrderPatch(patch);
+      const { data: existing, error: lookupError } = await supabase
+        .from("orders")
+        .select("*, order_items(*)")
+        .eq("id", id)
+        .single<OrderRow>();
+      if (lookupError) throw lookupError;
+      const current = rowToOrder(existing);
+      const discount = normalizedPatch.discount ?? current.discount;
+      const shippingCost = normalizedPatch.shippingCost ?? current.shippingCost;
+      const computed = totalsFromOrder(current, discount, shippingCost);
+      const { data, error } = await supabase
+        .from("orders")
+        .update({
+          ...(normalizedPatch.customer !== undefined ? { customer_snapshot: normalizedPatch.customer } : {}),
+          ...(normalizedPatch.orderDate !== undefined ? { order_date: normalizedPatch.orderDate } : {}),
+          ...(normalizedPatch.status !== undefined ? { status: normalizedPatch.status } : {}),
+          ...(normalizedPatch.notes !== undefined ? { notes: normalizedPatch.notes } : {}),
+          discount,
+          shipping_cost: shippingCost,
+          subtotal: computed.subtotal,
+          total: computed.total,
+          updated_at: new Date().toISOString(),
+        })
+        .eq("id", id)
+        .select("*, order_items(*)")
+        .single<OrderRow>();
+      if (error) throw error;
+      return rowToOrder(data);
+    },
     async listCustomers() {
       const { data, error } = await supabase.from("customers").select("*").order("updated_at", { ascending: false }).returns<CustomerRow[]>();
       if (error) throw error;
       return (data ?? []).map(rowToCustomer);
+    },
+    async updateCustomer(id, patch) {
+      const normalizedPatch = normalizeCustomerPatch(patch);
+      const payload = customerPayload(normalizedPatch);
+      if (Object.keys(payload).length === 0) {
+        const { data, error } = await supabase.from("customers").select("*").eq("id", id).single<CustomerRow>();
+        if (error) throw error;
+        return rowToCustomer(data);
+      }
+      const { data, error } = await supabase
+        .from("customers")
+        .update({ ...payload, updated_at: new Date().toISOString() })
+        .eq("id", id)
+        .select("*")
+        .single<CustomerRow>();
+      if (error) throw error;
+      return rowToCustomer(data);
     },
     async listProductCodes() {
       const { data, error } = await supabase.from("product_codes").select("*").order("code").returns<ProductCodeRow[]>();

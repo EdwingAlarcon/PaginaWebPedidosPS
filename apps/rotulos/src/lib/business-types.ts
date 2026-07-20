@@ -12,6 +12,8 @@ export type Customer = {
   updatedAt: string;
 };
 
+export type CustomerPatch = Partial<Omit<Customer, "id" | "createdAt" | "updatedAt">>;
+
 export type OrderItemDraft = {
   productCode: string;
   productName: string;
@@ -34,6 +36,8 @@ export type OrderDraft = {
   shippingCost: number;
   items: OrderItemDraft[];
 };
+
+export type OrderPatch = Partial<Pick<OrderDraft, "customer" | "orderDate" | "status" | "notes" | "discount" | "shippingCost">>;
 
 export type OrderRecord = {
   id: string;
