@@ -32,16 +32,17 @@ codigo fuente ahi para entender convenciones.
   Ver `NEXT_STEPS.md` seccion "Importador de data historica" para detalle
   completo y `docs/superpowers/specs/2026-07-19-importador-excel-historico-design.md`
   para el diseño.
-- 2026-07-19 noche: editar clientes y pedidos ya esta
-  implementado. Los pedidos guardan `customer_id` y una copia
-  `customer_snapshot`; editar un cliente no modifica historicos por
-  defecto. En el formulario de cliente existe una opcion explicita para
-  aplicar cambios a pedidos `pending` y otra para completar solo campos
-  vacios en pedidos relacionados/historicos. La relacion tambien reconoce
-  snapshots con nombre corto cuando son prefijo claro del cliente maestro
-  (ej. `ZAIDA` -> `ZAIDA SUAREZ`), pero no sobrescribe nombres no vacios.
-  Pedidos `completed`/`cancelled` y rotulos ya creados no se sobrescriben
-  automaticamente.
+- 2026-07-19 noche: editar clientes y pedidos ya esta implementado.
+  Los pedidos guardan `customer_id` y una copia `customer_snapshot`.
+  Despues de los ajustes recientes, **si el pedido esta vinculado a un
+  cliente (`customer_id`) debe mostrar siempre el dato actual del cliente
+  maestro**, no la copia vieja. Al abrir `Pedidos`, `orders-table.tsx`
+  sincroniza silenciosamente `customer_snapshot` con el cliente vinculado
+  cuando detecta datos obsoletos. Al editar un cliente,
+  `customer-edit-form.tsx` tambien sincroniza automaticamente todos sus
+  pedidos vinculados. Las opciones manuales siguen existiendo para casos
+  no vinculados: aplicar cambios a pedidos `pending` relacionados por
+  nombre, y completar solo campos vacios en historicos relacionados.
 - 2026-07-19 noche: la edicion de pedidos permite corregir cantidades,
   precios y eliminar lineas como documento comercial, recalculando
   subtotal/total sin tocar inventario. El motivo del ajuste queda en
@@ -49,6 +50,24 @@ codigo fuente ahi para entender convenciones.
   Sigue pendiente una auditoria dedicada y trazabilidad real de inventario:
   `order_items` no apunta a `products.id` y crear/editar pedidos no descuenta
   stock.
+- 2026-07-19 noche: clientes duplicados y nombres historicos:
+  - Se agrego en `Clientes` un menu por fila con **Editar**, **Unificar** y
+    **Eliminar cliente** (`apps/rotulos/src/components/customers-table.tsx`).
+  - **Unificar** mueve los pedidos relacionados del cliente origen al cliente
+    destino y reemplaza el snapshot del pedido por los datos del cliente
+    correcto. **Eliminar cliente** borra solo el cliente; conserva los pedidos
+    y los deja sin `customer_id`.
+  - En `Nuevo pedido`, el datalist del campo **Nombre** usa opciones unicas
+    por nombre normalizado. Si hay varios clientes con el mismo nombre, toma
+    la ficha mas completa y, en empate, la mas reciente
+    (`apps/rotulos/src/components/order-form.tsx`).
+  - En `Reportes`, `Pedidos por estado` ya no muestra barras para estados en
+    cero; `BarList` usa ancho `0%` cuando `value <= 0`.
+- Commits recientes relevantes:
+  - `4d1bd7c feat(rotulos): unificar y eliminar clientes`
+  - `f92a024 fix(rotulos): sincronizar nombres actuales en pedidos`
+  - `db9af72 fix(rotulos): evitar clientes duplicados en nuevo pedido`
+  - `c69d3b4 fix(rotulos): ocultar barras en cero en reportes`
 
 ## Cosas explicitamente fuera de alcance / no tocar sin permiso
 
