@@ -2,8 +2,9 @@
 
 import { useEffect, useMemo, useState } from "react";
 import type { FormEvent } from "react";
+import { Trash2 } from "lucide-react";
 import { getBusinessStore } from "@/lib/business-store";
-import type { OrderDraft, OrderRecord } from "@/lib/business-types";
+import type { OrderDraft, OrderItem, OrderRecord } from "@/lib/business-types";
 import {
   isBogotaLocation,
   isValidBogotaLocality,
@@ -13,7 +14,7 @@ import {
 import { normalizeOrderDraft } from "@/lib/normalize";
 import { formatCop } from "@/lib/format";
 import { Alert } from "@/components/ui/alert";
-import { Button } from "@/components/ui/button";
+import { Button, IconButton } from "@/components/ui/button";
 import { Card, CardTitle } from "@/components/ui/card";
 import { CurrencyInput } from "@/components/ui/currency-input";
 import { DatePicker } from "@/components/ui/date-picker";
@@ -21,7 +22,18 @@ import { FormField } from "@/components/ui/form-field";
 import { Input, Select, Textarea } from "@/components/ui/input";
 import { LocationFields } from "@/components/location-fields";
 
-type OrderEditValue = Pick<OrderDraft, "customer" | "orderDate" | "status" | "notes" | "discount" | "shippingCost">;
+type OrderEditValue = Pick<OrderDraft, "customer" | "orderDate" | "status" | "notes" | "discount" | "shippingCost"> & {
+  items: OrderItem[];
+  adjustmentReason: string;
+};
+
+const ADJUSTMENT_REASONS = [
+  "Producto dañado",
+  "Devolucion del cliente",
+  "Error de digitacion",
+  "Cambio solicitado por el cliente",
+  "Otro",
+];
 
 type OrderEditFormProps = {
   order: OrderRecord;
@@ -47,15 +59,41 @@ function orderToFormValue(order: OrderRecord): OrderEditValue {
     notes: order.notes,
     discount: order.discount,
     shippingCost: order.shippingCost,
+    items: order.items,
+    adjustmentReason: "",
   };
 }
 
-function validateOrder(value: OrderEditValue): Record<string, string> {
+function itemsChanged(current: OrderItem[], initial: OrderItem[]): boolean {
+  return JSON.stringify(current.map(itemComparable)) !== JSON.stringify(initial.map(itemComparable));
+}
+
+function itemComparable(item: OrderItem) {
+  return {
+    id: item.id,
+    productCode: item.productCode,
+    productName: item.productName,
+    category: item.category,
+    quantity: item.quantity,
+    unitPrice: item.unitPrice,
+  };
+}
+
+function validateOrder(value: OrderEditValue, initialItems: OrderItem[]): Record<string, string> {
   const errors: Record<string, string> = {};
   if (!value.customer.fullName.trim()) errors.customer = "El nombre del cliente es obligatorio.";
   if (!value.orderDate.trim()) errors.orderDate = "La fecha es obligatoria.";
   if (value.discount < 0) errors.discount = "El descuento no puede ser negativo.";
   if (value.shippingCost < 0) errors.shippingCost = "El envio no puede ser negativo.";
+  if (value.items.length === 0 && value.status !== "cancelled") errors.items = "Un pedido activo debe conservar al menos una linea.";
+  value.items.forEach((item, index) => {
+    if (!item.productName.trim()) errors[`items.${index}.productName`] = "El producto es obligatorio.";
+    if (item.quantity <= 0) errors[`items.${index}.quantity`] = "La cantidad debe ser mayor a cero.";
+    if (item.unitPrice < 0) errors[`items.${index}.unitPrice`] = "El precio no puede ser negativo.";
+  });
+  if (itemsChanged(value.items, initialItems) && !value.adjustmentReason.trim()) {
+    errors.adjustmentReason = "Selecciona el motivo del ajuste.";
+  }
 
   const locationError = validateDepartmentCity(value.customer);
   if (locationError === "department") errors["customer.department"] = "Selecciona un departamento valido.";
@@ -81,7 +119,8 @@ export function OrderEditForm({ order, onSaved, onCancel, onDirtyChange }: Order
   const [status, setStatus] = useState<{ tone: "success" | "danger"; message: string } | null>(null);
   const [saving, setSaving] = useState(false);
   const dirty = JSON.stringify(value) !== JSON.stringify(initialValue);
-  const subtotal = order.items.reduce((sum, item) => sum + item.quantity * item.unitPrice, 0);
+  const changedItems = itemsChanged(value.items, initialValue.items);
+  const subtotal = value.items.reduce((sum, item) => sum + item.quantity * item.unitPrice, 0);
   const total = Math.max(0, subtotal - value.discount + value.shippingCost);
 
   useEffect(() => {
@@ -90,6 +129,21 @@ export function OrderEditForm({ order, onSaved, onCancel, onDirtyChange }: Order
 
   function setCustomerField(field: keyof OrderEditValue["customer"], nextValue: string) {
     setValue((current) => ({ ...current, customer: { ...current.customer, [field]: nextValue } }));
+  }
+
+  function setItem(index: number, field: keyof OrderItem, nextValue: string | number) {
+    setValue((current) => ({
+      ...current,
+      items: current.items.map((item, itemIndex) =>
+        itemIndex === index
+          ? { ...item, [field]: nextValue, total: field === "quantity" ? Number(nextValue) * item.unitPrice : field === "unitPrice" ? item.quantity * Number(nextValue) : item.total }
+          : item,
+      ),
+    }));
+  }
+
+  function removeItem(index: number) {
+    setValue((current) => ({ ...current, items: current.items.filter((_, itemIndex) => itemIndex !== index) }));
   }
 
   function cancel() {
@@ -101,14 +155,20 @@ export function OrderEditForm({ order, onSaved, onCancel, onDirtyChange }: Order
     event.preventDefault();
     if (saving) return;
 
-    const nextErrors = validateOrder(value);
+    const nextErrors = validateOrder(value, initialValue.items);
     setErrors(nextErrors);
     setStatus(null);
     if (Object.keys(nextErrors).length > 0) return;
+    if (changedItems && order.status === "completed" && !window.confirm("Este pedido esta completado. ¿Quieres guardar el ajuste de todas formas?")) return;
 
     setSaving(true);
     try {
-      const normalized = normalizeOrderDraft({ ...value, items: order.items });
+      const normalized = normalizeOrderDraft({ ...value, items: value.items });
+      const normalizedItems = normalized.items.map((item, index) => ({
+        ...value.items[index],
+        ...item,
+        total: item.quantity * item.unitPrice,
+      }));
       const saved = await getBusinessStore().updateOrder(order.id, {
         customer: normalized.customer,
         orderDate: normalized.orderDate,
@@ -116,6 +176,7 @@ export function OrderEditForm({ order, onSaved, onCancel, onDirtyChange }: Order
         notes: normalized.notes,
         discount: normalized.discount,
         shippingCost: normalized.shippingCost,
+        ...(changedItems ? { items: normalizedItems, adjustmentReason: value.adjustmentReason } : {}),
       });
       setStatus({ tone: "success", message: "Pedido actualizado." });
       onSaved(saved);
@@ -129,9 +190,11 @@ export function OrderEditForm({ order, onSaved, onCancel, onDirtyChange }: Order
   return (
     <form onSubmit={save} className="flex flex-col gap-4">
       {status ? <Alert variant={status.tone}>{status.message}</Alert> : null}
-      <Alert variant="info">
-        Los productos, cantidades y precios quedan solo en consulta por ahora para no afectar inventario ni trazabilidad.
-      </Alert>
+      {changedItems ? (
+        <Alert variant="warning">
+          Este ajuste cambia el pedido como documento comercial. No modifica inventario.
+        </Alert>
+      ) : null}
 
       <Card className="shadow-none">
         <CardTitle>Cliente</CardTitle>
@@ -187,6 +250,48 @@ export function OrderEditForm({ order, onSaved, onCancel, onDirtyChange }: Order
             <Textarea value={value.notes} rows={4} onChange={(event) => setValue((current) => ({ ...current, notes: event.target.value }))} />
           </FormField>
         </div>
+      </Card>
+
+      <Card className="shadow-none">
+        <CardTitle>Productos</CardTitle>
+        {errors.items ? <p className="mt-2 text-xs font-medium text-danger">{errors.items}</p> : null}
+        <div className="mt-4 flex flex-col gap-3">
+          {value.items.map((item, index) => (
+            <div key={item.id} className="grid grid-cols-2 gap-3 rounded-md border border-border p-3 sm:grid-cols-6 sm:items-end">
+              <FormField label="Codigo" className="sm:col-span-1">
+                <Input value={item.productCode} onChange={(event) => setItem(index, "productCode", event.target.value)} />
+              </FormField>
+              <FormField label="Producto" error={errors[`items.${index}.productName`]} className="col-span-2 sm:col-span-2">
+                <Input value={item.productName} onChange={(event) => setItem(index, "productName", event.target.value)} />
+              </FormField>
+              <FormField label="Cantidad" error={errors[`items.${index}.quantity`]} className="sm:col-span-1">
+                <Input
+                  type="number"
+                  min={0}
+                  value={item.quantity}
+                  onChange={(event) => setItem(index, "quantity", Number(event.target.value))}
+                />
+              </FormField>
+              <FormField label="Precio" error={errors[`items.${index}.unitPrice`]} className="sm:col-span-1">
+                <CurrencyInput value={item.unitPrice} onValueChange={(unitPrice) => setItem(index, "unitPrice", unitPrice)} />
+              </FormField>
+              <div className="flex items-end justify-between gap-2 sm:col-span-1">
+                <span className="text-sm font-medium text-foreground">{formatCop(item.quantity * item.unitPrice)}</span>
+                <IconButton type="button" label="Eliminar linea" variant="ghost" onClick={() => removeItem(index)}>
+                  <Trash2 className="size-4" aria-hidden="true" />
+                </IconButton>
+              </div>
+            </div>
+          ))}
+        </div>
+        <FormField label="Motivo del ajuste" required={changedItems} error={errors.adjustmentReason} className="mt-4">
+          <Select value={value.adjustmentReason} onChange={(event) => setValue((current) => ({ ...current, adjustmentReason: event.target.value }))}>
+            <option value="">Selecciona un motivo si cambias productos o precios</option>
+            {ADJUSTMENT_REASONS.map((reason) => (
+              <option key={reason} value={reason}>{reason}</option>
+            ))}
+          </Select>
+        </FormField>
       </Card>
 
       <Card className="shadow-none">

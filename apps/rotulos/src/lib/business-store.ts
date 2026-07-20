@@ -210,7 +210,48 @@ function normalizeOrderPatch(patch: OrderPatch): OrderPatch {
     ...patch,
     ...(patch.customer !== undefined ? { customer: normalizeCustomerFields(patch.customer) } : {}),
     ...(notes !== undefined ? { notes } : {}),
+    ...(patch.items !== undefined ? { items: patch.items.map((item) => ({ ...normalizeOrderItemForPatch(item), id: item.id, total: item.quantity * item.unitPrice })) } : {}),
+    ...(patch.adjustmentReason !== undefined ? { adjustmentReason: normalizeAdjustmentReason(patch.adjustmentReason) } : {}),
   };
+}
+
+function normalizeOrderItemForPatch(item: OrderItem): OrderItem {
+  const normalized = normalizeOrderDraft({
+    customer: {
+      fullName: "",
+      phone: "",
+      email: "",
+      department: "",
+      city: "",
+      locality: "",
+      address: "",
+      neighborhood: "",
+    },
+    orderDate: today(),
+    status: "pending",
+    notes: "",
+    discount: 0,
+    shippingCost: 0,
+    items: [item],
+  }).items[0];
+  return { ...item, ...normalized, total: normalized.quantity * normalized.unitPrice };
+}
+
+function normalizeAdjustmentReason(reason: string): string {
+  return normalizeCustomerFields({
+    fullName: "",
+    department: "",
+    city: "",
+    address: reason,
+    neighborhood: "",
+  }).address;
+}
+
+function notesWithAdjustment(notes: string, reason?: string): string {
+  const normalizedReason = reason?.trim();
+  if (!normalizedReason) return notes;
+  const line = `AJUSTE: ${normalizedReason}`;
+  return notes.trim() ? `${notes.trim()}\n${line}` : line;
 }
 
 function totals(items: OrderDraft["items"], discount: number, shippingCost: number) {
@@ -220,6 +261,11 @@ function totals(items: OrderDraft["items"], discount: number, shippingCost: numb
 
 function totalsFromOrder(order: Pick<OrderRecord, "items">, discount: number, shippingCost: number) {
   const subtotal = order.items.reduce((sum, item) => sum + item.quantity * item.unitPrice, 0);
+  return { subtotal, total: Math.max(0, subtotal - discount + shippingCost) };
+}
+
+function totalsFromItems(items: OrderItem[], discount: number, shippingCost: number) {
+  const subtotal = items.reduce((sum, item) => sum + item.quantity * item.unitPrice, 0);
   return { subtotal, total: Math.max(0, subtotal - discount + shippingCost) };
 }
 
@@ -251,10 +297,24 @@ function createLocalBusinessStore(): BusinessStore {
       const normalizedDraft = normalizeOrderDraft(draft);
       const now = new Date().toISOString();
       const current = readStorage<OrderRecord[]>(storageKeys.orders, []);
+      const customers = readStorage<Customer[]>(storageKeys.customers, []);
+      const customerIndex = customers.findIndex((customer) =>
+        normalizedDraft.customer.phone
+          ? customer.phone === normalizedDraft.customer.phone
+          : customer.fullName.toLowerCase() === normalizedDraft.customer.fullName.toLowerCase(),
+      );
+      const customer =
+        customerIndex >= 0
+          ? { ...customers[customerIndex], ...normalizedDraft.customer, updatedAt: now }
+          : { ...normalizedDraft.customer, id: crypto.randomUUID(), createdAt: now, updatedAt: now };
+      if (customerIndex >= 0) customers[customerIndex] = customer;
+      else customers.unshift(customer);
+      writeStorage(storageKeys.customers, customers);
+
       const computed = totals(normalizedDraft.items, normalizedDraft.discount, normalizedDraft.shippingCost);
       const record: OrderRecord = {
         id: crypto.randomUUID(),
-        customerId: null,
+        customerId: customer.id,
         customer: normalizedDraft.customer,
         orderDate: normalizedDraft.orderDate,
         status: normalizedDraft.status,
@@ -268,11 +328,6 @@ function createLocalBusinessStore(): BusinessStore {
         updatedAt: now,
       };
       writeStorage(storageKeys.orders, [record, ...current]);
-      const customers = readStorage<Customer[]>(storageKeys.customers, []);
-      if (normalizedDraft.customer.fullName && !customers.some((customer) => customer.fullName.toLowerCase() === normalizedDraft.customer.fullName.toLowerCase())) {
-        customers.unshift({ ...normalizedDraft.customer, id: crypto.randomUUID(), createdAt: now, updatedAt: now });
-        writeStorage(storageKeys.customers, customers);
-      }
       return record;
     },
     async updateOrder(id, patch) {
@@ -281,12 +336,16 @@ function createLocalBusinessStore(): BusinessStore {
       if (index < 0) throw new Error("order_not_found");
       const normalizedPatch = normalizeOrderPatch(patch);
       const current = orders[index];
+      const items = normalizedPatch.items ?? current.items;
       const discount = normalizedPatch.discount ?? current.discount;
       const shippingCost = normalizedPatch.shippingCost ?? current.shippingCost;
-      const computed = totalsFromOrder(current, discount, shippingCost);
+      const computed = totalsFromItems(items, discount, shippingCost);
+      const notes = notesWithAdjustment(normalizedPatch.notes ?? current.notes, normalizedPatch.adjustmentReason);
       const updated: OrderRecord = {
         ...current,
         ...normalizedPatch,
+        items,
+        notes,
         discount,
         shippingCost,
         subtotal: computed.subtotal,
@@ -419,16 +478,18 @@ function createSupabaseBusinessStore(): BusinessStore | null {
         .single<OrderRow>();
       if (lookupError) throw lookupError;
       const current = rowToOrder(existing);
+      const items = normalizedPatch.items ?? current.items;
       const discount = normalizedPatch.discount ?? current.discount;
       const shippingCost = normalizedPatch.shippingCost ?? current.shippingCost;
-      const computed = totalsFromOrder(current, discount, shippingCost);
+      const computed = totalsFromItems(items, discount, shippingCost);
+      const notes = notesWithAdjustment(normalizedPatch.notes ?? current.notes, normalizedPatch.adjustmentReason);
       const { data, error } = await supabase
         .from("orders")
         .update({
           ...(normalizedPatch.customer !== undefined ? { customer_snapshot: normalizedPatch.customer } : {}),
           ...(normalizedPatch.orderDate !== undefined ? { order_date: normalizedPatch.orderDate } : {}),
           ...(normalizedPatch.status !== undefined ? { status: normalizedPatch.status } : {}),
-          ...(normalizedPatch.notes !== undefined ? { notes: normalizedPatch.notes } : {}),
+          notes,
           discount,
           shipping_cost: shippingCost,
           subtotal: computed.subtotal,
@@ -439,7 +500,35 @@ function createSupabaseBusinessStore(): BusinessStore | null {
         .select("*, order_items(*)")
         .single<OrderRow>();
       if (error) throw error;
-      return rowToOrder(data);
+      if (normalizedPatch.items !== undefined) {
+        const nextIds = new Set(normalizedPatch.items.map((item) => item.id));
+        const removedIds = current.items.map((item) => item.id).filter((id) => !nextIds.has(id));
+        if (removedIds.length > 0) {
+          const { error: deleteError } = await supabase.from("order_items").delete().in("id", removedIds);
+          if (deleteError) throw deleteError;
+        }
+        for (const item of normalizedPatch.items) {
+          const { error: itemError } = await supabase
+            .from("order_items")
+            .update({
+              product_code: item.productCode,
+              product_name: item.productName,
+              category: item.category,
+              quantity: item.quantity,
+              unit_price: item.unitPrice,
+              total: item.quantity * item.unitPrice,
+            })
+            .eq("id", item.id);
+          if (itemError) throw itemError;
+        }
+      }
+      const { data: refreshed, error: refreshError } = await supabase
+        .from("orders")
+        .select("*, order_items(*)")
+        .eq("id", id)
+        .single<OrderRow>();
+      if (refreshError) throw refreshError;
+      return rowToOrder(refreshed ?? data);
     },
     async listCustomers() {
       const { data, error } = await supabase.from("customers").select("*").order("updated_at", { ascending: false }).returns<CustomerRow[]>();

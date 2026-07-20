@@ -44,11 +44,14 @@ export function CustomersTable() {
     closeDrawer();
   }
 
-  function handleSaved(customer: Customer) {
+  function handleSaved(customer: Customer, affectedOrders = 0) {
     setCustomers((current) => current.map((item) => (item.id === customer.id ? customer : item)));
     setSelectedCustomer(customer);
     setFormDirty(false);
-    toast.push({ variant: "success", title: "Cliente actualizado." });
+    toast.push({
+      variant: "success",
+      title: affectedOrders > 0 ? `Cliente actualizado y ${affectedOrders} pedido(s) relacionado(s) actualizado(s).` : "Cliente actualizado.",
+    });
   }
 
   return (

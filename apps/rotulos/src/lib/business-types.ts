@@ -37,7 +37,10 @@ export type OrderDraft = {
   items: OrderItemDraft[];
 };
 
-export type OrderPatch = Partial<Pick<OrderDraft, "customer" | "orderDate" | "status" | "notes" | "discount" | "shippingCost">>;
+export type OrderPatch = Partial<Pick<OrderDraft, "customer" | "orderDate" | "status" | "notes" | "discount" | "shippingCost">> & {
+  items?: OrderItem[];
+  adjustmentReason?: string;
+};
 
 export type OrderRecord = {
   id: string;

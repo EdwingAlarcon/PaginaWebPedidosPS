@@ -231,6 +231,7 @@ export function OrderForm() {
                 </FormField>
                 <div className="flex items-end justify-end sm:col-span-1">
                   <IconButton
+                    type="button"
                     label="Quitar producto"
                     variant="ghost"
                     onClick={() => removeItem(index)}

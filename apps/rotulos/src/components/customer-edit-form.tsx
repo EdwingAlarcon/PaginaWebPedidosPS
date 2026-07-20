@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import type { FormEvent } from "react";
 import { getBusinessStore } from "@/lib/business-store";
 import type { Customer } from "@/lib/business-types";
+import type { OrderRecord } from "@/lib/business-types";
 import {
   isBogotaLocation,
   isValidBogotaLocality,
@@ -14,6 +15,7 @@ import { normalizeCustomerFields } from "@/lib/normalize";
 import { Alert } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Card, CardTitle } from "@/components/ui/card";
+import { Checkbox } from "@/components/ui/checkbox";
 import { FormField } from "@/components/ui/form-field";
 import { Input } from "@/components/ui/input";
 import { LocationFields } from "@/components/location-fields";
@@ -22,7 +24,7 @@ type CustomerFormValue = Omit<Customer, "id" | "createdAt" | "updatedAt">;
 
 type CustomerEditFormProps = {
   customer: Customer;
-  onSaved: (customer: Customer) => void;
+  onSaved: (customer: Customer, syncedOrders?: number) => void;
   onCancel: () => void;
   onDirtyChange?: (dirty: boolean) => void;
 };
@@ -62,17 +64,80 @@ function validateCustomer(value: CustomerFormValue): Record<string, string> {
   return errors;
 }
 
+function customerSnapshot(customer: Customer): CustomerFormValue {
+  return {
+    fullName: customer.fullName,
+    phone: customer.phone,
+    email: customer.email,
+    department: customer.department,
+    city: customer.city,
+    locality: customer.locality ?? "",
+    address: customer.address,
+    neighborhood: customer.neighborhood,
+  };
+}
+
+function isEmpty(value: string | undefined): boolean {
+  return !String(value ?? "").trim();
+}
+
+function isRelatedOrder(order: OrderRecord, customer: Pick<Customer, "id" | "fullName">): boolean {
+  return order.customerId === customer.id || order.customer.fullName.trim().toUpperCase() === customer.fullName.trim().toUpperCase();
+}
+
+function hasMissingCustomerData(order: OrderRecord): boolean {
+  return ["phone", "email", "department", "city", "locality", "address", "neighborhood"].some((field) =>
+    isEmpty(order.customer[field as keyof OrderRecord["customer"]]),
+  );
+}
+
+function fillMissingCustomerData(orderCustomer: OrderRecord["customer"], customer: Customer): CustomerFormValue {
+  const source = customerSnapshot(customer);
+  return {
+    fullName: orderCustomer.fullName || source.fullName,
+    phone: isEmpty(orderCustomer.phone) ? source.phone : orderCustomer.phone,
+    email: isEmpty(orderCustomer.email) ? source.email : orderCustomer.email,
+    department: isEmpty(orderCustomer.department) ? source.department : orderCustomer.department,
+    city: isEmpty(orderCustomer.city) ? source.city : orderCustomer.city,
+    locality: isEmpty(orderCustomer.locality) ? source.locality : (orderCustomer.locality ?? ""),
+    address: isEmpty(orderCustomer.address) ? source.address : orderCustomer.address,
+    neighborhood: isEmpty(orderCustomer.neighborhood) ? source.neighborhood : orderCustomer.neighborhood,
+  };
+}
+
 export function CustomerEditForm({ customer, onSaved, onCancel, onDirtyChange }: CustomerEditFormProps) {
   const initialValue = useMemo(() => customerToFormValue(customer), [customer]);
   const [value, setValue] = useState<CustomerFormValue>(initialValue);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [status, setStatus] = useState<{ tone: "success" | "danger"; message: string } | null>(null);
   const [saving, setSaving] = useState(false);
+  const [pendingOrderCount, setPendingOrderCount] = useState(0);
+  const [missingDataOrderCount, setMissingDataOrderCount] = useState(0);
+  const [syncPendingOrders, setSyncPendingOrders] = useState(false);
+  const [fillMissingOrderData, setFillMissingOrderData] = useState(false);
   const dirty = JSON.stringify(value) !== JSON.stringify(initialValue);
 
   useEffect(() => {
     onDirtyChange?.(dirty);
   }, [dirty, onDirtyChange]);
+
+  useEffect(() => {
+    let mounted = true;
+    getBusinessStore()
+      .listOrders()
+      .then((orders) => {
+        if (!mounted) return;
+        const related = orders.filter((order) => isRelatedOrder(order, customer));
+        setPendingOrderCount(related.filter((order) => order.status === "pending").length);
+        setMissingDataOrderCount(related.filter((order) => hasMissingCustomerData(order)).length);
+      })
+      .catch(() => {
+        if (mounted) setPendingOrderCount(0);
+      });
+    return () => {
+      mounted = false;
+    };
+  }, [customer]);
 
   function setField(field: keyof CustomerFormValue, nextValue: string) {
     setValue((current) => ({ ...current, [field]: nextValue }));
@@ -94,10 +159,53 @@ export function CustomerEditForm({ customer, onSaved, onCancel, onDirtyChange }:
 
     setSaving(true);
     try {
+      const store = getBusinessStore();
       const normalized = normalizeCustomerFields(value);
-      const saved = await getBusinessStore().updateCustomer(customer.id, normalized);
-      setStatus({ tone: "success", message: "Cliente actualizado." });
-      onSaved(saved);
+      const saved = await store.updateCustomer(customer.id, normalized);
+      let syncedOrders = 0;
+      let completedMissingDataOrders = 0;
+      if (syncPendingOrders) {
+        const orders = await store.listOrders();
+        const pendingOrders = orders.filter((order) => isRelatedOrder(order, saved) && order.status === "pending");
+        await Promise.all(
+          pendingOrders.map((order) =>
+            store.updateOrder(order.id, {
+              customer: customerSnapshot(saved),
+            }),
+          ),
+        );
+        syncedOrders = pendingOrders.length;
+        setPendingOrderCount(0);
+        setSyncPendingOrders(false);
+      }
+      if (fillMissingOrderData) {
+        if (!window.confirm("Se completaran solo campos vacios del cliente en pedidos relacionados. No se modificaran datos ya existentes ni productos, cantidades o totales. ¿Quieres continuar?")) {
+          setSaving(false);
+          return;
+        }
+        const orders = await store.listOrders();
+        const affectedOrders = orders.filter((order) => isRelatedOrder(order, saved) && hasMissingCustomerData(order));
+        await Promise.all(
+          affectedOrders.map((order) =>
+            store.updateOrder(order.id, {
+              customer: fillMissingCustomerData(order.customer, saved),
+            }),
+          ),
+        );
+        completedMissingDataOrders = affectedOrders.length;
+        setMissingDataOrderCount(0);
+        setFillMissingOrderData(false);
+      }
+      const messages = [
+        "Cliente actualizado",
+        syncedOrders > 0 ? `${syncedOrders} pedido(s) pendiente(s) sincronizado(s)` : "",
+        completedMissingDataOrders > 0 ? `${completedMissingDataOrders} pedido(s) con datos faltantes completado(s)` : "",
+      ].filter(Boolean);
+      setStatus({
+        tone: "success",
+        message: `${messages.join(" y ")}.`,
+      });
+      onSaved(saved, syncedOrders + completedMissingDataOrders);
     } catch {
       setStatus({ tone: "danger", message: "No se pudo actualizar el cliente. Intenta de nuevo." });
     } finally {
@@ -140,6 +248,44 @@ export function CustomerEditForm({ customer, onSaved, onCancel, onDirtyChange }:
           />
         </div>
       </Card>
+
+      {pendingOrderCount > 0 ? (
+        <Card className="shadow-none">
+          <CardTitle>Pedidos relacionados</CardTitle>
+          <label className="mt-4 flex items-start gap-3 rounded-md border border-border bg-surface-muted p-3 text-sm">
+            <Checkbox
+              checked={syncPendingOrders}
+              onCheckedChange={(checked) => setSyncPendingOrders(checked === true)}
+              aria-label="Aplicar cambios a pedidos pendientes"
+            />
+            <span>
+              <span className="block font-medium text-foreground">Aplicar cambios a pedidos pendientes</span>
+              <span className="mt-1 block text-foreground-muted">
+                Se actualizaran los datos del cliente en {pendingOrderCount} pedido(s) pendiente(s). Los pedidos completados o cancelados y los rotulos ya creados no se modifican.
+              </span>
+            </span>
+          </label>
+        </Card>
+      ) : null}
+
+      {missingDataOrderCount > 0 ? (
+        <Card className="shadow-none">
+          <CardTitle>Datos faltantes</CardTitle>
+          <label className="mt-4 flex items-start gap-3 rounded-md border border-border bg-surface-muted p-3 text-sm">
+            <Checkbox
+              checked={fillMissingOrderData}
+              onCheckedChange={(checked) => setFillMissingOrderData(checked === true)}
+              aria-label="Completar datos faltantes en pedidos relacionados"
+            />
+            <span>
+              <span className="block font-medium text-foreground">Completar datos faltantes en pedidos relacionados</span>
+              <span className="mt-1 block text-foreground-muted">
+                Solo se llenaran campos vacios del cliente en {missingDataOrderCount} pedido(s) relacionado(s). No se modificaran datos que ya tengan valor ni se cambiaran productos, cantidades o totales.
+              </span>
+            </span>
+          </label>
+        </Card>
+      ) : null}
 
       <div className="sticky bottom-0 -mx-5 mt-2 flex justify-end gap-2 border-t border-border bg-surface px-5 py-4">
         <Button type="button" variant="secondary" onClick={cancel}>

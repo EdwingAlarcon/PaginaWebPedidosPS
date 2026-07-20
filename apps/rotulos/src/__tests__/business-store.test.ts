@@ -66,6 +66,23 @@ describe("local business store", () => {
     expect(updated.address).toBe("CALLE 10");
   });
 
+  it("links local orders to the auto-created customer and keeps order snapshots unchanged when editing the customer", async () => {
+    const store = getBusinessStore();
+    const draft = createBlankOrderDraft();
+    draft.customer.fullName = "ana perez";
+    draft.customer.phone = "3001234567";
+    draft.customer.city = "bogota";
+    const savedOrder = await store.saveOrder(draft);
+    const [customer] = await store.listCustomers();
+
+    await store.updateCustomer(customer.id, { fullName: "ana tienda", city: "cali" });
+    const [order] = await store.listOrders();
+
+    expect(savedOrder.customerId).toBe(customer.id);
+    expect(order.customer.fullName).toBe("ANA PEREZ");
+    expect(order.customer.city).toBe("BOGOTA");
+  });
+
   it("normalizes a product code but leaves unitPrice untouched", async () => {
     const store = getBusinessStore();
 
@@ -101,5 +118,27 @@ describe("local business store", () => {
     expect(updated.subtotal).toBe(30000);
     expect(updated.total).toBe(34000);
     expect(updated.items).toEqual(saved.items);
+  });
+
+  it("updates order item quantities and appends an adjustment reason without touching inventory", async () => {
+    const store = getBusinessStore();
+    const draft = createBlankOrderDraft();
+    draft.customer.fullName = "ana perez";
+    draft.items = [
+      { productCode: "MED-001", productName: "medias largas", category: "medias", quantity: 2, unitPrice: 15000 },
+      { productCode: "BOL-001", productName: "bolso", category: "bolsos", quantity: 1, unitPrice: 40000 },
+    ];
+    draft.shippingCost = 5000;
+    const saved = await store.saveOrder(draft);
+
+    const updated = await store.updateOrder(saved.id, {
+      items: [{ ...saved.items[0], quantity: 1, total: 15000 }],
+      adjustmentReason: "producto dañado",
+    });
+
+    expect(updated.items).toHaveLength(1);
+    expect(updated.subtotal).toBe(15000);
+    expect(updated.total).toBe(20000);
+    expect(updated.notes).toContain("AJUSTE: PRODUCTO DAÑADO");
   });
 });

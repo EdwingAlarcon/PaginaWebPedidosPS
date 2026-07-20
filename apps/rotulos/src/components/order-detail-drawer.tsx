@@ -4,7 +4,7 @@ import { formatCop } from "@/lib/format";
 import type { OrderRecord } from "@/lib/business-types";
 import { Button } from "@/components/ui/button";
 import { Card, CardTitle } from "@/components/ui/card";
-import { StatusBadge } from "@/components/ui/badge";
+import { Badge, StatusBadge } from "@/components/ui/badge";
 
 type OrderDetailDrawerProps = {
   order: OrderRecord;
@@ -25,7 +25,17 @@ function DetailRow({ label, value }: { label: string; value: string | number | n
   );
 }
 
+function latestAdjustment(notes: string): string {
+  const line = notes
+    .split("\n")
+    .map((item) => item.trim())
+    .reverse()
+    .find((item) => item.startsWith("AJUSTE:"));
+  return line?.replace(/^AJUSTE:\s*/, "") ?? "";
+}
+
 export function OrderDetailDrawer({ order, onEdit }: OrderDetailDrawerProps) {
+  const adjustment = latestAdjustment(order.notes);
   return (
     <div className="flex flex-col gap-4">
       {onEdit ? (
@@ -39,9 +49,13 @@ export function OrderDetailDrawer({ order, onEdit }: OrderDetailDrawerProps) {
       <Card className="shadow-none">
         <div className="flex items-start justify-between gap-3">
           <CardTitle>Resumen</CardTitle>
-          <StatusBadge status={order.status} />
+          <div className="flex flex-wrap justify-end gap-2">
+            {adjustment ? <Badge variant="primary">Pedido ajustado</Badge> : null}
+            <StatusBadge status={order.status} />
+          </div>
         </div>
         <dl className="mt-4">
+          {adjustment ? <DetailRow label="Ultimo ajuste" value={adjustment} /> : null}
           <DetailRow label="Fecha" value={order.orderDate} />
           <DetailRow label="Subtotal" value={formatCop(order.subtotal)} />
           <DetailRow label="Descuento" value={formatCop(order.discount)} />

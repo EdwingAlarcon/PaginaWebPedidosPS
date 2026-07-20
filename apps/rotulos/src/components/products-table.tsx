@@ -86,7 +86,7 @@ export function ProductsTable({
 
   const columns: DataTableColumn<Product>[] = [
     { key: "name", header: "Producto", render: (p) => p.name, sortValue: (p) => p.name },
-    { key: "sku", header: "SKU", render: (p) => p.sku || "-" },
+    { key: "sku", header: "SKU", render: (p) => p.sku || <span className="text-foreground-muted">Sin SKU</span> },
     { key: "category", header: "Categoria", render: (p) => p.category },
     {
       key: "price",
@@ -107,7 +107,7 @@ export function ProductsTable({
       header: "Alerta",
       render: (p) => {
         const alert = stockAlert(p);
-        return alert ? <Badge variant={alert.variant}>{alert.label}</Badge> : <span className="text-foreground-muted">-</span>;
+        return alert ? <Badge variant={alert.variant}>{alert.label}</Badge> : null;
       },
     },
     {

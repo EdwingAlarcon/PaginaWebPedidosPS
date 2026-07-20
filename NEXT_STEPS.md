@@ -1,6 +1,6 @@
 # Purple Shop — Próximos pasos / handoff
 
-> Última actualización: 2026-07-19 noche Colombia (importador de Excel histórico completado y corrido contra producción; diseño de "editar cliente" listo para implementar).
+> Última actualización: 2026-07-19 noche Colombia (edición de clientes/pedidos implementada; completar vacíos y ajustes comerciales sin inventario).
 
 ## Estado actual: migración de GitHub Pages a Vercel/Supabase completada
 
@@ -89,45 +89,48 @@ como `text not null default ''`.
   no colisiona con uno nuevo en mayúscula del "mismo" producto (quedarían
   como dos registros separados). No se pidió migración de datos
   históricos — si hace falta, es tarea aparte.
+- **Edición de clientes y pedidos** (2026-07-19): ya se puede abrir
+  una fila de Clientes para editar nombre, contacto y ubicación; también
+  una fila de Pedidos para editar datos del cliente, fecha, estado, notas,
+  descuento, envío, cantidades, precios unitarios y eliminar líneas. Los
+  ajustes de líneas recalculan subtotal/total y no modifican inventario.
+  Archivos principales:
+  `apps/rotulos/src/components/customer-edit-form.tsx`,
+  `apps/rotulos/src/components/customers-table.tsx`,
+  `apps/rotulos/src/components/order-detail-drawer.tsx`,
+  `apps/rotulos/src/components/order-edit-form.tsx`,
+  `apps/rotulos/src/components/orders-table.tsx`,
+  `apps/rotulos/src/lib/business-store.ts`.
+- **Sincronización controlada de cliente a pedidos** (2026-07-19):
+  el modelo real es mixto: `orders.customer_id` referencia a `customers.id`,
+  pero el pedido usa `orders.customer_snapshot` para mostrar cliente,
+  reportes y detalle del pedido. Al editar un cliente, el historico no se
+  toca por defecto. Si existen pedidos `pending` relacionados, el formulario
+  muestra una casilla "Aplicar cambios a pedidos pendientes"; al marcarla
+  esos pedidos reciben el nuevo snapshot. Tambien hay una opcion
+  "Completar datos faltantes en pedidos relacionados": solo llena campos
+  vacios de cliente en pedidos relacionados/historicos y no sobrescribe
+  valores existentes ni cambia productos, cantidades o totales. No se
+  actualizan `labels.recipient` de rotulos ya creados.
+- **Ajustes comerciales de pedidos sin inventario** (2026-07-19): desde el
+  drawer de pedido se pueden corregir cantidades/precios y eliminar lineas.
+  Si cambian lineas se pide "Motivo del ajuste"; por ahora se guarda en
+  `orders.notes` como `AJUSTE: MOTIVO`, y el detalle muestra "Pedido
+  ajustado" / "Ultimo ajuste". Para pedidos completados se pide confirmacion
+  adicional antes de guardar. No hubo migracion de base de datos para esto.
+- **Lista de productos sin guiones ambiguos** (2026-07-19): el guion visible
+  en Productos correspondia a `sku` vacio; ahora se muestra "Sin SKU". En
+  la columna Alerta, si no hay alerta, la celda queda vacia en vez de
+  mostrar `-`.
 
 ## Pendiente
 
-- **Editar clientes** (pedido por Edwing el 2026-07-19, motivado por los
-  clientes importados del Excel que quedaron con datos incompletos:
-  `phone`/`department`/`city`/`address`/`neighborhood` vacíos). Diseño
-  brainstormeado y **aprobado por Edwing, sin implementar todavía**:
-  - Hoy `apps/rotulos/src/components/customers-table.tsx` (y la página
-    `apps/rotulos/src/app/(app)/clientes/page.tsx`) es de **solo lectura**
-    — no hay ningún patrón de "editar entidad" en el codebase (Productos
-    solo tiene crear + borrar, no editar).
-  - Patrón elegido: click en la fila de `CustomersTable` abre un
-    `Drawer` (`apps/rotulos/src/components/ui/drawer.tsx`, mismo
-    componente que ya usa `ProductsTable` para "ver movimientos") con un
-    formulario de edición nuevo, `customer-edit-form.tsx`.
-  - El formulario reusa el selector de departamento/ciudad/localidad/
-    barrio de Colombia ya usado en `order-form.tsx`
-    (`apps/rotulos/src/lib/location.ts`, `validateDepartmentCity`,
-    `getBogotaLocalities`, etc.) — **pero sin bloquear el guardado** si
-    esos campos quedan vacíos (a diferencia de Crear pedido, donde sí son
-    obligatorios). `fullName` sigue siendo el único campo realmente
-    obligatorio.
-  - Falta agregar `updateCustomer(id, patch)` a la interfaz
-    `BusinessStore` (`apps/rotulos/src/lib/business-store.ts:7-13`) y a
-    sus dos implementaciones (`createLocalBusinessStore`,
-    `createSupabaseBusinessStore`). La política RLS de `customers` ya
-    permite `update` libre a usuarios autenticados
-    (`202607150001_create_rotulos_schema.sql:129-132`, `using(true) with
-    check(true)`, sin columna `created_by` en esa tabla) — no hace falta
-    tocar Supabase para esto.
-  - Normalizar con `normalizeCustomerFields` (ya existe en
-    `apps/rotulos/src/lib/normalize.ts`) antes de guardar, igual que en
-    `saveOrder`.
-  - Nota importante: `customers.source` (agregada por la migración
-    `202607190002` de arriba) es **solo** para que el importador de Excel
-    identifique a los clientes que él mismo creó (evita fusionarse con
-    clientes reales). El formulario de editar cliente no debe tocar ni
-    exponer ese campo — es interno del importador, no una clasificación
-    de negocio.
+- **Inventario real vinculado a pedidos.** La edición actual cambia el
+  pedido como documento comercial, no el stock. Para que los pedidos
+  descuenten/devuelvan inventario hace falta diseño y migración aparte:
+  enlazar `order_items.product_id` con `products.id`, definir movimientos
+  compensatorios al editar/cancelar/devolver, reglas por estado del pedido y
+  una tabla de auditoria dedicada para ajustes.
 - Impresión física real del rótulo con impresora final todavía no
   probada (solo validación en pantalla/PDF hasta ahora).
 - Si se hacen nuevos ajustes al diseño del rótulo, mantener sincronizadas

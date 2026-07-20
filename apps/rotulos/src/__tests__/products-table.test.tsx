@@ -43,6 +43,20 @@ describe("ProductsTable", () => {
     expect(screen.getByText(/stock bajo/i)).toBeInTheDocument();
   });
 
+  it("muestra un texto claro cuando el producto no tiene SKU", async () => {
+    const store = createLocalInventoryStore();
+    await store.saveProduct({
+      name: "Medias largas", category: "medias", sku: "",
+      unitPrice: 15000, minStock: 5, maxStock: 100,
+    });
+
+    renderProductsTable();
+
+    await waitFor(() => expect(screen.getByText("MEDIAS LARGAS")).toBeInTheDocument());
+    expect(screen.getByText("Sin SKU")).toBeInTheDocument();
+  });
+
+
   it("shows the movement history for a product in a drawer", async () => {
     const store = createLocalInventoryStore();
     const product = await store.saveProduct({

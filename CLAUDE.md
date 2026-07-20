@@ -31,9 +31,21 @@ codigo fuente ahi para entender convenciones.
   implementado y corrido contra produccion (23 pedidos, 9 clientes nuevos).
   Ver `NEXT_STEPS.md` seccion "Importador de data historica" para detalle
   completo y `docs/superpowers/specs/2026-07-19-importador-excel-historico-design.md`
-  para el diseño. Diseño de "editar clientes" (para completar datos de los
-  clientes importados) aprobado, pendiente de implementar — ver
-  `NEXT_STEPS.md` seccion "Pendiente".
+  para el diseño.
+- 2026-07-19 noche: editar clientes y pedidos ya esta
+  implementado. Los pedidos guardan `customer_id` y una copia
+  `customer_snapshot`; editar un cliente no modifica historicos por
+  defecto. En el formulario de cliente existe una opcion explicita para
+  aplicar cambios a pedidos `pending` y otra para completar solo campos
+  vacios en pedidos relacionados/historicos. Pedidos `completed`/
+  `cancelled` y rotulos ya creados no se sobrescriben automaticamente.
+- 2026-07-19 noche: la edicion de pedidos permite corregir cantidades,
+  precios y eliminar lineas como documento comercial, recalculando
+  subtotal/total sin tocar inventario. El motivo del ajuste queda en
+  `orders.notes` como `AJUSTE: ...` y el detalle muestra "Pedido ajustado".
+  Sigue pendiente una auditoria dedicada y trazabilidad real de inventario:
+  `order_items` no apunta a `products.id` y crear/editar pedidos no descuenta
+  stock.
 
 ## Cosas explicitamente fuera de alcance / no tocar sin permiso
 
