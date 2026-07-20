@@ -180,15 +180,29 @@ export function CustomerEditForm({ customer, onSaved, onCancel, onDirtyChange }:
       const store = getBusinessStore();
       const normalized = normalizeCustomerFields(value);
       const saved = await store.updateCustomer(customer.id, normalized);
+      const savedSnapshot = customerSnapshot(saved);
       let syncedOrders = 0;
+      let linkedOrdersSynced = 0;
       let completedMissingDataOrders = 0;
+      const initialOrders = await store.listOrders();
+      const linkedOrders = initialOrders.filter((order) => order.customerId === saved.id);
+      if (linkedOrders.length > 0) {
+        await Promise.all(
+          linkedOrders.map((order) =>
+            store.updateOrder(order.id, {
+              customer: savedSnapshot,
+            }),
+          ),
+        );
+        linkedOrdersSynced = linkedOrders.length;
+      }
       if (syncPendingOrders) {
         const orders = await store.listOrders();
-        const pendingOrders = orders.filter((order) => isRelatedOrder(order, saved) && order.status === "pending");
+        const pendingOrders = orders.filter((order) => order.customerId !== saved.id && isRelatedOrder(order, saved) && order.status === "pending");
         await Promise.all(
           pendingOrders.map((order) =>
             store.updateOrder(order.id, {
-              customer: customerSnapshot(saved),
+              customer: savedSnapshot,
             }),
           ),
         );
@@ -198,7 +212,7 @@ export function CustomerEditForm({ customer, onSaved, onCancel, onDirtyChange }:
       }
       if (fillMissingOrderData) {
         const orders = await store.listOrders();
-        const affectedOrders = orders.filter((order) => isRelatedOrder(order, saved) && hasMissingCustomerData(order));
+        const affectedOrders = orders.filter((order) => order.customerId !== saved.id && isRelatedOrder(order, saved) && hasMissingCustomerData(order));
         if (
           !window.confirm(
             `Se completaran solo campos vacios del cliente en ${affectedOrders.length} pedido(s) relacionado(s). No se modificaran datos ya existentes ni productos, cantidades o totales. ¿Quieres continuar?`,
@@ -220,6 +234,7 @@ export function CustomerEditForm({ customer, onSaved, onCancel, onDirtyChange }:
       }
       const messages = [
         "Cliente actualizado",
+        linkedOrdersSynced > 0 ? `${linkedOrdersSynced} pedido(s) vinculado(s) sincronizado(s)` : "",
         syncedOrders > 0 ? `${syncedOrders} pedido(s) pendiente(s) sincronizado(s)` : "",
         completedMissingDataOrders > 0 ? `${completedMissingDataOrders} pedido(s) con datos faltantes completado(s)` : "",
       ].filter(Boolean);
@@ -227,7 +242,7 @@ export function CustomerEditForm({ customer, onSaved, onCancel, onDirtyChange }:
         tone: "success",
         message: `${messages.join(" y ")}.`,
       });
-      onSaved(saved, syncedOrders + completedMissingDataOrders);
+      onSaved(saved, linkedOrdersSynced + syncedOrders + completedMissingDataOrders);
     } catch {
       setStatus({ tone: "danger", message: "No se pudo actualizar el cliente. Intenta de nuevo." });
     } finally {

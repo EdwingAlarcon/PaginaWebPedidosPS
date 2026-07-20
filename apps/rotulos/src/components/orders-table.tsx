@@ -29,23 +29,58 @@ function isShortNameOf(shortName: string, fullName: string): boolean {
 }
 
 function relatedCustomer(order: OrderRecord, customers: Customer[]): Customer | undefined {
+  const linkedCustomer = order.customerId ? customers.find((customer) => customer.id === order.customerId) : undefined;
+  if (linkedCustomer) return linkedCustomer;
   return customers.find((customer) =>
-    order.customerId === customer.id ||
     normalizeName(order.customer.fullName) === normalizeName(customer.fullName) ||
     isShortNameOf(order.customer.fullName, customer.fullName),
   );
 }
 
+function customerSnapshot(customer: Customer): OrderRecord["customer"] {
+  return {
+    fullName: customer.fullName,
+    phone: customer.phone,
+    email: customer.email,
+    department: customer.department,
+    city: customer.city,
+    locality: customer.locality ?? "",
+    address: customer.address,
+    neighborhood: customer.neighborhood,
+  };
+}
+
+function needsCustomerSnapshotSync(order: OrderRecord, customer: Customer): boolean {
+  const snapshot = customerSnapshot(customer);
+  return (
+    order.customer.fullName !== snapshot.fullName ||
+    order.customer.phone !== snapshot.phone ||
+    order.customer.email !== snapshot.email ||
+    order.customer.department !== snapshot.department ||
+    order.customer.city !== snapshot.city ||
+    (order.customer.locality ?? "") !== snapshot.locality ||
+    order.customer.address !== snapshot.address ||
+    order.customer.neighborhood !== snapshot.neighborhood
+  );
+}
+
 function orderToRow(order: OrderRecord, customers: Customer[]): OrderTableRow {
   const customer = relatedCustomer(order, customers);
+  const syncedCustomer = customer && order.customerId === customer.id ? customerSnapshot(customer) : order.customer;
   const displayCustomerName =
-    !order.customer.fullName.trim() || (customer && isShortNameOf(order.customer.fullName, customer.fullName))
+    customer && (order.customerId === customer.id || !order.customer.fullName.trim() || isShortNameOf(order.customer.fullName, customer.fullName))
       ? customer?.fullName ?? order.customer.fullName
       : order.customer.fullName;
+  const displayPhone = customer && order.customerId === customer.id ? customer.phone : order.customer.phone || customer?.phone || "";
   return {
     ...order,
+    customer: {
+      ...syncedCustomer,
+      fullName: displayCustomerName,
+      phone: displayPhone,
+    },
     displayCustomerName,
-    displayPhone: order.customer.phone || customer?.phone || "",
+    displayPhone,
   };
 }
 
@@ -78,6 +113,28 @@ export function OrdersTable() {
   const [formDirty, setFormDirty] = useState(false);
   const toast = useToast();
 
+  async function syncLinkedOrderSnapshots(ordersToSync: OrderRecord[], customersToSync: Customer[]) {
+    const store = getBusinessStore();
+    const customerById = new Map(customersToSync.map((customer) => [customer.id, customer]));
+    const updates = ordersToSync
+      .map((order) => {
+        const customer = order.customerId ? customerById.get(order.customerId) : undefined;
+        return customer && needsCustomerSnapshotSync(order, customer) ? { order, customer } : null;
+      })
+      .filter((item): item is { order: OrderRecord; customer: Customer } => Boolean(item));
+    if (updates.length === 0) return;
+
+    try {
+      const updatedOrders = await Promise.all(
+        updates.map(({ order, customer }) => store.updateOrder(order.id, { customer: customerSnapshot(customer) })),
+      );
+      const updatedById = new Map(updatedOrders.map((order) => [order.id, order]));
+      setOrders((current) => current.map((order) => updatedById.get(order.id) ?? order));
+    } catch {
+      // La tabla sigue mostrando el cliente actual aunque la sincronizacion silenciosa falle.
+    }
+  }
+
   useEffect(() => {
     const store = getBusinessStore();
     Promise.all([
@@ -87,6 +144,7 @@ export function OrdersTable() {
       .then(([ordersResult, customersResult]) => {
         setOrders(ordersResult);
         setCustomers(customersResult);
+        void syncLinkedOrderSnapshots(ordersResult, customersResult);
       })
       .finally(() => setLoading(false));
   }, []);

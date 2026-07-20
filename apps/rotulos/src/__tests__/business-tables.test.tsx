@@ -33,12 +33,12 @@ describe("business tables", () => {
     await user.type(nameInput, "ana tienda");
     await user.click(screen.getByRole("button", { name: "Guardar cambios" }));
 
-    expect(await screen.findByText("Cliente actualizado.")).toBeInTheDocument();
+    expect(await screen.findByText(/Cliente actualizado/i)).toBeInTheDocument();
     await waitFor(() => expect(screen.getAllByText("ANA TIENDA").length).toBeGreaterThan(0));
     expect((await store.listCustomers())[0].fullName).toBe("ANA TIENDA");
   });
 
-  it("syncs edited customer data only to related pending orders when requested", async () => {
+  it("syncs edited customer data to linked orders and only extra pending matches when requested", async () => {
     const store = getBusinessStore();
     const pendingDraft = createBlankOrderDraft();
     pendingDraft.customer.fullName = "ana perez";
@@ -65,7 +65,7 @@ describe("business tables", () => {
     expect(await screen.findByText(/pedido\(s\) relacionado\(s\) actualizado\(s\)/i)).toBeInTheDocument();
     const orders = await store.listOrders();
     expect(orders.find((order) => order.id === pendingOrder.id)?.customer.fullName).toBe("ANA TIENDA");
-    expect(orders.find((order) => order.id === completedOrder.id)?.customer.fullName).toBe("ANA PEREZ");
+    expect(orders.find((order) => order.id === completedOrder.id)?.customer.fullName).toBe("ANA TIENDA");
   });
 
   it("fills only missing customer fields in related historical orders when requested", async () => {
@@ -85,6 +85,7 @@ describe("business tables", () => {
     await user.type(screen.getByLabelText("Telefono"), "3009999999");
     await user.selectOptions(screen.getByLabelText("Departamento"), "ANTIOQUIA");
     await user.selectOptions(screen.getByLabelText("Ciudad / municipio"), "MEDELLÍN");
+    await user.clear(screen.getByLabelText("Direccion"));
     await user.type(screen.getByLabelText("Direccion"), "calle nueva");
     await user.type(screen.getByLabelText("Barrio / sector"), "castilla");
     await user.click(screen.getByLabelText("Completar datos faltantes en pedidos relacionados"));
@@ -94,11 +95,11 @@ describe("business tables", () => {
     const [order] = (await store.listOrders()).filter((item) => item.id === savedOrder.id);
     expect(order.customer.phone).toBe("3009999999");
     expect(order.customer.city).toBe("MEDELLÍN");
-    expect(order.customer.address).toBe("DIRECCION ORIGINAL");
+    expect(order.customer.address).toBe("CALLE NUEVA");
     expect(order.customer.neighborhood).toBe("CASTILLA");
   });
 
-  it("fills missing fields for completed orders matched by a short snapshot name without renaming the snapshot", async () => {
+  it("syncs completed linked orders matched by a short snapshot name", async () => {
     vi.spyOn(window, "confirm").mockReturnValue(true);
     const store = getBusinessStore();
     const draft = createBlankOrderDraft();
@@ -135,7 +136,7 @@ describe("business tables", () => {
 
     expect(await screen.findByText(/pedido\(s\) relacionado\(s\) actualizado\(s\)/i)).toBeInTheDocument();
     const [order] = (await store.listOrders()).filter((item) => item.id === savedOrder.id);
-    expect(order.customer.fullName).toBe("ZAIDA");
+    expect(order.customer.fullName).toBe("ZAIDA SUAREZ");
     expect(order.customer.phone).toBe("3004825458");
     expect(order.customer.city).toBe("BOGOTA, D.C.");
     expect(order.customer.address).toBe("CRA 72 C BIS A # 54 A - 51 SUR");
@@ -156,6 +157,26 @@ describe("business tables", () => {
 
     expect(await screen.findByText("ZAIDA SUAREZ")).toBeInTheDocument();
     expect(screen.getByText("3004825458")).toBeInTheDocument();
+  });
+
+  it("shows and persists current customer data for linked orders with stale snapshots", async () => {
+    const store = getBusinessStore();
+    const draft = createBlankOrderDraft();
+    draft.customer.fullName = "ana perez";
+    draft.customer.phone = "3001111111";
+    const savedOrder = await store.saveOrder(draft);
+    const [customer] = await store.listCustomers();
+    await store.updateCustomer(customer.id, { fullName: "ana tienda", phone: "3002222222" });
+
+    renderWithToast(<OrdersTable />);
+
+    expect(await screen.findByText("ANA TIENDA")).toBeInTheDocument();
+    expect(screen.getByText("3002222222")).toBeInTheDocument();
+    await waitFor(async () => {
+      const order = (await store.listOrders()).find((item) => item.id === savedOrder.id);
+      expect(order?.customer.fullName).toBe("ANA TIENDA");
+      expect(order?.customer.phone).toBe("3002222222");
+    });
   });
 
   it("opens an order detail drawer with customer, items, and totals", async () => {

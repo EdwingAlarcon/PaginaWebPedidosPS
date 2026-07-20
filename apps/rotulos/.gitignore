@@ -1,2 +1,4 @@
 .vercel
 scripts/.import-preview.json
+
+.env.local
