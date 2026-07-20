@@ -1,6 +1,6 @@
 # Purple Shop — Próximos pasos / handoff
 
-> Última actualización: 2026-07-19 noche Colombia (edición de clientes/pedidos implementada; completar vacíos y ajustes comerciales sin inventario).
+> Última actualización: 2026-07-19 noche Colombia (clientes/pedidos sincronizados, unificación de clientes, dedupe en Nuevo pedido y reportes corregidos).
 
 ## Estado actual: migración de GitHub Pages a Vercel/Supabase completada
 
@@ -101,23 +101,34 @@ como `text not null default ''`.
   `apps/rotulos/src/components/order-edit-form.tsx`,
   `apps/rotulos/src/components/orders-table.tsx`,
   `apps/rotulos/src/lib/business-store.ts`.
-- **Sincronización controlada de cliente a pedidos** (2026-07-19):
-  el modelo real es mixto: `orders.customer_id` referencia a `customers.id`,
-  pero el pedido usa `orders.customer_snapshot` para mostrar cliente,
-  reportes y detalle del pedido. Al editar un cliente, el historico no se
-  toca por defecto. Si existen pedidos `pending` relacionados, el formulario
-  muestra una casilla "Aplicar cambios a pedidos pendientes"; al marcarla
-  esos pedidos reciben el nuevo snapshot. Tambien hay una opcion
-  "Completar datos faltantes en pedidos relacionados": solo llena campos
-  vacios de cliente en pedidos relacionados/historicos y no sobrescribe
-  valores existentes ni cambia productos, cantidades o totales. Para
-  historicos importados, la relacion reconoce `customer_id`, nombre exacto
-  y nombres cortos que sean prefijo claro del cliente maestro (ej. `ZAIDA`
-  -> `ZAIDA SUAREZ`); esos nombres cortos se usan para detectar relacion,
-  pero no se renombran en `customer_snapshot`. La tabla de Pedidos muestra
-  fallback visual desde `customers` cuando el snapshot no tiene telefono o
-  trae un nombre corto seguro. No se actualizan `labels.recipient` de
-  rotulos ya creados.
+- **Sincronización de cliente a pedidos** (2026-07-19): el modelo real es
+  mixto: `orders.customer_id` referencia a `customers.id`, pero el pedido
+  tambien guarda `orders.customer_snapshot`. Despues de los fixes recientes,
+  si un pedido esta vinculado por `customer_id`, debe mostrar siempre el
+  dato actual del cliente maestro. Al abrir `Pedidos`, `orders-table.tsx`
+  sincroniza silenciosamente snapshots obsoletos con el cliente vinculado.
+  Al editar un cliente, `customer-edit-form.tsx` sincroniza automaticamente
+  todos los pedidos vinculados. Las opciones manuales siguen existiendo
+  solo para casos no vinculados o historicos relacionados por nombre:
+  "Aplicar cambios a pedidos pendientes" y "Completar datos faltantes en
+  pedidos relacionados". No se actualizan `labels.recipient` de rotulos ya
+  creados.
+- **Unificación/eliminación de clientes** (2026-07-19): en `Clientes` cada
+  fila tiene menu de acciones con **Editar**, **Unificar** y **Eliminar
+  cliente** (`apps/rotulos/src/components/customers-table.tsx`). Unificar
+  mueve pedidos relacionados del cliente origen al cliente destino y
+  reemplaza el snapshot del pedido con los datos del cliente correcto.
+  Eliminar cliente borra solo el registro de cliente; conserva sus pedidos
+  y los deja sin `customer_id`.
+- **Nuevo pedido sin clientes duplicados** (2026-07-19): el datalist del
+  campo **Nombre** en `apps/rotulos/src/components/order-form.tsx` muestra
+  clientes unicos por nombre normalizado. Si existen varias fichas con el
+  mismo nombre, usa la mas completa y, en empate, la mas reciente para
+  autollenar telefono/direccion/ubicacion.
+- **Reportes: barras en cero corregidas** (2026-07-19): `Pedidos por
+  estado` ya no pinta barras cuando el valor es `0`; `BarList` usa ancho
+  `0%` para valores cero y conserva un minimo visual solo para valores
+  reales. Prueba: `apps/rotulos/src/__tests__/reports-page.test.tsx`.
 - **Ajustes comerciales de pedidos sin inventario** (2026-07-19): desde el
   drawer de pedido se pueden corregir cantidades/precios y eliminar lineas.
   Si cambian lineas se pide "Motivo del ajuste"; por ahora se guarda en

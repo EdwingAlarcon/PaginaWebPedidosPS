@@ -12,6 +12,13 @@ codigo fuente ahi para entender convenciones.
 
 **Produccion:** https://purpleshoponline.vercel.app
 
+## Handoff
+
+Para retomar trabajo operativo, leer primero `NEXT_STEPS.md`. Ese archivo
+es la memoria principal de pendientes, estado reciente y decisiones de
+continuidad para Claude/Codex. `CLAUDE.md` queda como guia general del
+repositorio y resumen rapido.
+
 ## Estado operativo reciente
 
 - 2026-07-18 noche: la mejora importante de formularios de ubicacion ya
