@@ -4,6 +4,7 @@ import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { createBlankOrderDraft, getBusinessStore } from "@/lib/business-store";
 import { CustomersTable } from "@/components/customers-table";
+import { OrderForm } from "@/components/order-form";
 import { OrdersTable } from "@/components/orders-table";
 import { ToastProvider } from "@/components/ui/toast";
 
@@ -196,6 +197,32 @@ describe("business tables", () => {
     expect(screen.getByText("MEDIAS LARGAS")).toBeInTheDocument();
     expect(screen.getByText("MED-001")).toBeInTheDocument();
     expect(screen.getAllByText("$35.000").length).toBeGreaterThan(0);
+  });
+
+  it("shows each customer only once in the new order name suggestions", async () => {
+    const store = getBusinessStore();
+    const firstDraft = createBlankOrderDraft();
+    firstDraft.customer.fullName = "pilar congote";
+    firstDraft.customer.phone = "3001111111";
+    await store.saveOrder(firstDraft);
+    const secondDraft = createBlankOrderDraft();
+    secondDraft.customer.fullName = "pilar congote";
+    secondDraft.customer.phone = "3002222222";
+    secondDraft.customer.address = "calle 10";
+    await store.saveOrder(secondDraft);
+    const user = userEvent.setup();
+
+    renderWithToast(<OrderForm />);
+
+    await screen.findByPlaceholderText("Busca o escribe un cliente nuevo");
+    const options = Array.from(document.querySelectorAll("datalist option")).filter(
+      (option) => option.getAttribute("value") === "PILAR CONGOTE",
+    );
+    expect(options).toHaveLength(1);
+
+    await user.type(screen.getByPlaceholderText("Busca o escribe un cliente nuevo"), "PILAR CONGOTE");
+    expect(screen.getByLabelText("Telefono")).toHaveValue("3002222222");
+    expect(screen.getByLabelText("Direccion")).toHaveValue("CALLE 10");
   });
 
   it("edits safe order fields from the order drawer and keeps the item line visible", async () => {

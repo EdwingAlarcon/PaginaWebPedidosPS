@@ -15,6 +15,40 @@ import { Alert } from "@/components/ui/alert";
 import { LocationFields } from "@/components/location-fields";
 import { isBogotaLocation, isValidBogotaLocality, isValidBogotaNeighborhoodForLocality, validateDepartmentCity } from "@/lib/location";
 
+function normalizeName(value: string): string {
+  return value.trim().replace(/\s+/g, " ").toUpperCase();
+}
+
+function customerCompleteness(customer: Customer): number {
+  return [
+    customer.phone,
+    customer.email,
+    customer.department,
+    customer.city,
+    customer.locality,
+    customer.address,
+    customer.neighborhood,
+  ].filter((value) => String(value ?? "").trim()).length;
+}
+
+function betterCustomerOption(current: Customer, candidate: Customer): Customer {
+  const currentScore = customerCompleteness(current);
+  const candidateScore = customerCompleteness(candidate);
+  if (candidateScore !== currentScore) return candidateScore > currentScore ? candidate : current;
+  return candidate.updatedAt.localeCompare(current.updatedAt) > 0 ? candidate : current;
+}
+
+function uniqueCustomerOptions(customers: Customer[]): Customer[] {
+  const byName = new Map<string, Customer>();
+  for (const customer of customers) {
+    const key = normalizeName(customer.fullName);
+    if (!key) continue;
+    const existing = byName.get(key);
+    byName.set(key, existing ? betterCustomerOption(existing, customer) : customer);
+  }
+  return [...byName.values()].sort((a, b) => a.fullName.localeCompare(b.fullName, "es"));
+}
+
 export function OrderForm() {
   const [draft, setDraft] = useState<OrderDraft>(() => createBlankOrderDraft());
   const [customers, setCustomers] = useState<Customer[]>([]);
@@ -35,6 +69,7 @@ export function OrderForm() {
     [draft.items],
   );
   const total = Math.max(0, subtotal - draft.discount + draft.shippingCost);
+  const customerOptions = useMemo(() => uniqueCustomerOptions(customers), [customers]);
 
   function setCustomerField(field: keyof OrderDraft["customer"], value: string) {
     setDraft((current) => ({ ...current, customer: { ...current.customer, [field]: value } }));
@@ -42,7 +77,7 @@ export function OrderForm() {
 
   function handleCustomerNameChange(value: string) {
     setCustomerField("fullName", value);
-    const match = customers.find((customer) => customer.fullName === value);
+    const match = customerOptions.find((customer) => normalizeName(customer.fullName) === normalizeName(value));
     if (match) {
       setDraft((current) => ({
         ...current,
@@ -150,7 +185,7 @@ export function OrderForm() {
                 placeholder="Busca o escribe un cliente nuevo"
               />
               <datalist id={customerListId}>
-                {customers.map((customer) => (
+                {customerOptions.map((customer) => (
                   <option key={customer.id} value={customer.fullName} />
                 ))}
               </datalist>
