@@ -1,6 +1,6 @@
 # Purple Shop — Próximos pasos / handoff
 
-> Última actualización: 2026-07-20 Colombia (cierre de auditoría pre-agosto: backup/export de datos, rutas API protegidas, fix de sidebar cortado; checklist manual post-deploy verificado por Edwing).
+> Última actualización: 2026-07-20 Colombia (cierre de auditoría pre-agosto: backup/export de datos, rutas API protegidas, fix de sidebar cortado, checklist manual post-deploy verificado por Edwing; depuración de documentación — legacy archivada en `docs/_archive/legacy-app-2025/`).
 
 ## Estado actual: migración de GitHub Pages a Vercel/Supabase completada
 
@@ -164,22 +164,56 @@ como `text not null default ''`.
 
 ## Pendiente
 
-- **RPC transaccional para saveOrder/updateOrder/mergeCustomers.** Hoy son
-  varias escrituras HTTP secuenciales sin transacción de base de datos; ver
-  diseño propuesto en
+### Bloqueantes antes de producción
+
+Ninguno. La auditoría pre-agosto (2026-07-20) cerró los hallazgos
+accionables, se desplegó y Edwing verificó el checklist manual completo.
+La app está lista para operar con pedidos reales de agosto.
+
+### Importantes después de agosto
+
+- **RPC transaccional para `saveOrder`/`updateOrder`/`mergeCustomers`.** Hoy
+  son varias escrituras HTTP secuenciales sin transacción de base de datos;
+  ver diseño propuesto en
   `docs/superpowers/specs/2026-07-20-transacciones-rpc-design.md`. No
-  bloqueante, prioridad media.
+  bloqueante, prioridad media — implementar `save_order` primero.
+- **Impresión física real del rótulo** con la impresora final: todavía no
+  probada (solo validación en pantalla/PDF hasta ahora).
 - **Inventario real vinculado a pedidos.** La edición actual cambia el
   pedido como documento comercial, no el stock. Para que los pedidos
   descuenten/devuelvan inventario hace falta diseño y migración aparte:
   enlazar `order_items.product_id` con `products.id`, definir movimientos
   compensatorios al editar/cancelar/devolver, reglas por estado del pedido y
   una tabla de auditoria dedicada para ajustes.
-- Impresión física real del rótulo con impresora final todavía no
-  probada (solo validación en pantalla/PDF hasta ahora).
-- Si se hacen nuevos ajustes al diseño del rótulo, mantener sincronizadas
-  las coordenadas entre `globals.css` y `pdf.ts`; la vista previa y el PDF
-  no comparten motor de render.
+- **Auditoría/historial de ajustes de pedidos.** Hoy el motivo del ajuste se
+  guarda como texto libre en `orders.notes` (`AJUSTE: ...`); no hay tabla ni
+  vista dedicada para ver el historial de cambios de un pedido.
+
+### Mejoras futuras
+
+- **Backups automáticos.** Hoy el único respaldo es manual, vía
+  `Configuración → Exportar datos` (CSV/JSON). Evaluar si el plan de
+  Supabase contratado incluye point-in-time recovery, o programar un
+  export periódico.
+- **UI para gestionar `allowed_users`.** Hoy agregar un usuario nuevo
+  requiere tocar la tabla directo en Supabase; no hay pantalla de admin.
+- **Bloque de importación Excel pendiente:** cliente `ZAIDA`, hoja `JULIO
+  2026`, fila 2 quedó excluida por error real de datos (falta
+  cantidad/precio) — revisar a mano contra el Excel si hace falta
+  rescatarla.
+
+### Deuda técnica
+
+- Si se ajusta el diseño del rótulo, mantener sincronizadas las
+  coordenadas entre `globals.css` y `pdf.ts` — preview/impresión y PDF no
+  comparten motor de render.
+- `middleware.ts` usa la convención deprecada de Next.js (`middleware`);
+  Next sugiere migrar a `proxy` en algún momento — no urgente, solo un
+  warning en cada build.
+- Clases CSS con prefijo `legacy-` (`legacy-sidebar`, `legacy-app-shell`,
+  etc.) en `globals.css`/`app-shell.tsx` — nombre heredado de una migración
+  anterior, no describe código legacy real hoy; renombrar es opcional y de
+  bajo valor.
 
 ## Cosas explícitamente fuera de alcance / no tocar sin permiso
 

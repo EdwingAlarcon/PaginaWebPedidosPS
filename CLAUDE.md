@@ -1,88 +1,171 @@
 # CLAUDE.md
 
-Guia para Claude Code al trabajar en este repositorio.
+Guia tecnica para Claude Code / Codex al trabajar en este repositorio.
+Para pendientes priorizados, ver `NEXT_STEPS.md`. Para instrucciones de
+desarrollo/deploy paso a paso, ver `apps/rotulos/README.md`. Este archivo
+es el handoff tecnico: arquitectura, reglas que no romper y estado
+reciente.
 
 ## Proyecto
 
-Purple Shop — gestion de pedidos, clientes, inventario y generacion de
-rotulos. La unica app del repo vive en `apps/rotulos/` (Next.js +
-Supabase, desplegada en Vercel). No hay documentacion de arquitectura
-propia todavia en `apps/rotulos/`; usa `apps/rotulos/README.md` y lee el
-codigo fuente ahi para entender convenciones.
+Purple Shop — gestion de pedidos, clientes, productos/inventario y
+generacion de rotulos de envio. La unica app del repo vive en
+`apps/rotulos/` (Next.js 16 + TypeScript + Supabase, desplegada en
+Vercel).
 
 **Produccion:** https://purpleshoponline.vercel.app
 
-## Handoff
+## Arquitectura general
 
-Para retomar trabajo operativo, leer primero `NEXT_STEPS.md`. Ese archivo
-es la memoria principal de pendientes, estado reciente y decisiones de
-continuidad para Claude/Codex. `CLAUDE.md` queda como guia general del
-repositorio y resumen rapido.
+- **Next.js App Router**, rutas de pagina bajo `apps/rotulos/src/app/(app)/`
+  (protegidas por `middleware.ts`) mas `login/`, `auth/callback/` (publicas)
+  y `api/` (rutas de servidor, **no** cubiertas por el middleware — cada
+  una valida sesion por su cuenta, ver mas abajo).
+- **Capa de datos**: dos "stores" con la misma interfaz — uno respaldado en
+  Supabase (`createSupabaseBusinessStore` / `createSupabaseInventoryStore`)
+  y un fallback en `localStorage` (`createLocalBusinessStore`) que se usa
+  solo si faltan las variables de Supabase (desarrollo sin backend). Ver
+  `src/lib/business-store.ts` e `src/lib/inventory-store.ts`.
+  `product_codes` (catalogo usado en pedidos/rotulos) y `products`
+  (inventario con stock real) son tablas **distintas e independientes**.
+- **Supabase**: Postgres + Auth (OAuth Microsoft) + RLS en todas las
+  tablas, rol `authenticated` unicamente (sin acceso `anon`). Migraciones
+  en `apps/rotulos/supabase/migrations/`, aplicadas en orden por nombre
+  (timestamp).
+- **PDF**: `src/lib/pdf.ts` usa `pdf-lib` (no navegador/Chromium headless).
+  Coordenadas sincronizadas manualmente con `src/app/globals.css` para que
+  preview y PDF coincidan.
+
+## Convenciones importantes
+
+- **Normalizacion a MAYUSCULA**: todo texto de usuario (nombres, direcciones,
+  notas, etc.) se normaliza a mayuscula antes de persistir, via
+  `src/lib/normalize.ts`. Riesgo aceptado: datos historicos previos a esa
+  normalizacion no se reescriben retroactivamente.
+- **Ubicacion Colombia**: Departamento -> Ciudad/Municipio; si la ciudad es
+  Bogota, se pide ademas Localidad y Barrio/Sector. Componentes en
+  `src/components/location-fields.tsx`.
+- **`customer_snapshot`**: cada `order` guarda `customer_id` (FK a
+  `customers`) *y* una copia `customer_snapshot` (jsonb) con los datos del
+  cliente al momento del pedido. **Si el pedido esta vinculado por
+  `customer_id`, la UI debe mostrar siempre el dato actual del cliente
+  maestro**, no la copia vieja: `orders-table.tsx` sincroniza
+  silenciosamente el snapshot al abrir `Pedidos` si detecta que quedo
+  desactualizado, y `customer-edit-form.tsx` sincroniza todos los pedidos
+  vinculados al guardar una edicion de cliente. Pedidos sin `customer_id`
+  (historicos importados, o el cliente fue borrado) dependen solo del
+  snapshot y tienen opciones manuales de sincronizacion por nombre.
+- **`orders.source`** distingue pedidos creados en la app (`'app'`) de los
+  importados desde Excel (`'excel_import'`, con `import_batch_id` e
+  `import_row_key` para idempotencia). Mismo patron en `customers.source`.
+
+## Reglas que no se deben romper
+
+- **No usar `SUPABASE_SERVICE_ROLE_KEY` en codigo cliente** (nada con
+  `"use client"`, nada en componentes React). Solo se usa server-side en
+  `src/lib/supabase/server.ts` (`createServiceClient`), consumida hoy por
+  `src/app/api/export/route.ts` y `scripts/import-excel.ts`.
+- **No tocar `customers.source` desde la UI.** Es metadata de trazabilidad
+  de importacion, no un campo editable por el usuario.
+- **No cambiar el diseno del rotulo sin validar preview y PDF juntos.**
+  `globals.css` (preview/impresion navegador) y `src/lib/pdf.ts` (PDF)
+  comparten coordenadas a mano; un cambio en uno sin el otro rompe la
+  consistencia visual.
+- **No automatizar la sincronizacion del Excel real del negocio**
+  ("REFERENCIAS", OneDrive del gerente) sin permiso explicito — debe seguir
+  siendo `npm run import:excel` corrido a mano.
+- **No hacer deploy sin autorizacion explicita del usuario** en esta misma
+  conversacion (no asumas que una autorizacion anterior aplica a cambios
+  nuevos).
+
+## Rutas API y proteccion de sesion
+
+`middleware.ts` protege todas las rutas de **pagina** (matcher excluye
+`api/`, `_next/static`, `_next/image`, `favicon.ico` e imagenes). Por eso
+cada ruta bajo `src/app/api/` valida sesion **por su cuenta** con
+`src/lib/require-session.ts` (login + presencia en `allowed_users`):
+
+- `POST /api/labels/pdf` — protegida. Genera el PDF a partir del payload
+  que manda el cliente (no consulta la base de datos).
+- `GET /api/export` — protegida. Requiere ademas `SUPABASE_SERVICE_ROLE_KEY`
+  configurada; sin ella responde 500 explicito. `table` solo acepta un
+  whitelist fijo (`customers`, `orders`, `order-items`, `productos`); no
+  hay forma de pedir una tabla arbitraria.
+- `/api/labels/[id]/pdf` **ya no existe** (se elimino 2026-07-20: estaba
+  muerta — usaba un cliente sin sesion dentro de una Route Handler, RLS la
+  bloqueaba siempre, 404 permanente — y sin uso en la app).
+
+Si agregas una ruta nueva bajo `/api`, agregale `requireSession()` al
+inicio salvo que deba ser publica a proposito (documentalo si es asi).
+
+## Exportacion / backup
+
+`GET /api/export` (ver arriba) sirve CSV por tabla o un backup JSON
+completo. UI en `Configuracion` (`src/components/data-export.tsx`). Usa el
+service role para traer datos completos (incluyendo `labels` de todos los
+usuarios, que por RLS normal quedarian limitados a `created_by = auth.uid()`).
+No hay backup automatico ni scheduled — es manual, pensado para antes de
+operaciones masivas (importar, unificar en lote) o como snapshot periodico.
+
+## Escrituras sin transaccion (conocido, no bloqueante)
+
+`saveOrder`, `updateOrder` y `mergeCustomers` en `business-store.ts` hacen
+varias llamadas Supabase secuenciales sin transaccion de base de datos —
+un fallo de red a mitad de camino puede en teoria dejar un pedido sin
+lineas o un merge de clientes a medias. Diseno de la correccion (RPC
+`security definer`, mismo patron que `reserve_order_number` y
+`apply_stock_movement`) en
+`docs/superpowers/specs/2026-07-20-transacciones-rpc-design.md`. No
+implementar sin que el usuario lo pida explicitamente — es trabajo de fase
+siguiente, no bloqueante para operar.
+
+## Validaciones obligatorias antes de cerrar una tarea
+
+```bash
+npm run lint
+npm run typecheck
+npm test
+npm run build
+```
+
+Corre las 4 (no un subconjunto) antes de dar una tarea de codigo por
+terminada. Si tocaste UI, ademas probala en el navegador si es posible
+(login real requiere credenciales que Claude no tiene — decilo
+explicitamente si no pudiste probar con sesion autenticada).
 
 ## Estado operativo reciente
 
-- 2026-07-18 noche: la mejora importante de formularios de ubicacion ya
-  esta desplegada. Los selectores de departamento/ciudad usan datos de
-  Colombia; para Bogota se pide Localidad y Barrio/Sector con validacion.
-  Supabase remoto ya tiene `customers.locality`.
-- Exportar PDF funciona en produccion desde `Crear rotulo` y desde
-  `Historial`. Se abandono la generacion con navegador/Chromium en Vercel
-  y ahora el PDF se genera con `pdf-lib` en `apps/rotulos/src/lib/pdf.ts`.
-- El pie del rotulo fue compactado y alineado: numero de pedido, fecha,
-  transportadora, valor, paquetes y check de metodo de pago deben verse
-  completos dentro de la franja inferior tanto en vista previa como en PDF.
-  Coordenadas sincronizadas en `apps/rotulos/src/app/globals.css` y
-  `apps/rotulos/src/lib/pdf.ts`.
-- Ultimo commit funcional verificado: `35a38cd fix(rotulos): compactar textos del pie`.
-- 2026-07-19: importador de data historica desde Excel (`REFERENCIAS.xlsx`)
-  implementado y corrido contra produccion (23 pedidos, 9 clientes nuevos).
-  Ver `NEXT_STEPS.md` seccion "Importador de data historica" para detalle
-  completo y `docs/superpowers/specs/2026-07-19-importador-excel-historico-design.md`
-  para el diseño.
-- 2026-07-19 noche: editar clientes y pedidos ya esta implementado.
-  Los pedidos guardan `customer_id` y una copia `customer_snapshot`.
-  Despues de los ajustes recientes, **si el pedido esta vinculado a un
-  cliente (`customer_id`) debe mostrar siempre el dato actual del cliente
-  maestro**, no la copia vieja. Al abrir `Pedidos`, `orders-table.tsx`
-  sincroniza silenciosamente `customer_snapshot` con el cliente vinculado
-  cuando detecta datos obsoletos. Al editar un cliente,
-  `customer-edit-form.tsx` tambien sincroniza automaticamente todos sus
-  pedidos vinculados. Las opciones manuales siguen existiendo para casos
-  no vinculados: aplicar cambios a pedidos `pending` relacionados por
-  nombre, y completar solo campos vacios en historicos relacionados.
-- 2026-07-19 noche: la edicion de pedidos permite corregir cantidades,
-  precios y eliminar lineas como documento comercial, recalculando
-  subtotal/total sin tocar inventario. El motivo del ajuste queda en
-  `orders.notes` como `AJUSTE: ...` y el detalle muestra "Pedido ajustado".
-  Sigue pendiente una auditoria dedicada y trazabilidad real de inventario:
-  `order_items` no apunta a `products.id` y crear/editar pedidos no descuenta
-  stock.
-- 2026-07-19 noche: clientes duplicados y nombres historicos:
-  - Se agrego en `Clientes` un menu por fila con **Editar**, **Unificar** y
-    **Eliminar cliente** (`apps/rotulos/src/components/customers-table.tsx`).
-  - **Unificar** mueve los pedidos relacionados del cliente origen al cliente
-    destino y reemplaza el snapshot del pedido por los datos del cliente
-    correcto. **Eliminar cliente** borra solo el cliente; conserva los pedidos
-    y los deja sin `customer_id`.
-  - En `Nuevo pedido`, el datalist del campo **Nombre** usa opciones unicas
-    por nombre normalizado. Si hay varios clientes con el mismo nombre, toma
-    la ficha mas completa y, en empate, la mas reciente
-    (`apps/rotulos/src/components/order-form.tsx`).
-  - En `Reportes`, `Pedidos por estado` ya no muestra barras para estados en
-    cero; `BarList` usa ancho `0%` cuando `value <= 0`.
-- 2026-07-20: cierre de auditoría técnica pre-agosto (antes de operar con
-  pedidos reales). Se agregó exportación/backup de datos (`Configuración` →
-  "Exportar datos", CSV por tabla + backup JSON completo, ruta
-  `GET /api/export` protegida por sesión + `allowed_users`), se protegió
-  `/api/labels/pdf` con el mismo chequeo de sesión (antes quedaba fuera del
-  middleware, que excluye `api/` de su matcher), y se eliminó
-  `/api/labels/[id]/pdf` (ruta muerta, nunca funcionaba). El hallazgo de
-  escrituras sin transacción en `saveOrder`/`updateOrder`/`mergeCustomers`
-  quedó documentado (no bloqueante) en
-  `docs/superpowers/specs/2026-07-20-transacciones-rpc-design.md`. También
-  se corrigió el sidebar (`.legacy-sidebar`) para que haga scroll en
-  pantallas de poca altura — antes cortaba "Configuración". Desplegado y
-  verificado con checklist manual completo por Edwing.
+- 2026-07-18 noche: formularios de ubicacion Colombia/Bogota desplegados
+  (Localidad y Barrio/Sector para Bogota). Supabase remoto tiene
+  `customers.locality`.
+- Exportar PDF funciona en produccion desde `Crear rotulo` y `Historial`
+  (`pdf-lib`, sin Chromium).
+- Pie del rotulo compactado y alineado (numero de pedido, fecha,
+  transportadora, valor, paquetes, metodo de pago) en preview y PDF.
+- 2026-07-19: importador de datos historicos desde Excel
+  (`REFERENCIAS.xlsx`) corrido contra produccion (23 pedidos, 9 clientes
+  nuevos). Detalle en `NEXT_STEPS.md` y
+  `docs/superpowers/specs/2026-07-19-importador-excel-historico-design.md`.
+- 2026-07-19 noche: edicion de clientes y pedidos implementada (ver
+  "`customer_snapshot`" arriba). Edicion de pedidos permite corregir
+  cantidades/precios y eliminar lineas como documento comercial
+  (`AJUSTE: ...` en `orders.notes`), sin tocar inventario todavia.
+- 2026-07-19 noche: menu por fila en `Clientes` con Editar/Unificar/
+  Eliminar. Datalist de `Nuevo pedido` deduplicado por nombre normalizado.
+  `Reportes` ya no dibuja barras en cero.
+- 2026-07-20: cierre de auditoria tecnica pre-agosto. Se agrego
+  exportacion/backup (`/api/export` + UI en Configuracion), se protegio
+  `/api/labels/pdf` con sesion, se elimino `/api/labels/[id]/pdf` (muerta).
+  Fix de sidebar sin scroll en pantallas bajas. Desplegado y verificado con
+  checklist manual completo por Edwing.
+- 2026-07-20 (mismo dia, depuracion de docs): se archivo toda la
+  documentacion de la app legacy (`docs/*` pre-migracion, `CHANGELOG.md`,
+  `CONTRIBUTING.md`, `SECURITY.md`, `project_redesign_status.md`,
+  `apps/rotulos/PENDING_QA.md`) en `docs/_archive/legacy-app-2025/` — no
+  describe el stack actual y contradecia el flujo de auth real (decian
+  "magic link"; es OAuth Microsoft + allowlist). `README.md` raiz,
+  `apps/rotulos/README.md`, `CLAUDE.md` y `NEXT_STEPS.md` quedaron como la
+  documentacion vigente.
 - Commits recientes relevantes:
   - `91f8847 fix(rotulos): permitir scroll en sidebar cuando el alto de ventana es chico`
   - `b467ea6 fix(rotulos): backup/export de datos y proteger rutas API sin sesion`
@@ -106,5 +189,6 @@ repositorio y resumen rapido.
 Este repositorio alojo hasta 2026-07 una app legacy en la raiz
 (HTML/CSS/JS plano con integracion a Excel/OneDrive via MSAL.js, servida
 en GitHub Pages). Fue retirada tras migrar toda la funcionalidad a
-`apps/rotulos`; el codigo y su documentacion siguen disponibles en el
-historial de git anterior a ese retiro.
+`apps/rotulos`; el codigo sigue disponible en el historial de git anterior
+a ese retiro, y su documentacion (ya obsoleta, no describe el stack
+actual) esta archivada en `docs/_archive/legacy-app-2025/`.
