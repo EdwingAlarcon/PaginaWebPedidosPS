@@ -144,6 +144,8 @@ body {
   padding: 20px 14px;
   z-index: 30;
   transition: width 160ms ease;
+  overflow-y: auto;
+  overflow-x: hidden;
 }
 
 .legacy-brand {
