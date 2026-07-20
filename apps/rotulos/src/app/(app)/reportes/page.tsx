@@ -29,8 +29,9 @@ const STATUS_LABEL: Record<OrderRecord["status"], string> = {
   cancelled: "Cancelado",
 };
 
-function BarList({ items }: { items: { label: string; value: number; formattedValue: string }[] }) {
+export function BarList({ items }: { items: { label: string; value: number; formattedValue: string }[] }) {
   const max = Math.max(1, ...items.map((item) => item.value));
+  const barWidth = (value: number) => (value <= 0 ? 0 : Math.max(4, (value / max) * 100));
   return (
     <div className="flex flex-col gap-3">
       {items.map((item) => (
@@ -42,7 +43,7 @@ function BarList({ items }: { items: { label: string; value: number; formattedVa
           <div className="h-2 rounded-full bg-surface-muted">
             <div
               className="h-2 rounded-full bg-primary"
-              style={{ width: `${Math.max(4, (item.value / max) * 100)}%` }}
+              style={{ width: `${barWidth(item.value)}%` }}
             />
           </div>
         </div>
