@@ -1,6 +1,7 @@
 import { NextRequest } from "next/server";
 import { renderLabelPdfBuffer } from "@/lib/pdf";
 import { validateLabelDraft } from "@/lib/validation";
+import { requireSession } from "@/lib/require-session";
 import type { LabelDraft, LabelSettings } from "@/lib/types";
 
 export const runtime = "nodejs";
@@ -26,6 +27,11 @@ function isObject(value: unknown): value is Record<string, unknown> {
 }
 
 export async function POST(request: NextRequest) {
+  const session = await requireSession();
+  if (!session) {
+    return Response.json({ error: "unauthorized" }, { status: 401 });
+  }
+
   const payload = await request.json().catch(() => null);
   if (!isObject(payload) || !isObject(payload.label) || !isObject(payload.settings)) {
     return Response.json({ error: "invalid_payload" }, { status: 400 });
