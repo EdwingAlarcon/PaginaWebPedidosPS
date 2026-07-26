@@ -27,6 +27,7 @@ const memorySequences = new Map<string, number>();
 
 type LabelRow = {
   id: string;
+  order_id: string | null;
   order_number: string;
   size: LabelDraft["size"];
   sender: LabelDraft["sender"];
@@ -58,6 +59,7 @@ type SettingsRow = {
 function rowToLabel(row: LabelRow): LabelRecord {
   return {
     id: row.id,
+    orderId: row.order_id,
     orderNumber: row.order_number,
     size: row.size,
     date: row.shipment?.date ?? row.created_at.slice(0, 10),
@@ -106,6 +108,7 @@ function rowToSettings(row: SettingsRow | null): LabelSettings {
 
 function labelToRow(draft: LabelDraft, orderNumber: string) {
   return {
+    order_id: draft.orderId ?? null,
     order_number: orderNumber,
     size: draft.size,
     sender: draft.sender,

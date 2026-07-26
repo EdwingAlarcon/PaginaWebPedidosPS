@@ -68,6 +68,7 @@ export type LabelSettings = {
 
 export type LabelDraft = {
   id?: string;
+  orderId?: string | null;
   orderNumber: string;
   size: LabelSize;
   date: string;

@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { formatCop } from "@/lib/format";
 import type { OrderRecord } from "@/lib/business-types";
 import { Button } from "@/components/ui/button";
@@ -38,13 +39,16 @@ export function OrderDetailDrawer({ order, onEdit }: OrderDetailDrawerProps) {
   const adjustment = latestAdjustment(order.notes);
   return (
     <div className="flex flex-col gap-4">
-      {onEdit ? (
-        <div className="flex justify-end">
+      <div className="flex justify-end gap-2">
+        <Button type="button" variant="secondary" size="sm" asChild>
+          <Link href={`/crear?fromOrderId=${order.id}`}>Generar rotulo</Link>
+        </Button>
+        {onEdit ? (
           <Button type="button" size="sm" onClick={onEdit}>
             Editar pedido
           </Button>
-        </div>
-      ) : null}
+        ) : null}
+      </div>
 
       <Card className="shadow-none">
         <div className="flex items-start justify-between gap-3">

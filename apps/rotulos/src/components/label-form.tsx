@@ -2,6 +2,8 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { createBlankLabelDraft, defaultSettings } from "@/lib/defaults";
+import { getBusinessStore } from "@/lib/business-store";
+import { buildLabelDraftFromOrder } from "@/lib/label-from-order";
 import { getLabelStore } from "@/lib/label-store";
 import { formatOrderNumber } from "@/lib/order-number";
 import { validateLabelDraft } from "@/lib/validation";
@@ -29,16 +31,22 @@ export function LabelForm() {
     const store = getLabelStore();
     const params = new URLSearchParams(window.location.search);
     const labelId = params.get("id");
+    const fromOrderId = params.get("fromOrderId");
     const shouldPrint = params.get("print") === "1";
 
     async function loadFallbackData() {
       const savedSettings = await store.getSettings();
       const existing = labelId ? await store.getLabel(labelId) : null;
+      const fromOrder = !existing && fromOrderId
+        ? (await getBusinessStore().listOrders()).find((order) => order.id === fromOrderId) ?? null
+        : null;
       if (!active) return;
       setSettings(savedSettings);
       setDraft((current) => {
+        if (existing) return existing;
+        if (fromOrder) return buildLabelDraftFromOrder(fromOrder, savedSettings.defaultSender);
         const senderIsEmpty = !current.sender.phone && !current.sender.department && !current.sender.city && !current.sender.locality && !current.sender.neighborhood && !current.sender.address;
-        return existing ?? { ...current, sender: senderIsEmpty ? savedSettings.defaultSender : current.sender };
+        return { ...current, sender: senderIsEmpty ? savedSettings.defaultSender : current.sender };
       });
       if (existing && shouldPrint) window.setTimeout(() => window.print(), 150);
     }

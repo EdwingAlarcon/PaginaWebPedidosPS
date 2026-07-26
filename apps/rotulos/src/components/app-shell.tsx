@@ -15,7 +15,6 @@ import {
   PanelLeftOpen,
   Receipt,
   Settings,
-  Tags,
   Users,
   X,
   type LucideIcon,
@@ -49,7 +48,6 @@ const NAV_GROUPS: NavGroup[] = [
   {
     label: "Envios",
     items: [
-      { href: "/crear", label: "Crear rotulo", icon: Tags },
       { href: "/historial", label: "Historial", icon: PackagePlus },
     ],
   },

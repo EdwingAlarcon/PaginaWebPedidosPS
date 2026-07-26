@@ -1,0 +1,131 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-07-26T22:46:36Z",
+  "title": "Design System: Purple Shop — apps/rotulos",
+  "extensions": {
+    "colorMeta": {
+      "violeta-purple-shop": {
+        "role": "primary",
+        "displayName": "Violeta Purple Shop",
+        "canonical": "#7C3AED",
+        "tonalRamp": ["#2E1065", "#4C1D95", "#5B21B6", "#6D28D9", "#7C3AED", "#8B5CF6", "#A78BFA", "#C4B5FD"]
+      },
+      "background": {
+        "role": "neutral",
+        "displayName": "Fondo",
+        "canonical": "#f8f7fb",
+        "tonalRamp": ["#16121f", "#635d72", "#9993a8", "#e4dff2", "#f1eef8", "#f8f7fb", "#fbfaff", "#ffffff"]
+      },
+      "surface": {
+        "role": "neutral",
+        "displayName": "Superficie",
+        "canonical": "#ffffff",
+        "tonalRamp": ["#16121f", "#1c1728", "#635d72", "#e4dff2", "#f1eef8", "#f8f7fb", "#fdfdff", "#ffffff"]
+      },
+      "success": { "role": "success", "displayName": "Éxito", "canonical": "#10b981", "tonalRamp": ["#022c22", "#064e3b", "#065f46", "#047857", "#10b981", "#34d399", "#6ee7b7", "#d1fae5"] },
+      "warning": { "role": "warning", "displayName": "Alerta", "canonical": "#f59e0b", "tonalRamp": ["#451a03", "#78350f", "#92400e", "#b45309", "#f59e0b", "#fbbf24", "#fcd34d", "#fef3c7"] },
+      "danger": { "role": "danger", "displayName": "Peligro", "canonical": "#ef4444", "tonalRamp": ["#450a0a", "#7f1d1d", "#991b1b", "#b91c1c", "#ef4444", "#f87171", "#fca5a5", "#fee2e2"] }
+    },
+    "typographyMeta": {
+      "display": { "displayName": "Display", "purpose": "Título hero, exclusivo de la pantalla de login." },
+      "page-title": { "displayName": "Título de página", "purpose": "Encabezado de cada pantalla principal." },
+      "section-title": { "displayName": "Título de sección", "purpose": "Subdivisiones dentro de una pantalla." },
+      "card-title": { "displayName": "Título de tarjeta", "purpose": "Encabezado de tarjeta o métrica." },
+      "body": { "displayName": "Cuerpo", "purpose": "Texto de formularios, tablas y contenido general." }
+    },
+    "shadows": [
+      { "name": "card", "value": "0 1px 2px rgba(15, 11, 23, 0.06)", "purpose": "Sombra casi imperceptible en Card, apenas la separa del fondo." },
+      { "name": "popover", "value": "0 8px 24px rgba(15, 11, 23, 0.12)", "purpose": "Dropdowns, menús contextuales, modales." },
+      { "name": "label-canvas", "value": "0 18px 50px rgba(17, 17, 17, 0.16)", "purpose": "Preview del rótulo de envío, simula objeto físico impreso." }
+    ],
+    "motion": [
+      { "name": "color-transition", "value": "transition-colors (Tailwind default timing)", "purpose": "Botones, inputs, enlaces: cambio de color en hover/focus sin transformación." },
+      { "name": "sidebar-collapse", "value": "width 160ms ease", "purpose": "Colapso/expansión de la sidebar y su ancho de contenido asociado." }
+    ],
+    "breakpoints": [
+      { "name": "sm", "value": "640px" },
+      { "name": "content-collapse", "value": "900px" },
+      { "name": "form-stack", "value": "1100px" },
+      { "name": "sidebar-drawer", "value": "1024px" }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "Acción primaria: guardar pedido, generar rótulo, confirmar.",
+      "html": "<button class=\"ds-btn-primary\">Guardar pedido</button>",
+      "css": ".ds-btn-primary { display: inline-flex; align-items: center; justify-content: center; gap: 8px; height: 40px; padding: 0 16px; border: none; border-radius: 8px; background: #7C3AED; color: #ffffff; font-size: 14px; font-weight: 500; white-space: nowrap; transition: background-color 0.15s ease; } .ds-btn-primary:hover { background: #6D28D9; } .ds-btn-primary:focus-visible { outline: 2px solid #7C3AED; outline-offset: 2px; } .ds-btn-primary:disabled { opacity: 0.5; pointer-events: none; }"
+    },
+    {
+      "name": "Secondary Button",
+      "kind": "button",
+      "refersTo": "button-secondary",
+      "description": "Acción secundaria: cancelar, volver, exportar.",
+      "html": "<button class=\"ds-btn-secondary\">Cancelar</button>",
+      "css": ".ds-btn-secondary { display: inline-flex; align-items: center; justify-content: center; gap: 8px; height: 40px; padding: 0 16px; border: 1px solid #e4dff2; border-radius: 8px; background: #ffffff; color: #16121f; font-size: 14px; font-weight: 500; transition: background-color 0.15s ease; } .ds-btn-secondary:hover { background: #f1eef8; } .ds-btn-secondary:focus-visible { outline: 2px solid #7C3AED; outline-offset: 2px; }"
+    },
+    {
+      "name": "Text Input",
+      "kind": "input",
+      "refersTo": "input-default",
+      "description": "Campo de texto estándar para formularios de pedido/cliente.",
+      "html": "<input class=\"ds-input\" placeholder=\"Nombre del cliente\" />",
+      "css": ".ds-input { width: 100%; height: 40px; padding: 0 12px; border: 1px solid #e4dff2; border-radius: 8px; background: #ffffff; color: #16121f; font-size: 14px; transition: border-color 0.15s ease; } .ds-input::placeholder { color: #635d72; } .ds-input:focus-visible { outline: 2px solid #7C3AED; outline-offset: 2px; } .ds-input:disabled { opacity: 0.5; cursor: not-allowed; }"
+    },
+    {
+      "name": "Card",
+      "kind": "card",
+      "refersTo": "card-default",
+      "description": "Contenedor genérico de contenido (métricas, secciones de formulario).",
+      "html": "<div class=\"ds-card\"><h3 class=\"ds-card-title\">Pedidos del mes</h3><p>124</p></div>",
+      "css": ".ds-card { border-radius: 12px; border: 1px solid #e4dff2; background: #ffffff; padding: 20px; box-shadow: 0 1px 2px rgba(15, 11, 23, 0.06); } .ds-card-title { margin: 0 0 4px; font-size: 16px; font-weight: 600; color: #16121f; }"
+    },
+    {
+      "name": "Status Badge",
+      "kind": "chip",
+      "refersTo": "badge-neutral",
+      "description": "Estado de pedido o rótulo (pendiente, completado, cancelado, etc.).",
+      "html": "<span class=\"ds-badge ds-badge-success\"><span class=\"ds-badge-dot\"></span>Completado</span>",
+      "css": ".ds-badge { display: inline-flex; align-items: center; gap: 6px; border-radius: 9999px; padding: 2px 10px; font-size: 12px; font-weight: 500; } .ds-badge-success { background: rgba(16, 185, 129, 0.12); color: #10b981; } .ds-badge-dot { width: 6px; height: 6px; border-radius: 9999px; background: currentColor; }"
+    },
+    {
+      "name": "Sidebar Nav Link",
+      "kind": "nav",
+      "refersTo": "nav-link",
+      "description": "Enlace de navegación en la sidebar, con estado activo distintivo.",
+      "html": "<a class=\"ds-nav-link ds-nav-link-active\" href=\"#\">Pedidos</a>",
+      "css": ".ds-nav-link { display: inline-flex; align-items: center; gap: 10px; width: 100%; border-radius: 8px; padding: 10px 12px; color: #5B21B6; font-weight: 700; text-decoration: none; } .ds-nav-link:hover { background: #f1e9fe; } .ds-nav-link-active { background: #F5F3FF; border-left: 3px solid #7C3AED; padding-left: 9px; }"
+    }
+  ],
+  "narrative": {
+    "northStar": "El Taller Violeta",
+    "overview": "Purple Shop es una herramienta de taller, no un escaparate: Edwing y su gerente la abren decenas de veces al día para crear pedidos, buscar clientes y sacar rótulos de envío. El sistema lleva la identidad de marca (violeta) con firmeza — aparece en cada acción primaria, cada estado activo, cada enlace — pero se abstiene de decoración que no sirva a la tarea. Las superficies son planas por defecto; la profundidad se reserva para separar overlays (modales, popovers) del contenido de fondo, nunca como adorno. La densidad es media-alta: la app asume un usuario que ya sabe dónde está todo y valora velocidad de escaneo sobre aire visual.",
+    "keyCharacteristics": [
+      "Violeta como firma de marca, aplicado con moderación (acciones primarias, estados activos, foco).",
+      "Superficies planas; sombra solo con propósito funcional (elevar overlays).",
+      "Bordes suavizados pero contenidos (6–12px), nunca extremos.",
+      "Tema claro y oscuro con paridad total de tokens semánticos.",
+      "Tipografía Inter, jerarquía compacta orientada a escaneo rápido."
+    ],
+    "rules": [
+      { "name": "La Regla del Acento Único", "body": "El violeta se reserva para significar \"acción primaria\" o \"seleccionado\". No se usa como color decorativo de fondo o texto secundario — su escasez es lo que lo hace legible como llamado a la acción.", "section": "colors" },
+      { "name": "La Regla Plana-por-Defecto", "body": "Ninguna superficie lleva sombra en reposo. La sombra es siempre una respuesta a estar por encima del flujo (overlay, drawer) o a representar un objeto físico (el rótulo), nunca decoración de tarjeta.", "section": "elevation" }
+    ],
+    "dos": [
+      "Do usar el violeta de marca (#7C3AED) solo en acciones primarias, estados activos y foco — su escasez es la señal.",
+      "Do mantener las superficies planas en reposo; reservar sombra para overlays y para el rótulo (objeto físico simulado).",
+      "Do usar Inter en todo el sistema; construir jerarquía con peso/tamaño, no con familias tipográficas nuevas.",
+      "Do mantener paridad de tokens semánticos entre modo claro y oscuro (mismo nombre de variable, distinto valor).",
+      "Do usar el mismo tratamiento de foco (outline 2px + offset 2px en --focus-ring) en todo control interactivo."
+    ],
+    "donts": [
+      "Don't agregar sombra decorativa a tarjetas o inputs en reposo — rompe la Regla Plana-por-Defecto.",
+      "Don't introducir una segunda familia tipográfica o gradientes fuera del fondo del login.",
+      "Don't usar radios de esquina mayores a 12px (excepto elementos circulares) — la sensación operativa se pierde con esquinas muy suaves.",
+      "Don't modificar las coordenadas de label-canvas (.lbl-*) sin actualizar src/lib/pdf.ts en el mismo cambio — preview y PDF comparten esas coordenadas a mano.",
+      "Don't introducir nuevos usos de los alias heredados (--color-primary, --text-primary, etc.) en globals.css — están en retiro; usar los tokens semánticos (--primary, --foreground, ...)."
+    ]
+  }
+}

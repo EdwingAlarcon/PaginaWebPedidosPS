@@ -3,6 +3,7 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import { LabelForm } from "@/components/label-form";
 import { createBlankLabelDraft, defaultSettings } from "@/lib/defaults";
 import { getLabelStore } from "@/lib/label-store";
+import { createBlankOrderDraft, getBusinessStore } from "@/lib/business-store";
 
 describe("LabelForm", () => {
   afterEach(() => {
@@ -101,5 +102,33 @@ describe("LabelForm", () => {
     expect(body.settings.labelSize).toEqual({ widthCm: 14, heightCm: 12 });
     expect(createObjectUrl).toHaveBeenCalled();
     expect(revokeObjectUrl).toHaveBeenCalledWith("blob:pdf");
+  });
+
+  it("prefills the recipient and links the real order id when opened from an order", async () => {
+    const orderDraft = createBlankOrderDraft();
+    orderDraft.customer.fullName = "Ana Perez";
+    orderDraft.customer.phone = "3101234567";
+    orderDraft.customer.department = "Antioquia";
+    orderDraft.customer.city = "Medellin";
+    orderDraft.customer.address = "Carrera 45 # 10-20";
+    orderDraft.customer.neighborhood = "Laureles";
+    orderDraft.items = [{ productCode: "SKU1", productName: "Bolso", category: "Bolsos", quantity: 1, unitPrice: 50000 }];
+    const savedOrder = await getBusinessStore().saveOrder(orderDraft);
+    window.history.pushState({}, "", `/crear?fromOrderId=${savedOrder.id}`);
+
+    render(<LabelForm />);
+
+    expect(await screen.findByDisplayValue("ANA PEREZ")).toBeInTheDocument();
+    fireEvent.change(within(screen.getByRole("group", { name: "Remitente" })).getByLabelText(/Telefono/), { target: { value: "3001234567" } });
+    fireEvent.change(within(screen.getByRole("group", { name: "Remitente" })).getByLabelText(/Departamento/), { target: { value: "VALLE DEL CAUCA" } });
+    await waitFor(() => expect(within(screen.getByRole("group", { name: "Remitente" })).getByRole("option", { name: "SANTIAGO DE CALI" })).toBeInTheDocument());
+    fireEvent.change(within(screen.getByRole("group", { name: "Remitente" })).getByLabelText(/Ciudad/), { target: { value: "SANTIAGO DE CALI" } });
+    fireEvent.change(within(screen.getByRole("group", { name: "Remitente" })).getByLabelText(/Direccion/), { target: { value: "Calle 1 # 2-3" } });
+    fireEvent.change(within(screen.getByRole("group", { name: "Datos del envio" })).getByLabelText(/Transportadora/), { target: { value: "Coordinadora" } });
+
+    fireEvent.click(screen.getByRole("button", { name: "Guardar rotulo" }));
+
+    expect(await screen.findByText("Rotulo guardado.")).toBeInTheDocument();
+    expect((await getLabelStore().listLabels())[0].orderId).toBe(savedOrder.id);
   });
 });
