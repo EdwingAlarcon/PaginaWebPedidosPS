@@ -1,8 +1,10 @@
 "use client";
 
 import Link from "next/link";
+import { useEffect, useState } from "react";
 import { formatCop } from "@/lib/format";
-import type { OrderRecord } from "@/lib/business-types";
+import { getBusinessStore } from "@/lib/business-store";
+import type { OrderEdit, OrderRecord } from "@/lib/business-types";
 import { Button } from "@/components/ui/button";
 import { Card, CardTitle } from "@/components/ui/card";
 import { Badge, StatusBadge } from "@/components/ui/badge";
@@ -35,8 +37,93 @@ function latestAdjustment(notes: string): string {
   return line?.replace(/^AJUSTE:\s*/, "") ?? "";
 }
 
+const FIELD_LABELS: Record<string, string> = {
+  customer: "Cliente",
+  orderDate: "Fecha",
+  status: "Estado",
+  notes: "Notas",
+  discount: "Descuento",
+  shippingCost: "Envio",
+  subtotal: "Subtotal",
+  total: "Total",
+};
+
+const CURRENCY_FIELDS = new Set(["discount", "shippingCost", "subtotal", "total"]);
+
+function formatEditValue(field: string, value: unknown): string {
+  if (value === null || value === undefined || value === "") return "-";
+  if (CURRENCY_FIELDS.has(field)) return formatCop(Number(value));
+  if (field === "customer" && typeof value === "object") {
+    return String((value as { fullName?: string }).fullName ?? "-");
+  }
+  return String(value);
+}
+
+type ItemChange = {
+  id: string;
+  productName: string;
+  removed?: boolean;
+  quantity?: { before: number; after: number };
+  unitPrice?: { before: number; after: number };
+};
+
+function formatItemChange(item: ItemChange): string {
+  if (item.removed) return "linea eliminada";
+  const parts: string[] = [];
+  if (item.quantity) parts.push(`cantidad ${item.quantity.before} -> ${item.quantity.after}`);
+  if (item.unitPrice) parts.push(`precio ${formatCop(item.unitPrice.before)} -> ${formatCop(item.unitPrice.after)}`);
+  return parts.join(", ");
+}
+
+function OrderEditEntry({ edit }: { edit: OrderEdit }) {
+  const fieldEntries = Object.entries(edit.changes).filter(([key]) => key !== "items");
+  const itemChanges = (edit.changes.items as ItemChange[] | undefined) ?? [];
+  return (
+    <div className="border-b border-border py-3 text-sm last:border-0">
+      <div className="flex justify-between text-xs text-foreground-muted">
+        <span>{new Date(edit.changedAt).toLocaleString("es-CO")}</span>
+        <span>{edit.changedBy}</span>
+      </div>
+      <ul className="mt-1 space-y-1">
+        {fieldEntries.map(([field, value]) => {
+          const { before, after } = value as { before: unknown; after: unknown };
+          return (
+            <li key={field}>
+              <span className="font-medium text-foreground">{FIELD_LABELS[field] ?? field}:</span>{" "}
+              {formatEditValue(field, before)} -&gt; {formatEditValue(field, after)}
+            </li>
+          );
+        })}
+        {itemChanges.map((item) => (
+          <li key={item.id}>
+            <span className="font-medium text-foreground">{item.productName}:</span> {formatItemChange(item)}
+          </li>
+        ))}
+      </ul>
+      {edit.reason ? <p className="mt-1 text-xs text-foreground-muted">Motivo: {edit.reason}</p> : null}
+    </div>
+  );
+}
+
 export function OrderDetailDrawer({ order, onEdit }: OrderDetailDrawerProps) {
   const adjustment = latestAdjustment(order.notes);
+  const [edits, setEdits] = useState<OrderEdit[]>([]);
+
+  useEffect(() => {
+    let active = true;
+    getBusinessStore()
+      .listOrderEdits(order.id)
+      .then((result) => {
+        if (active) setEdits(result);
+      })
+      .catch(() => {
+        if (active) setEdits([]);
+      });
+    return () => {
+      active = false;
+    };
+  }, [order.id]);
+
   return (
     <div className="flex flex-col gap-4">
       <div className="flex justify-end gap-2">
@@ -117,6 +204,17 @@ export function OrderDetailDrawer({ order, onEdit }: OrderDetailDrawerProps) {
           </div>
         )}
       </Card>
+
+      {edits.length > 0 ? (
+        <Card className="shadow-none">
+          <CardTitle>Historial de cambios</CardTitle>
+          <div className="mt-4">
+            {edits.map((edit) => (
+              <OrderEditEntry key={edit.id} edit={edit} />
+            ))}
+          </div>
+        </Card>
+      ) : null}
     </div>
   );
 }
