@@ -7,7 +7,7 @@ export function isPublicPath(pathname: string): boolean {
   return PUBLIC_PATHS.some((path) => pathname === path || pathname.startsWith(`${path}/`));
 }
 
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
   if (isPublicPath(pathname)) return NextResponse.next();
 
@@ -36,6 +36,6 @@ export async function middleware(request: NextRequest) {
   return response;
 }
 
-export const config = {
+export const proxyConfig = {
   matcher: ["/((?!_next/static|_next/image|favicon.ico|api/|.*\\.(?:png|jpg|jpeg|svg|webp)$).*)"],
 };
