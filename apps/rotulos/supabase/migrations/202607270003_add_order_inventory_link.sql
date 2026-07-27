@@ -111,7 +111,7 @@ begin
     raise exception 'order_not_found';
   end if;
 
-  v_cancelling := v_new_status = 'cancelled' and v_current.status <> 'cancelled';
+  v_cancelling := coalesce(v_new_status = 'cancelled' and v_current.status <> 'cancelled', false);
 
   if v_cancelling then
     for v_old_item in
@@ -127,7 +127,7 @@ begin
   v_shipping_cost := coalesce((p_patch->>'shippingCost')::numeric, v_current.shipping_cost);
 
   if v_items_patch is not null then
-    select array_agg((item->>'id')::uuid) into v_kept_ids
+    select array_remove(array_agg((item->>'id')::uuid), null) into v_kept_ids
     from jsonb_array_elements(v_items_patch) as item;
 
     if not v_cancelling then

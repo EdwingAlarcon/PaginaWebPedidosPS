@@ -192,7 +192,9 @@ export function OrderEditForm({ order, onSaved, onCancel, onDirtyChange }: Order
       {status ? <Alert variant={status.tone}>{status.message}</Alert> : null}
       {changedItems ? (
         <Alert variant="warning">
-          Este ajuste cambia el pedido como documento comercial. No modifica inventario.
+          Este ajuste cambia el pedido como documento comercial. Si las lineas estan vinculadas a
+          un producto de Inventario, el cambio de cantidad genera un movimiento de stock
+          automatico.
         </Alert>
       ) : null}
 

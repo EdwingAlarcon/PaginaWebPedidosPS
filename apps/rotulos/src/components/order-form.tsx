@@ -146,6 +146,8 @@ export function OrderForm() {
       nextErrors.items = "Agrega al menos un producto.";
     } else if (itemsWithName.some((item) => !item.productId)) {
       nextErrors.items = "Selecciona cada producto desde el listado de inventario.";
+    } else if (itemsWithName.some((item) => !Number.isFinite(item.quantity) || item.quantity <= 0)) {
+      nextErrors.items = "La cantidad de cada producto debe ser mayor a cero.";
     }
     const locationError = validateDepartmentCity(draft.customer);
     if (locationError === "department") nextErrors["customer.department"] = "Selecciona un departamento valido.";
@@ -169,12 +171,19 @@ export function OrderForm() {
         items: draft.items.filter((item) => item.productName.trim()),
       });
       setDraft(createBlankOrderDraft());
+      getInventoryStore().listProducts().then(setProducts).catch(() => undefined);
       setStatus({
         tone: "success",
         message: `Pedido guardado para ${saved.customer.fullName}. Total $${Math.round(saved.total).toLocaleString("es-CO")}.`,
       });
-    } catch {
-      setStatus({ tone: "danger", message: "No se pudo guardar el pedido. Intenta de nuevo." });
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      setStatus({
+        tone: "danger",
+        message: message.includes("stock_insuficiente")
+          ? "No hay stock suficiente para uno o mas productos. Revisa Inventario."
+          : "No se pudo guardar el pedido. Intenta de nuevo.",
+      });
     } finally {
       setSaving(false);
     }

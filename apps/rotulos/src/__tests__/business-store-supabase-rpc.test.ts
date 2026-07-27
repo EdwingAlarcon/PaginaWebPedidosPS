@@ -97,6 +97,16 @@ describe("createSupabaseBusinessStore (rama Supabase)", () => {
     expect(supabase.from).not.toHaveBeenCalled();
   });
 
+  it("propaga el error stock_insuficiente sin dejar estado parcial en el cliente", async () => {
+    const supabase = mockSupabase();
+    supabase.rpc.mockResolvedValue({ data: null, error: new Error("stock_insuficiente") });
+    vi.doMock("@/lib/supabase/client", () => ({ createClient: vi.fn(() => supabase) }));
+    const { getBusinessStore, createBlankOrderDraft } = await import("@/lib/business-store");
+
+    await expect(getBusinessStore().saveOrder(createBlankOrderDraft())).rejects.toThrow("stock_insuficiente");
+    expect(supabase.from).not.toHaveBeenCalled();
+  });
+
   it("mapea product_id de order_items a productId en el modelo de la app", async () => {
     const supabase = mockSupabase();
     const rowWithItem = {
