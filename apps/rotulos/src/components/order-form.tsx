@@ -4,7 +4,9 @@ import type { FormEvent } from "react";
 import { useEffect, useId, useMemo, useState } from "react";
 import { Plus, Trash2 } from "lucide-react";
 import { createBlankOrderDraft, getBusinessStore } from "@/lib/business-store";
-import type { Customer, OrderDraft, ProductCode } from "@/lib/business-types";
+import { getInventoryStore } from "@/lib/inventory-store";
+import type { Customer, OrderDraft } from "@/lib/business-types";
+import type { Product } from "@/lib/inventory-types";
 import { Card, CardTitle } from "@/components/ui/card";
 import { Input, Textarea } from "@/components/ui/input";
 import { FormField } from "@/components/ui/form-field";
@@ -52,7 +54,7 @@ function uniqueCustomerOptions(customers: Customer[]): Customer[] {
 export function OrderForm() {
   const [draft, setDraft] = useState<OrderDraft>(() => createBlankOrderDraft());
   const [customers, setCustomers] = useState<Customer[]>([]);
-  const [productCodes, setProductCodes] = useState<ProductCode[]>([]);
+  const [products, setProducts] = useState<Product[]>([]);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [status, setStatus] = useState<{ tone: "success" | "danger"; message: string } | null>(null);
   const [saving, setSaving] = useState(false);
@@ -61,7 +63,7 @@ export function OrderForm() {
 
   useEffect(() => {
     getBusinessStore().listCustomers().then(setCustomers).catch(() => setCustomers([]));
-    getBusinessStore().listProductCodes().then(setProductCodes).catch(() => setProductCodes([]));
+    getInventoryStore().listProducts().then(setProducts).catch(() => setProducts([]));
   }, []);
 
   const subtotal = useMemo(
@@ -102,25 +104,29 @@ export function OrderForm() {
     }));
   }
 
-  function handleProductCodeChange(index: number, code: string) {
-    setItem(index, "productCode", code.toUpperCase());
-    const match = productCodes.find((entry) => entry.code.toUpperCase() === code.toUpperCase());
-    if (match) {
-      setDraft((current) => ({
-        ...current,
-        items: current.items.map((item, itemIndex) =>
-          itemIndex === index
-            ? { ...item, productName: match.productName, category: match.category, unitPrice: match.unitPrice }
-            : item,
-        ),
-      }));
-    }
+  function handleProductNameChange(index: number, name: string) {
+    setItem(index, "productName", name);
+    const match = products.find((product) => product.name.trim().toUpperCase() === name.trim().toUpperCase());
+    setDraft((current) => ({
+      ...current,
+      items: current.items.map((item, itemIndex) =>
+        itemIndex === index
+          ? {
+              ...item,
+              productId: match?.id ?? null,
+              productCode: match?.sku ?? item.productCode,
+              category: match?.category ?? item.category,
+              unitPrice: match?.unitPrice ?? item.unitPrice,
+            }
+          : item,
+      ),
+    }));
   }
 
   function addItem() {
     setDraft((current) => ({
       ...current,
-      items: [...current.items, { productCode: "", productName: "", category: "", quantity: 1, unitPrice: 0 }],
+      items: [...current.items, { productId: null, productCode: "", productName: "", category: "", quantity: 1, unitPrice: 0 }],
     }));
   }
 
@@ -135,7 +141,12 @@ export function OrderForm() {
 
     const nextErrors: Record<string, string> = {};
     if (!draft.customer.fullName.trim()) nextErrors.customer = "El nombre del cliente es obligatorio.";
-    if (!draft.items.some((item) => item.productName.trim())) nextErrors.items = "Agrega al menos un producto.";
+    const itemsWithName = draft.items.filter((item) => item.productName.trim());
+    if (itemsWithName.length === 0) {
+      nextErrors.items = "Agrega al menos un producto.";
+    } else if (itemsWithName.some((item) => !item.productId)) {
+      nextErrors.items = "Selecciona cada producto desde el listado de inventario.";
+    }
     const locationError = validateDepartmentCity(draft.customer);
     if (locationError === "department") nextErrors["customer.department"] = "Selecciona un departamento valido.";
     if (locationError === "city") nextErrors["customer.city"] = "Selecciona una ciudad que pertenezca al departamento.";
@@ -229,8 +240,8 @@ export function OrderForm() {
           ) : null}
 
           <datalist id={productListId}>
-            {productCodes.map((entry) => (
-              <option key={entry.id} value={entry.code} />
+            {products.map((product) => (
+              <option key={product.id} value={product.name} />
             ))}
           </datalist>
 
@@ -241,16 +252,20 @@ export function OrderForm() {
                 className="grid grid-cols-2 gap-3 rounded-md border border-border p-3 sm:grid-cols-6 sm:items-end"
               >
                 <FormField label="Codigo" className="sm:col-span-1">
-                  <Input
-                    list={productListId}
-                    value={item.productCode}
-                    onChange={(event) => handleProductCodeChange(index, event.target.value)}
-                  />
+                  <Input value={item.productCode} disabled />
                 </FormField>
                 <FormField label="Producto" className="col-span-2 sm:col-span-2">
-                  <Input value={item.productName} onChange={(event) => setItem(index, "productName", event.target.value)} />
+                  <Input
+                    list={productListId}
+                    value={item.productName}
+                    onChange={(event) => handleProductNameChange(index, event.target.value)}
+                  />
                 </FormField>
-                <FormField label="Cantidad" className="sm:col-span-1">
+                <FormField
+                  label="Cantidad"
+                  className="sm:col-span-1"
+                  hint={item.productId ? `Stock disponible: ${products.find((product) => product.id === item.productId)?.currentStock ?? 0}` : undefined}
+                >
                   <Input
                     type="number"
                     min={1}
