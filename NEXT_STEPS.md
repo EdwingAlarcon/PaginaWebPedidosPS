@@ -221,23 +221,31 @@ Ninguno. La auditoría pre-agosto (2026-07-20) cerró los hallazgos
 accionables, se desplegó y Edwing verificó el checklist manual completo.
 La app está lista para operar con pedidos reales de agosto.
 
-### Continuar mañana: backlog del critique de "Crear rótulo" (P2/P3)
+### Backlog del critique de "Crear rótulo": P2/P3 resueltos (2026-07-27)
 
 Del critique persistido en `.impeccable/critique/2026-07-26T22-55-14Z__apps-rotulos-src-app-app-crear-page-tsx.md`
-(P0 y ambos P1 ya resueltos, ver arriba):
+(P0 y ambos P1 resueltos el 2026-07-26, ver arriba):
 
-- **[P2] Resumen de validación no señala ni navega a los campos con
-  error.** `label-form.tsx`, `validation-summary`: dice "Revisa N campos"
-  sin decir cuáles ni hacer scroll/foco al primero. Fix propuesto:
-  listar labels de campos con error como enlaces (`<a href="#fieldId">`)
-  o mover foco al primer campo inválido al hacer clic en Guardar.
-  Comando sugerido: `/impeccable clarify`.
-- **[P3] Cadena de selects de ubicación sin refuerzo visual de
-  progreso.** `location-fields.tsx`: Departamento→Ciudad→Localidad→Barrio
-  se ven idénticos disabled/enabled, solo cambia el placeholder. Fix
-  propuesto: reforzar estilo visual del estado disabled, mover el hint
-  de dependencia al `hint` del `FormField`. Comando sugerido:
-  `/impeccable layout`.
+- **[P2] resuelto.** El resumen de validación (`label-form.tsx`,
+  `validation-summary`) ahora lista cada campo inválido como enlace
+  (`<a href="#fieldId">`) que hace scroll y foco al input real; además
+  `validateDraft()` enfoca automáticamente el primer campo inválido al
+  fallar Guardar/Imprimir/Descargar. Requirió dar `id`/`htmlFor`
+  explícitos y estables (iguales a la clave de error, ej.
+  `sender.department`) a todos los campos validables en
+  `sender-fields.tsx`, `recipient-fields.tsx`, `shipment-fields.tsx` y
+  `location-fields.tsx`; `form-field.tsx` se ajustó para seguir
+  clonando `aria-describedby`/`aria-invalid` en el hijo incluso cuando
+  se pasa `htmlFor` explícito (antes solo pasaba con id autogenerado).
+- **[P3] resuelto.** Los selects dependientes de ubicación
+  (ciudad/localidad/barrio en `location-fields.tsx`) muestran borde
+  punteado + fondo `surface-muted` cuando están deshabilitados, y el
+  motivo ("Selecciona primero un departamento.", etc.) se movió del
+  placeholder al `hint` del `FormField` (visible permanentemente, no
+  solo al abrir el select).
+- Tests nuevos en `label-form.test.tsx` y `location-fields.test.tsx`
+  (TDD), 186/186 tests, lint/typecheck/build limpios. Desplegado a
+  producción (push a `main`, auto-deploy).
 - **Observaciones menores del critique, no priorizadas:** `codAmount` en
   `shipment-fields.tsx` usa `Input` plano en vez de `CurrencyInput` (sí
   usado en `order-form.tsx` para el mismo tipo de dato); botón "Guardar
