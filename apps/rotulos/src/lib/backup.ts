@@ -6,6 +6,7 @@ export type FullBackupPayload = {
   customers: unknown[];
   orders: unknown[];
   orderItems: unknown[];
+  orderEdits: unknown[];
   productCodes: unknown[];
   products: unknown[];
   stockMovements: unknown[];
@@ -17,17 +18,18 @@ export async function buildFullBackupPayload(
   supabase: SupabaseClient,
   generatedBy: string,
 ): Promise<{ payload: FullBackupPayload } | { error: string }> {
-  const [customers, orders, orderItems, productCodes, products, stockMovements, labels, settings] = await Promise.all([
+  const [customers, orders, orderItems, orderEdits, productCodes, products, stockMovements, labels, settings] = await Promise.all([
     supabase.from("customers").select("*"),
     supabase.from("orders").select("*"),
     supabase.from("order_items").select("*"),
+    supabase.from("order_edits").select("*"),
     supabase.from("product_codes").select("*"),
     supabase.from("products").select("*"),
     supabase.from("stock_movements").select("*"),
     supabase.from("labels").select("*"),
     supabase.from("settings").select("*"),
   ]);
-  const failed = [customers, orders, orderItems, productCodes, products, stockMovements, labels, settings].find(
+  const failed = [customers, orders, orderItems, orderEdits, productCodes, products, stockMovements, labels, settings].find(
     (result) => result.error,
   );
   if (failed?.error) return { error: failed.error.message };
@@ -39,6 +41,7 @@ export async function buildFullBackupPayload(
       customers: customers.data ?? [],
       orders: orders.data ?? [],
       orderItems: orderItems.data ?? [],
+      orderEdits: orderEdits.data ?? [],
       productCodes: productCodes.data ?? [],
       products: products.data ?? [],
       stockMovements: stockMovements.data ?? [],

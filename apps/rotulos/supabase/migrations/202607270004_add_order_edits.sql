@@ -1,7 +1,7 @@
 create table public.order_edits (
   id uuid primary key default gen_random_uuid(),
   order_id uuid not null references public.orders(id) on delete cascade,
-  changed_by text not null default (auth.jwt() ->> 'email'),
+  changed_by text not null default (coalesce(auth.jwt() ->> 'email', auth.uid()::text, 'sistema')),
   changed_at timestamptz not null default now(),
   changes jsonb not null,
   reason text
@@ -187,6 +187,10 @@ begin
     updated_at = now()
   where id = p_order_id
   returning * into v_current;
+
+  if v_reason is null and v_changes ? 'customer' and (select count(*) from jsonb_object_keys(v_changes)) = 1 then
+    v_changes := '{}'::jsonb;
+  end if;
 
   if v_changes <> '{}'::jsonb then
     insert into public.order_edits (order_id, changes, reason)

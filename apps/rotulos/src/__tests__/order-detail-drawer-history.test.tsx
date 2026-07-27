@@ -63,4 +63,34 @@ describe("OrderDetailDrawer - historial de cambios", () => {
 
     vi.restoreAllMocks();
   });
+
+  it("muestra los cambios de items: precio/cantidad modificada y lineas eliminadas", async () => {
+    vi.spyOn(businessStoreModule, "getBusinessStore").mockReturnValue({
+      listOrderEdits: vi.fn().mockResolvedValue([
+        {
+          id: "edit-2",
+          orderId: "order-1",
+          changedBy: "edwing@example.com",
+          changedAt: "2026-07-27T16:00:00Z",
+          changes: {
+            items: [
+              { id: "item-1", productName: "BOLSO", unitPrice: { before: 40000, after: 35000 } },
+              { id: "item-2", productName: "PULSERA", removed: true },
+            ],
+          },
+          reason: null,
+        },
+      ]),
+    } as unknown as BusinessStore);
+
+    render(<OrderDetailDrawer order={baseOrder()} />);
+
+    expect(await screen.findByText("Historial de cambios")).toBeInTheDocument();
+    expect(screen.getByText(/BOLSO:/)).toBeInTheDocument();
+    expect(screen.getByText(/precio.*\$\s?40\.000.*\$\s?35\.000/)).toBeInTheDocument();
+    expect(screen.getByText(/PULSERA:/)).toBeInTheDocument();
+    expect(screen.getByText(/linea eliminada/i)).toBeInTheDocument();
+
+    vi.restoreAllMocks();
+  });
 });
