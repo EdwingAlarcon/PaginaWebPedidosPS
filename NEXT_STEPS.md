@@ -246,14 +246,16 @@ Del critique persistido en `.impeccable/critique/2026-07-26T22-55-14Z__apps-rotu
 - Tests nuevos en `label-form.test.tsx` y `location-fields.test.tsx`
   (TDD), 186/186 tests, lint/typecheck/build limpios. Desplegado a
   producción (push a `main`, auto-deploy).
-- **Observaciones menores del critique, no priorizadas:** `codAmount` en
-  `shipment-fields.tsx` usa `Input` plano en vez de `CurrencyInput` (sí
-  usado en `order-form.tsx` para el mismo tipo de dato); botón "Guardar
-  rotulo" no distingue crear vs. actualizar cuando se llega vía `?id=`;
-  `Number(event.target.value)` sin guard de `NaN` para campo vacío en
-  `packageCount`/`codAmount`; handlers `onInput`+`onChange` duplicados en
-  varios campos de `sender-fields.tsx`/`recipient-fields.tsx` (llaman a
-  la misma función dos veces por evento, redundante pero no roto).
+- **Observaciones menores del critique, resueltas (2026-07-27):**
+  `codAmount` en `shipment-fields.tsx` ahora usa `CurrencyInput` (igual
+  que `order-form.tsx`); el botón de guardar dice "Guardar rotulo" para
+  uno nuevo y "Guardar cambios" cuando `draft.id` ya existe
+  (`label-actions.tsx`, `isEditing` prop); `packageCount` ya no puede
+  quedar en `NaN` al vaciar el campo; se eliminaron los handlers
+  `onInput`+`onChange` duplicados en `sender-fields.tsx`,
+  `recipient-fields.tsx` y `shipment-fields.tsx`. TDD, 189/189 tests.
+  Backlog completo del critique de `/impeccable` (P0-P3 + menores) ya
+  cerrado.
 
 ### Importantes después de agosto
 
