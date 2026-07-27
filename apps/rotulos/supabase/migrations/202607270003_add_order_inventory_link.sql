@@ -148,6 +148,7 @@ begin
 
     for v_item in select * from jsonb_array_elements(v_items_patch) loop
       if not v_cancelling then
+        v_old_item := null;
         select product_id, quantity into v_old_item
         from public.order_items where id = (v_item->>'id')::uuid and order_id = p_order_id;
 
