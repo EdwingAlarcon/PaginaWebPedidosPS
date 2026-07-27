@@ -1,6 +1,8 @@
 # Diseño: inventario real vinculado a pedidos
 
-Estado: **aprobado, sin implementar**. Brainstorming del 2026-07-27, ítem
+Estado: **código implementado 2026-07-27, pendiente de validación manual
+con Edwing** (correr la migración + probar los 4 escenarios de abajo).
+Brainstorming del 2026-07-27, ítem
 "Importante después de agosto" de `NEXT_STEPS.md`. Depende de la RPC
 transaccional de la tarea previa (`save_order`/`update_order`,
 `202607270002_add_order_transaction_rpcs.sql`) — este diseño extiende esas

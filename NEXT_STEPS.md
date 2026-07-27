@@ -279,12 +279,25 @@ Del critique persistido en `.impeccable/critique/2026-07-26T22-55-14Z__apps-rotu
   anterior antes de operar con volumen real de agosto.
 - **Impresión física real del rótulo** con la impresora final: todavía no
   probada (solo validación en pantalla/PDF hasta ahora).
-- **Inventario real vinculado a pedidos.** La edición actual cambia el
-  pedido como documento comercial, no el stock. Para que los pedidos
-  descuenten/devuelvan inventario hace falta diseño y migración aparte:
-  enlazar `order_items.product_id` con `products.id`, definir movimientos
-  compensatorios al editar/cancelar/devolver, reglas por estado del pedido y
-  una tabla de auditoria dedicada para ajustes.
+- **Inventario real vinculado a pedidos — código listo 2026-07-27,
+  pendiente de validación manual.** Diseño completo en
+  `docs/superpowers/specs/2026-07-27-inventario-real-pedidos-design.md`.
+  `order_items.product_id` y `stock_movements.order_id` (migración
+  `202607270003_add_order_inventory_link.sql`), `save_order`/`update_order`
+  extendidos para generar movimientos automáticos, `order-form.tsx` ahora
+  elige el producto desde `Inventario` (obligatorio) en vez de
+  `product_codes`. **Antes de operar con esto:**
+  1. Edwing corre la migración en el SQL Editor de Supabase.
+  2. Crear un producto de prueba en Inventario con stock exacto (ej. 5
+     unidades) y armar un pedido nuevo con esa cantidad exacta — debe
+     guardar y el stock debe quedar en 0.
+  3. Intentar un pedido con cantidad mayor al stock disponible — debe
+     fallar y **no** crear el pedido ni tocar el stock.
+  4. Cancelar un pedido con producto vinculado — el stock debe volver a
+     su valor original.
+  5. Editar un pedido y bajar la cantidad de una línea — debe aparecer un
+     movimiento de entrada por la diferencia en el historial de
+     Inventario del producto.
 - **Auditoría/historial de ajustes de pedidos.** Hoy el motivo del ajuste se
   guarda como texto libre en `orders.notes` (`AJUSTE: ...`); no hay tabla ni
   vista dedicada para ver el historial de cambios de un pedido.
