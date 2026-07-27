@@ -259,11 +259,24 @@ Del critique persistido en `.impeccable/critique/2026-07-26T22-55-14Z__apps-rotu
 
 ### Importantes después de agosto
 
-- **RPC transaccional para `saveOrder`/`updateOrder`/`mergeCustomers`.** Hoy
-  son varias escrituras HTTP secuenciales sin transacción de base de datos;
-  ver diseño propuesto en
-  `docs/superpowers/specs/2026-07-20-transacciones-rpc-design.md`. No
-  bloqueante, prioridad media — implementar `save_order` primero.
+- ~~RPC transaccional para `saveOrder`/`updateOrder`/`mergeCustomers`~~
+  codigo listo 2026-07-27 (los 3, no solo `save_order`): migracion
+  `202607270002_add_order_transaction_rpcs.sql` agrega
+  `save_order(jsonb, jsonb, jsonb)`, `update_order(uuid, jsonb)` y
+  `merge_customers(uuid, uuid)` como funciones `security definer` (mismo
+  patron que `reserve_order_number`/`apply_stock_movement`), y
+  `business-store.ts` ya llama a cada una via `supabase.rpc(...)` en vez
+  de las llamadas HTTP secuenciales. `isMissingLocalityColumnError`
+  (fallback legacy) se elimino, ya no hace falta. Tests unitarios nuevos
+  mockeando `supabase.rpc` (207/207 tests), pero **sin poder probar el
+  rollback real de Postgres desde vitest** (mock, no Postgres real) —
+  ver limitacion documentada en
+  `docs/superpowers/specs/2026-07-20-transacciones-rpc-design.md`.
+  **Pendiente antes de confiar en esto para pedidos reales:** (1) Edwing
+  corre la migracion en el SQL Editor de Supabase; (2) probar juntos un
+  pedido real end-to-end (crear, editar cantidades, unificar clientes)
+  en produccion para confirmar que el comportamiento es identico al
+  anterior antes de operar con volumen real de agosto.
 - **Impresión física real del rótulo** con la impresora final: todavía no
   probada (solo validación en pantalla/PDF hasta ahora).
 - **Inventario real vinculado a pedidos.** La edición actual cambia el

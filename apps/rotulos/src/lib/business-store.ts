@@ -297,12 +297,6 @@ function totalsFromItems(items: OrderItem[], discount: number, shippingCost: num
   return { subtotal, total: Math.max(0, subtotal - discount + shippingCost) };
 }
 
-function isMissingLocalityColumnError(error: unknown): boolean {
-  if (!error || typeof error !== "object") return false;
-  const maybeError = error as { code?: string; message?: string };
-  return maybeError.code === "PGRST204" && (maybeError.message ?? "").includes("locality");
-}
-
 function readStorage<T>(key: string, fallback: T): T {
   if (typeof window === "undefined") return fallback;
   try {
@@ -442,6 +436,16 @@ function createLocalBusinessStore(): BusinessStore {
   };
 }
 
+async function getSupabaseOrder(supabase: NonNullable<ReturnType<typeof createClient>>, id: string): Promise<OrderRecord> {
+  const { data, error } = await supabase
+    .from("orders")
+    .select("*, order_items(*)")
+    .eq("id", id)
+    .single<OrderRow>();
+  if (error) throw error;
+  return rowToOrder(data);
+}
+
 function createSupabaseBusinessStore(): BusinessStore | null {
   const supabase = createClient();
   if (!supabase) return null;
@@ -458,136 +462,27 @@ function createSupabaseBusinessStore(): BusinessStore | null {
     async saveOrder(draft) {
       const normalizedDraft = normalizeOrderDraft(draft);
       const computed = totals(normalizedDraft.items, normalizedDraft.discount, normalizedDraft.shippingCost);
-      const { data: existingCustomer, error: lookupError } = normalizedDraft.customer.phone
-        ? await supabase.from("customers").select("*").eq("phone", normalizedDraft.customer.phone).maybeSingle<CustomerRow>()
-        : { data: null, error: null };
-      if (lookupError) throw lookupError;
-
-      const customerPayload = {
-        full_name: normalizedDraft.customer.fullName,
-        phone: normalizedDraft.customer.phone,
-        email: normalizedDraft.customer.email,
-        department: normalizedDraft.customer.department,
-        city: normalizedDraft.customer.city,
-        locality: normalizedDraft.customer.locality ?? "",
-        address: normalizedDraft.customer.address,
-        neighborhood: normalizedDraft.customer.neighborhood,
-      };
-      const saveCustomer = (payload: typeof customerPayload | Omit<typeof customerPayload, "locality">) => existingCustomer
-        ? supabase
-          .from("customers")
-          .update(payload)
-          .eq("id", existingCustomer.id)
-          .select("*")
-          .single<CustomerRow>()
-        : supabase
-          .from("customers")
-          .insert(payload)
-          .select("*")
-          .single<CustomerRow>();
-      let { data: customer, error: customerError } = await saveCustomer(customerPayload);
-      if (isMissingLocalityColumnError(customerError)) {
-        const { locality: _locality, ...fallbackPayload } = customerPayload;
-        const retry = await saveCustomer(fallbackPayload);
-        customer = retry.data;
-        customerError = retry.error;
-      }
-      if (customerError) throw customerError;
-      if (!customer) throw new Error("customer_save_failed");
-
-      const { data: order, error: orderError } = await supabase
-        .from("orders")
-        .insert({
-          customer_id: customer.id,
-          customer_snapshot: normalizedDraft.customer,
-          order_date: normalizedDraft.orderDate,
+      const { data: order, error } = await supabase.rpc("save_order", {
+        p_customer: normalizedDraft.customer,
+        p_order: {
+          orderDate: normalizedDraft.orderDate,
           status: normalizedDraft.status,
           notes: normalizedDraft.notes,
           discount: normalizedDraft.discount,
-          shipping_cost: normalizedDraft.shippingCost,
+          shippingCost: normalizedDraft.shippingCost,
           subtotal: computed.subtotal,
           total: computed.total,
-        })
-        .select("*")
-        .single<OrderRow>();
-      if (orderError) throw orderError;
-
-      const { data: items, error: itemsError } = await supabase
-        .from("order_items")
-        .insert(normalizedDraft.items.map((item) => ({
-          order_id: order.id,
-          product_code: item.productCode,
-          product_name: item.productName,
-          category: item.category,
-          quantity: item.quantity,
-          unit_price: item.unitPrice,
-          total: item.quantity * item.unitPrice,
-        })))
-        .select("*")
-        .returns<OrderItemRow[]>();
-      if (itemsError) throw itemsError;
-      return rowToOrder({ ...order, order_items: items ?? [] });
+        },
+        p_items: normalizedDraft.items,
+      });
+      if (error) throw error;
+      return getSupabaseOrder(supabase, (order as OrderRow).id);
     },
     async updateOrder(id, patch) {
       const normalizedPatch = normalizeOrderPatch(patch);
-      const { data: existing, error: lookupError } = await supabase
-        .from("orders")
-        .select("*, order_items(*)")
-        .eq("id", id)
-        .single<OrderRow>();
-      if (lookupError) throw lookupError;
-      const current = rowToOrder(existing);
-      const items = normalizedPatch.items ?? current.items;
-      const discount = normalizedPatch.discount ?? current.discount;
-      const shippingCost = normalizedPatch.shippingCost ?? current.shippingCost;
-      const computed = totalsFromItems(items, discount, shippingCost);
-      const notes = notesWithAdjustment(normalizedPatch.notes ?? current.notes, normalizedPatch.adjustmentReason);
-      const { data, error } = await supabase
-        .from("orders")
-        .update({
-          ...(normalizedPatch.customer !== undefined ? { customer_snapshot: normalizedPatch.customer } : {}),
-          ...(normalizedPatch.orderDate !== undefined ? { order_date: normalizedPatch.orderDate } : {}),
-          ...(normalizedPatch.status !== undefined ? { status: normalizedPatch.status } : {}),
-          notes,
-          discount,
-          shipping_cost: shippingCost,
-          subtotal: computed.subtotal,
-          total: computed.total,
-          updated_at: new Date().toISOString(),
-        })
-        .eq("id", id)
-        .select("*, order_items(*)")
-        .single<OrderRow>();
+      const { error } = await supabase.rpc("update_order", { p_order_id: id, p_patch: normalizedPatch });
       if (error) throw error;
-      if (normalizedPatch.items !== undefined) {
-        const nextIds = new Set(normalizedPatch.items.map((item) => item.id));
-        const removedIds = current.items.map((item) => item.id).filter((id) => !nextIds.has(id));
-        if (removedIds.length > 0) {
-          const { error: deleteError } = await supabase.from("order_items").delete().in("id", removedIds);
-          if (deleteError) throw deleteError;
-        }
-        for (const item of normalizedPatch.items) {
-          const { error: itemError } = await supabase
-            .from("order_items")
-            .update({
-              product_code: item.productCode,
-              product_name: item.productName,
-              category: item.category,
-              quantity: item.quantity,
-              unit_price: item.unitPrice,
-              total: item.quantity * item.unitPrice,
-            })
-            .eq("id", item.id);
-          if (itemError) throw itemError;
-        }
-      }
-      const { data: refreshed, error: refreshError } = await supabase
-        .from("orders")
-        .select("*, order_items(*)")
-        .eq("id", id)
-        .single<OrderRow>();
-      if (refreshError) throw refreshError;
-      return rowToOrder(refreshed ?? data);
+      return getSupabaseOrder(supabase, id);
     },
     async listCustomers() {
       const { data, error } = await supabase.from("customers").select("*").order("updated_at", { ascending: false }).returns<CustomerRow[]>();
@@ -617,34 +512,9 @@ function createSupabaseBusinessStore(): BusinessStore | null {
     },
     async mergeCustomers(sourceId, targetId) {
       if (sourceId === targetId) throw new Error("same_customer");
-      const [{ data: sourceRow, error: sourceError }, { data: targetRow, error: targetError }, { data: ordersData, error: ordersError }] = await Promise.all([
-        supabase.from("customers").select("*").eq("id", sourceId).single<CustomerRow>(),
-        supabase.from("customers").select("*").eq("id", targetId).single<CustomerRow>(),
-        supabase.from("orders").select("*, order_items(*)").returns<OrderRow[]>(),
-      ]);
-      if (sourceError) throw sourceError;
-      if (targetError) throw targetError;
-      if (ordersError) throw ordersError;
-      const source = rowToCustomer(sourceRow);
-      const target = rowToCustomer(targetRow);
-      const targetSnapshot = snapshotFromCustomer(target);
-      const affectedOrders = (ordersData ?? []).map(rowToOrder).filter((order) => isRelatedOrderToCustomer(order, source));
-
-      for (const order of affectedOrders) {
-        const { error } = await supabase
-          .from("orders")
-          .update({
-            customer_id: target.id,
-            customer_snapshot: targetSnapshot,
-            updated_at: new Date().toISOString(),
-          })
-          .eq("id", order.id);
-        if (error) throw error;
-      }
-
-      const { error: deleteError } = await supabase.from("customers").delete().eq("id", source.id);
-      if (deleteError) throw deleteError;
-      return { updatedOrders: affectedOrders.length };
+      const { data, error } = await supabase.rpc("merge_customers", { p_source_id: sourceId, p_target_id: targetId });
+      if (error) throw error;
+      return { updatedOrders: Number(data) };
     },
     async listProductCodes() {
       const { data, error } = await supabase.from("product_codes").select("*").order("code").returns<ProductCodeRow[]>();
