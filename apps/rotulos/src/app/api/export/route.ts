@@ -2,6 +2,7 @@ import { NextRequest } from "next/server";
 import { requireSession } from "@/lib/require-session";
 import { createServiceClient } from "@/lib/supabase/server";
 import { toCsv } from "@/lib/export-csv";
+import { buildFullBackupPayload } from "@/lib/backup";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -76,36 +77,11 @@ export async function GET(request: NextRequest) {
   const date = todayStamp();
 
   if (format === "json") {
-    const [customers, orders, orderItems, productCodes, products, stockMovements, labels, settings] = await Promise.all([
-      supabase.from("customers").select("*"),
-      supabase.from("orders").select("*"),
-      supabase.from("order_items").select("*"),
-      supabase.from("product_codes").select("*"),
-      supabase.from("products").select("*"),
-      supabase.from("stock_movements").select("*"),
-      supabase.from("labels").select("*"),
-      supabase.from("settings").select("*"),
-    ]);
-    const failed = [customers, orders, orderItems, productCodes, products, stockMovements, labels, settings].find(
-      (result) => result.error,
-    );
-    if (failed?.error) {
-      return Response.json({ error: "export_failed", detail: failed.error.message }, { status: 500 });
+    const result = await buildFullBackupPayload(supabase, session.email);
+    if ("error" in result) {
+      return Response.json({ error: "export_failed", detail: result.error }, { status: 500 });
     }
-
-    const payload = {
-      generatedAt: new Date().toISOString(),
-      generatedBy: session.email,
-      customers: customers.data ?? [],
-      orders: orders.data ?? [],
-      orderItems: orderItems.data ?? [],
-      productCodes: productCodes.data ?? [],
-      products: products.data ?? [],
-      stockMovements: stockMovements.data ?? [],
-      labels: labels.data ?? [],
-      settings: settings.data ?? [],
-    };
-    return jsonFileResponse(payload, `backup-rotulos-${date}.json`);
+    return jsonFileResponse(result.payload, `backup-rotulos-${date}.json`);
   }
 
   const tableParam = request.nextUrl.searchParams.get("table");

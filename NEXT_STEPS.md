@@ -278,10 +278,20 @@ Del critique persistido en `.impeccable/critique/2026-07-26T22-55-14Z__apps-rotu
 
 ### Mejoras futuras
 
-- **Backups automáticos.** Hoy el único respaldo es manual, vía
-  `Configuración → Exportar datos` (CSV/JSON). Evaluar si el plan de
-  Supabase contratado incluye point-in-time recovery, o programar un
-  export periódico.
+- ~~Backups automáticos~~ resuelto 2026-07-27: plan Supabase es Free
+  (sin point-in-time recovery), asi que se agrego un cron de Vercel
+  (`vercel.json`, diario 06:00 UTC) que llama `/api/cron/backup`
+  (`route.ts`) y sube un backup JSON completo (mismo payload que
+  `/api/export?format=json`, extraido a `src/lib/backup.ts`) al bucket
+  de Storage `backups`, podando automaticamente para conservar solo los
+  ultimos 30. **Pendientes manuales de Edwing antes de que funcione en
+  produccion:** (1) correr la migracion
+  `202607270001_create_backups_bucket.sql` en el SQL Editor de Supabase
+  (crea el bucket privado `backups`); (2) definir la variable de entorno
+  `CRON_SECRET` en Vercel (Settings -> Environment Variables) con un
+  valor random — Vercel la manda como `Authorization: Bearer <valor>` al
+  invocar el cron, y la ruta la valida. Sin esas dos cosas el cron
+  responde 401/500 sin romper nada mas.
 - ~~UI para gestionar `allowed_users`~~ resuelto 2026-07-27: nueva
   seccion "Usuarios permitidos" en Configuracion
   (`allowed-users-admin.tsx`) para listar, agregar y eliminar correos
