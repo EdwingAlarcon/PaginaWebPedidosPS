@@ -286,7 +286,9 @@ Del critique persistido en `.impeccable/critique/2026-07-26T22-55-14Z__apps-rotu
   `202607270003_add_order_inventory_link.sql`), `save_order`/`update_order`
   extendidos para generar movimientos automáticos, `order-form.tsx` ahora
   elige el producto desde `Inventario` (obligatorio) en vez de
-  `product_codes`. **Antes de operar con esto:**
+  `product_codes`. Confirmado por Edwing: el catálogo de Inventario ya
+  está poblado con el catálogo real del negocio, no hace falta seeding.
+  **Antes de operar con esto:**
   1. Edwing corre la migración en el SQL Editor de Supabase.
   2. Crear un producto de prueba en Inventario con stock exacto (ej. 5
      unidades) y armar un pedido nuevo con esa cantidad exacta — debe
@@ -298,6 +300,17 @@ Del critique persistido en `.impeccable/critique/2026-07-26T22-55-14Z__apps-rotu
   5. Editar un pedido y bajar la cantidad de una línea — debe aparecer un
      movimiento de entrada por la diferencia en el historial de
      Inventario del producto.
+  6. Editar un pedido AUMENTANDO la cantidad de una línea — debe generar
+     una salida adicional; si no hay stock suficiente para el aumento, el
+     ajuste completo debe fallar y NO modificar el pedido.
+  7. Eliminar una línea de un pedido durante una edición — debe devolver
+     el stock completo de esa línea.
+  8. Editar un pedido histórico/importado (sin `product_id` en sus
+     líneas) — debe guardar sin error y sin generar ningún movimiento de
+     stock.
+  Limitación conocida (no es tarea pendiente por ahora): cancelar y luego
+  "descancelar" un pedido (volverlo a `pending`) no vuelve a descontar el
+  stock automáticamente.
 - **Auditoría/historial de ajustes de pedidos.** Hoy el motivo del ajuste se
   guarda como texto libre en `orders.notes` (`AJUSTE: ...`); no hay tabla ni
   vista dedicada para ver el historial de cambios de un pedido.
