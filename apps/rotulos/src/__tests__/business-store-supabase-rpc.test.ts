@@ -26,7 +26,7 @@ const ORDER_ROW = {
 };
 
 function mockSupabase() {
-  const rpc = vi.fn(async () => ({ data: ORDER_ROW, error: null }));
+  const rpc = vi.fn(async (): Promise<{ data: unknown; error: unknown }> => ({ data: ORDER_ROW, error: null }));
   const single = vi.fn(async () => ({ data: ORDER_ROW, error: null }));
   const eq = vi.fn(() => ({ single }));
   const select = vi.fn(() => ({ eq }));
