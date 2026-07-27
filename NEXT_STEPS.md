@@ -282,8 +282,15 @@ Del critique persistido en `.impeccable/critique/2026-07-26T22-55-14Z__apps-rotu
   `Configuración → Exportar datos` (CSV/JSON). Evaluar si el plan de
   Supabase contratado incluye point-in-time recovery, o programar un
   export periódico.
-- **UI para gestionar `allowed_users`.** Hoy agregar un usuario nuevo
-  requiere tocar la tabla directo en Supabase; no hay pantalla de admin.
+- ~~UI para gestionar `allowed_users`~~ resuelto 2026-07-27: nueva
+  seccion "Usuarios permitidos" en Configuracion
+  (`allowed-users-admin.tsx`) para listar, agregar y eliminar correos
+  permitidos, via `/api/allowed-users` (GET/POST/DELETE, protegida por
+  sesion + service role, mismo patron que `/api/export`). No requirio
+  migracion: RLS de `allowed_users` solo permite que cada usuario lea su
+  propia fila, pero el service role la bypassa igual que en export. Un
+  usuario no puede eliminarse a si mismo (evita bloqueo accidental). TDD,
+  199/199 tests.
 - **Bloque de importación Excel pendiente:** cliente `ZAIDA`, hoja `JULIO
   2026`, fila 2 quedó excluida por error real de datos (falta
   cantidad/precio) — revisar a mano contra el Excel si hace falta
