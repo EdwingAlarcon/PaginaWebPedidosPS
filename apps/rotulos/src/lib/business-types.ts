@@ -68,3 +68,12 @@ export type ProductCode = {
   createdAt: string;
   updatedAt: string;
 };
+
+export type OrderEdit = {
+  id: string;
+  orderId: string;
+  changedBy: string;
+  changedAt: string;
+  changes: Record<string, unknown>;
+  reason: string | null;
+};

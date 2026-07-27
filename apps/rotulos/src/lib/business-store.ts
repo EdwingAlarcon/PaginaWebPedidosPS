@@ -2,12 +2,13 @@
 
 import { createClient } from "@/lib/supabase/client";
 import { normalizeCustomerFields, normalizeOrderDraft, normalizeProductCode } from "@/lib/normalize";
-import type { Customer, CustomerPatch, OrderDraft, OrderItem, OrderPatch, OrderRecord, ProductCode } from "@/lib/business-types";
+import type { Customer, CustomerPatch, OrderDraft, OrderEdit, OrderItem, OrderPatch, OrderRecord, ProductCode } from "@/lib/business-types";
 
 export type BusinessStore = {
   listOrders(): Promise<OrderRecord[]>;
   saveOrder(draft: OrderDraft): Promise<OrderRecord>;
   updateOrder(id: string, patch: OrderPatch): Promise<OrderRecord>;
+  listOrderEdits(orderId: string): Promise<OrderEdit[]>;
   listCustomers(): Promise<Customer[]>;
   updateCustomer(id: string, patch: CustomerPatch): Promise<Customer>;
   deleteCustomer(id: string): Promise<void>;
@@ -66,6 +67,26 @@ type ProductCodeRow = {
   created_at: string;
   updated_at: string;
 };
+
+type OrderEditRow = {
+  id: string;
+  order_id: string;
+  changed_by: string;
+  changed_at: string;
+  changes: Record<string, unknown>;
+  reason: string | null;
+};
+
+function rowToOrderEdit(row: OrderEditRow): OrderEdit {
+  return {
+    id: row.id,
+    orderId: row.order_id,
+    changedBy: row.changed_by,
+    changedAt: row.changed_at,
+    changes: row.changes,
+    reason: row.reason,
+  };
+}
 
 const storageKeys = {
   orders: "purpleshop.business.orders",
@@ -380,6 +401,9 @@ function createLocalBusinessStore(): BusinessStore {
       writeStorage(storageKeys.orders, orders);
       return updated;
     },
+    async listOrderEdits() {
+      return [];
+    },
     async listCustomers() {
       return readStorage<Customer[]>(storageKeys.customers, []);
     },
@@ -485,6 +509,16 @@ function createSupabaseBusinessStore(): BusinessStore | null {
       const { error } = await supabase.rpc("update_order", { p_order_id: id, p_patch: normalizedPatch });
       if (error) throw error;
       return getSupabaseOrder(supabase, id);
+    },
+    async listOrderEdits(orderId) {
+      const { data, error } = await supabase
+        .from("order_edits")
+        .select("*")
+        .eq("order_id", orderId)
+        .order("changed_at", { ascending: false })
+        .returns<OrderEditRow[]>();
+      if (error) throw error;
+      return (data ?? []).map(rowToOrderEdit);
     },
     async listCustomers() {
       const { data, error } = await supabase.from("customers").select("*").order("updated_at", { ascending: false }).returns<CustomerRow[]>();
