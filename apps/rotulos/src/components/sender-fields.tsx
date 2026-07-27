@@ -33,7 +33,6 @@ export function SenderFields({ value, onChange, errors }: { value: Sender; onCha
                 id={errorKey}
                 value={value[key]}
                 maxLength={maxLength}
-                onInput={(event) => set(key, event.currentTarget.value)}
                 onChange={(event) => set(key, event.target.value)}
               />
             </FormField>

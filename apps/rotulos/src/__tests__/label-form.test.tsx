@@ -87,6 +87,21 @@ describe("LabelForm", () => {
     render(<LabelForm />);
 
     expect(await screen.findByDisplayValue("ANA PEREZ")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Guardar cambios" })).toBeInTheDocument();
+  });
+
+  it("uses a currency input for the cash-on-delivery amount and never lets numeric fields become NaN", async () => {
+    render(<LabelForm />);
+    const shipment = within(screen.getByRole("group", { name: "Datos del envio" }));
+
+    fireEvent.change(shipment.getByLabelText(/Metodo de pago/), { target: { value: "contraentrega" } });
+    const codAmountInput = shipment.getByLabelText(/Valor contraentrega/);
+    fireEvent.change(codAmountInput, { target: { value: "50.000" } });
+    expect(codAmountInput).toHaveValue("50.000");
+
+    const packageCountInput = shipment.getByLabelText(/Cantidad de paquetes/);
+    fireEvent.change(packageCountInput, { target: { value: "" } });
+    expect(packageCountInput).not.toHaveValue(NaN);
   });
 
   it("posts the loaded browser-fallback label when downloading PDF", async () => {
@@ -194,7 +209,7 @@ describe("LabelForm", () => {
 
     await waitFor(() => expect(screen.getByRole("button", { name: "Guardar rotulo" })).toBeDisabled());
     pending.resolve({ ...createBlankLabelDraft(), id: "label-1", createdAt: "", updatedAt: "", pdfUrl: null, createdBy: null });
-    await waitFor(() => expect(screen.getByRole("button", { name: "Guardar rotulo" })).toBeEnabled());
+    await waitFor(() => expect(screen.getByRole("button", { name: "Guardar cambios" })).toBeEnabled());
   });
 
   it("disables the download button while a PDF request is in flight, to prevent duplicate downloads", async () => {

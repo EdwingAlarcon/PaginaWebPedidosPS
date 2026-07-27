@@ -78,7 +78,6 @@ export function RecipientFields({ value, onChange, errors }: { value: Recipient;
                   maxLength={maxLength}
                   list={customerListId}
                   aria-describedby={`${fullNameFieldId}-hint`}
-                  onInput={(event) => setFullName(event.currentTarget.value)}
                   onChange={(event) => setFullName(event.target.value)}
                 />
                 <datalist id={customerListId}>
@@ -103,7 +102,6 @@ export function RecipientFields({ value, onChange, errors }: { value: Recipient;
                   value={value[key]}
                   maxLength={maxLength}
                   rows={2}
-                  onInput={(event) => set(key, event.currentTarget.value)}
                   onChange={(event) => set(key, event.target.value)}
                 />
               ) : (
@@ -111,7 +109,6 @@ export function RecipientFields({ value, onChange, errors }: { value: Recipient;
                   id={errorKey}
                   value={value[key]}
                   maxLength={maxLength}
-                  onInput={(event) => set(key, event.currentTarget.value)}
                   onChange={(event) => set(key, event.target.value)}
                 />
               )}

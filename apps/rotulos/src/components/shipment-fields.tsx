@@ -3,6 +3,7 @@ import type { LabelDraft } from "@/lib/types";
 import { PRINTABLE_LABEL_LIMITS } from "@/lib/validation";
 import { Card, CardTitle } from "@/components/ui/card";
 import { Input, Select } from "@/components/ui/input";
+import { CurrencyInput } from "@/components/ui/currency-input";
 import { FormField } from "@/components/ui/form-field";
 
 export function ShipmentFields({ value, onChange, errors, allowManualEdit }: { value: LabelDraft; onChange: (value: LabelDraft) => void; errors: Record<string, string>; allowManualEdit: boolean }) {
@@ -22,7 +23,6 @@ export function ShipmentFields({ value, onChange, errors, allowManualEdit }: { v
             value={value.orderNumber}
             disabled={!allowManualEdit}
             maxLength={PRINTABLE_LABEL_LIMITS.orderNumber}
-            onInput={(event) => set("orderNumber", event.currentTarget.value)}
             onChange={(event) => set("orderNumber", event.target.value)}
           />
         </FormField>
@@ -39,7 +39,6 @@ export function ShipmentFields({ value, onChange, errors, allowManualEdit }: { v
             id="carrier"
             value={value.carrier}
             maxLength={PRINTABLE_LABEL_LIMITS.carrier}
-            onInput={(event) => set("carrier", event.currentTarget.value)}
             onChange={(event) => set("carrier", event.target.value)}
           />
         </FormField>
@@ -67,13 +66,11 @@ export function ShipmentFields({ value, onChange, errors, allowManualEdit }: { v
           hint="Maximo $9.999.999 para imprimirlo completo."
           error={errors.codAmount}
         >
-          <Input
+          <CurrencyInput
             id="codAmount"
-            type="number"
-            min="0"
             max={PRINTABLE_LABEL_LIMITS.numeric.codAmount}
             value={value.codAmount}
-            onChange={(event) => set("codAmount", Number(event.target.value))}
+            onValueChange={(next) => set("codAmount", next)}
           />
         </FormField>
         <FormField
@@ -88,7 +85,7 @@ export function ShipmentFields({ value, onChange, errors, allowManualEdit }: { v
             min="1"
             max={PRINTABLE_LABEL_LIMITS.numeric.packageCount}
             value={value.packageCount}
-            onChange={(event) => set("packageCount", Number(event.target.value))}
+            onChange={(event) => set("packageCount", event.target.value ? Number(event.target.value) : 0)}
           />
         </FormField>
       </div>

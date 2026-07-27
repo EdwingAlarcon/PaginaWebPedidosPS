@@ -165,7 +165,7 @@ export function LabelForm() {
         <SenderFields value={draft.sender} onChange={(sender) => setDraft((current) => ({ ...current, sender: typeof sender === "function" ? sender(current.sender) : sender }))} errors={errors} />
         <RecipientFields value={draft.recipient} onChange={(recipient) => setDraft((current) => ({ ...current, recipient: typeof recipient === "function" ? recipient(current.recipient) : recipient }))} errors={errors} />
         <ShipmentFields value={draft} onChange={setDraft} errors={errors} allowManualEdit={settings.orderNumberConfig.allowManualEdit} />
-        <LabelActions onSave={saveDraft} onPrint={printDraft} onDownloadPdf={downloadPdf} saving={saving} downloading={downloading} />
+        <LabelActions onSave={saveDraft} onPrint={printDraft} onDownloadPdf={downloadPdf} saving={saving} downloading={downloading} isEditing={Boolean(draft.id)} />
       </div>
       <div className="preview-rail print-area">
         <LabelPreview draft={draft} />
