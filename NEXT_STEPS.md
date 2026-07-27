@@ -1,6 +1,10 @@
 # Purple Shop — Próximos pasos / handoff
 
-> Última actualización: 2026-07-20 Colombia (cierre de auditoría pre-agosto: backup/export de datos, rutas API protegidas, fix de sidebar cortado, checklist manual post-deploy verificado por Edwing; depuración de documentación — legacy archivada en `docs/_archive/legacy-app-2025/`).
+> Última actualización: 2026-07-26 Colombia (PRODUCT.md/DESIGN.md creados
+> vía `/impeccable`; critique de UX sobre "Crear rótulo" encontró y se
+> corrigió el P0 — rótulo sin vínculo real a pedido — y los dos P1 —
+> doble-clic sin guard, sin autocompletado de destinatario. Fix de
+> Root Directory en Vercel para que el auto-deploy por Git funcione).
 
 ## Estado actual: migración de GitHub Pages a Vercel/Supabase completada
 
@@ -162,6 +166,53 @@ como `text not null default ''`.
     cliente, unificar cliente, editar pedido) — **confirmado OK por
     Edwing**.
 
+## Hecho recientemente (continuación)
+
+- **Documentación de diseño via `/impeccable`** (2026-07-26): se crearon
+  `PRODUCT.md` (contexto de producto: usuarios Edwing+gerente, uso
+  desktop, posicionamiento vs Excel) y `DESIGN.md` +
+  `.impeccable/design.json` (sistema visual real extraído del código:
+  North Star "El Taller Violeta", paleta un-solo-acento, Regla
+  Plana-por-Defecto para sombras). Ambos en la raíz del repo, autoridad
+  para trabajo de diseño futuro.
+- **Critique de UX + fix de vínculo rótulo-pedido** (2026-07-26): un
+  critique dual-agent sobre `/crear` (flujo "Crear rótulo") encontró que
+  el rótulo generado ahí **no tenía relación real con ningún pedido** de
+  `orders` — el "número de pedido" era texto libre, contradiciendo el
+  diferenciador de producto declarado en PRODUCT.md. Fix (P0, con TDD):
+  - `labels.order_id` (uuid, nullable, FK a `orders.id`) — migración
+    `202607260001_add_labels_order_id.sql`, **ya aplicada en Supabase
+    producción** (corrida a mano por Edwing en el SQL Editor).
+  - `buildLabelDraftFromOrder()` en `src/lib/label-from-order.ts`: prellena
+    el rótulo con los datos reales del pedido.
+  - Botón **"Generar rótulo"** en el detalle de pedido
+    (`order-detail-drawer.tsx`) → `/crear?fromOrderId=<id>`.
+  - `/crear` standalone se retiró del sidebar (`app-shell.tsx`) — sigue
+    existiendo como ruta, alcanzable solo desde el pedido o edición
+    existente (`?id=`).
+  - Reporte completo del critique persistido en
+    `.impeccable/critique/2026-07-26T22-55-14Z__apps-rotulos-src-app-app-crear-page-tsx.md`.
+  - Probado end-to-end en producción con sesión real (Edwing): destinatario
+    prellenado, guardado generó `PS-2026-000004` real, visible en Historial.
+- **Fix de los dos P1 del mismo critique** (2026-07-26, mismo día):
+  - Doble-clic guard: `Guardar rótulo`/`Descargar PDF` se deshabilitan
+    (con spinner) mientras la petición está en curso
+    (`label-form.tsx`, `label-actions.tsx`).
+  - Autocompletado de destinatario: `recipient-fields.tsx` ahora tiene
+    datalist de clientes existentes (mismo patrón que `order-form.tsx`),
+    vía `mergeCustomerIntoRecipient()` en
+    `src/lib/recipient-from-customer.ts`.
+  - Todo con TDD (tests RED→GREEN), 182/182 tests, lint/typecheck/build
+    limpios, desplegado a producción.
+- **Fix de Root Directory en Vercel** (2026-07-26): el proyecto
+  `purpleshoponline` en Vercel no tenía "Root Directory" configurado a
+  `apps/rotulos` — la integración de Git (auto-deploy en cada push)
+  nunca había funcionado hasta hoy (todos los deploys previos fueron
+  manuales via `vercel deploy --prod` desde dentro de `apps/rotulos`).
+  Edwing lo corrigió en el dashboard (Settings → Build and Deployment →
+  Root Directory); confirmado funcionando: push a `main` ahora
+  auto-despliega a producción sin CLI manual.
+
 ## Pendiente
 
 ### Bloqueantes antes de producción
@@ -169,6 +220,32 @@ como `text not null default ''`.
 Ninguno. La auditoría pre-agosto (2026-07-20) cerró los hallazgos
 accionables, se desplegó y Edwing verificó el checklist manual completo.
 La app está lista para operar con pedidos reales de agosto.
+
+### Continuar mañana: backlog del critique de "Crear rótulo" (P2/P3)
+
+Del critique persistido en `.impeccable/critique/2026-07-26T22-55-14Z__apps-rotulos-src-app-app-crear-page-tsx.md`
+(P0 y ambos P1 ya resueltos, ver arriba):
+
+- **[P2] Resumen de validación no señala ni navega a los campos con
+  error.** `label-form.tsx`, `validation-summary`: dice "Revisa N campos"
+  sin decir cuáles ni hacer scroll/foco al primero. Fix propuesto:
+  listar labels de campos con error como enlaces (`<a href="#fieldId">`)
+  o mover foco al primer campo inválido al hacer clic en Guardar.
+  Comando sugerido: `/impeccable clarify`.
+- **[P3] Cadena de selects de ubicación sin refuerzo visual de
+  progreso.** `location-fields.tsx`: Departamento→Ciudad→Localidad→Barrio
+  se ven idénticos disabled/enabled, solo cambia el placeholder. Fix
+  propuesto: reforzar estilo visual del estado disabled, mover el hint
+  de dependencia al `hint` del `FormField`. Comando sugerido:
+  `/impeccable layout`.
+- **Observaciones menores del critique, no priorizadas:** `codAmount` en
+  `shipment-fields.tsx` usa `Input` plano en vez de `CurrencyInput` (sí
+  usado en `order-form.tsx` para el mismo tipo de dato); botón "Guardar
+  rotulo" no distingue crear vs. actualizar cuando se llega vía `?id=`;
+  `Number(event.target.value)` sin guard de `NaN` para campo vacío en
+  `packageCount`/`codAmount`; handlers `onInput`+`onChange` duplicados en
+  varios campos de `sender-fields.tsx`/`recipient-fields.tsx` (llaman a
+  la misma función dos veces por evento, redundante pero no roto).
 
 ### Importantes después de agosto
 
