@@ -321,10 +321,13 @@ Del critique persistido en `.impeccable/critique/2026-07-26T22-55-14Z__apps-rotu
   con esto:**
   1. Edwing corre la migración en el SQL Editor de Supabase.
   2. Editar un pedido cambiando precio de una línea + descuento + estado
-     en el mismo guardado — el historial debe mostrar exactamente esos
-     3 cambios, con los valores antes/después correctos.
+     en el mismo guardado (esto va a pedir un motivo de ajuste) — el
+     historial debe mostrar status, notes, discount, subtotal, total e
+     items (el precio de la línea), no solo los 3 campos que tocaste a
+     mano — notes y los totales cambian como efecto derivado.
   3. Editar un pedido sin cambiar nada — no debe aparecer ninguna fila
-     nueva en el historial.
+     nueva en el historial (sin dar motivo de ajuste; si se da un motivo
+     sin cambiar nada más, sí se crea una fila porque notes cambia).
   4. Eliminar una línea de un pedido durante una edición — debe aparecer
      como "línea eliminada" en el historial.
 
