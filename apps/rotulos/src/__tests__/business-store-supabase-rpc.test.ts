@@ -113,4 +113,20 @@ describe("createSupabaseBusinessStore (rama Supabase)", () => {
 
     expect(order.items[0].productId).toBe("prod-9");
   });
+
+  it("incluye productId en el payload p_items enviado al RPC save_order", async () => {
+    const supabase = mockSupabase();
+    vi.doMock("@/lib/supabase/client", () => ({ createClient: vi.fn(() => supabase) }));
+    const { getBusinessStore, createBlankOrderDraft } = await import("@/lib/business-store");
+
+    const draft = createBlankOrderDraft();
+    draft.customer.fullName = "Ana Perez";
+    draft.items = [{ productId: "prod-1", productCode: "SKU1", productName: "Bolso", category: "Bolsos", quantity: 2, unitPrice: 50 }];
+
+    await getBusinessStore().saveOrder(draft);
+
+    expect(supabase.rpc).toHaveBeenCalledWith("save_order", expect.objectContaining({
+      p_items: [expect.objectContaining({ productId: "prod-1", quantity: 2 })],
+    }));
+  });
 });
