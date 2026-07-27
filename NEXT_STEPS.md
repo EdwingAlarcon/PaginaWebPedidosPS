@@ -297,10 +297,9 @@ Del critique persistido en `.impeccable/critique/2026-07-26T22-55-14Z__apps-rotu
 - ~~`middleware.ts` usa la convención deprecada~~ resuelto 2026-07-27:
   renombrado a `proxy.ts` (función `proxy`, export `proxyConfig`),
   siguiendo la convención de Next.js 16. Warning de build ya no aparece.
-- Clases CSS con prefijo `legacy-` (`legacy-sidebar`, `legacy-app-shell`,
-  etc.) en `globals.css`/`app-shell.tsx` — nombre heredado de una migración
-  anterior, no describe código legacy real hoy; renombrar es opcional y de
-  bajo valor.
+- ~~Clases CSS con prefijo `legacy-`~~ resuelto 2026-07-27: renombradas
+  a prefijo `app-shell-` (`app-shell-sidebar`, `app-shell-topbar`, etc.)
+  en `globals.css`/`app-shell.tsx`, sin cambios visuales.
 
 ## Cosas explícitamente fuera de alcance / no tocar sin permiso
 

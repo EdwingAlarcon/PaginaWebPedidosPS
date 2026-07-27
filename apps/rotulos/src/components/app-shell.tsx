@@ -108,10 +108,10 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   const pageMeta = PAGE_META[pathname ?? ""] ?? DEFAULT_PAGE_META;
 
   return (
-    <div className="legacy-app-shell">
-      <aside className={`legacy-sidebar${collapsed ? " collapsed" : ""}`}>
-        <div className="legacy-sidebar-header">
-          <div className="legacy-brand">
+    <div className="app-shell">
+      <aside className={`app-shell-sidebar${collapsed ? " collapsed" : ""}`}>
+        <div className="app-shell-sidebar-header">
+          <div className="app-shell-brand">
             <Image src="/purple-shop-logo.png" alt="Purple Shop" width={40} height={40} priority className="size-10" />
             {!collapsed && (
               <div>
@@ -129,7 +129,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             {collapsed ? <PanelLeftOpen size={18} /> : <PanelLeftClose size={18} />}
           </button>
         </div>
-        <nav className="legacy-nav" aria-label="Navegacion principal">
+        <nav className="app-shell-nav" aria-label="Navegacion principal">
           {NAV_GROUPS.map((group) => (
             <div className="sidebar-group" key={group.label}>
               {!collapsed && <p className="sidebar-group-label">{group.label}</p>}
@@ -153,8 +153,8 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         </nav>
       </aside>
 
-      <div className="legacy-content-wrap">
-        <header className="legacy-topbar">
+      <div className="app-shell-content-wrap">
+        <header className="app-shell-topbar">
           <button
             type="button"
             className="topbar-menu-toggle"
@@ -164,11 +164,11 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           >
             <Menu size={20} />
           </button>
-          <div className="legacy-topbar-title">
+          <div className="app-shell-topbar-title">
             <p>{pageMeta.title}</p>
             <h1>{pageMeta.description}</h1>
           </div>
-          <div className="legacy-topbar-actions">
+          <div className="app-shell-topbar-actions">
             <ThemeToggle />
             <SyncStatus />
             <UserMenu />
@@ -209,7 +209,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           </div>
         )}
 
-        <div className="legacy-main">{children}</div>
+        <div className="app-shell-main">{children}</div>
       </div>
     </div>
   );
