@@ -25,10 +25,12 @@ export function SenderFields({ value, onChange, errors }: { value: Sender; onCha
             <FormField
               key={key}
               label={LABELS[key]}
+              htmlFor={errorKey}
               hint={`Maximo ${maxLength} caracteres para imprimirlo completo.`}
               error={errors[errorKey]}
             >
               <Input
+                id={errorKey}
                 value={value[key]}
                 maxLength={maxLength}
                 onInput={(event) => set(key, event.currentTarget.value)}

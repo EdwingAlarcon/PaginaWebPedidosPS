@@ -31,6 +31,27 @@ describe("LabelForm", () => {
     expect(screen.getByRole("status")).toHaveTextContent("Revisa");
   });
 
+  it("lists invalid fields as clickable links that focus the field when clicked", () => {
+    vi.spyOn(window, "print").mockImplementation(() => undefined);
+
+    render(<LabelForm />);
+    fireEvent.click(screen.getByRole("button", { name: "Imprimir" }));
+
+    const link = screen.getByRole("link", { name: "Ingresa el telefono del remitente." });
+    fireEvent.click(link);
+
+    const sender = within(screen.getByRole("group", { name: "Remitente" }));
+    expect(sender.getByLabelText("Telefono")).toHaveFocus();
+  });
+
+  it("automatically focuses the first invalid field after a failed save attempt", async () => {
+    render(<LabelForm />);
+    fireEvent.click(screen.getByRole("button", { name: "Guardar rotulo" }));
+
+    const sender = within(screen.getByRole("group", { name: "Remitente" }));
+    await waitFor(() => expect(sender.getByLabelText("Telefono")).toHaveFocus());
+  });
+
 
   it("saves a valid draft with an automatically generated order number", async () => {
     render(<LabelForm />);

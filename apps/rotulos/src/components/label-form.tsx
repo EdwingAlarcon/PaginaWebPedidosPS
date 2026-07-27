@@ -65,11 +65,19 @@ export function LabelForm() {
     city: draft.recipient.city,
     department: draft.recipient.department,
   }), [draft.date, draft.recipient.city, draft.recipient.department, settings.orderNumberConfig]);
-  const errorMessages = Object.values(errors);
+  const errorEntries = Object.entries(errors);
+
+  function focusField(fieldId: string) {
+    const field = document.getElementById(fieldId);
+    field?.scrollIntoView({ behavior: "smooth", block: "center" });
+    field?.focus();
+  }
 
   function validateDraft(): boolean {
     const result = validateLabelDraft(draft);
     setErrors(result.errors);
+    const [firstInvalidField] = Object.keys(result.errors);
+    if (firstInvalidField) focusField(firstInvalidField);
     return result.valid;
   }
 
@@ -131,7 +139,27 @@ export function LabelForm() {
     <div className="creator-grid">
       <div className="form-stack">
         <div className="validation-summary" aria-live="polite" role="status">
-          {errorMessages.length ? `Revisa ${errorMessages.length} campo${errorMessages.length === 1 ? "" : "s"} antes de guardar.` : saveStatus}
+          {errorEntries.length ? (
+            <>
+              <p>Revisa {errorEntries.length} campo{errorEntries.length === 1 ? "" : "s"} antes de guardar:</p>
+              <ul className="mt-1 list-disc pl-5">
+                {errorEntries.map(([fieldId, message]) => (
+                  <li key={fieldId}>
+                    <a
+                      href={`#${fieldId}`}
+                      className="underline"
+                      onClick={(event) => {
+                        event.preventDefault();
+                        focusField(fieldId);
+                      }}
+                    >
+                      {message}
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </>
+          ) : saveStatus}
         </div>
         <OrderNumberPreview value={nextPreview} />
         <SenderFields value={draft.sender} onChange={(sender) => setDraft((current) => ({ ...current, sender: typeof sender === "function" ? sender(current.sender) : sender }))} errors={errors} />

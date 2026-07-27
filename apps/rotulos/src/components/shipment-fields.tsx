@@ -13,10 +13,12 @@ export function ShipmentFields({ value, onChange, errors, allowManualEdit }: { v
       <div className="mt-4 grid gap-4 sm:grid-cols-2">
         <FormField
           label="Numero de pedido"
+          htmlFor="orderNumber"
           hint={`Maximo ${PRINTABLE_LABEL_LIMITS.orderNumber} caracteres para imprimirlo completo.`}
           error={errors.orderNumber}
         >
           <Input
+            id="orderNumber"
             value={value.orderNumber}
             disabled={!allowManualEdit}
             maxLength={PRINTABLE_LABEL_LIMITS.orderNumber}
@@ -24,15 +26,17 @@ export function ShipmentFields({ value, onChange, errors, allowManualEdit }: { v
             onChange={(event) => set("orderNumber", event.target.value)}
           />
         </FormField>
-        <FormField label="Fecha" error={errors.date}>
-          <Input type="date" value={value.date} onChange={(event) => set("date", event.target.value)} />
+        <FormField label="Fecha" htmlFor="date" error={errors.date}>
+          <Input id="date" type="date" value={value.date} onChange={(event) => set("date", event.target.value)} />
         </FormField>
         <FormField
           label="Transportadora"
+          htmlFor="carrier"
           hint={`Maximo ${PRINTABLE_LABEL_LIMITS.carrier} caracteres para imprimirla completa.`}
           error={errors.carrier}
         >
           <Input
+            id="carrier"
             value={value.carrier}
             maxLength={PRINTABLE_LABEL_LIMITS.carrier}
             onInput={(event) => set("carrier", event.currentTarget.value)}
@@ -59,10 +63,12 @@ export function ShipmentFields({ value, onChange, errors, allowManualEdit }: { v
         </FormField>
         <FormField
           label="Valor contraentrega"
+          htmlFor="codAmount"
           hint="Maximo $9.999.999 para imprimirlo completo."
           error={errors.codAmount}
         >
           <Input
+            id="codAmount"
             type="number"
             min="0"
             max={PRINTABLE_LABEL_LIMITS.numeric.codAmount}
@@ -72,10 +78,12 @@ export function ShipmentFields({ value, onChange, errors, allowManualEdit }: { v
         </FormField>
         <FormField
           label="Cantidad de paquetes"
+          htmlFor="packageCount"
           hint={`Maximo ${PRINTABLE_LABEL_LIMITS.numeric.packageCount} paquetes para imprimirlos completos.`}
           error={errors.packageCount}
         >
           <Input
+            id="packageCount"
             type="number"
             min="1"
             max={PRINTABLE_LABEL_LIMITS.numeric.packageCount}

@@ -19,15 +19,13 @@ export function FormField({ label, htmlFor, hint, error, required, className, ch
   const hintId = hint ? `${id}-hint` : undefined;
   const errorId = error ? `${id}-error` : undefined;
 
-  const child =
-    isValidElement<{ id?: string; "aria-describedby"?: string; "aria-invalid"?: boolean }>(children) &&
-    !htmlFor
-      ? cloneElement(children, {
-          id,
-          "aria-describedby": [hintId, errorId].filter(Boolean).join(" ") || undefined,
-          "aria-invalid": Boolean(error) || undefined,
-        })
-      : children;
+  const child = isValidElement<{ id?: string; "aria-describedby"?: string; "aria-invalid"?: boolean }>(children)
+    ? cloneElement(children, {
+        ...(htmlFor ? {} : { id }),
+        "aria-describedby": [hintId, errorId].filter(Boolean).join(" ") || undefined,
+        "aria-invalid": Boolean(error) || undefined,
+      })
+    : children;
 
   return (
     <div className={cn("grid gap-1.5", className)}>

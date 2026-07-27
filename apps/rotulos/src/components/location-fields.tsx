@@ -48,6 +48,7 @@ export function LocationFields<T extends LocationFieldsValue>({
   const cityDisabled = !value.department;
   const localityDisabled = !showLocality || !value.city;
   const neighborhoodDisabled = showLocality && !(value.locality ?? "");
+  const disabledSelectClassName = "border-dashed bg-surface-muted";
 
   function patch(next: Partial<T>) {
     onChange((current) => ({ ...current, ...next }));
@@ -65,25 +66,10 @@ export function LocationFields<T extends LocationFieldsValue>({
     patch({ locality, neighborhood: "" } as Partial<T>);
   }
 
-  const addressControl = addressAsTextarea ? (
-    <Textarea
-      value={value.address}
-      maxLength={limits?.address}
-      rows={addressRows}
-      onChange={(event) => patch({ address: event.target.value } as Partial<T>)}
-    />
-  ) : (
-    <Input
-      value={value.address}
-      maxLength={limits?.address}
-      onChange={(event) => patch({ address: event.target.value } as Partial<T>)}
-    />
-  );
-
   return (
     <>
-      <FormField label="Departamento" required={required} error={errors[`${prefix}.department`]}>
-        <Select value={value.department} onChange={(event) => setDepartment(event.target.value)}>
+      <FormField label="Departamento" htmlFor={`${prefix}.department`} required={required} error={errors[`${prefix}.department`]}>
+        <Select id={`${prefix}.department`} value={value.department} onChange={(event) => setDepartment(event.target.value)}>
           <option value="">Selecciona departamento</option>
           {value.department && !hasOption(departments, value.department) ? (
             <option value={value.department}>{value.department}</option>
@@ -96,9 +82,21 @@ export function LocationFields<T extends LocationFieldsValue>({
         </Select>
       </FormField>
 
-      <FormField label="Ciudad / municipio" required={required} error={errors[`${prefix}.city`]}>
-        <Select value={value.city} disabled={cityDisabled} onChange={(event) => setCity(event.target.value)}>
-          <option value="">{cityDisabled ? "Selecciona primero departamento" : "Selecciona ciudad / municipio"}</option>
+      <FormField
+        label="Ciudad / municipio"
+        htmlFor={`${prefix}.city`}
+        required={required}
+        error={errors[`${prefix}.city`]}
+        hint={cityDisabled ? "Selecciona primero un departamento." : undefined}
+      >
+        <Select
+          id={`${prefix}.city`}
+          value={value.city}
+          disabled={cityDisabled}
+          className={cityDisabled ? disabledSelectClassName : undefined}
+          onChange={(event) => setCity(event.target.value)}
+        >
+          <option value="">Selecciona ciudad / municipio</option>
           {value.city && !hasOption(cities, value.city) ? <option value={value.city}>{value.city}</option> : null}
           {cities.map((city) => (
             <option key={city.code} value={city.name}>
@@ -109,13 +107,21 @@ export function LocationFields<T extends LocationFieldsValue>({
       </FormField>
 
       {showLocality ? (
-        <FormField label="Localidad" required={required} error={errors[`${prefix}.locality`]}>
+        <FormField
+          label="Localidad"
+          htmlFor={`${prefix}.locality`}
+          required={required}
+          error={errors[`${prefix}.locality`]}
+          hint={localityDisabled ? "Selecciona primero una ciudad." : undefined}
+        >
           <Select
+            id={`${prefix}.locality`}
             value={value.locality ?? ""}
             disabled={localityDisabled}
+            className={localityDisabled ? disabledSelectClassName : undefined}
             onChange={(event) => setLocality(event.target.value)}
           >
-            <option value="">{localityDisabled ? "Selecciona primero ciudad" : "Selecciona localidad"}</option>
+            <option value="">Selecciona localidad</option>
             {value.locality && !hasOption(localities, value.locality) ? <option value={value.locality}>{value.locality}</option> : null}
             {localities.map((locality) => (
               <option key={locality.code} value={locality.name}>
@@ -127,14 +133,21 @@ export function LocationFields<T extends LocationFieldsValue>({
       ) : null}
 
       {includeNeighborhood ? (
-        <FormField label="Barrio / sector" error={errors[`${prefix}.neighborhood`]}>
+        <FormField
+          label="Barrio / sector"
+          htmlFor={`${prefix}.neighborhood`}
+          error={errors[`${prefix}.neighborhood`]}
+          hint={neighborhoodDisabled ? "Selecciona primero una localidad." : undefined}
+        >
           {showLocality ? (
             <Select
+              id={`${prefix}.neighborhood`}
               value={value.neighborhood ?? ""}
               disabled={neighborhoodDisabled}
+              className={neighborhoodDisabled ? disabledSelectClassName : undefined}
               onChange={(event) => patch({ neighborhood: event.target.value } as Partial<T>)}
             >
-              <option value="">{neighborhoodDisabled ? "Selecciona primero localidad" : "Selecciona barrio / sector"}</option>
+              <option value="">Selecciona barrio / sector</option>
               {value.neighborhood && !hasOption(bogotaNeighborhoods, value.neighborhood) ? (
                 <option value={value.neighborhood}>{value.neighborhood}</option>
               ) : null}
@@ -146,6 +159,7 @@ export function LocationFields<T extends LocationFieldsValue>({
             </Select>
           ) : (
             <Input
+              id={`${prefix}.neighborhood`}
               value={value.neighborhood ?? ""}
               maxLength={limits?.neighborhood}
               onChange={(event) => patch({ neighborhood: event.target.value } as Partial<T>)}
@@ -154,8 +168,23 @@ export function LocationFields<T extends LocationFieldsValue>({
         </FormField>
       ) : null}
 
-      <FormField label={addressLabel} required={required} error={errors[`${prefix}.address`]} className="sm:col-span-2">
-        {addressControl}
+      <FormField label={addressLabel} htmlFor={`${prefix}.address`} required={required} error={errors[`${prefix}.address`]} className="sm:col-span-2">
+        {addressAsTextarea ? (
+          <Textarea
+            id={`${prefix}.address`}
+            value={value.address}
+            maxLength={limits?.address}
+            rows={addressRows}
+            onChange={(event) => patch({ address: event.target.value } as Partial<T>)}
+          />
+        ) : (
+          <Input
+            id={`${prefix}.address`}
+            value={value.address}
+            maxLength={limits?.address}
+            onChange={(event) => patch({ address: event.target.value } as Partial<T>)}
+          />
+        )}
       </FormField>
     </>
   );

@@ -39,7 +39,7 @@ type RecipientChange = Recipient | ((current: Recipient) => Recipient);
 export function RecipientFields({ value, onChange, errors }: { value: Recipient; onChange: (value: RecipientChange) => void; errors: Record<string, string> }) {
   const [customers, setCustomers] = useState<Customer[]>([]);
   const customerListId = useId();
-  const fullNameFieldId = useId();
+  const fullNameFieldId = "recipient.fullName";
 
   useEffect(() => {
     getBusinessStore().listCustomers().then(setCustomers).catch(() => setCustomers([]));
@@ -93,11 +93,13 @@ export function RecipientFields({ value, onChange, errors }: { value: Recipient;
             <FormField
               key={key}
               label={LABELS[key]}
+              htmlFor={errorKey}
               hint={PRINTABLE_HELP[key]}
               error={errors[errorKey]}
             >
               {isTextarea ? (
                 <Textarea
+                  id={errorKey}
                   value={value[key]}
                   maxLength={maxLength}
                   rows={2}
@@ -106,6 +108,7 @@ export function RecipientFields({ value, onChange, errors }: { value: Recipient;
                 />
               ) : (
                 <Input
+                  id={errorKey}
                   value={value[key]}
                   maxLength={maxLength}
                   onInput={(event) => set(key, event.currentTarget.value)}

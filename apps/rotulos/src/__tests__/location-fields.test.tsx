@@ -46,4 +46,28 @@ describe("LocationFields", () => {
     await waitFor(() => expect(screen.getByRole("option", { name: "CASTILLA" })).toBeInTheDocument());
     expect(screen.queryByRole("option", { name: "CEDRITOS" })).not.toBeInTheDocument();
   });
+
+  it("marks a disabled dependent select with a distinct style and explains why via hint text", () => {
+    render(
+      <LocationFields
+        value={{ department: "", city: "", locality: "", neighborhood: "", address: "" }}
+        onChange={() => undefined}
+        errors={{}}
+        prefix="test"
+      />,
+    );
+
+    const citySelect = screen.getByLabelText("Ciudad / municipio");
+    expect(citySelect).toBeDisabled();
+    expect(citySelect.className).toContain("border-dashed");
+    expect(screen.getByText("Selecciona primero un departamento.")).toBeInTheDocument();
+  });
+
+  it("clears the dependency hint once the blocking field is filled", async () => {
+    render(<Harness />);
+
+    const citySelect = screen.getByLabelText("Ciudad / municipio");
+    expect(citySelect).not.toBeDisabled();
+    expect(screen.queryByText("Selecciona primero un departamento.")).not.toBeInTheDocument();
+  });
 });
