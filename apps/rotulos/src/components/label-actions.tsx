@@ -1,18 +1,26 @@
 import { Printer, Save, Download } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
-export function LabelActions({ onSave, onPrint, onDownloadPdf }: { onSave: () => void; onPrint: () => void; onDownloadPdf: () => void }) {
+type LabelActionsProps = {
+  onSave: () => void;
+  onPrint: () => void;
+  onDownloadPdf: () => void;
+  saving?: boolean;
+  downloading?: boolean;
+};
+
+export function LabelActions({ onSave, onPrint, onDownloadPdf, saving, downloading }: LabelActionsProps) {
   return (
     <div className="flex flex-wrap gap-2">
-      <Button type="button" onClick={onSave}>
+      <Button type="button" onClick={onSave} loading={saving} disabled={downloading}>
         <Save className="size-4" aria-hidden="true" />
         Guardar rotulo
       </Button>
-      <Button type="button" variant="secondary" onClick={onPrint}>
+      <Button type="button" variant="secondary" onClick={onPrint} disabled={saving || downloading}>
         <Printer className="size-4" aria-hidden="true" />
         Imprimir
       </Button>
-      <Button type="button" variant="secondary" onClick={onDownloadPdf}>
+      <Button type="button" variant="secondary" onClick={onDownloadPdf} loading={downloading} disabled={saving}>
         <Download className="size-4" aria-hidden="true" />
         Descargar PDF
       </Button>

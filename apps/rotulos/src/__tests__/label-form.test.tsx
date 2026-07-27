@@ -2,8 +2,17 @@ import { fireEvent, render, screen, waitFor, within } from "@testing-library/rea
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { LabelForm } from "@/components/label-form";
 import { createBlankLabelDraft, defaultSettings } from "@/lib/defaults";
+import * as labelStoreModule from "@/lib/label-store";
 import { getLabelStore } from "@/lib/label-store";
 import { createBlankOrderDraft, getBusinessStore } from "@/lib/business-store";
+
+function deferred<T>() {
+  let resolve!: (value: T) => void;
+  const promise = new Promise<T>((res) => {
+    resolve = res;
+  });
+  return { promise, resolve };
+}
 
 describe("LabelForm", () => {
   afterEach(() => {
@@ -130,5 +139,74 @@ describe("LabelForm", () => {
 
     expect(await screen.findByText("Rotulo guardado.")).toBeInTheDocument();
     expect((await getLabelStore().listLabels())[0].orderId).toBe(savedOrder.id);
+  });
+
+  async function fillValidDraft() {
+    const sender = within(screen.getByRole("group", { name: "Remitente" }));
+    const recipient = within(screen.getByRole("group", { name: "Destinatario" }));
+    const shipment = within(screen.getByRole("group", { name: "Datos del envio" }));
+
+    fireEvent.change(sender.getByLabelText(/Telefono/), { target: { value: "3001234567" } });
+    fireEvent.change(sender.getByLabelText(/Departamento/), { target: { value: "VALLE DEL CAUCA" } });
+    await waitFor(() => expect(sender.getByRole("option", { name: "SANTIAGO DE CALI" })).toBeInTheDocument());
+    fireEvent.change(sender.getByLabelText(/Ciudad/), { target: { value: "SANTIAGO DE CALI" } });
+    fireEvent.change(sender.getByLabelText(/Direccion/), { target: { value: "Calle 1 # 2-3" } });
+    fireEvent.change(recipient.getByLabelText(/Nombre y apellidos/), { target: { value: "Ana Perez" } });
+    fireEvent.change(recipient.getByLabelText(/Telefono/), { target: { value: "3101234567" } });
+    fireEvent.change(recipient.getByLabelText(/Departamento/), { target: { value: "ANTIOQUIA" } });
+    await waitFor(() => expect(recipient.getByRole("option", { name: "MEDELLÍN" })).toBeInTheDocument());
+    fireEvent.change(recipient.getByLabelText(/Ciudad/), { target: { value: "MEDELLÍN" } });
+    fireEvent.change(recipient.getByLabelText(/Direccion completa/), { target: { value: "Carrera 45 # 10-20" } });
+    fireEvent.change(shipment.getByLabelText(/Transportadora/), { target: { value: "Coordinadora" } });
+  }
+
+  it("disables the save button while a save request is in flight, to prevent duplicate saves", async () => {
+    render(<LabelForm />);
+    await fillValidDraft();
+    const pending = deferred<import("@/lib/types").LabelRecord>();
+    vi.spyOn(labelStoreModule, "getLabelStore").mockReturnValue({
+      ...getLabelStore(),
+      saveLabel: vi.fn().mockReturnValue(pending.promise),
+    });
+
+    fireEvent.click(screen.getByRole("button", { name: "Guardar rotulo" }));
+
+    await waitFor(() => expect(screen.getByRole("button", { name: "Guardar rotulo" })).toBeDisabled());
+    pending.resolve({ ...createBlankLabelDraft(), id: "label-1", createdAt: "", updatedAt: "", pdfUrl: null, createdBy: null });
+    await waitFor(() => expect(screen.getByRole("button", { name: "Guardar rotulo" })).toBeEnabled());
+  });
+
+  it("disables the download button while a PDF request is in flight, to prevent duplicate downloads", async () => {
+    render(<LabelForm />);
+    await fillValidDraft();
+    const pending = deferred<Response>();
+    vi.spyOn(globalThis, "fetch").mockReturnValue(pending.promise);
+
+    fireEvent.click(screen.getByRole("button", { name: "Descargar PDF" }));
+
+    await waitFor(() => expect(screen.getByRole("button", { name: "Descargar PDF" })).toBeDisabled());
+    pending.resolve(new Response(new Blob(["pdf"], { type: "application/pdf" })));
+    await waitFor(() => expect(screen.getByRole("button", { name: "Descargar PDF" })).toBeEnabled());
+  });
+
+  it("autofills the recipient's location when its name matches an existing customer", async () => {
+    const orderDraft = createBlankOrderDraft();
+    orderDraft.customer.fullName = "Ana Perez";
+    orderDraft.customer.phone = "3101234567";
+    orderDraft.customer.department = "Antioquia";
+    orderDraft.customer.city = "Medellin";
+    orderDraft.customer.address = "Carrera 45 # 10-20";
+    orderDraft.customer.neighborhood = "Laureles";
+    orderDraft.items = [{ productCode: "SKU1", productName: "Bolso", category: "Bolsos", quantity: 1, unitPrice: 50000 }];
+    await getBusinessStore().saveOrder(orderDraft);
+
+    const { container } = render(<LabelForm />);
+    const recipient = within(screen.getByRole("group", { name: "Destinatario" }));
+
+    await waitFor(() => expect(container.querySelector('option[value="ANA PEREZ"]')).not.toBeNull());
+    fireEvent.change(recipient.getByLabelText(/Nombre y apellidos/), { target: { value: "Ana Perez" } });
+
+    await waitFor(() => expect(recipient.getByDisplayValue("3101234567")).toBeInTheDocument());
+    expect(recipient.getByDisplayValue("CARRERA 45 # 10-20")).toBeInTheDocument();
   });
 });

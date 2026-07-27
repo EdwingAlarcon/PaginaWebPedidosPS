@@ -25,6 +25,8 @@ export function LabelForm() {
   const [settings, setSettings] = useState<LabelSettings>(defaultSettings);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [saveStatus, setSaveStatus] = useState("");
+  const [saving, setSaving] = useState(false);
+  const [downloading, setDownloading] = useState(false);
 
   useEffect(() => {
     let active = true;
@@ -72,10 +74,15 @@ export function LabelForm() {
   }
 
   async function saveDraft() {
-    if (!validateDraft()) return;
-    const saved = await getLabelStore().saveLabel(draft, settings);
-    setDraft(saved);
-    setSaveStatus("Rotulo guardado.");
+    if (saving || !validateDraft()) return;
+    setSaving(true);
+    try {
+      const saved = await getLabelStore().saveLabel(draft, settings);
+      setDraft(saved);
+      setSaveStatus("Rotulo guardado.");
+    } finally {
+      setSaving(false);
+    }
   }
 
   function printDraft() {
@@ -93,7 +100,8 @@ export function LabelForm() {
   }
 
   async function downloadPdf() {
-    if (!validateDraft()) return;
+    if (downloading || !validateDraft()) return;
+    setDownloading(true);
     setSaveStatus("Generando PDF...");
     try {
       const response = await fetch("/api/labels/pdf", {
@@ -114,6 +122,8 @@ export function LabelForm() {
       setSaveStatus("PDF descargado.");
     } catch {
       setSaveStatus("No se pudo generar el PDF.");
+    } finally {
+      setDownloading(false);
     }
   }
 
@@ -127,7 +137,7 @@ export function LabelForm() {
         <SenderFields value={draft.sender} onChange={(sender) => setDraft((current) => ({ ...current, sender: typeof sender === "function" ? sender(current.sender) : sender }))} errors={errors} />
         <RecipientFields value={draft.recipient} onChange={(recipient) => setDraft((current) => ({ ...current, recipient: typeof recipient === "function" ? recipient(current.recipient) : recipient }))} errors={errors} />
         <ShipmentFields value={draft} onChange={setDraft} errors={errors} allowManualEdit={settings.orderNumberConfig.allowManualEdit} />
-        <LabelActions onSave={saveDraft} onPrint={printDraft} onDownloadPdf={downloadPdf} />
+        <LabelActions onSave={saveDraft} onPrint={printDraft} onDownloadPdf={downloadPdf} saving={saving} downloading={downloading} />
       </div>
       <div className="preview-rail print-area">
         <LabelPreview draft={draft} />
