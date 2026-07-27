@@ -311,9 +311,22 @@ Del critique persistido en `.impeccable/critique/2026-07-26T22-55-14Z__apps-rotu
   Limitación conocida (no es tarea pendiente por ahora): cancelar y luego
   "descancelar" un pedido (volverlo a `pending`) no vuelve a descontar el
   stock automáticamente.
-- **Auditoría/historial de ajustes de pedidos.** Hoy el motivo del ajuste se
-  guarda como texto libre en `orders.notes` (`AJUSTE: ...`); no hay tabla ni
-  vista dedicada para ver el historial de cambios de un pedido.
+- ~~Auditoría/historial de ajustes de pedidos~~ código listo 2026-07-27:
+  tabla `order_edits` (migración `202607270004_add_order_edits.sql`),
+  llenada por `update_order()` con un jsonb de solo los campos que
+  cambiaron en cada guardado (precio/descuento/envío/total, estado,
+  notas, cliente, ítems). Se ve en una sección "Historial de cambios"
+  en el detalle del pedido. `orders.notes` con el texto libre
+  `AJUSTE: ...` sigue funcionando igual, coexiste. **Antes de operar
+  con esto:**
+  1. Edwing corre la migración en el SQL Editor de Supabase.
+  2. Editar un pedido cambiando precio de una línea + descuento + estado
+     en el mismo guardado — el historial debe mostrar exactamente esos
+     3 cambios, con los valores antes/después correctos.
+  3. Editar un pedido sin cambiar nada — no debe aparecer ninguna fila
+     nueva en el historial.
+  4. Eliminar una línea de un pedido durante una edición — debe aparecer
+     como "línea eliminada" en el historial.
 
 ### Mejoras futuras
 

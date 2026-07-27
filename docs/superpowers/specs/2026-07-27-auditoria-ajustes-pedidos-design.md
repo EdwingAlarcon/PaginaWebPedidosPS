@@ -1,6 +1,8 @@
 # Diseño: auditoría/historial de ajustes de pedidos
 
-Estado: **aprobado, sin implementar**. Brainstorming del 2026-07-27, ítem
+Estado: **código implementado 2026-07-27, pendiente de validación manual
+con Edwing** (correr la migración + probar los escenarios de abajo).
+Brainstorming del 2026-07-27, ítem
 "Importante después de agosto" de `NEXT_STEPS.md`. Alcance explícitamente
 separado de la feature de inventario real recién implementada (esa cubre
 `stock_movements.order_id` para cambios de **cantidad/stock**; este diseño
