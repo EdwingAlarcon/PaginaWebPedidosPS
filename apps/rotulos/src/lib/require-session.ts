@@ -7,8 +7,8 @@ export type ApiSession = {
 
 /**
  * Server-only session guard for Route Handlers under /api, which the
- * middleware matcher does not cover. Mirrors the login+allowlist check
- * middleware.ts does for pages.
+ * proxy matcher does not cover. Mirrors the login+allowlist check
+ * proxy.ts does for pages.
  */
 export async function requireSession(): Promise<ApiSession | null> {
   const supabase = await createServerSupabaseClient();

@@ -18,8 +18,8 @@ Vercel).
 ## Arquitectura general
 
 - **Next.js App Router**, rutas de pagina bajo `apps/rotulos/src/app/(app)/`
-  (protegidas por `middleware.ts`) mas `login/`, `auth/callback/` (publicas)
-  y `api/` (rutas de servidor, **no** cubiertas por el middleware — cada
+  (protegidas por `proxy.ts`) mas `login/`, `auth/callback/` (publicas)
+  y `api/` (rutas de servidor, **no** cubiertas por el proxy — cada
   una valida sesion por su cuenta, ver mas abajo).
 - **Capa de datos**: dos "stores" con la misma interfaz — uno respaldado en
   Supabase (`createSupabaseBusinessStore` / `createSupabaseInventoryStore`)
@@ -80,7 +80,7 @@ Vercel).
 
 ## Rutas API y proteccion de sesion
 
-`middleware.ts` protege todas las rutas de **pagina** (matcher excluye
+`proxy.ts` protege todas las rutas de **pagina** (matcher excluye
 `api/`, `_next/static`, `_next/image`, `favicon.ico` e imagenes). Por eso
 cada ruta bajo `src/app/api/` valida sesion **por su cuenta** con
 `src/lib/require-session.ts` (login + presencia en `allowed_users`):

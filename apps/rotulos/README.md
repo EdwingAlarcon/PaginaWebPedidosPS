@@ -52,10 +52,10 @@ usuario autenticado debe existir en la tabla `public.allowed_users`
 (email exacto) — si no está en la allowlist, se cierra la sesión
 automáticamente y se redirige a `/login?unauthorized=1`.
 
-- `middleware.ts` protege todas las rutas de página (excepto `/login` y
+- `proxy.ts` protege todas las rutas de página (excepto `/login` y
   `/auth/callback`).
 - Las rutas bajo `/api` (`/api/export`, `/api/labels/pdf`) **no** pasan por
-  ese middleware (el matcher excluye `api/`); cada una valida sesión +
+  ese proxy (el matcher excluye `api/`); cada una valida sesión +
   allowlist por su cuenta con `src/lib/require-session.ts`.
 
 Para dar acceso a alguien nuevo: agregar su email a `allowed_users` en

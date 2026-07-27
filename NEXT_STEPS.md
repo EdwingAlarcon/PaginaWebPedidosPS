@@ -294,9 +294,9 @@ Del critique persistido en `.impeccable/critique/2026-07-26T22-55-14Z__apps-rotu
 - Si se ajusta el diseño del rótulo, mantener sincronizadas las
   coordenadas entre `globals.css` y `pdf.ts` — preview/impresión y PDF no
   comparten motor de render.
-- `middleware.ts` usa la convención deprecada de Next.js (`middleware`);
-  Next sugiere migrar a `proxy` en algún momento — no urgente, solo un
-  warning en cada build.
+- ~~`middleware.ts` usa la convención deprecada~~ resuelto 2026-07-27:
+  renombrado a `proxy.ts` (función `proxy`, export `proxyConfig`),
+  siguiendo la convención de Next.js 16. Warning de build ya no aparece.
 - Clases CSS con prefijo `legacy-` (`legacy-sidebar`, `legacy-app-shell`,
   etc.) en `globals.css`/`app-shell.tsx` — nombre heredado de una migración
   anterior, no describe código legacy real hoy; renombrar es opcional y de
