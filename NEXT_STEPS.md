@@ -1,10 +1,16 @@
 # Purple Shop — Próximos pasos / handoff
 
-> Última actualización: 2026-07-26 Colombia (PRODUCT.md/DESIGN.md creados
-> vía `/impeccable`; critique de UX sobre "Crear rótulo" encontró y se
-> corrigió el P0 — rótulo sin vínculo real a pedido — y los dos P1 —
-> doble-clic sin guard, sin autocompletado de destinatario. Fix de
-> Root Directory en Vercel para que el auto-deploy por Git funcione).
+> Última actualización: 2026-07-27 Colombia (sesión larga: proxy.ts de
+> Next.js 16 — con un bug real que causó un outage corto en producción,
+> ver "Deuda técnica" abajo —, UI de `allowed_users`, backups automáticos,
+> RPC transaccional, inventario real vinculado a pedidos, auditoría de
+> ajustes de pedidos, bloque Excel de ZAIDA resuelto. Las 3 migraciones
+> nuevas ya están corridas en Supabase producción y `CRON_SECRET` ya está
+> configurado en Vercel — todo el código de la sesión quedó en `main`,
+> pusheado. Decisión de Edwing: no se hizo QA manual con pedidos de
+> prueba aislados — "la prueba de fuego es el pedido de agosto real";
+> si algo falla con datos reales, avisar para diagnosticar. Ver detalle
+> punto por punto en las secciones de abajo.)
 
 ## Estado actual: migración de GitHub Pages a Vercel/Supabase completada
 
@@ -369,8 +375,19 @@ Del critique persistido en `.impeccable/critique/2026-07-26T22-55-14Z__apps-rotu
   coordenadas entre `globals.css` y `pdf.ts` — preview/impresión y PDF no
   comparten motor de render.
 - ~~`middleware.ts` usa la convención deprecada~~ resuelto 2026-07-27:
-  renombrado a `proxy.ts` (función `proxy`, export `proxyConfig`),
-  siguiendo la convención de Next.js 16. Warning de build ya no aparece.
+  renombrado a `proxy.ts` (función `proxy`). Warning de build ya no
+  aparece. **Bug real que causó un outage corto de producción el mismo
+  día:** el export del matcher se llamó primero `proxyConfig` siguiendo
+  documentación/skills que sugerían ese nombre para Next.js 16 -- pero
+  la versión instalada (16.2.10) todavía busca el export llamado
+  **`config`** exactamente igual que en `middleware.ts` (confirmado en
+  `node_modules/next/dist/build/analysis/get-page-static-info.js`,
+  `extractExportedConstValue(ast, 'config')`). Con el nombre equivocado
+  el matcher nunca se aplicaba, el proxy corría sobre `_next/static/**`
+  y redirigía los chunks JS a `/login`, rompiendo la hidratación en toda
+  la app (se veía sin CSS/JS). Ya corregido a `export const config`.
+  Lección: verificar el sitio real en el navegador después de cualquier
+  deploy que toque `proxy.ts`, no confiar solo en build/tests locales.
 - ~~Clases CSS con prefijo `legacy-`~~ resuelto 2026-07-27: renombradas
   a prefijo `app-shell-` (`app-shell-sidebar`, `app-shell-topbar`, etc.)
   en `globals.css`/`app-shell.tsx`, sin cambios visuales.

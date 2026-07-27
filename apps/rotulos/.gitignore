@@ -2,3 +2,5 @@
 scripts/.import-preview.json
 
 .env.local
+
+.env*
