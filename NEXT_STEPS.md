@@ -340,10 +340,12 @@ Del critique persistido en `.impeccable/critique/2026-07-26T22-55-14Z__apps-rotu
   propia fila, pero el service role la bypassa igual que en export. Un
   usuario no puede eliminarse a si mismo (evita bloqueo accidental). TDD,
   199/199 tests.
-- **Bloque de importación Excel pendiente:** cliente `ZAIDA`, hoja `JULIO
-  2026`, fila 2 quedó excluida por error real de datos (falta
-  cantidad/precio) — revisar a mano contra el Excel si hace falta
-  rescatarla.
+- ~~Bloque de importación Excel pendiente (ZAIDA, JULIO 2026, fila 2)~~
+  resuelto 2026-07-27: era un reembolso por producto defectuoso, precio
+  real $0 (no faltaba el dato, era legítimamente cero). Edwing corrigió
+  la celda en el Excel y se corrió `npm run import:excel -- <ruta>
+  --commit` de nuevo — idempotente, solo creó el pedido nuevo de ZAIDA
+  (1 pedido nuevo, 23 ya existentes omitidos sin duplicar).
 
 ### Deuda técnica
 
