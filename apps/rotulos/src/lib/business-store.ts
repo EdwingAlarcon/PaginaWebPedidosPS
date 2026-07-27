@@ -48,6 +48,7 @@ type OrderRow = {
 
 type OrderItemRow = {
   id: string;
+  product_id: string | null;
   product_code: string;
   product_name: string;
   category: string;
@@ -116,6 +117,7 @@ function rowToCustomer(row: CustomerRow): Customer {
 function rowToOrderItem(row: OrderItemRow): OrderItem {
   return {
     id: row.id,
+    productId: row.product_id,
     productCode: row.product_code,
     productName: row.product_name,
     category: row.category,

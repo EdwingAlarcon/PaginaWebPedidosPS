@@ -96,4 +96,21 @@ describe("createSupabaseBusinessStore (rama Supabase)", () => {
     await expect(getBusinessStore().saveOrder(createBlankOrderDraft())).rejects.toThrow("boom");
     expect(supabase.from).not.toHaveBeenCalled();
   });
+
+  it("mapea product_id de order_items a productId en el modelo de la app", async () => {
+    const supabase = mockSupabase();
+    const rowWithItem = {
+      ...ORDER_ROW,
+      order_items: [
+        { id: "item-1", product_id: "prod-9", product_code: "SKU1", product_name: "Bolso", category: "Bolsos", quantity: 2, unit_price: 50, total: 100 },
+      ],
+    } as any;
+    supabase.single.mockResolvedValueOnce({ data: rowWithItem, error: null });
+    vi.doMock("@/lib/supabase/client", () => ({ createClient: vi.fn(() => supabase) }));
+    const { getBusinessStore, createBlankOrderDraft } = await import("@/lib/business-store");
+
+    const order = await getBusinessStore().saveOrder(createBlankOrderDraft());
+
+    expect(order.items[0].productId).toBe("prod-9");
+  });
 });

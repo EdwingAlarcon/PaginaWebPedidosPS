@@ -15,6 +15,7 @@ export type Customer = {
 export type CustomerPatch = Partial<Omit<Customer, "id" | "createdAt" | "updatedAt">>;
 
 export type OrderItemDraft = {
+  productId?: string | null;
   productCode: string;
   productName: string;
   category: string;
