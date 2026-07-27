@@ -277,8 +277,8 @@ Del critique persistido en `.impeccable/critique/2026-07-26T22-55-14Z__apps-rotu
   pedido real end-to-end (crear, editar cantidades, unificar clientes)
   en produccion para confirmar que el comportamiento es identico al
   anterior antes de operar con volumen real de agosto.
-- **Impresión física real del rótulo** con la impresora final: todavía no
-  probada (solo validación en pantalla/PDF hasta ahora).
+- ~~Impresión física real del rótulo~~ confirmada funcional por Edwing
+  2026-07-27 con la impresora final.
 - **Inventario real vinculado a pedidos — código listo 2026-07-27,
   pendiente de validación manual.** Diseño completo en
   `docs/superpowers/specs/2026-07-27-inventario-real-pedidos-design.md`.
