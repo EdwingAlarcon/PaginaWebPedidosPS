@@ -261,7 +261,10 @@ export function OrderForm() {
                 className="grid grid-cols-2 gap-3 rounded-md border border-border p-3 sm:grid-cols-6 sm:items-end"
               >
                 <FormField label="Codigo" className="sm:col-span-1">
-                  <Input value={item.productCode} disabled />
+                  <Input
+                    value={item.productCode}
+                    onChange={(event) => setItem(index, "productCode", event.target.value)}
+                  />
                 </FormField>
                 <FormField label="Producto" className="col-span-2 sm:col-span-2">
                   <Input
