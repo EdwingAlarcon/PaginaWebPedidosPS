@@ -11,11 +11,11 @@ export const DrawerContent = forwardRef<
   React.ComponentPropsWithoutRef<typeof Dialog.Content> & { title: string; description?: string }
 >(({ className, title, description, children, ...props }, ref) => (
   <Dialog.Portal>
-    <Dialog.Overlay className="fixed inset-0 z-40 bg-black/40 transition-opacity duration-200" />
+    <Dialog.Overlay className="dialog-overlay fixed inset-0 z-40 bg-black/40" />
     <Dialog.Content
       ref={ref}
       className={cn(
-        "fixed inset-y-0 right-0 z-50 flex w-full max-w-md flex-col border-l border-border bg-surface p-5 shadow-popover focus-visible:outline-none",
+        "drawer-content fixed inset-y-0 right-0 z-50 flex w-full max-w-md flex-col border-l border-border bg-surface p-5 shadow-popover focus-visible:outline-none",
         className,
       )}
       {...props}

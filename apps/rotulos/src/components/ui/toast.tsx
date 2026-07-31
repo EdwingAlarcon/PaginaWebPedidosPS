@@ -46,8 +46,8 @@ export function ToastProvider({ children }: { children: ReactNode }) {
             key={toast.id}
             onOpenChange={(open) => !open && remove(toast.id)}
             className={cn(
-              "flex items-start gap-3 rounded-md border border-border bg-surface p-4 shadow-popover data-[state=closed]:opacity-0 data-[swipe=end]:translate-x-full",
-              "transition-all duration-200",
+              "toast-root flex items-start gap-3 rounded-md border border-border bg-surface p-4 shadow-popover data-[state=closed]:opacity-0 data-[swipe=end]:translate-x-full",
+              "transition-[opacity,transform] duration-200 ease-out",
             )}
           >
             {toast.variant === "success" ? (
