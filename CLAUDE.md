@@ -153,6 +153,12 @@ explicitamente si no pudiste probar con sesion autenticada).
 
 ## Estado operativo reciente
 
+- 2026-08-15: se limpió el duplicado real visible en Clientes (`PILAR
+  CONGOTE`, importado sin teléfono + app con teléfono) usando `merge_customers`
+  en producción; verificado 0 grupos duplicados por nombre. La migración
+  `202608150002_reuse_empty_phone_customer_by_name.sql` queda pendiente de
+  aplicar en Supabase remoto porque `supabase db push --workdir apps/rotulos`
+  falló con `Unauthorized` por sesión CLI vencida.
 - 2026-07-18 noche: formularios de ubicacion Colombia/Bogota desplegados
   (Localidad y Barrio/Sector para Bogota). Supabase remoto tiene
   `customers.locality`.

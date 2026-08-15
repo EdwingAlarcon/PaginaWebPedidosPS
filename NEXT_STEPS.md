@@ -93,6 +93,18 @@ comparativos excluyen pedidos cancelados.
 
 ## Hecho recientemente
 
+- **Clientes repetidos por importación histórica sin teléfono** (2026-08-15):
+  en producción había 1 duplicado visible por nombre (`PILAR CONGOTE`): una
+  ficha `excel_import` sin teléfono y una ficha creada desde la app con
+  teléfono. Se unificó usando el RPC `merge_customers`, moviendo 5 pedidos al
+  cliente correcto; verificación posterior: 7 clientes, 0 grupos repetidos por
+  nombre normalizado. Quedó versionada la migración
+  `202608150002_reuse_empty_phone_customer_by_name.sql` para que `save_order`
+  reutilice un cliente existente con el mismo nombre cuando ese cliente no
+  tiene teléfono y el pedido nuevo sí trae teléfono. **Pendiente operativo:**
+  aplicar esa migración en Supabase remoto; `supabase db push --workdir
+  apps/rotulos` falló localmente con `Unauthorized` porque la sesión de
+  Supabase CLI está vencida.
 - **Importador de data histórica desde Excel** (2026-07-19): 23 pedidos
   históricos de `REFERENCIAS.xlsx` (SEPT 2025 → JULIO 2026) ya están
   cargados en Supabase producción, corridos y verificados idempotentes
