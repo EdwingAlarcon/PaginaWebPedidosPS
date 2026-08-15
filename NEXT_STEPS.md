@@ -1,5 +1,11 @@
 # Purple Shop — Próximos pasos / handoff
 
+> Actualización 2026-08-14: recomendación priorizada para próxima fase
+> guardada tras revisión del flujo completo. Siguiente mejora sugerida:
+> **Bandeja de despacho** para centralizar pedidos pendientes, generación
+> de rótulos, impresión/PDF y marcado de completado. Ver sección
+> "Recomendaciones para próxima fase" abajo.
+
 > Última actualización: 2026-07-27 Colombia (sesión larga: proxy.ts de
 > Next.js 16 — con un bug real que causó un outage corto en producción,
 > ver "Deuda técnica" abajo —, UI de `allowed_users`, backups automáticos,
@@ -37,6 +43,46 @@ migraciones existentes ya están aplicadas en remoto:
 Además, el 2026-07-18 se aplicó en remoto la migración
 `202607180001_add_customer_locality.sql`, que agrega `customers.locality`
 como `text not null default ''`.
+
+## Recomendaciones para próxima fase
+
+### Prioridad 1 — Bandeja de despacho
+
+La mejora más conveniente para operar a diario es una pantalla **Por
+despachar / Bandeja de despacho**. La app ya tiene pedidos, rótulos,
+historial, inventario y reportes, pero el flujo real sigue repartido en
+varias pantallas: entra pedido → se revisa → se genera rótulo → se
+imprime/descarga → se marca completado.
+
+Alcance recomendado:
+
+- Listar pedidos pendientes o pedidos recientes que aún requieran acción.
+- Mostrar si el pedido ya tiene rótulo generado (`labels.order_id`) o no.
+- Acciones directas por fila: **Generar rótulo**, **Descargar PDF**,
+  **Imprimir**, **Marcar completado**.
+- Alertas visibles si faltan datos críticos para despacho: teléfono,
+  dirección, ciudad, barrio/localidad, productos o total.
+- Filtros por fecha, cliente y estado.
+- Evitar crear una landing o pantalla explicativa; debe ser una vista
+  operativa densa, escaneable y rápida.
+
+Razón de producto: reduce clics y errores humanos como "pedido creado pero
+sin rótulo", "rótulo generado pero no impreso" o "pedido pendiente que ya
+salió". Es la mejora con mejor retorno antes de agregar reportes más
+sofisticados.
+
+### Siguientes mejoras sugeridas
+
+1. **Validación de calidad antes de generar rótulo**: avisar si faltan datos
+   críticos o si algún texto puede quedar recortado en el rótulo.
+2. **Resumen post-guardar pedido**: después de guardar, mostrar acciones
+   inmediatas: Generar rótulo, Ver pedido, Crear otro pedido.
+3. **Reportes más útiles para negocio**: ventas por cliente, productos más
+   vendidos por mes, pedidos pendientes y comparativo mensual.
+4. **Historial unificado por cliente**: al abrir un cliente, ver sus pedidos,
+   rótulos, direcciones/teléfonos usados y total comprado.
+5. **Restaurar o comparar backup JSON**: ya existe exportación; falta una
+   restauración controlada o comparador técnico para emergencias.
 
 ## Hecho recientemente
 

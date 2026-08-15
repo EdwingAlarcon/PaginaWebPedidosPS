@@ -6,6 +6,28 @@ desarrollo/deploy paso a paso, ver `apps/rotulos/README.md`. Este archivo
 es el handoff tecnico: arquitectura, reglas que no romper y estado
 reciente.
 
+## Proxima mejora recomendada
+
+Cuando Edwing pida continuar con las recomendaciones de producto, empezar
+por **Bandeja de despacho / Por despachar**. Contexto completo en
+`NEXT_STEPS.md` → "Recomendaciones para próxima fase".
+
+Objetivo: centralizar pedidos pendientes, estado de rótulo, impresión/PDF y
+marcado de completado en una vista operativa. Debe reducir clics y errores
+del flujo diario: pedido creado → rótulo generado → rótulo impreso/descargado
+→ pedido completado.
+
+Puntos clave del alcance:
+
+- Mostrar pedidos pendientes o recientes con acción pendiente.
+- Indicar si ya existe rótulo vinculado por `labels.order_id`.
+- Acciones rápidas: Generar rótulo, Descargar PDF, Imprimir, Marcar
+  completado.
+- Alertar datos faltantes de despacho: teléfono, dirección, ciudad,
+  localidad/barrio, productos o total.
+- Mantener diseño operativo, denso y escaneable; no crear landing ni texto
+  explicativo.
+
 ## Proyecto
 
 Purple Shop — gestion de pedidos, clientes, productos/inventario y
