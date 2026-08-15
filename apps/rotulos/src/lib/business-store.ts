@@ -1,6 +1,7 @@
 "use client";
 
 import { createClient } from "@/lib/supabase/client";
+import { businessToday } from "@/lib/date";
 import { normalizeCustomerFields, normalizeOrderDraft, normalizeProductCode } from "@/lib/normalize";
 import type { Customer, CustomerPatch, OrderDraft, OrderEdit, OrderItem, OrderPatch, OrderRecord, ProductCode } from "@/lib/business-types";
 
@@ -94,17 +95,6 @@ const storageKeys = {
   productCodes: "purpleshop.business.productCodes",
 };
 
-function today(timeZone = "America/Bogota") {
-  const parts = new Intl.DateTimeFormat("en-CA", {
-    timeZone,
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit",
-  }).formatToParts(new Date());
-  const dateParts = Object.fromEntries(parts.map((part) => [part.type, part.value]));
-  return `${dateParts.year}-${dateParts.month}-${dateParts.day}`;
-}
-
 export function createBlankOrderDraft(): OrderDraft {
   return {
     customer: {
@@ -117,7 +107,7 @@ export function createBlankOrderDraft(): OrderDraft {
       address: "",
       neighborhood: "",
     },
-    orderDate: today(),
+    orderDate: businessToday(),
     status: "pending",
     notes: "",
     discount: 0,
@@ -285,7 +275,7 @@ function normalizeOrderItemForPatch(item: OrderItem): OrderItem {
       address: "",
       neighborhood: "",
     },
-    orderDate: today(),
+    orderDate: businessToday(),
     status: "pending",
     notes: "",
     discount: 0,

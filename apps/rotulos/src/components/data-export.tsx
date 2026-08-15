@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { Download } from "lucide-react";
+import { businessToday } from "@/lib/date";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/toast";
@@ -20,10 +21,6 @@ const CSV_OPTIONS: CsvExportOption[] = [
   { key: "order-items", label: "Líneas de pedido", description: "Detalle de productos por pedido.", table: "order-items", filePrefix: "export-order-items" },
   { key: "productos", label: "Catálogo de productos", description: "Productos y precios usados en pedidos.", table: "productos", filePrefix: "export-productos" },
 ];
-
-function todayStamp() {
-  return new Date().toISOString().slice(0, 10);
-}
 
 export function DataExport() {
   const [pending, setPending] = useState<string | null>(null);
@@ -74,7 +71,7 @@ export function DataExport() {
               size="sm"
               loading={pending === option.key}
               onClick={() =>
-                downloadFile(`/api/export?table=${option.table}`, `${option.filePrefix}-${todayStamp()}.csv`, option.key)
+                downloadFile(`/api/export?table=${option.table}`, `${option.filePrefix}-${businessToday()}.csv`, option.key)
               }
             >
               <Download className="size-4" aria-hidden="true" />
@@ -95,7 +92,7 @@ export function DataExport() {
           variant="secondary"
           size="sm"
           loading={pending === "full-backup"}
-          onClick={() => downloadFile(`/api/export?format=json`, `backup-rotulos-${todayStamp()}.json`, "full-backup")}
+          onClick={() => downloadFile(`/api/export?format=json`, `backup-rotulos-${businessToday()}.json`, "full-backup")}
         >
           <Download className="size-4" aria-hidden="true" />
           JSON

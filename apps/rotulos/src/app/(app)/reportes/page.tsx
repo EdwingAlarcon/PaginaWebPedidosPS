@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import { getInventoryStore } from "@/lib/inventory-store";
 import { getBusinessStore } from "@/lib/business-store";
 import { getLabelStore } from "@/lib/label-store";
+import { businessDaysAgo } from "@/lib/date";
 import { formatCop } from "@/lib/format";
 import type { Product, StockAlerts } from "@/lib/inventory-types";
 import type { Customer, OrderRecord } from "@/lib/business-types";
@@ -18,9 +19,7 @@ import { DollarSign, Package, Receipt, Ticket, TriangleAlert, Users } from "luci
 const emptyAlerts: StockAlerts = { lowStock: [], critical: [], overstocked: [] };
 
 function daysAgo(days: number) {
-  const date = new Date();
-  date.setDate(date.getDate() - days);
-  return date.toISOString().slice(0, 10);
+  return businessDaysAgo(days);
 }
 
 const STATUS_LABEL: Record<OrderRecord["status"], string> = {

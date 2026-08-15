@@ -1,6 +1,7 @@
 import { NextRequest } from "next/server";
 import { requireSession } from "@/lib/require-session";
 import { createServiceClient } from "@/lib/supabase/server";
+import { businessToday } from "@/lib/date";
 import { toCsv } from "@/lib/export-csv";
 import { buildFullBackupPayload } from "@/lib/backup";
 
@@ -33,10 +34,6 @@ type CsvTableKey = keyof typeof CSV_TABLES;
 
 function isCsvTableKey(value: string | null): value is CsvTableKey {
   return value !== null && Object.prototype.hasOwnProperty.call(CSV_TABLES, value);
-}
-
-function todayStamp() {
-  return new Date().toISOString().slice(0, 10);
 }
 
 function csvResponse(csv: string, filename: string) {
@@ -74,7 +71,7 @@ export async function GET(request: NextRequest) {
   }
 
   const format = request.nextUrl.searchParams.get("format");
-  const date = todayStamp();
+  const date = businessToday();
 
   if (format === "json") {
     const result = await buildFullBackupPayload(supabase, session.email);

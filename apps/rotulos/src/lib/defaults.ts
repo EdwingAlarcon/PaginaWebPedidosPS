@@ -1,4 +1,5 @@
 import type { LabelDraft, LabelSettings, OrderNumberConfig } from "@/lib/types";
+import { businessToday } from "@/lib/date";
 import { DEFAULT_LABEL_SIZE, LABEL_SIZES } from "@/lib/types";
 
 export const defaultOrderNumberConfig: OrderNumberConfig = {
@@ -46,7 +47,7 @@ export function createBlankLabelDraft(): LabelDraft {
   return {
     orderNumber: "",
     size: DEFAULT_LABEL_SIZE,
-    date: new Date().toISOString().slice(0, 10),
+    date: businessToday(),
     sender: { ...defaultSettings.defaultSender },
     recipient: {
       fullName: "",

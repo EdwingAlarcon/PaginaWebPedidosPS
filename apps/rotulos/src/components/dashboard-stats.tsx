@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { ClipboardList, DollarSign, PackagePlus, TriangleAlert } from "lucide-react";
 import { getBusinessStore } from "@/lib/business-store";
+import { businessToday } from "@/lib/date";
 import { getLabelStore } from "@/lib/label-store";
 import { getInventoryStore } from "@/lib/inventory-store";
 import type { OrderRecord } from "@/lib/business-types";
@@ -13,7 +14,7 @@ import { EmptyState } from "@/components/ui/empty-state";
 import { Button } from "@/components/ui/button";
 
 function isToday(value: string): boolean {
-  return value.slice(0, 10) === new Date().toISOString().slice(0, 10);
+  return value.slice(0, 10) === businessToday();
 }
 
 const currency = (value: number) => `$${Math.round(value).toLocaleString("es-CO")}`;
