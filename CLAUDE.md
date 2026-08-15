@@ -8,25 +8,24 @@ reciente.
 
 ## Proxima mejora recomendada
 
-Cuando Edwing pida continuar con las recomendaciones de producto, empezar
-por **Bandeja de despacho / Por despachar**. Contexto completo en
-`NEXT_STEPS.md` → "Recomendaciones para próxima fase".
+Cuando Edwing pida continuar con las recomendaciones de producto, la
+**Bandeja de despacho / Por despachar** ya esta implementada y desplegada.
+Tambien quedaron implementados la validacion de calidad antes de generar
+rotulo, el resumen post-guardar pedido y el fix de fechas de negocio en
+zona Colombia. Contexto completo en `NEXT_STEPS.md` → "Recomendaciones para
+próxima fase".
 
-Objetivo: centralizar pedidos pendientes, estado de rótulo, impresión/PDF y
-marcado de completado en una vista operativa. Debe reducir clics y errores
-del flujo diario: pedido creado → rótulo generado → rótulo impreso/descargado
-→ pedido completado.
+Las proximas recomendaciones grandes para retomar son:
 
-Puntos clave del alcance:
+- **Reportes mas utiles para negocio**: ventas por cliente, productos mas
+  vendidos por mes, pedidos pendientes y comparativo mensual.
+- **Historial unificado por cliente**: al abrir un cliente, ver sus pedidos,
+  rotulos, direcciones/telefonos usados y total comprado.
+- **Restaurar o comparar backup JSON**: ya existe exportacion; falta una
+  restauracion controlada o comparador tecnico para emergencias.
 
-- Mostrar pedidos pendientes o recientes con acción pendiente.
-- Indicar si ya existe rótulo vinculado por `labels.order_id`.
-- Acciones rápidas: Generar rótulo, Descargar PDF, Imprimir, Marcar
-  completado.
-- Alertar datos faltantes de despacho: teléfono, dirección, ciudad,
-  localidad/barrio, productos o total.
-- Mantener diseño operativo, denso y escaneable; no crear landing ni texto
-  explicativo.
+Mantener el flujo de cierre preferido por Edwing: verificar, commit, push y
+deploy, salvo instruccion contraria.
 
 ## Proyecto
 
