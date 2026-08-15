@@ -5,7 +5,7 @@ import { useEffect, useId, useMemo, useState } from "react";
 import { Plus, Trash2 } from "lucide-react";
 import { createBlankOrderDraft, getBusinessStore } from "@/lib/business-store";
 import { getInventoryStore } from "@/lib/inventory-store";
-import type { Customer, OrderDraft } from "@/lib/business-types";
+import type { Customer, OrderDraft, ProductCode } from "@/lib/business-types";
 import type { Product } from "@/lib/inventory-types";
 import { Card, CardTitle } from "@/components/ui/card";
 import { Input, Textarea } from "@/components/ui/input";
@@ -51,10 +51,24 @@ function uniqueCustomerOptions(customers: Customer[]): Customer[] {
   return [...byName.values()].sort((a, b) => a.fullName.localeCompare(b.fullName, "es"));
 }
 
+function uniqueProductNameOptions(products: Product[], productCodes: ProductCode[]): string[] {
+  const byName = new Map<string, string>();
+  for (const product of products) {
+    const key = normalizeName(product.name);
+    if (key) byName.set(key, product.name);
+  }
+  for (const code of productCodes) {
+    const key = normalizeName(code.productName);
+    if (key && !byName.has(key)) byName.set(key, code.productName);
+  }
+  return [...byName.values()].sort((a, b) => a.localeCompare(b, "es"));
+}
+
 export function OrderForm() {
   const [draft, setDraft] = useState<OrderDraft>(() => createBlankOrderDraft());
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [products, setProducts] = useState<Product[]>([]);
+  const [productCodes, setProductCodes] = useState<ProductCode[]>([]);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [status, setStatus] = useState<{ tone: "success" | "danger"; message: string } | null>(null);
   const [saving, setSaving] = useState(false);
@@ -63,6 +77,7 @@ export function OrderForm() {
 
   useEffect(() => {
     getBusinessStore().listCustomers().then(setCustomers).catch(() => setCustomers([]));
+    getBusinessStore().listProductCodes().then(setProductCodes).catch(() => setProductCodes([]));
     getInventoryStore().listProducts().then(setProducts).catch(() => setProducts([]));
   }, []);
 
@@ -72,6 +87,10 @@ export function OrderForm() {
   );
   const total = Math.max(0, subtotal - draft.discount + draft.shippingCost);
   const customerOptions = useMemo(() => uniqueCustomerOptions(customers), [customers]);
+  const productNameOptions = useMemo(
+    () => uniqueProductNameOptions(products, productCodes),
+    [products, productCodes],
+  );
 
   function setCustomerField(field: keyof OrderDraft["customer"], value: string) {
     setDraft((current) => ({ ...current, customer: { ...current.customer, [field]: value } }));
@@ -106,17 +125,18 @@ export function OrderForm() {
 
   function handleProductNameChange(index: number, name: string) {
     setItem(index, "productName", name);
-    const match = products.find((product) => product.name.trim().toUpperCase() === name.trim().toUpperCase());
+    const productMatch = products.find((product) => normalizeName(product.name) === normalizeName(name));
+    const catalogMatch = productCodes.find((code) => normalizeName(code.productName) === normalizeName(name));
     setDraft((current) => ({
       ...current,
       items: current.items.map((item, itemIndex) =>
         itemIndex === index
           ? {
               ...item,
-              productId: match?.id ?? null,
-              productCode: match?.sku ?? item.productCode,
-              category: match?.category ?? item.category,
-              unitPrice: match?.unitPrice ?? item.unitPrice,
+              productId: productMatch?.id ?? null,
+              productCode: productMatch?.sku ?? catalogMatch?.code ?? item.productCode,
+              category: productMatch?.category ?? catalogMatch?.category ?? item.category,
+              unitPrice: productMatch?.unitPrice ?? catalogMatch?.unitPrice ?? item.unitPrice,
             }
           : item,
       ),
@@ -144,8 +164,6 @@ export function OrderForm() {
     const itemsWithName = draft.items.filter((item) => item.productName.trim());
     if (itemsWithName.length === 0) {
       nextErrors.items = "Agrega al menos un producto.";
-    } else if (itemsWithName.some((item) => !item.productId)) {
-      nextErrors.items = "Selecciona cada producto desde el listado de inventario.";
     } else if (itemsWithName.some((item) => !Number.isFinite(item.quantity) || item.quantity <= 0)) {
       nextErrors.items = "La cantidad de cada producto debe ser mayor a cero.";
     }
@@ -171,6 +189,7 @@ export function OrderForm() {
         items: draft.items.filter((item) => item.productName.trim()),
       });
       setDraft(createBlankOrderDraft());
+      getBusinessStore().listProductCodes().then(setProductCodes).catch(() => undefined);
       getInventoryStore().listProducts().then(setProducts).catch(() => undefined);
       setStatus({
         tone: "success",
@@ -249,8 +268,8 @@ export function OrderForm() {
           ) : null}
 
           <datalist id={productListId}>
-            {products.map((product) => (
-              <option key={product.id} value={product.name} />
+            {productNameOptions.map((productName) => (
+              <option key={productName} value={productName} />
             ))}
           </datalist>
 

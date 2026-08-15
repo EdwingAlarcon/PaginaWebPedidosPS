@@ -36,17 +36,29 @@ describe("OrderForm con inventario real", () => {
     vi.restoreAllMocks();
   });
 
-  it("bloquea guardar si el producto escrito no existe en inventario", async () => {
-    await seedProduct();
+  it("permite guardar un producto de catalogo aunque no exista en inventario", async () => {
+    await getBusinessStore().saveProductCode({
+      code: "SET-001",
+      productName: "Set de Aretes",
+      category: "Accesorios",
+      unitPrice: 25000,
+    });
     const user = userEvent.setup();
     renderWithToast(<OrderForm />);
 
     await user.type(screen.getByPlaceholderText("Busca o escribe un cliente nuevo"), "Cliente Nuevo");
-    await user.type(screen.getByLabelText("Producto"), "Producto Inexistente");
+    await user.type(screen.getByLabelText("Producto"), "Set de Aretes");
     fireEvent.click(screen.getByRole("button", { name: "Guardar pedido" }));
 
-    expect(await screen.findByText("Selecciona cada producto desde el listado de inventario.")).toBeInTheDocument();
-    expect(await getBusinessStore().listOrders()).toHaveLength(0);
+    expect(await screen.findByText(/Pedido guardado para CLIENTE NUEVO/i)).toBeInTheDocument();
+    const [order] = await getBusinessStore().listOrders();
+    expect(order.items[0]).toMatchObject({
+      productId: null,
+      productCode: "SET-001",
+      productName: "SET DE ARETES",
+      category: "ACCESORIOS",
+      unitPrice: 25000,
+    });
   });
 
   it("captura el productId y muestra el stock disponible al elegir un producto real", async () => {
