@@ -2,9 +2,10 @@
 
 > Actualización 2026-08-14 noche: implementadas la **Bandeja de
 > despacho**, la validación de calidad antes de generar rótulo, el resumen
-> post-guardar pedido y el fix de fechas de negocio en zona Colombia. Las
-> próximas recomendaciones grandes para retomar son: **reportes más útiles**,
-> **historial unificado por cliente** y **restaurar/comparar backup JSON**.
+> post-guardar pedido, el fix de fechas de negocio en zona Colombia y los
+> **reportes más útiles para negocio**. Las próximas recomendaciones grandes
+> para retomar son: **historial unificado por cliente** y
+> **restaurar/comparar backup JSON**.
 
 > Última actualización: 2026-07-27 Colombia (sesión larga: proxy.ts de
 > Next.js 16 — con un bug real que causó un outage corto en producción,
@@ -75,13 +76,19 @@ sin rótulo", "rótulo generado pero no impreso" o "pedido pendiente que ya
 salió". Es la mejora con mejor retorno antes de agregar reportes más
 sofisticados.
 
+### Implementado — Reportes más útiles
+
+Estado 2026-08-15: **implementado y desplegado en producción**. La pantalla
+`Reportes` ahora incluye ventas por cliente, productos más vendidos,
+pedidos por estado, comparativo mensual y una lista de pedidos pendientes
+con total por despachar. Las ventas, ticket promedio, productos vendidos y
+comparativos excluyen pedidos cancelados.
+
 ### Próximas recomendaciones grandes
 
-1. **Reportes más útiles para negocio**: ventas por cliente, productos más
-   vendidos por mes, pedidos pendientes y comparativo mensual.
-2. **Historial unificado por cliente**: al abrir un cliente, ver sus pedidos,
+1. **Historial unificado por cliente**: al abrir un cliente, ver sus pedidos,
    rótulos, direcciones/teléfonos usados y total comprado.
-3. **Restaurar o comparar backup JSON**: ya existe exportación; falta una
+2. **Restaurar o comparar backup JSON**: ya existe exportación; falta una
    restauración controlada o comparador técnico para emergencias.
 
 ## Hecho recientemente

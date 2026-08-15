@@ -9,16 +9,14 @@ reciente.
 ## Proxima mejora recomendada
 
 Cuando Edwing pida continuar con las recomendaciones de producto, la
-**Bandeja de despacho / Por despachar** ya esta implementada y desplegada.
-Tambien quedaron implementados la validacion de calidad antes de generar
-rotulo, el resumen post-guardar pedido y el fix de fechas de negocio en
-zona Colombia. Contexto completo en `NEXT_STEPS.md` → "Recomendaciones para
-próxima fase".
+**Bandeja de despacho / Por despachar** y los **reportes mas utiles para
+negocio** ya estan implementados y desplegados. Tambien quedaron
+implementados la validacion de calidad antes de generar rotulo, el resumen
+post-guardar pedido y el fix de fechas de negocio en zona Colombia.
+Contexto completo en `NEXT_STEPS.md` → "Recomendaciones para próxima fase".
 
 Las proximas recomendaciones grandes para retomar son:
 
-- **Reportes mas utiles para negocio**: ventas por cliente, productos mas
-  vendidos por mes, pedidos pendientes y comparativo mensual.
 - **Historial unificado por cliente**: al abrir un cliente, ver sus pedidos,
   rotulos, direcciones/telefonos usados y total comprado.
 - **Restaurar o comparar backup JSON**: ya existe exportacion; falta una
