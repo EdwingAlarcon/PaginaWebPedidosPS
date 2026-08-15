@@ -1,10 +1,12 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useId, useMemo, useState } from "react";
 import type { FormEvent } from "react";
-import { Trash2 } from "lucide-react";
+import { Plus, Trash2 } from "lucide-react";
 import { getBusinessStore } from "@/lib/business-store";
-import type { OrderDraft, OrderItem, OrderRecord } from "@/lib/business-types";
+import { getInventoryStore } from "@/lib/inventory-store";
+import type { OrderDraft, OrderItem, OrderRecord, ProductCode } from "@/lib/business-types";
+import type { Product } from "@/lib/inventory-types";
 import {
   isBogotaLocation,
   isValidBogotaLocality,
@@ -34,6 +36,36 @@ const ADJUSTMENT_REASONS = [
   "Cambio solicitado por el cliente",
   "Otro",
 ];
+
+function normalizeName(value: string): string {
+  return value.trim().replace(/\s+/g, " ").toUpperCase();
+}
+
+function uniqueProductNameOptions(products: Product[], productCodes: ProductCode[]): string[] {
+  const byName = new Map<string, string>();
+  for (const product of products) {
+    const key = normalizeName(product.name);
+    if (key) byName.set(key, product.name);
+  }
+  for (const code of productCodes) {
+    const key = normalizeName(code.productName);
+    if (key && !byName.has(key)) byName.set(key, code.productName);
+  }
+  return [...byName.values()].sort((a, b) => a.localeCompare(b, "es"));
+}
+
+function createEditableOrderItem(): OrderItem {
+  return {
+    id: crypto.randomUUID(),
+    productId: null,
+    productCode: "",
+    productName: "",
+    category: "",
+    quantity: 1,
+    unitPrice: 0,
+    total: 0,
+  };
+}
 
 type OrderEditFormProps = {
   order: OrderRecord;
@@ -115,17 +147,29 @@ function validateOrder(value: OrderEditValue, initialItems: OrderItem[]): Record
 export function OrderEditForm({ order, onSaved, onCancel, onDirtyChange }: OrderEditFormProps) {
   const initialValue = useMemo(() => orderToFormValue(order), [order]);
   const [value, setValue] = useState<OrderEditValue>(initialValue);
+  const [products, setProducts] = useState<Product[]>([]);
+  const [productCodes, setProductCodes] = useState<ProductCode[]>([]);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [status, setStatus] = useState<{ tone: "success" | "danger"; message: string } | null>(null);
   const [saving, setSaving] = useState(false);
+  const productListId = useId();
   const dirty = JSON.stringify(value) !== JSON.stringify(initialValue);
   const changedItems = itemsChanged(value.items, initialValue.items);
   const subtotal = value.items.reduce((sum, item) => sum + item.quantity * item.unitPrice, 0);
   const total = Math.max(0, subtotal - value.discount + value.shippingCost);
+  const productNameOptions = useMemo(
+    () => uniqueProductNameOptions(products, productCodes),
+    [products, productCodes],
+  );
 
   useEffect(() => {
     onDirtyChange?.(dirty);
   }, [dirty, onDirtyChange]);
+
+  useEffect(() => {
+    getBusinessStore().listProductCodes().then(setProductCodes).catch(() => setProductCodes([]));
+    getInventoryStore().listProducts().then(setProducts).catch(() => setProducts([]));
+  }, []);
 
   function setCustomerField(field: keyof OrderEditValue["customer"], nextValue: string) {
     setValue((current) => ({ ...current, customer: { ...current.customer, [field]: nextValue } }));
@@ -140,6 +184,31 @@ export function OrderEditForm({ order, onSaved, onCancel, onDirtyChange }: Order
           : item,
       ),
     }));
+  }
+
+  function handleProductNameChange(index: number, name: string) {
+    const productMatch = products.find((product) => normalizeName(product.name) === normalizeName(name));
+    const catalogMatch = productCodes.find((code) => normalizeName(code.productName) === normalizeName(name));
+    setValue((current) => ({
+      ...current,
+      items: current.items.map((item, itemIndex) =>
+        itemIndex === index
+          ? {
+              ...item,
+              productId: productMatch?.id ?? (catalogMatch ? null : item.productId ?? null),
+              productName: name,
+              productCode: productMatch?.sku ?? catalogMatch?.code ?? item.productCode,
+              category: productMatch?.category ?? catalogMatch?.category ?? item.category,
+              unitPrice: productMatch?.unitPrice ?? catalogMatch?.unitPrice ?? item.unitPrice,
+              total: item.quantity * (productMatch?.unitPrice ?? catalogMatch?.unitPrice ?? item.unitPrice),
+            }
+          : item,
+      ),
+    }));
+  }
+
+  function addItem() {
+    setValue((current) => ({ ...current, items: [...current.items, createEditableOrderItem()] }));
   }
 
   function removeItem(index: number) {
@@ -264,7 +333,11 @@ export function OrderEditForm({ order, onSaved, onCancel, onDirtyChange }: Order
                 <Input value={item.productCode} onChange={(event) => setItem(index, "productCode", event.target.value)} />
               </FormField>
               <FormField label="Producto" error={errors[`items.${index}.productName`]} className="col-span-2 sm:col-span-2">
-                <Input value={item.productName} onChange={(event) => setItem(index, "productName", event.target.value)} />
+                <Input
+                  list={productListId}
+                  value={item.productName}
+                  onChange={(event) => handleProductNameChange(index, event.target.value)}
+                />
               </FormField>
               <FormField label="Cantidad" error={errors[`items.${index}.quantity`]} className="sm:col-span-1">
                 <Input
@@ -286,6 +359,15 @@ export function OrderEditForm({ order, onSaved, onCancel, onDirtyChange }: Order
             </div>
           ))}
         </div>
+        <datalist id={productListId}>
+          {productNameOptions.map((productName) => (
+            <option key={productName} value={productName} />
+          ))}
+        </datalist>
+        <Button type="button" variant="secondary" size="sm" className="mt-3" onClick={addItem}>
+          <Plus className="size-4" aria-hidden="true" />
+          Agregar producto
+        </Button>
         <FormField label="Motivo del ajuste" required={changedItems} error={errors.adjustmentReason} className="mt-4">
           <Select value={value.adjustmentReason} onChange={(event) => setValue((current) => ({ ...current, adjustmentReason: event.target.value }))}>
             <option value="">Selecciona un motivo si cambias productos o precios</option>

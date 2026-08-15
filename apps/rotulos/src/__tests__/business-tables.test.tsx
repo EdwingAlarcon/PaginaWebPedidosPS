@@ -282,4 +282,45 @@ describe("business tables", () => {
     expect(order.subtotal).toBe(55000);
     expect(order.total).toBe(60000);
   });
+
+  it("adds a missing product line while editing an existing order", async () => {
+    const store = getBusinessStore();
+    const draft = createBlankOrderDraft();
+    draft.customer.fullName = "ana perez";
+    draft.items = [{ productCode: "MED-001", productName: "medias largas", category: "medias", quantity: 2, unitPrice: 15000 }];
+    draft.shippingCost = 5000;
+    await store.saveOrder(draft);
+    const user = userEvent.setup();
+
+    renderWithToast(<OrdersTable />);
+
+    await user.click(await screen.findByText("ANA PEREZ"));
+    await user.click(await screen.findByRole("button", { name: "Editar pedido" }));
+    const dialog = await screen.findByRole("dialog", { name: "Editar pedido" });
+    await user.click(within(dialog).getByRole("button", { name: "Agregar producto" }));
+
+    const codeInputs = within(dialog).getAllByLabelText("Codigo");
+    const productInputs = within(dialog).getAllByLabelText("Producto");
+    const quantityInputs = within(dialog).getAllByLabelText("Cantidad");
+    const priceInputs = within(dialog).getAllByLabelText("Precio");
+    await user.type(codeInputs[1], "BOL-001");
+    await user.type(productInputs[1], "bolso");
+    fireEvent.change(quantityInputs[1], { target: { value: "1" } });
+    fireEvent.change(priceInputs[1], { target: { value: "40000" } });
+    await user.selectOptions(within(dialog).getByLabelText(/Motivo del ajuste/), "Cambio solicitado por el cliente");
+    await user.click(within(dialog).getByRole("button", { name: "Guardar cambios" }));
+
+    expect(await screen.findByText("Pedido ajustado")).toBeInTheDocument();
+    const [order] = await store.listOrders();
+    expect(order.items).toHaveLength(2);
+    expect(order.items[1]).toMatchObject({
+      productCode: "BOL-001",
+      productName: "BOLSO",
+      quantity: 1,
+      unitPrice: 40000,
+      total: 40000,
+    });
+    expect(order.subtotal).toBe(70000);
+    expect(order.total).toBe(75000);
+  });
 });
