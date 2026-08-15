@@ -25,7 +25,7 @@ Las proximas recomendaciones grandes para retomar son:
   restauracion controlada o comparador tecnico para emergencias.
 
 Mantener el flujo de cierre preferido por Edwing: verificar, commit, push y
-deploy, salvo instruccion contraria.
+deploy siempre, salvo instruccion contraria explicita.
 
 ## Proyecto
 
@@ -95,9 +95,8 @@ Vercel).
 - **No automatizar la sincronizacion del Excel real del negocio**
   ("REFERENCIAS", OneDrive del gerente) sin permiso explicito — debe seguir
   siendo `npm run import:excel` corrido a mano.
-- **No hacer deploy sin autorizacion explicita del usuario** en esta misma
-  conversacion (no asumas que una autorizacion anterior aplica a cambios
-  nuevos).
+- **Siempre cerrar cambios con commit, push y deploy** despues de validar,
+  salvo que Edwing diga explicitamente que no lo hagas en esa conversacion.
 
 ## Rutas API y proteccion de sesion
 

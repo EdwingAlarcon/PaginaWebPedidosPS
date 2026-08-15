@@ -449,9 +449,7 @@ Del critique persistido en `.impeccable/critique/2026-07-26T22-55-14Z__apps-rotu
   fuera de alcance sin permiso explícito es **automatizar** esa
   sincronización (ej. un cron o webhook que lea el Excel solo) — el
   importador es y debe seguir siendo manual, corrido a mano por Edwing.
-- **No hacer push sin confirmación explícita del usuario**, salvo que ya
-  lo haya pedido explícitamente (Edwing pidió el 2026-07-16 que se
-  commitee y pushee sin repreguntar tras cada fix verificado — repo de un
-  solo dev, sin PRs de por medio). El commit de retiro de legacy pidió
-  confirmación aparte por su tamaño, ya se dio y ya se hizo el push
-  (2026-07-18).
+- **Siempre cerrar cambios con commit, push y deploy** despues de validar,
+  salvo que Edwing diga explicitamente que no lo hagas en esa conversacion.
+  Regla reafirmada por Edwing el 2026-08-15: "siempre debes hacer commit,
+  push y deploy".
