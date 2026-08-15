@@ -6,6 +6,7 @@ import { CheckCircle2, Download, FilePlus2, Printer, RefreshCw } from "lucide-re
 import { getBusinessStore } from "@/lib/business-store";
 import type { OrderRecord } from "@/lib/business-types";
 import { buildLabelDraftFromOrder } from "@/lib/label-from-order";
+import { reviewLabelQuality, type LabelQualityIssue } from "@/lib/label-quality";
 import { getLabelStore } from "@/lib/label-store";
 import { buildDispatchRows, type DispatchRow } from "@/lib/dispatch";
 import type { LabelRecord, LabelSettings } from "@/lib/types";
@@ -18,6 +19,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/components/ui/toast";
 
 type DispatchFilter = "action" | "missing-label" | "label-ready" | "pending" | "completed" | "all";
+type QualityReviewState = { orderId: string; issues: LabelQualityIssue[] } | null;
 
 function currency(value: number): string {
   return `$${Math.round(value).toLocaleString("es-CO")}`;
@@ -59,6 +61,7 @@ export function DispatchBoard() {
   const [settings, setSettings] = useState<LabelSettings | null>(null);
   const [loading, setLoading] = useState(true);
   const [busyId, setBusyId] = useState<string | null>(null);
+  const [qualityReview, setQualityReview] = useState<QualityReviewState>(null);
   const [filter, setFilter] = useState<DispatchFilter>("action");
   const [fromDate, setFromDate] = useState("");
   const [query, setQuery] = useState("");
@@ -123,7 +126,14 @@ export function DispatchBoard() {
   async function ensureLabel(row: DispatchRow): Promise<LabelRecord> {
     if (row.label) return row.label;
     if (!settings) throw new Error("settings_unavailable");
-    const label = await getLabelStore().saveLabel(buildLabelDraftFromOrder(row.order, settings.defaultSender), settings);
+    const draft = buildLabelDraftFromOrder(row.order, settings.defaultSender);
+    const review = reviewLabelQuality(draft);
+    if (!review.ready) {
+      setQualityReview({ orderId: row.order.id, issues: review.issues });
+      throw new Error("label_quality_failed");
+    }
+    setQualityReview(null);
+    const label = await getLabelStore().saveLabel(draft, settings);
     updateRow(row.order, label);
     return label;
   }
@@ -133,8 +143,11 @@ export function DispatchBoard() {
     try {
       const label = await ensureLabel(row);
       toast.push({ variant: "success", title: `Rotulo ${label.orderNumber} generado.` });
-    } catch {
-      toast.push({ variant: "danger", title: "No se pudo generar el rotulo." });
+    } catch (error) {
+      const message = error instanceof Error && error.message === "label_quality_failed"
+        ? "Completa los datos del rotulo antes de generarlo."
+        : "No se pudo generar el rotulo.";
+      toast.push({ variant: "danger", title: message });
     } finally {
       setBusyId(null);
     }
@@ -161,8 +174,11 @@ export function DispatchBoard() {
       link.remove();
       URL.revokeObjectURL(url);
       toast.push({ variant: "success", title: "PDF descargado." });
-    } catch {
-      toast.push({ variant: "danger", title: "No se pudo descargar el PDF." });
+    } catch (error) {
+      const message = error instanceof Error && error.message === "label_quality_failed"
+        ? "Completa los datos del rotulo antes de descargarlo."
+        : "No se pudo descargar el PDF.";
+      toast.push({ variant: "danger", title: message });
     } finally {
       setBusyId(null);
     }
@@ -177,8 +193,11 @@ export function DispatchBoard() {
       updateRow(row.order, printed);
       window.open(`/crear?id=${printed.id}&print=1`, "_blank", "noopener,noreferrer");
       toast.push({ variant: "success", title: "Rotulo marcado como impreso." });
-    } catch {
-      toast.push({ variant: "danger", title: "No se pudo preparar la impresion." });
+    } catch (error) {
+      const message = error instanceof Error && error.message === "label_quality_failed"
+        ? "Completa los datos del rotulo antes de imprimirlo."
+        : "No se pudo preparar la impresion.";
+      toast.push({ variant: "danger", title: message });
     } finally {
       setBusyId(null);
     }
@@ -292,6 +311,17 @@ export function DispatchBoard() {
                       ) : (
                         <Badge variant="success">Datos completos</Badge>
                       )}
+                      {qualityReview?.orderId === row.order.id ? (
+                        <div className="mt-2 max-w-[260px] rounded-md border border-danger/20 bg-[var(--danger-soft)] p-2 text-xs text-danger">
+                          <p className="font-medium">Completa el rotulo</p>
+                          <ul className="mt-1 list-disc pl-4">
+                            {qualityReview.issues.slice(0, 3).map((issue) => <li key={issue.field}>{issue.message}</li>)}
+                          </ul>
+                          <Link className="mt-2 inline-block font-medium underline" href={`/crear?fromOrderId=${row.order.id}`}>
+                            Abrir formulario
+                          </Link>
+                        </div>
+                      ) : null}
                     </td>
                     <td className="px-4 py-3 text-right font-medium">{currency(row.order.total)}</td>
                     <td className="px-4 py-3">

@@ -1,11 +1,12 @@
 "use client";
 
+import Link from "next/link";
 import type { FormEvent } from "react";
 import { useEffect, useId, useMemo, useState } from "react";
-import { Plus, Trash2 } from "lucide-react";
+import { ClipboardCheck, FilePlus2, Plus, RotateCcw, Trash2 } from "lucide-react";
 import { createBlankOrderDraft, getBusinessStore } from "@/lib/business-store";
 import { getInventoryStore } from "@/lib/inventory-store";
-import type { Customer, OrderDraft, ProductCode } from "@/lib/business-types";
+import type { Customer, OrderDraft, OrderRecord, ProductCode } from "@/lib/business-types";
 import type { Product } from "@/lib/inventory-types";
 import { Card, CardTitle } from "@/components/ui/card";
 import { Input, Textarea } from "@/components/ui/input";
@@ -71,6 +72,7 @@ export function OrderForm() {
   const [productCodes, setProductCodes] = useState<ProductCode[]>([]);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [status, setStatus] = useState<{ tone: "success" | "danger"; message: string } | null>(null);
+  const [savedOrder, setSavedOrder] = useState<OrderRecord | null>(null);
   const [saving, setSaving] = useState(false);
   const customerListId = useId();
   const productListId = useId();
@@ -158,6 +160,7 @@ export function OrderForm() {
     event.preventDefault();
     if (saving) return;
     setStatus(null);
+    setSavedOrder(null);
 
     const nextErrors: Record<string, string> = {};
     if (!draft.customer.fullName.trim()) nextErrors.customer = "El nombre del cliente es obligatorio.";
@@ -195,6 +198,7 @@ export function OrderForm() {
         tone: "success",
         message: `Pedido guardado para ${saved.customer.fullName}. Total $${Math.round(saved.total).toLocaleString("es-CO")}.`,
       });
+      setSavedOrder(saved);
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
       setStatus({
@@ -212,6 +216,36 @@ export function OrderForm() {
     <form onSubmit={saveOrder} className="grid gap-5 lg:grid-cols-[1fr_320px] lg:items-start">
       <div className="flex flex-col gap-5">
         {status ? <Alert variant={status.tone}>{status.message}</Alert> : null}
+        {savedOrder ? (
+          <Card>
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+              <div>
+                <CardTitle>Siguiente paso</CardTitle>
+                <p className="mt-1 text-sm text-foreground-muted">
+                  {savedOrder.customer.fullName} quedo listo para rotular o enviar a despacho.
+                </p>
+              </div>
+              <div className="flex flex-wrap gap-2">
+                <Button type="button" size="sm" asChild>
+                  <Link href={`/crear?fromOrderId=${savedOrder.id}`}>
+                    <FilePlus2 className="size-4" aria-hidden="true" />
+                    Generar rotulo
+                  </Link>
+                </Button>
+                <Button type="button" size="sm" variant="secondary" asChild>
+                  <Link href="/despacho">
+                    <ClipboardCheck className="size-4" aria-hidden="true" />
+                    Ver despacho
+                  </Link>
+                </Button>
+                <Button type="button" size="sm" variant="secondary" onClick={() => setSavedOrder(null)}>
+                  <RotateCcw className="size-4" aria-hidden="true" />
+                  Crear otro
+                </Button>
+              </div>
+            </div>
+          </Card>
+        ) : null}
 
         <Card>
           <CardTitle>Cliente</CardTitle>
