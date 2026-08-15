@@ -8,6 +8,7 @@ import {
   Archive,
   BarChart3,
   ClipboardList,
+  ClipboardCheck,
   Home,
   Menu,
   PackagePlus,
@@ -48,6 +49,7 @@ const NAV_GROUPS: NavGroup[] = [
   {
     label: "Envios",
     items: [
+      { href: "/despacho", label: "Despacho", icon: ClipboardCheck },
       { href: "/historial", label: "Historial", icon: PackagePlus },
     ],
   },
@@ -65,6 +67,7 @@ const PAGE_META: Record<string, { title: string; description: string }> = {
   "/inventario": { title: "Inventario", description: "Productos, stock y movimientos" },
   "/reportes": { title: "Reportes", description: "Ventas, productos y tendencias" },
   "/crear": { title: "Crear rotulo", description: "Genera el rotulo de envio de un pedido" },
+  "/despacho": { title: "Despacho", description: "Pedidos por rotular, imprimir y completar" },
   "/historial": { title: "Historial", description: "Rotulos generados anteriormente" },
   "/configuracion": { title: "Configuracion", description: "Ajustes de la aplicacion" },
 };
