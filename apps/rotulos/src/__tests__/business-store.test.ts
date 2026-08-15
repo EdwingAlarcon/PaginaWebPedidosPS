@@ -1,9 +1,20 @@
-import { beforeEach, describe, expect, it } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { createBlankOrderDraft, getBusinessStore } from "@/lib/business-store";
 
 describe("local business store", () => {
   beforeEach(() => {
     localStorage.clear();
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
+  it("uses Colombia's local date for new order drafts", () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date("2026-08-15T01:00:00.000Z"));
+
+    expect(createBlankOrderDraft().orderDate).toBe("2026-08-14");
   });
 
   it("normalizes customer, notes, and items to uppercase but leaves email and phone untouched", async () => {

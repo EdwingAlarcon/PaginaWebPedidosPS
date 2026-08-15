@@ -94,8 +94,15 @@ const storageKeys = {
   productCodes: "purpleshop.business.productCodes",
 };
 
-function today() {
-  return new Date().toISOString().slice(0, 10);
+function today(timeZone = "America/Bogota") {
+  const parts = new Intl.DateTimeFormat("en-CA", {
+    timeZone,
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).formatToParts(new Date());
+  const dateParts = Object.fromEntries(parts.map((part) => [part.type, part.value]));
+  return `${dateParts.year}-${dateParts.month}-${dateParts.day}`;
 }
 
 export function createBlankOrderDraft(): OrderDraft {
