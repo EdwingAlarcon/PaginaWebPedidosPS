@@ -10,26 +10,24 @@ reciente.
 
 Cuando Edwing pida continuar con las recomendaciones de producto, la
 **Bandeja de despacho / Por despachar**, los **reportes mas utiles para
-negocio** y el **historial unificado por cliente** (pestanas Datos/Historial
+negocio**, el **historial unificado por cliente** (pestanas Datos/Historial
 en la ficha de cliente, con direcciones/telefonos historicos y conteo de
-rotulos) ya estan implementados y desplegados. Tambien quedaron
-implementados la validacion de calidad antes de generar rotulo, el resumen
-post-guardar pedido, el fix de fechas de negocio en zona Colombia y la
-exportacion de resumen de compra por cliente (WhatsApp/PDF/imagen, con
-identidad de marca Purple Shop).
+rotulos) y las **alertas de clientes inactivos** (tarjeta en `Reportes`,
+umbral de dias editable, boton directo a WhatsApp) ya estan implementados
+y desplegados. Tambien quedaron implementados la validacion de calidad
+antes de generar rotulo, el resumen post-guardar pedido, el fix de fechas
+de negocio en zona Colombia y la exportacion de resumen de compra por
+cliente (WhatsApp/PDF/imagen, con identidad de marca Purple Shop).
 Contexto completo en `NEXT_STEPS.md` → "Recomendaciones para próxima fase".
 
-Las proximas recomendaciones grandes para retomar son (en este orden,
-acordado con Edwing 2026-08-19):
+La proxima recomendacion grande para retomar (acordado con Edwing
+2026-08-19):
 
-1. **Alertas de clientes inactivos**: detectar clientes sin pedidos hace
-   45+ dias (ej. en `Reportes` o el dashboard) para que Edwing les escriba
-   antes de perderlos. Bajo esfuerzo — ya existe `orderDate` por cliente.
-2. **Restaurar o comparar backup JSON**: ya existe exportacion; falta una
-   restauracion controlada o comparador tecnico para emergencias. Dejarlo
-   para el final: es el mas delicado porque implica sobrescribir datos de
-   produccion — necesita diseno cuidadoso (que se restaura, como se evitan
-   sobrescrituras accidentales).
+- **Restaurar o comparar backup JSON**: ya existe exportacion; falta una
+  restauracion controlada o comparador tecnico para emergencias. Es la mas
+  delicada porque implica sobrescribir datos de produccion — necesita
+  diseno cuidadoso (que se restaura, como se evitan sobrescrituras
+  accidentales) antes de tocar codigo.
 
 Mantener el flujo de cierre preferido por Edwing: verificar, commit, push y
 deploy siempre, salvo instruccion contraria explicita.
