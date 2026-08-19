@@ -4,12 +4,16 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { GitMerge, MoreHorizontal, Pencil, Plus, Trash2 } from "lucide-react";
 import { getBusinessStore } from "@/lib/business-store";
+import { getLabelStore } from "@/lib/label-store";
 import type { Customer, OrderRecord } from "@/lib/business-types";
+import type { LabelRecord } from "@/lib/types";
+import { isRelatedOrderToCustomer } from "@/lib/customer-orders";
 import { DataTable, type DataTableColumn } from "@/components/ui/data-table";
 import { Button, IconButton } from "@/components/ui/button";
 import { Drawer, DrawerContent } from "@/components/ui/drawer";
 import { CustomerEditForm } from "@/components/customer-edit-form";
 import { CustomerOrderHistory } from "@/components/customer-order-history";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/components/ui/toast";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { FormField } from "@/components/ui/form-field";
@@ -18,22 +22,10 @@ import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 
 type DrawerMode = "edit" | "merge";
 
-function normalizeForMatch(value: string) {
-  return value.trim().replace(/\s+/g, " ").toLowerCase();
-}
-
-function isRelatedOrderToCustomer(order: OrderRecord, customer: Customer): boolean {
-  if (order.customerId === customer.id) return true;
-  const orderName = normalizeForMatch(order.customer.fullName);
-  const customerName = normalizeForMatch(customer.fullName);
-  if (!orderName || !customerName) return false;
-  if (orderName === customerName) return true;
-  return orderName.length >= 4 && customerName.startsWith(`${orderName} `);
-}
-
 export function CustomersTable() {
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [orders, setOrders] = useState<OrderRecord[]>([]);
+  const [labels, setLabels] = useState<LabelRecord[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(null);
   const [drawerMode, setDrawerMode] = useState<DrawerMode>("edit");
@@ -49,12 +41,14 @@ export function CustomersTable() {
 
   async function refreshData() {
     const store = getBusinessStore();
-    const [nextCustomers, nextOrders] = await Promise.all([
+    const [nextCustomers, nextOrders, nextLabels] = await Promise.all([
       store.listCustomers(),
       store.listOrders().catch(() => []),
+      getLabelStore().listLabels().catch(() => []),
     ]);
     setCustomers(nextCustomers);
     setOrders(nextOrders);
+    setLabels(nextLabels);
   }
 
   function openEdit(customer: Customer) {
@@ -207,19 +201,28 @@ export function CustomersTable() {
           className="max-w-2xl"
         >
           {selectedCustomer && drawerMode === "edit" ? (
-            <div className="grid gap-4">
-              <CustomerEditForm
-                key={`${selectedCustomer.id}-${selectedCustomer.updatedAt}`}
-                customer={selectedCustomer}
-                onSaved={handleSaved}
-                onCancel={closeDrawer}
-                onDirtyChange={setFormDirty}
-              />
-              <CustomerOrderHistory
-                customer={selectedCustomer}
-                orders={orders.filter((order) => isRelatedOrderToCustomer(order, selectedCustomer))}
-              />
-            </div>
+            <Tabs defaultValue="datos">
+              <TabsList>
+                <TabsTrigger value="datos">Datos</TabsTrigger>
+                <TabsTrigger value="historial">Historial</TabsTrigger>
+              </TabsList>
+              <TabsContent value="datos">
+                <CustomerEditForm
+                  key={`${selectedCustomer.id}-${selectedCustomer.updatedAt}`}
+                  customer={selectedCustomer}
+                  onSaved={handleSaved}
+                  onCancel={closeDrawer}
+                  onDirtyChange={setFormDirty}
+                />
+              </TabsContent>
+              <TabsContent value="historial">
+                <CustomerOrderHistory
+                  customer={selectedCustomer}
+                  orders={orders.filter((order) => isRelatedOrderToCustomer(order, selectedCustomer))}
+                  labels={labels}
+                />
+              </TabsContent>
+            </Tabs>
           ) : null}
           {selectedCustomer && drawerMode === "merge" ? (
             <div className="grid gap-4">

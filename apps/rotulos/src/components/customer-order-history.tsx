@@ -5,7 +5,9 @@ import { Download, ImageDown, MessageCircle } from "lucide-react";
 import { formatCop, formatDate } from "@/lib/format";
 import { buildCustomerHistoryText, buildWhatsAppLink, downloadOrderSummaryPdf } from "@/lib/order-summary";
 import { downloadBlob, renderCustomerHistoryImage } from "@/lib/order-summary-image";
+import { collectAlternateContacts } from "@/lib/customer-orders";
 import type { Customer, OrderRecord } from "@/lib/business-types";
+import type { LabelRecord } from "@/lib/types";
 import { Button } from "@/components/ui/button";
 import { Card, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/components/ui/toast";
@@ -13,14 +15,18 @@ import { useToast } from "@/components/ui/toast";
 type CustomerOrderHistoryProps = {
   customer: Customer;
   orders: OrderRecord[];
+  labels?: LabelRecord[];
 };
 
-export function CustomerOrderHistory({ customer, orders }: CustomerOrderHistoryProps) {
+export function CustomerOrderHistory({ customer, orders, labels = [] }: CustomerOrderHistoryProps) {
   const toast = useToast();
   const [downloadingPdf, setDownloadingPdf] = useState(false);
   const [downloadingImage, setDownloadingImage] = useState(false);
   const sorted = [...orders].sort((a, b) => b.orderDate.localeCompare(a.orderDate));
   const grandTotal = orders.reduce((sum, order) => sum + order.total, 0);
+  const orderIds = new Set(orders.map((order) => order.id));
+  const labelCount = labels.filter((label) => label.orderId && orderIds.has(label.orderId)).length;
+  const alternateContacts = collectAlternateContacts(customer, orders);
 
   function handleSendWhatsApp() {
     const text = buildCustomerHistoryText(customer, orders);
@@ -51,7 +57,35 @@ export function CustomerOrderHistory({ customer, orders }: CustomerOrderHistoryP
   }
 
   return (
-    <Card className="shadow-none">
+    <div className="grid gap-4">
+      {alternateContacts.length > 0 ? (
+        <Card className="shadow-none">
+          <CardTitle>Otros datos usados</CardTitle>
+          <p className="mt-1 text-xs text-foreground-muted">
+            Telefonos o direcciones distintos al dato actual, encontrados en pedidos de este cliente.
+          </p>
+          <dl className="mt-3 grid gap-3">
+            {alternateContacts.map((contact) => (
+              <div key={contact.key} className="flex justify-between gap-4 border-b border-border pb-2 text-sm last:border-0 last:pb-0">
+                <dt className="text-foreground">
+                  {contact.phone ? <span className="block font-medium">{contact.phone}</span> : null}
+                  {contact.address ? (
+                    <span className="block text-foreground-muted">
+                      {contact.address}
+                      {contact.city ? `, ${contact.city}` : ""}
+                    </span>
+                  ) : null}
+                </dt>
+                <dd className="whitespace-nowrap text-right text-xs text-foreground-muted">
+                  {contact.count} pedido{contact.count === 1 ? "" : "s"}
+                </dd>
+              </div>
+            ))}
+          </dl>
+        </Card>
+      ) : null}
+
+      <Card className="shadow-none">
       <CardTitle>Historial de compras</CardTitle>
       {orders.length === 0 ? (
         <p className="mt-4 text-sm text-foreground-muted">Este cliente todavia no tiene pedidos registrados.</p>
@@ -85,8 +119,14 @@ export function CustomerOrderHistory({ customer, orders }: CustomerOrderHistoryP
             <span>Total comprado</span>
             <span>{formatCop(grandTotal)}</span>
           </div>
+          {labelCount > 0 ? (
+            <p className="mt-2 text-xs text-foreground-muted">
+              {labelCount} rotulo{labelCount === 1 ? "" : "s"} generado{labelCount === 1 ? "" : "s"} para este cliente.
+            </p>
+          ) : null}
         </>
       )}
-    </Card>
+      </Card>
+    </div>
   );
 }
