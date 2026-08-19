@@ -9,18 +9,27 @@ reciente.
 ## Proxima mejora recomendada
 
 Cuando Edwing pida continuar con las recomendaciones de producto, la
-**Bandeja de despacho / Por despachar** y los **reportes mas utiles para
-negocio** ya estan implementados y desplegados. Tambien quedaron
+**Bandeja de despacho / Por despachar**, los **reportes mas utiles para
+negocio** y el **historial unificado por cliente** (pestanas Datos/Historial
+en la ficha de cliente, con direcciones/telefonos historicos y conteo de
+rotulos) ya estan implementados y desplegados. Tambien quedaron
 implementados la validacion de calidad antes de generar rotulo, el resumen
-post-guardar pedido y el fix de fechas de negocio en zona Colombia.
+post-guardar pedido, el fix de fechas de negocio en zona Colombia y la
+exportacion de resumen de compra por cliente (WhatsApp/PDF/imagen, con
+identidad de marca Purple Shop).
 Contexto completo en `NEXT_STEPS.md` → "Recomendaciones para próxima fase".
 
-Las proximas recomendaciones grandes para retomar son:
+Las proximas recomendaciones grandes para retomar son (en este orden,
+acordado con Edwing 2026-08-19):
 
-- **Historial unificado por cliente**: al abrir un cliente, ver sus pedidos,
-  rotulos, direcciones/telefonos usados y total comprado.
-- **Restaurar o comparar backup JSON**: ya existe exportacion; falta una
-  restauracion controlada o comparador tecnico para emergencias.
+1. **Alertas de clientes inactivos**: detectar clientes sin pedidos hace
+   45+ dias (ej. en `Reportes` o el dashboard) para que Edwing les escriba
+   antes de perderlos. Bajo esfuerzo — ya existe `orderDate` por cliente.
+2. **Restaurar o comparar backup JSON**: ya existe exportacion; falta una
+   restauracion controlada o comparador tecnico para emergencias. Dejarlo
+   para el final: es el mas delicado porque implica sobrescribir datos de
+   produccion — necesita diseno cuidadoso (que se restaura, como se evitan
+   sobrescrituras accidentales).
 
 Mantener el flujo de cierre preferido por Edwing: verificar, commit, push y
 deploy siempre, salvo instruccion contraria explicita.
