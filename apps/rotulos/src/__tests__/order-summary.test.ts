@@ -60,7 +60,7 @@ describe("buildOrderSummaryText", () => {
     expect(text).toContain("ANA PEREZ");
     expect(text).toContain("2x CAMISETA ROSA");
     expect(text).toMatch(/Subtotal: \$\s?60\.000/);
-    expect(text).toMatch(/Descuento: \$\s?5\.000/);
+    expect(text).toMatch(/Descuento: -\$\s?5\.000/);
     expect(text).toMatch(/Envio: \$\s?8\.000/);
     expect(text).toMatch(/Total: \$\s?63\.000/);
   });

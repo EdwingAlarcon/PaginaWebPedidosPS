@@ -1,41 +1,50 @@
 import { formatCop, formatDate } from "@/lib/format";
 import type { Customer, OrderRecord } from "@/lib/business-types";
 
+const DIVIDER = "──────────────";
+
 function itemLine(item: OrderRecord["items"][number]): string {
-  return `- ${item.quantity}x ${item.productName} - ${formatCop(item.unitPrice)} c/u = ${formatCop(item.total)}`;
+  return `• ${item.quantity}x ${item.productName} — ${formatCop(item.unitPrice)} c/u = *${formatCop(item.total)}*`;
 }
 
 function orderItemLines(order: OrderRecord): string[] {
-  if (order.items.length === 0) return ["- (sin productos registrados)"];
+  if (order.items.length === 0) return ["• (sin productos registrados)"];
   return order.items.map(itemLine);
 }
 
 export function buildOrderSummaryText(order: OrderRecord): string {
   const lines: string[] = [
-    "Resumen de tu pedido - Purple Shop",
+    "*PURPLE SHOP*",
+    "_Resumen de tu pedido_",
+    DIVIDER,
     `Fecha: ${formatDate(order.orderDate)}`,
-    `Cliente: ${order.customer.fullName}`,
+    `Cliente: *${order.customer.fullName}*`,
     "",
-    "Productos:",
+    "*Productos*",
     ...orderItemLines(order),
     "",
     `Subtotal: ${formatCop(order.subtotal)}`,
   ];
-  if (order.discount > 0) lines.push(`Descuento: ${formatCop(order.discount)}`);
+  if (order.discount > 0) lines.push(`Descuento: -${formatCop(order.discount)}`);
   if (order.shippingCost > 0) lines.push(`Envio: ${formatCop(order.shippingCost)}`);
-  lines.push(`Total: ${formatCop(order.total)}`, "", "Gracias por tu compra!");
+  lines.push(`*Total: ${formatCop(order.total)}*`, DIVIDER, "_Gracias por tu compra!_");
   return lines.join("\n");
 }
 
 export function buildCustomerHistoryText(customer: Customer, orders: OrderRecord[]): string {
   const sorted = [...orders].sort((a, b) => a.orderDate.localeCompare(b.orderDate));
-  const lines: string[] = [`Historial de compras - ${customer.fullName}`, "Purple Shop", ""];
+  const lines: string[] = ["*PURPLE SHOP*", `_Historial de compras de ${customer.fullName}_`, DIVIDER];
   let grandTotal = 0;
   sorted.forEach((order, index) => {
     grandTotal += order.total;
-    lines.push(`Pedido ${index + 1} - ${formatDate(order.orderDate)}`, ...orderItemLines(order), `Total pedido: ${formatCop(order.total)}`, "");
+    lines.push(
+      "",
+      `*Pedido ${index + 1}* — ${formatDate(order.orderDate)}`,
+      ...orderItemLines(order),
+      `Total pedido: *${formatCop(order.total)}*`,
+    );
   });
-  lines.push(`Total comprado: ${formatCop(grandTotal)}`);
+  lines.push("", DIVIDER, `*Total comprado: ${formatCop(grandTotal)}*`, "_Gracias por tu preferencia!_");
   return lines.join("\n").trim();
 }
 
