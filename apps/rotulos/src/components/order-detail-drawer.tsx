@@ -5,9 +5,11 @@ import { useEffect, useState } from "react";
 import { Download, ImageDown, MessageCircle } from "lucide-react";
 import { formatCop } from "@/lib/format";
 import { getBusinessStore } from "@/lib/business-store";
+import { getLabelStore } from "@/lib/label-store";
 import { buildOrderSummaryText, downloadOrderSummaryPdf } from "@/lib/order-summary";
 import { buildWhatsAppLink } from "@/lib/whatsapp";
 import { downloadBlob, renderOrderSummaryImage } from "@/lib/order-summary-image";
+import { labelToShipmentTracking, type ShipmentTracking } from "@/lib/label-tracking";
 import type { OrderEdit, OrderRecord } from "@/lib/business-types";
 import { Button } from "@/components/ui/button";
 import { Card, CardTitle } from "@/components/ui/card";
@@ -115,17 +117,18 @@ export function OrderDetailDrawer({ order, onEdit }: OrderDetailDrawerProps) {
   const [edits, setEdits] = useState<OrderEdit[]>([]);
   const [downloadingPdf, setDownloadingPdf] = useState(false);
   const [downloadingImage, setDownloadingImage] = useState(false);
+  const [tracking, setTracking] = useState<ShipmentTracking | null>(null);
   const toast = useToast();
 
   function handleSendWhatsApp() {
-    const text = buildOrderSummaryText(order);
+    const text = buildOrderSummaryText(order, tracking);
     window.open(buildWhatsAppLink(order.customer.phone, text), "_blank", "noopener,noreferrer");
   }
 
   async function handleDownloadPdf() {
     setDownloadingPdf(true);
     try {
-      await downloadOrderSummaryPdf({ order }, `pedido-${order.orderDate}.pdf`);
+      await downloadOrderSummaryPdf({ order, tracking }, `pedido-${order.orderDate}.pdf`);
     } catch {
       toast.push({ variant: "danger", title: "No se pudo generar el PDF del pedido." });
     } finally {
@@ -136,7 +139,7 @@ export function OrderDetailDrawer({ order, onEdit }: OrderDetailDrawerProps) {
   async function handleDownloadImage() {
     setDownloadingImage(true);
     try {
-      const blob = await renderOrderSummaryImage(order);
+      const blob = await renderOrderSummaryImage(order, tracking);
       await downloadBlob(blob, `pedido-${order.orderDate}.png`);
     } catch {
       toast.push({ variant: "danger", title: "No se pudo generar la imagen del pedido." });
@@ -154,6 +157,23 @@ export function OrderDetailDrawer({ order, onEdit }: OrderDetailDrawerProps) {
       })
       .catch(() => {
         if (active) setEdits([]);
+      });
+    return () => {
+      active = false;
+    };
+  }, [order.id]);
+
+  useEffect(() => {
+    let active = true;
+    getLabelStore()
+      .listLabels()
+      .then((labels) => {
+        if (!active) return;
+        const label = labels.find((item) => item.orderId === order.id) ?? null;
+        setTracking(labelToShipmentTracking(label));
+      })
+      .catch(() => {
+        if (active) setTracking(null);
       });
     return () => {
       active = false;

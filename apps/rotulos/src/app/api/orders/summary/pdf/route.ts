@@ -2,6 +2,7 @@ import { NextRequest } from "next/server";
 import { renderCustomerHistoryPdfBuffer, renderOrderSummaryPdfBuffer } from "@/lib/order-summary-pdf";
 import { requireSession } from "@/lib/require-session";
 import type { Customer, OrderRecord } from "@/lib/business-types";
+import type { ShipmentTracking } from "@/lib/label-tracking";
 
 export const runtime = "nodejs";
 
@@ -15,6 +16,10 @@ function isValidOrder(value: unknown): value is OrderRecord {
 
 function isValidCustomer(value: unknown): value is Customer {
   return isObject(value) && typeof value.fullName === "string";
+}
+
+function isValidTracking(value: unknown): value is ShipmentTracking {
+  return isObject(value) && typeof value.carrier === "string" && typeof value.trackingNumber === "string";
 }
 
 function slug(value: string): string {
@@ -51,7 +56,8 @@ export async function POST(request: NextRequest) {
 
   if (isValidOrder(payload.order)) {
     const order = payload.order;
-    const pdf = await renderOrderSummaryPdfBuffer(order);
+    const tracking = isValidTracking(payload.tracking) ? payload.tracking : null;
+    const pdf = await renderOrderSummaryPdfBuffer(order, tracking);
     return pdfResponse(pdf, `pedido-${slug(order.customer.fullName)}-${order.orderDate}.pdf`);
   }
 

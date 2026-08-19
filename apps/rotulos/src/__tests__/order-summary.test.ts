@@ -72,6 +72,24 @@ describe("buildOrderSummaryText", () => {
 
     expect(text).toContain("(sin productos registrados)");
   });
+
+  it("includes shipment tracking info when provided", () => {
+    const text = buildOrderSummaryText(makeOrder(), {
+      carrier: "COORDINADORA",
+      trackingNumber: "123456789",
+      trackingUrl: "https://coordinadora.com/rastreo/123",
+    });
+
+    expect(text).toContain("COORDINADORA");
+    expect(text).toContain("123456789");
+    expect(text).toContain("https://coordinadora.com/rastreo/123");
+  });
+
+  it("omits the shipment section when there is no tracking", () => {
+    const text = buildOrderSummaryText(makeOrder());
+
+    expect(text).not.toContain("*Envio*");
+  });
 });
 
 describe("buildCustomerHistoryText", () => {

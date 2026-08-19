@@ -2,6 +2,7 @@
 
 import { formatCop, formatDate } from "@/lib/format";
 import type { Customer, OrderRecord } from "@/lib/business-types";
+import type { ShipmentTracking } from "@/lib/label-tracking";
 
 const WIDTH = 640;
 const MARGIN = 32;
@@ -161,6 +162,21 @@ function drawTotals(b: ReceiptBuilder, order: OrderRecord): void {
   b.y += boxHeight / 2 + 28;
 }
 
+function drawShipment(b: ReceiptBuilder, tracking?: ShipmentTracking | null): void {
+  if (!tracking) return;
+  b.text(MARGIN, "Envio", boldFont(13), COLORS.purple800);
+  b.y += 22;
+  b.text(MARGIN, `Transportadora: ${tracking.carrier || "-"}`, regularFont(10.5), COLORS.muted);
+  b.y += 18;
+  b.text(MARGIN, `Guia: ${tracking.trackingNumber}`, boldFont(10.5), COLORS.text);
+  b.y += 18;
+  if (tracking.trackingUrl) {
+    b.text(MARGIN, `Rastrealo aqui: ${tracking.trackingUrl}`, regularFont(10.5), COLORS.muted);
+    b.y += 18;
+  }
+  b.y += 8;
+}
+
 function drawFooter(b: ReceiptBuilder): void {
   b.line(MARGIN, WIDTH - MARGIN);
   b.y += 26;
@@ -225,7 +241,7 @@ async function renderBuilder(b: ReceiptBuilder): Promise<Blob> {
   });
 }
 
-export async function renderOrderSummaryImage(order: OrderRecord): Promise<Blob> {
+export async function renderOrderSummaryImage(order: OrderRecord, tracking?: ShipmentTracking | null): Promise<Blob> {
   const b = new ReceiptBuilder();
   drawHeader(b, "Resumen de tu pedido", "Purple Shop");
   drawMeta(b, [
@@ -235,6 +251,7 @@ export async function renderOrderSummaryImage(order: OrderRecord): Promise<Blob>
   ]);
   drawItemsTable(b, order);
   drawTotals(b, order);
+  drawShipment(b, tracking);
   drawFooter(b);
   return renderBuilder(b);
 }

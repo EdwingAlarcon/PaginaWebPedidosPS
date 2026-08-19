@@ -1,7 +1,15 @@
 import { formatCop, formatDate } from "@/lib/format";
 import type { Customer, OrderRecord } from "@/lib/business-types";
+import type { ShipmentTracking } from "@/lib/label-tracking";
 
 const DIVIDER = "──────────────";
+
+function shipmentLines(tracking?: ShipmentTracking | null): string[] {
+  if (!tracking) return [];
+  const lines = ["", "*Envio*", `Transportadora: ${tracking.carrier || "-"}`, `Guia: *${tracking.trackingNumber}*`];
+  if (tracking.trackingUrl) lines.push(`Rastrealo aqui: ${tracking.trackingUrl}`);
+  return lines;
+}
 
 function itemLine(item: OrderRecord["items"][number]): string {
   return `• ${item.quantity}x ${item.productName} — ${formatCop(item.unitPrice)} c/u = *${formatCop(item.total)}*`;
@@ -12,7 +20,7 @@ function orderItemLines(order: OrderRecord): string[] {
   return order.items.map(itemLine);
 }
 
-export function buildOrderSummaryText(order: OrderRecord): string {
+export function buildOrderSummaryText(order: OrderRecord, tracking?: ShipmentTracking | null): string {
   const lines: string[] = [
     "*PURPLE SHOP*",
     "_Resumen de tu pedido_",
@@ -27,7 +35,7 @@ export function buildOrderSummaryText(order: OrderRecord): string {
   ];
   if (order.discount > 0) lines.push(`Descuento: -${formatCop(order.discount)}`);
   if (order.shippingCost > 0) lines.push(`Envio: ${formatCop(order.shippingCost)}`);
-  lines.push(`*Total: ${formatCop(order.total)}*`, DIVIDER, "_Gracias por tu compra!_");
+  lines.push(`*Total: ${formatCop(order.total)}*`, ...shipmentLines(tracking), DIVIDER, "_Gracias por tu compra!_");
   return lines.join("\n");
 }
 
@@ -48,7 +56,9 @@ export function buildCustomerHistoryText(customer: Customer, orders: OrderRecord
   return lines.join("\n").trim();
 }
 
-type OrderSummaryPdfPayload = { order: OrderRecord } | { customer: Customer; orders: OrderRecord[] };
+type OrderSummaryPdfPayload =
+  | { order: OrderRecord; tracking?: ShipmentTracking | null }
+  | { customer: Customer; orders: OrderRecord[] };
 
 export async function downloadOrderSummaryPdf(payload: OrderSummaryPdfPayload, fallbackFileName: string): Promise<void> {
   const response = await fetch("/api/orders/summary/pdf", {

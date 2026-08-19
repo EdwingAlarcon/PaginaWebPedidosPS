@@ -3,6 +3,7 @@ import { join } from "node:path";
 import { PDFDocument, StandardFonts, rgb, type PDFFont, type PDFImage, type PDFPage } from "pdf-lib";
 import { formatCop, formatDate } from "@/lib/format";
 import type { Customer, OrderRecord } from "@/lib/business-types";
+import type { ShipmentTracking } from "@/lib/label-tracking";
 
 const PAGE_WIDTH = 595.28;
 const PAGE_HEIGHT = 841.89;
@@ -208,6 +209,15 @@ function drawTotalsBlock(ctx: PdfContext, order: OrderRecord): PdfContext {
   return { ...next, y: boxTop - boxHeight - 16 };
 }
 
+function drawShipmentBlock(ctx: PdfContext, tracking?: ShipmentTracking | null): PdfContext {
+  if (!tracking) return ctx;
+  let next = drawWrapped(ctx, "Envio", { size: 11, bold: true });
+  next = drawWrapped(next, `Transportadora: ${tracking.carrier || "-"}`, { size: 9.5, muted: true });
+  next = drawWrapped(next, `Guia: ${tracking.trackingNumber}`, { size: 9.5, bold: true });
+  if (tracking.trackingUrl) next = drawWrapped(next, `Rastrealo aqui: ${tracking.trackingUrl}`, { size: 9.5, muted: true });
+  return { ...next, y: next.y - 8 };
+}
+
 function drawFooter(ctx: PdfContext): void {
   const next = ensureSpace(ctx, 30);
   next.page.drawLine({
@@ -252,7 +262,7 @@ function drawCustomerMeta(ctx: PdfContext, fields: Array<[string, string]>): Pdf
   return { ...next, y: next.y - 6 };
 }
 
-export async function renderOrderSummaryPdfBuffer(order: OrderRecord): Promise<Buffer> {
+export async function renderOrderSummaryPdfBuffer(order: OrderRecord, tracking?: ShipmentTracking | null): Promise<Buffer> {
   const base = await createContext();
   const page = base.doc.addPage([PAGE_WIDTH, PAGE_HEIGHT]);
   let ctx: PdfContext = { ...base, page, y: PAGE_HEIGHT };
@@ -266,6 +276,7 @@ export async function renderOrderSummaryPdfBuffer(order: OrderRecord): Promise<B
 
   ctx = drawItemsTable(ctx, order);
   ctx = drawTotalsBlock(ctx, order);
+  ctx = drawShipmentBlock(ctx, tracking);
   drawFooter(ctx);
 
   const bytes = await ctx.doc.save();

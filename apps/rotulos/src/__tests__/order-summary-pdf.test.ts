@@ -68,6 +68,16 @@ describe("renderOrderSummaryPdfBuffer", () => {
 
     expect(buffer.subarray(0, 5).toString("latin1")).toBe("%PDF-");
   });
+
+  it("does not throw when shipment tracking is included", async () => {
+    const buffer = await renderOrderSummaryPdfBuffer(makeOrder(), {
+      carrier: "COORDINADORA",
+      trackingNumber: "123456789",
+      trackingUrl: "https://coordinadora.com/rastreo/123",
+    });
+
+    expect(buffer.subarray(0, 5).toString("latin1")).toBe("%PDF-");
+  });
 });
 
 describe("renderCustomerHistoryPdfBuffer", () => {
