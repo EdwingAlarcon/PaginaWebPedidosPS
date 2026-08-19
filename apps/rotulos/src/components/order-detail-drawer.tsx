@@ -2,12 +2,15 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import { Download, MessageCircle } from "lucide-react";
 import { formatCop } from "@/lib/format";
 import { getBusinessStore } from "@/lib/business-store";
+import { buildOrderSummaryText, buildWhatsAppLink, downloadOrderSummaryPdf } from "@/lib/order-summary";
 import type { OrderEdit, OrderRecord } from "@/lib/business-types";
 import { Button } from "@/components/ui/button";
 import { Card, CardTitle } from "@/components/ui/card";
 import { Badge, StatusBadge } from "@/components/ui/badge";
+import { useToast } from "@/components/ui/toast";
 
 type OrderDetailDrawerProps = {
   order: OrderRecord;
@@ -108,6 +111,24 @@ function OrderEditEntry({ edit }: { edit: OrderEdit }) {
 export function OrderDetailDrawer({ order, onEdit }: OrderDetailDrawerProps) {
   const adjustment = latestAdjustment(order.notes);
   const [edits, setEdits] = useState<OrderEdit[]>([]);
+  const [downloadingPdf, setDownloadingPdf] = useState(false);
+  const toast = useToast();
+
+  function handleSendWhatsApp() {
+    const text = buildOrderSummaryText(order);
+    window.open(buildWhatsAppLink(order.customer.phone, text), "_blank", "noopener,noreferrer");
+  }
+
+  async function handleDownloadPdf() {
+    setDownloadingPdf(true);
+    try {
+      await downloadOrderSummaryPdf({ order }, `pedido-${order.orderDate}.pdf`);
+    } catch {
+      toast.push({ variant: "danger", title: "No se pudo generar el PDF del pedido." });
+    } finally {
+      setDownloadingPdf(false);
+    }
+  }
 
   useEffect(() => {
     let active = true;
@@ -126,7 +147,15 @@ export function OrderDetailDrawer({ order, onEdit }: OrderDetailDrawerProps) {
 
   return (
     <div className="flex flex-col gap-4">
-      <div className="flex justify-end gap-2">
+      <div className="flex flex-wrap justify-end gap-2">
+        <Button type="button" variant="secondary" size="sm" onClick={handleSendWhatsApp} disabled={!order.customer.phone}>
+          <MessageCircle className="size-4" aria-hidden="true" />
+          Enviar por WhatsApp
+        </Button>
+        <Button type="button" variant="secondary" size="sm" onClick={handleDownloadPdf} loading={downloadingPdf}>
+          <Download className="size-4" aria-hidden="true" />
+          Descargar PDF
+        </Button>
         <Button type="button" variant="secondary" size="sm" asChild>
           <Link href={`/crear?fromOrderId=${order.id}`}>Generar rotulo</Link>
         </Button>

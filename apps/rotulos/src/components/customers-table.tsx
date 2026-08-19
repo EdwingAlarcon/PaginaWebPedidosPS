@@ -9,6 +9,7 @@ import { DataTable, type DataTableColumn } from "@/components/ui/data-table";
 import { Button, IconButton } from "@/components/ui/button";
 import { Drawer, DrawerContent } from "@/components/ui/drawer";
 import { CustomerEditForm } from "@/components/customer-edit-form";
+import { CustomerOrderHistory } from "@/components/customer-order-history";
 import { useToast } from "@/components/ui/toast";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { FormField } from "@/components/ui/form-field";
@@ -206,13 +207,19 @@ export function CustomersTable() {
           className="max-w-2xl"
         >
           {selectedCustomer && drawerMode === "edit" ? (
-            <CustomerEditForm
-              key={`${selectedCustomer.id}-${selectedCustomer.updatedAt}`}
-              customer={selectedCustomer}
-              onSaved={handleSaved}
-              onCancel={closeDrawer}
-              onDirtyChange={setFormDirty}
-            />
+            <div className="grid gap-4">
+              <CustomerEditForm
+                key={`${selectedCustomer.id}-${selectedCustomer.updatedAt}`}
+                customer={selectedCustomer}
+                onSaved={handleSaved}
+                onCancel={closeDrawer}
+                onDirtyChange={setFormDirty}
+              />
+              <CustomerOrderHistory
+                customer={selectedCustomer}
+                orders={orders.filter((order) => isRelatedOrderToCustomer(order, selectedCustomer))}
+              />
+            </div>
           ) : null}
           {selectedCustomer && drawerMode === "merge" ? (
             <div className="grid gap-4">

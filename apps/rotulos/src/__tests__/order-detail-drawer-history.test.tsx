@@ -1,9 +1,15 @@
 import { render, screen, waitFor } from "@testing-library/react";
+import type { ReactNode } from "react";
 import { describe, expect, it, vi } from "vitest";
 import * as businessStoreModule from "@/lib/business-store";
 import type { BusinessStore } from "@/lib/business-store";
 import { OrderDetailDrawer } from "@/components/order-detail-drawer";
 import type { OrderRecord } from "@/lib/business-types";
+import { ToastProvider } from "@/components/ui/toast";
+
+function renderWithToast(children: ReactNode) {
+  return render(<ToastProvider>{children}</ToastProvider>);
+}
 
 function baseOrder(): OrderRecord {
   return {
@@ -34,7 +40,7 @@ function baseOrder(): OrderRecord {
 
 describe("OrderDetailDrawer - historial de cambios", () => {
   it("no muestra la seccion de historial cuando no hay ediciones registradas", async () => {
-    render(<OrderDetailDrawer order={baseOrder()} />);
+    renderWithToast(<OrderDetailDrawer order={baseOrder()} />);
 
     await waitFor(() => expect(screen.queryByText("Historial de cambios")).not.toBeInTheDocument());
   });
@@ -53,7 +59,7 @@ describe("OrderDetailDrawer - historial de cambios", () => {
       ]),
     } as unknown as BusinessStore);
 
-    render(<OrderDetailDrawer order={baseOrder()} />);
+    renderWithToast(<OrderDetailDrawer order={baseOrder()} />);
 
     expect(await screen.findByText("Historial de cambios")).toBeInTheDocument();
     expect(screen.getByText("edwing@example.com")).toBeInTheDocument();
@@ -83,7 +89,7 @@ describe("OrderDetailDrawer - historial de cambios", () => {
       ]),
     } as unknown as BusinessStore);
 
-    render(<OrderDetailDrawer order={baseOrder()} />);
+    renderWithToast(<OrderDetailDrawer order={baseOrder()} />);
 
     expect(await screen.findByText("Historial de cambios")).toBeInTheDocument();
     expect(screen.getByText(/BOLSO:/)).toBeInTheDocument();
