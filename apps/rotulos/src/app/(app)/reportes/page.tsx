@@ -4,18 +4,22 @@ import { useEffect, useMemo, useState } from "react";
 import { getInventoryStore } from "@/lib/inventory-store";
 import { getBusinessStore } from "@/lib/business-store";
 import { getLabelStore } from "@/lib/label-store";
-import { businessDaysAgo } from "@/lib/date";
+import { businessDaysAgo, businessToday } from "@/lib/date";
 import { formatCop, formatDate } from "@/lib/format";
+import { isRelatedOrderToCustomer } from "@/lib/customer-orders";
+import { buildWhatsAppLink } from "@/lib/order-summary";
 import type { Product, StockAlerts } from "@/lib/inventory-types";
 import type { Customer, OrderRecord } from "@/lib/business-types";
 import type { LabelRecord } from "@/lib/types";
 import { MetricCard, Card, CardTitle } from "@/components/ui/card";
 import { DatePicker } from "@/components/ui/date-picker";
 import { FormField } from "@/components/ui/form-field";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 import { EmptyState } from "@/components/ui/empty-state";
 import { PageHeading } from "@/components/ui/page-heading";
 import { Badge } from "@/components/ui/badge";
-import { DollarSign, Package, Receipt, Ticket, TriangleAlert, Users } from "lucide-react";
+import { DollarSign, MessageCircle, Package, Receipt, Ticket, TriangleAlert, Users } from "lucide-react";
 
 const emptyAlerts: StockAlerts = { lowStock: [], critical: [], overstocked: [] };
 
@@ -109,6 +113,38 @@ export function getPendingOrders(orders: OrderRecord[], limit = 6): OrderRecord[
     .slice(0, limit);
 }
 
+export type InactiveCustomer = {
+  customer: Customer;
+  lastOrderDate: string;
+  daysInactive: number;
+};
+
+function daysBetween(from: string, to: string): number {
+  const fromMs = Date.parse(`${from}T00:00:00Z`);
+  const toMs = Date.parse(`${to}T00:00:00Z`);
+  return Math.floor((toMs - fromMs) / (24 * 60 * 60 * 1000));
+}
+
+export function getInactiveCustomers(
+  customers: Customer[],
+  orders: OrderRecord[],
+  thresholdDays: number,
+  today: string = businessToday(),
+): InactiveCustomer[] {
+  const result: InactiveCustomer[] = [];
+  for (const customer of customers) {
+    let lastOrderDate = "";
+    for (const order of orders) {
+      if (!isRelatedOrderToCustomer(order, customer)) continue;
+      if (order.orderDate > lastOrderDate) lastOrderDate = order.orderDate;
+    }
+    if (!lastOrderDate) continue;
+    const daysInactive = daysBetween(lastOrderDate, today);
+    if (daysInactive >= thresholdDays) result.push({ customer, lastOrderDate, daysInactive });
+  }
+  return result.sort((a, b) => b.daysInactive - a.daysInactive);
+}
+
 export default function ReportsPage() {
   const [products, setProducts] = useState<Product[]>([]);
   const [alerts, setAlerts] = useState<StockAlerts>(emptyAlerts);
@@ -117,6 +153,7 @@ export default function ReportsPage() {
   const [labels, setLabels] = useState<LabelRecord[]>([]);
   const [from, setFrom] = useState(daysAgo(30));
   const [to, setTo] = useState(daysAgo(0));
+  const [inactiveThreshold, setInactiveThreshold] = useState(45);
 
   useEffect(() => {
     const inventoryStore = getInventoryStore();
@@ -149,6 +186,11 @@ export default function ReportsPage() {
   const inventoryValue = products.reduce((sum, p) => sum + p.currentStock * p.unitPrice, 0);
   const pendingOrders = useMemo(() => getPendingOrders(orders), [orders]);
   const pendingTotal = orders.filter((order) => order.status === "pending").reduce((sum, order) => sum + order.total, 0);
+  const inactiveCustomers = useMemo(
+    () => getInactiveCustomers(customers, orders, inactiveThreshold),
+    [customers, orders, inactiveThreshold],
+  );
+  const inactiveCustomersShown = inactiveCustomers.slice(0, 15);
 
   const topProducts = useMemo(() => {
     const totals = new Map<string, number>();
@@ -311,6 +353,69 @@ export default function ReportsPage() {
             </table>
           )}
         </div>
+      </Card>
+
+      <Card className="mt-4">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <CardTitle>Clientes inactivos</CardTitle>
+          <FormField label="Inactivo desde (dias)" className="mb-0">
+            <Input
+              type="number"
+              min={1}
+              value={inactiveThreshold}
+              onChange={(event) => setInactiveThreshold(Math.max(1, Number(event.target.value) || 1))}
+              className="w-24"
+            />
+          </FormField>
+        </div>
+        <div className="mt-4 overflow-x-auto rounded-lg border border-border">
+          {inactiveCustomers.length === 0 ? (
+            <EmptyState
+              title="Sin clientes inactivos"
+              description={`Ningun cliente lleva ${inactiveThreshold}+ dias sin comprar.`}
+              className="rounded-none border-0"
+            />
+          ) : (
+            <table className="w-full min-w-[640px] border-collapse text-sm">
+              <thead>
+                <tr className="border-b border-border bg-surface-muted">
+                  <th scope="col" className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-foreground-muted">Cliente</th>
+                  <th scope="col" className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-foreground-muted">Telefono</th>
+                  <th scope="col" className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-foreground-muted">Ultima compra</th>
+                  <th scope="col" className="px-4 py-3 text-right text-xs font-semibold uppercase tracking-wide text-foreground-muted">Dias inactivo</th>
+                  <th scope="col" className="px-4 py-3 text-right text-xs font-semibold uppercase tracking-wide text-foreground-muted">Accion</th>
+                </tr>
+              </thead>
+              <tbody>
+                {inactiveCustomersShown.map(({ customer, lastOrderDate, daysInactive }) => (
+                  <tr key={customer.id} className="border-b border-border last:border-0">
+                    <td className="px-4 py-3 font-medium text-foreground">{customer.fullName}</td>
+                    <td className="px-4 py-3 text-foreground-muted">{customer.phone || "-"}</td>
+                    <td className="px-4 py-3 text-foreground-muted">{formatDate(lastOrderDate)}</td>
+                    <td className="px-4 py-3 text-right text-foreground">{daysInactive}</td>
+                    <td className="px-4 py-3 text-right">
+                      {customer.phone ? (
+                        <Button type="button" variant="secondary" size="sm" asChild>
+                          <a href={buildWhatsAppLink(customer.phone, "")} target="_blank" rel="noopener noreferrer">
+                            <MessageCircle className="size-4" aria-hidden="true" />
+                            Escribirle
+                          </a>
+                        </Button>
+                      ) : (
+                        <span className="text-xs text-foreground-muted">Sin telefono</span>
+                      )}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
+        </div>
+        {inactiveCustomers.length > inactiveCustomersShown.length ? (
+          <p className="mt-3 text-xs text-foreground-muted">
+            Mostrando {inactiveCustomersShown.length} de {inactiveCustomers.length} clientes inactivos.
+          </p>
+        ) : null}
       </Card>
     </main>
   );

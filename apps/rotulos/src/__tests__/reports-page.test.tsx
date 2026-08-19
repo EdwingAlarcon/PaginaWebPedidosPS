@@ -1,7 +1,23 @@
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
-import { BarList, getMonthlySales, getPendingOrders, getTopCustomersBySales } from "@/app/(app)/reportes/page";
-import type { OrderRecord } from "@/lib/business-types";
+import { BarList, getInactiveCustomers, getMonthlySales, getPendingOrders, getTopCustomersBySales } from "@/app/(app)/reportes/page";
+import type { Customer, OrderRecord } from "@/lib/business-types";
+
+function customer(overrides: Partial<Customer>): Customer {
+  return {
+    id: "customer-1",
+    fullName: "CLIENTE BASE",
+    phone: "3000000000",
+    email: "",
+    department: "CUNDINAMARCA",
+    city: "BOGOTA",
+    address: "",
+    neighborhood: "",
+    createdAt: "2026-01-01T00:00:00.000Z",
+    updatedAt: "2026-01-01T00:00:00.000Z",
+    ...overrides,
+  };
+}
 
 type OrderOverrides = Partial<Omit<OrderRecord, "customer">> & {
   customer?: Partial<OrderRecord["customer"]>;
@@ -94,5 +110,36 @@ describe("reports page", () => {
     ]);
 
     expect(result.map((item) => item.id)).toEqual(["old", "new"]);
+  });
+
+  it("flags customers whose last related order is older than the threshold", () => {
+    const ana = customer({ id: "ana", fullName: "ANA PEREZ" });
+    const luisa = customer({ id: "luisa", fullName: "LUISA GOMEZ" });
+    const orders = [
+      order({ id: "1", customerId: "ana", customer: { fullName: "ANA PEREZ" }, orderDate: "2026-06-01" }),
+      order({ id: "2", customerId: "luisa", customer: { fullName: "LUISA GOMEZ" }, orderDate: "2026-07-20" }),
+    ];
+
+    const result = getInactiveCustomers([ana, luisa], orders, 45, "2026-08-01");
+
+    expect(result).toEqual([{ customer: ana, lastOrderDate: "2026-06-01", daysInactive: 61 }]);
+  });
+
+  it("uses the most recent related order, matching by customerId or historical name", () => {
+    const ana = customer({ id: "ana", fullName: "ANA PEREZ" });
+    const orders = [
+      order({ id: "1", customerId: "ana", customer: { fullName: "ANA PEREZ" }, orderDate: "2026-06-01" }),
+      order({ id: "2", customerId: null, customer: { fullName: "ana perez" }, orderDate: "2026-06-20" }),
+    ];
+
+    const result = getInactiveCustomers([ana], orders, 30, "2026-08-01");
+
+    expect(result).toEqual([{ customer: ana, lastOrderDate: "2026-06-20", daysInactive: 42 }]);
+  });
+
+  it("excludes customers with no related orders at all", () => {
+    const withoutOrders = customer({ id: "no-orders", fullName: "SIN PEDIDOS" });
+
+    expect(getInactiveCustomers([withoutOrders], [], 45, "2026-08-01")).toEqual([]);
   });
 });
