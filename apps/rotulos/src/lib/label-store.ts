@@ -42,6 +42,8 @@ type LabelRow = {
   created_by: string | null;
   created_at: string;
   updated_at: string;
+  tracking_number: string | null;
+  tracking_url: string | null;
 };
 
 type SettingsRow = {
@@ -74,6 +76,8 @@ function rowToLabel(row: LabelRow): LabelRecord {
     updatedAt: row.updated_at,
     pdfUrl: row.pdf_url,
     createdBy: row.created_by,
+    trackingNumber: row.tracking_number,
+    trackingUrl: row.tracking_url,
   };
 }
 
@@ -119,6 +123,8 @@ function labelToRow(draft: LabelDraft, orderNumber: string) {
     package_count: draft.packageCount,
     carrier: draft.carrier,
     status: draft.status === "borrador" ? "generado" : draft.status,
+    tracking_number: draft.trackingNumber?.trim() || null,
+    tracking_url: draft.trackingUrl?.trim() || null,
   };
 }
 

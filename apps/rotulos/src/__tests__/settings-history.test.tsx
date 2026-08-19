@@ -137,4 +137,27 @@ describe("HistoryTable", () => {
     expect(await screen.findByText("Etiqueta PS-2026-000002 duplicada.")).toBeInTheDocument();
     expect(await store.listLabels()).toHaveLength(2);
   });
+
+  it("saves a tracking number and then offers to send it by WhatsApp", async () => {
+    const store = getLabelStore();
+    const draft = createBlankLabelDraft();
+    draft.recipient.fullName = "Ana Perez";
+    draft.recipient.phone = "3001111111";
+    const saved = await store.saveLabel(draft, await store.getSettings());
+    const user = userEvent.setup();
+
+    renderHistoryTable([saved]);
+
+    await user.click(screen.getByRole("button", { name: `Acciones para el rotulo ${saved.orderNumber}` }));
+    await user.click(screen.getByRole("menuitem", { name: "Agregar guia" }));
+    await user.type(screen.getByLabelText("Numero de guia"), "987654321");
+    await user.click(screen.getByRole("button", { name: "Guardar" }));
+
+    expect(await screen.findByText("Guia de rastreo guardada.")).toBeInTheDocument();
+    expect((await store.listLabels())[0].trackingNumber).toBe("987654321");
+
+    await user.click(screen.getByRole("button", { name: `Acciones para el rotulo ${saved.orderNumber}` }));
+    expect(screen.getByRole("menuitem", { name: "Enviar guia por WhatsApp" })).toBeInTheDocument();
+    expect(screen.getByRole("menuitem", { name: "Editar guia" })).toBeInTheDocument();
+  });
 });

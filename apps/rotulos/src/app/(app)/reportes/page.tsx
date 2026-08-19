@@ -7,7 +7,7 @@ import { getLabelStore } from "@/lib/label-store";
 import { businessDaysAgo, businessToday } from "@/lib/date";
 import { formatCop, formatDate } from "@/lib/format";
 import { isRelatedOrderToCustomer } from "@/lib/customer-orders";
-import { buildWhatsAppLink } from "@/lib/order-summary";
+import { buildWhatsAppLink } from "@/lib/whatsapp";
 import type { Product, StockAlerts } from "@/lib/inventory-types";
 import type { Customer, OrderRecord } from "@/lib/business-types";
 import type { LabelRecord } from "@/lib/types";

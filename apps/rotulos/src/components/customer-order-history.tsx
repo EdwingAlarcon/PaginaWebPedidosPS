@@ -3,7 +3,8 @@
 import { useState } from "react";
 import { Download, ImageDown, MessageCircle } from "lucide-react";
 import { formatCop, formatDate } from "@/lib/format";
-import { buildCustomerHistoryText, buildWhatsAppLink, downloadOrderSummaryPdf } from "@/lib/order-summary";
+import { buildCustomerHistoryText, downloadOrderSummaryPdf } from "@/lib/order-summary";
+import { buildWhatsAppLink } from "@/lib/whatsapp";
 import { downloadBlob, renderCustomerHistoryImage } from "@/lib/order-summary-image";
 import { collectAlternateContacts } from "@/lib/customer-orders";
 import type { Customer, OrderRecord } from "@/lib/business-types";

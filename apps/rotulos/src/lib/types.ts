@@ -79,6 +79,8 @@ export type LabelDraft = {
   codAmount: number;
   packageCount: number;
   status: LabelStatus;
+  trackingNumber?: string | null;
+  trackingUrl?: string | null;
 };
 
 export type LabelRecord = LabelDraft & {

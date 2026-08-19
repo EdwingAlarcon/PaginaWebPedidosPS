@@ -2,9 +2,11 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { MoreHorizontal, Plus, Printer, Copy, Pencil, Trash2, Download } from "lucide-react";
+import { MoreHorizontal, Plus, Printer, Copy, Pencil, Trash2, Download, Truck, MessageCircle } from "lucide-react";
 import { getLabelStore } from "@/lib/label-store";
 import type { LabelRecord } from "@/lib/types";
+import { buildTrackingWhatsAppText } from "@/lib/label-tracking";
+import { buildWhatsAppLink } from "@/lib/whatsapp";
 import { DataTable, type DataTableColumn } from "@/components/ui/data-table";
 import { LabelStatusBadge } from "@/components/ui/badge";
 import { Button, IconButton } from "@/components/ui/button";
@@ -16,13 +18,30 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
+import { TrackingDialog } from "@/components/tracking-dialog";
 import { useToast } from "@/components/ui/toast";
 
 export function HistoryTable({ labels }: { labels: LabelRecord[] }) {
   const [tableLabels, setTableLabels] = useState(labels);
   const [pendingDelete, setPendingDelete] = useState<LabelRecord | null>(null);
   const [deleting, setDeleting] = useState(false);
+  const [trackingLabel, setTrackingLabel] = useState<LabelRecord | null>(null);
   const toast = useToast();
+
+  async function saveTracking(trackingNumber: string, trackingUrl: string) {
+    if (!trackingLabel) return;
+    const store = getLabelStore();
+    const settings = await store.getSettings();
+    const updated = await store.saveLabel({ ...trackingLabel, trackingNumber, trackingUrl }, settings);
+    setTableLabels((current) => current.map((label) => (label.id === updated.id ? updated : label)));
+    setTrackingLabel(null);
+    toast.push({ variant: "success", title: "Guia de rastreo guardada." });
+  }
+
+  function sendTrackingByWhatsApp(label: LabelRecord) {
+    const text = buildTrackingWhatsAppText(label);
+    window.open(buildWhatsAppLink(label.recipient.phone, text), "_blank", "noopener,noreferrer");
+  }
 
   useEffect(() => {
     getLabelStore().listLabels().then(setTableLabels);
@@ -113,6 +132,17 @@ export function HistoryTable({ labels }: { labels: LabelRecord[] }) {
               </a>
             </DropdownMenuItem>
             <DropdownMenuSeparator />
+            <DropdownMenuItem onSelect={() => setTrackingLabel(label)}>
+              <Truck className="size-4" aria-hidden="true" />
+              {label.trackingNumber ? "Editar guia" : "Agregar guia"}
+            </DropdownMenuItem>
+            {label.trackingNumber ? (
+              <DropdownMenuItem onSelect={() => sendTrackingByWhatsApp(label)} disabled={!label.recipient.phone}>
+                <MessageCircle className="size-4" aria-hidden="true" />
+                Enviar guia por WhatsApp
+              </DropdownMenuItem>
+            ) : null}
+            <DropdownMenuSeparator />
             <DropdownMenuItem
               onSelect={() => setPendingDelete(label)}
               className="text-danger data-[highlighted]:bg-[var(--danger-soft)]"
@@ -162,6 +192,11 @@ export function HistoryTable({ labels }: { labels: LabelRecord[] }) {
         variant="danger"
         loading={deleting}
         onConfirm={confirmDelete}
+      />
+      <TrackingDialog
+        label={trackingLabel}
+        onOpenChange={(open) => !open && setTrackingLabel(null)}
+        onSave={saveTracking}
       />
     </>
   );
