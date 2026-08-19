@@ -144,22 +144,24 @@ function drawItemsTable(ctx: PdfContext, order: OrderRecord): PdfContext {
     next = drawWrapped(next, "Sin productos registrados.", { size: 9, muted: true });
   } else {
     order.items.forEach((item, index) => {
-      const rowHeight = item.productCode ? 32 : 20;
+      const rowHeight = item.productCode ? 30 : 20;
       next = ensureSpace(next, rowHeight);
       if (index % 2 === 1) {
+        // El rectangulo cubre EXACTAMENTE el slot de esta fila (sin desborde
+        // hacia arriba) para no invadir el texto de codigo de la fila anterior.
         next.page.drawRectangle({
           x: MARGIN - 6,
-          y: next.y - rowHeight + 8,
+          y: next.y - rowHeight,
           width: CONTENT_WIDTH + 12,
           height: rowHeight,
           color: PURPLE_50,
         });
       }
-      const rowY = next.y - 13;
+      const rowY = next.y - 12;
       const name = truncate(next.boldFont, item.productName, 9.5, PRODUCT_MAX_WIDTH);
       drawText(next.page, name, MARGIN, rowY, { size: 9.5, font: next.boldFont, color: TEXT_COLOR });
       if (item.productCode) {
-        drawText(next.page, sanitize(item.productCode), MARGIN, rowY - 12, { size: 8, font: next.font, color: MUTED_COLOR });
+        drawText(next.page, sanitize(item.productCode), MARGIN, rowY - 11, { size: 8, font: next.font, color: MUTED_COLOR });
       }
       drawRightAligned(next.page, String(item.quantity), QTY_RIGHT, rowY, { size: 9.5, font: next.font, color: TEXT_COLOR });
       drawRightAligned(next.page, formatCop(item.unitPrice), PRICE_RIGHT, rowY, { size: 9.5, font: next.font, color: MUTED_COLOR });

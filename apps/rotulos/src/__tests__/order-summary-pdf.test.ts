@@ -53,6 +53,21 @@ describe("renderOrderSummaryPdfBuffer", () => {
 
     expect(buffer.subarray(0, 5).toString("latin1")).toBe("%PDF-");
   });
+
+  it("does not throw with many coded items (regression: zebra-row overlap over product codes)", async () => {
+    const items = Array.from({ length: 13 }, (_, i) => ({
+      id: `item-${i}`,
+      productCode: `COD${i}`,
+      productName: `PRODUCTO ${i}`,
+      category: "",
+      quantity: 1,
+      unitPrice: 10000,
+      total: 10000,
+    }));
+    const buffer = await renderOrderSummaryPdfBuffer(makeOrder({ items, subtotal: 130000, total: 130000 }));
+
+    expect(buffer.subarray(0, 5).toString("latin1")).toBe("%PDF-");
+  });
 });
 
 describe("renderCustomerHistoryPdfBuffer", () => {

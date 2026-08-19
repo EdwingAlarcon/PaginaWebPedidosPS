@@ -1,9 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import { Download, MessageCircle } from "lucide-react";
+import { Download, ImageDown, MessageCircle } from "lucide-react";
 import { formatCop, formatDate } from "@/lib/format";
 import { buildCustomerHistoryText, buildWhatsAppLink, downloadOrderSummaryPdf } from "@/lib/order-summary";
+import { downloadBlob, renderCustomerHistoryImage } from "@/lib/order-summary-image";
 import type { Customer, OrderRecord } from "@/lib/business-types";
 import { Button } from "@/components/ui/button";
 import { Card, CardTitle } from "@/components/ui/card";
@@ -17,6 +18,7 @@ type CustomerOrderHistoryProps = {
 export function CustomerOrderHistory({ customer, orders }: CustomerOrderHistoryProps) {
   const toast = useToast();
   const [downloadingPdf, setDownloadingPdf] = useState(false);
+  const [downloadingImage, setDownloadingImage] = useState(false);
   const sorted = [...orders].sort((a, b) => b.orderDate.localeCompare(a.orderDate));
   const grandTotal = orders.reduce((sum, order) => sum + order.total, 0);
 
@@ -36,6 +38,18 @@ export function CustomerOrderHistory({ customer, orders }: CustomerOrderHistoryP
     }
   }
 
+  async function handleDownloadImage() {
+    setDownloadingImage(true);
+    try {
+      const blob = await renderCustomerHistoryImage(customer, orders);
+      await downloadBlob(blob, `historial-${customer.fullName}.png`);
+    } catch {
+      toast.push({ variant: "danger", title: "No se pudo generar la imagen del historial." });
+    } finally {
+      setDownloadingImage(false);
+    }
+  }
+
   return (
     <Card className="shadow-none">
       <CardTitle>Historial de compras</CardTitle>
@@ -51,6 +65,10 @@ export function CustomerOrderHistory({ customer, orders }: CustomerOrderHistoryP
             <Button type="button" variant="secondary" size="sm" onClick={handleDownloadPdf} loading={downloadingPdf}>
               <Download className="size-4" aria-hidden="true" />
               Descargar PDF
+            </Button>
+            <Button type="button" variant="secondary" size="sm" onClick={handleDownloadImage} loading={downloadingImage}>
+              <ImageDown className="size-4" aria-hidden="true" />
+              Descargar imagen
             </Button>
           </div>
           <dl className="mt-4">

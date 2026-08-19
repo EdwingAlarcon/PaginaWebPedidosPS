@@ -2,10 +2,11 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { Download, MessageCircle } from "lucide-react";
+import { Download, ImageDown, MessageCircle } from "lucide-react";
 import { formatCop } from "@/lib/format";
 import { getBusinessStore } from "@/lib/business-store";
 import { buildOrderSummaryText, buildWhatsAppLink, downloadOrderSummaryPdf } from "@/lib/order-summary";
+import { downloadBlob, renderOrderSummaryImage } from "@/lib/order-summary-image";
 import type { OrderEdit, OrderRecord } from "@/lib/business-types";
 import { Button } from "@/components/ui/button";
 import { Card, CardTitle } from "@/components/ui/card";
@@ -112,6 +113,7 @@ export function OrderDetailDrawer({ order, onEdit }: OrderDetailDrawerProps) {
   const adjustment = latestAdjustment(order.notes);
   const [edits, setEdits] = useState<OrderEdit[]>([]);
   const [downloadingPdf, setDownloadingPdf] = useState(false);
+  const [downloadingImage, setDownloadingImage] = useState(false);
   const toast = useToast();
 
   function handleSendWhatsApp() {
@@ -127,6 +129,18 @@ export function OrderDetailDrawer({ order, onEdit }: OrderDetailDrawerProps) {
       toast.push({ variant: "danger", title: "No se pudo generar el PDF del pedido." });
     } finally {
       setDownloadingPdf(false);
+    }
+  }
+
+  async function handleDownloadImage() {
+    setDownloadingImage(true);
+    try {
+      const blob = await renderOrderSummaryImage(order);
+      await downloadBlob(blob, `pedido-${order.orderDate}.png`);
+    } catch {
+      toast.push({ variant: "danger", title: "No se pudo generar la imagen del pedido." });
+    } finally {
+      setDownloadingImage(false);
     }
   }
 
@@ -155,6 +169,10 @@ export function OrderDetailDrawer({ order, onEdit }: OrderDetailDrawerProps) {
         <Button type="button" variant="secondary" size="sm" onClick={handleDownloadPdf} loading={downloadingPdf}>
           <Download className="size-4" aria-hidden="true" />
           Descargar PDF
+        </Button>
+        <Button type="button" variant="secondary" size="sm" onClick={handleDownloadImage} loading={downloadingImage}>
+          <ImageDown className="size-4" aria-hidden="true" />
+          Descargar imagen
         </Button>
         <Button type="button" variant="secondary" size="sm" asChild>
           <Link href={`/crear?fromOrderId=${order.id}`}>Generar rotulo</Link>
