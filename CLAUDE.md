@@ -18,9 +18,7 @@ y desplegados. Tambien quedaron implementados la validacion de calidad
 antes de generar rotulo, el resumen post-guardar pedido, el fix de fechas
 de negocio en zona Colombia, la exportacion de resumen de compra por
 cliente (WhatsApp/PDF/imagen, con identidad de marca Purple Shop) y el
-numero de guia de rastreo por rotulo (código desplegado, pero **con la
-migracion de base de datos pendiente de aplicar** — ver "Estado operativo
-reciente" abajo).
+numero de guia de rastreo por rotulo (envio por WhatsApp).
 Contexto completo en `NEXT_STEPS.md` → "Recomendaciones para próxima fase".
 
 La proxima recomendacion grande para retomar (acordado con Edwing
@@ -165,13 +163,12 @@ explicitamente si no pudiste probar con sesion autenticada).
 
 - 2026-08-19: se agrego numero de guia de rastreo por rotulo (cargable desde
   Historial, envio por WhatsApp). La migracion
-  `202608190001_add_labels_tracking.sql` **queda pendiente de aplicar en
-  Supabase remoto** (mismo `Unauthorized` de sesion CLI vencida que
-  `202608150002`). Hasta que se aplique, "Agregar guia" en produccion va a
-  fallar al guardar porque las columnas `tracking_number`/`tracking_url`
-  no existen todavia en la tabla `labels` remota. Aplicarla a mano
-  (`supabase login` + `supabase db push --workdir apps/rotulos`, o pegar el
-  SQL en el editor de Supabase) antes de anunciar la funcion como lista.
+  `202608190001_add_labels_tracking.sql` no se pudo aplicar por el CLI
+  (sesion sin token — `supabase login` no soporta el flujo interactivo en
+  este entorno no-TTY) asi que Edwing la aplico a mano desde el SQL
+  Editor de Supabase el mismo dia; columnas `tracking_number`/
+  `tracking_url` ya existen en `labels` remota, funcion lista de punta a
+  punta.
 - 2026-08-15: se limpió el duplicado real visible en Clientes (`PILAR
   CONGOTE`, importado sin teléfono + app con teléfono) usando `merge_customers`
   en producción; verificado 0 grupos duplicados por nombre. La migración
