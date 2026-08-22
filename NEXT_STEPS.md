@@ -1,12 +1,11 @@
 # Purple Shop — Próximos pasos / handoff
 
-> Actualización 2026-08-22: import histórico 2024/2025 cargado en
-> producción, alias de clientes unificados y lista de clientes ordenada
-> alfabéticamente. El próximo bloque queda como sprint post-importación:
+> Actualización 2026-08-22: sprint post-importación implementado en código:
 > pedidos importados, alias de importación, detector de duplicados, reporte
-> histórico 2024/2025 y comparador JSON solo lectura.
+> histórico 2024/2025 y comparador JSON solo lectura. La restauración
+> automática de backups sigue fuera de alcance sin aprobación explícita.
 
-> Plan de sprint listo:
+> Plan de sprint:
 > `docs/superpowers/plans/2026-08-22-operacion-post-importacion.md`.
 > Spec:
 > `docs/superpowers/specs/2026-08-22-operacion-post-importacion-design.md`.
@@ -91,12 +90,7 @@ comparativos excluyen pedidos cancelados.
 
 ### Próximas recomendaciones grandes
 
-1. **Sprint post-importación 2024/2025**: plan completo en
-   `docs/superpowers/plans/2026-08-22-operacion-post-importacion.md`.
-   Orden recomendado: vista de pedidos importados, mapa de alias para
-   importación, detector de duplicados, reporte histórico y comparador de
-   backup JSON solo lectura.
-2. **Restauración controlada de backup JSON**: dejarla para después del
+1. **Restauración controlada de backup JSON**: dejarla para después del
    comparador. No escribir datos desde backups sin un diseño y aprobación
    nuevos.
 
@@ -113,6 +107,15 @@ comparativos excluyen pedidos cancelados.
   BAJONERO, ANDREA UBAQUE duplicado y PILAR CONGOTE duplicado. Clientes se
   muestran alfabeticamente desde `business-store.ts`. Commits:
   `5c9e8e4` y `35c365b`.
+- **Sprint post-importación 2024/2025** (2026-08-22): implementadas las
+  herramientas operativas para auditar lo importado y prevenir repetidos:
+  vista `/pedidos/importados` con métricas y filtros; alias canónicos
+  `JOHANNA/ZAIDA/LINA/PAULA` en el importador; alertas de posibles clientes
+  duplicados en `Clientes` sin auto-unificar; panel histórico 2024/2025 en
+  `Reportes`; comparador de backup JSON en `Configuración` que lee un
+  archivo local y compara contra `/api/export?format=json` sin subir el
+  archivo ni escribir en la base. Commits: `f7917be`, `8368d75`, `49699f8`,
+  `ec9dbfe`, `b328576`.
 - **Clientes repetidos por importación histórica sin teléfono** (2026-08-15):
   en producción había 1 duplicado visible por nombre (`PILAR CONGOTE`): una
   ficha `excel_import` sin teléfono y una ficha creada desde la app con

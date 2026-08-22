@@ -21,17 +21,18 @@ cliente (WhatsApp/PDF/imagen, con identidad de marca Purple Shop) y el
 numero de guia de rastreo por rotulo (envio por WhatsApp).
 Contexto completo en `NEXT_STEPS.md` → "Recomendaciones para próxima fase".
 
-La proxima recomendacion grande para retomar quedo organizada como sprint
-post-importacion (acordado con Edwing 2026-08-22, no se empezo codigo ese
-dia):
+La recomendacion grande post-importacion quedo implementada en codigo el
+2026-08-22:
 
 - Plan:
   `docs/superpowers/plans/2026-08-22-operacion-post-importacion.md`
 - Spec:
   `docs/superpowers/specs/2026-08-22-operacion-post-importacion-design.md`
-- Orden recomendado: vista de pedidos importados, mapa de alias para
-  importacion, detector de clientes duplicados, reporte historico
-  2024/2025, comparador de backup JSON solo lectura.
+- Entregado: vista `/pedidos/importados`, mapa de alias para importacion,
+  detector de clientes duplicados en `Clientes`, reporte historico
+  2024/2025 en `Reportes`, comparador de backup JSON solo lectura en
+  `Configuracion`.
+- Commits: `f7917be`, `8368d75`, `49699f8`, `ec9dbfe`, `b328576`.
 - **No implementar restauracion automatica de JSON en este sprint** sin
   aprobacion nueva de Edwing; el comparador debe ser primero una herramienta
   de diagnostico sin escrituras.
@@ -179,6 +180,14 @@ explicitamente si no pudiste probar con sesion autenticada).
   JOHANNA CICACHA, ZAIDA -> ZAIDA SUAREZ, LINA -> LINA GONZALEZ,
   PAULA -> PAULA BAJONERO, ANDREA UBAQUE duplicado y PILAR CONGOTE
   duplicado. Clientes queda alfabetico desde `business-store.ts`.
+- 2026-08-22: sprint post-importacion implementado. Nuevos modulos:
+  `src/lib/imported-orders.ts`, `src/lib/customer-aliases.ts`,
+  `src/lib/customer-duplicates.ts`, `src/lib/historical-reports.ts`,
+  `src/lib/backup-compare.ts`; componentes:
+  `imported-orders-table.tsx`, `customer-duplicate-alerts.tsx`,
+  `historical-report-panel.tsx`, `backup-compare.tsx`. La UI no restaura
+  backups ni auto-unifica clientes; solo muestra evidencia y abre el flujo
+  manual existente de unificacion.
 - 2026-08-19: se agrego numero de guia de rastreo por rotulo (cargable desde
   Historial, envio por WhatsApp). La migracion
   `202608190001_add_labels_tracking.sql` no se pudo aplicar por el CLI
