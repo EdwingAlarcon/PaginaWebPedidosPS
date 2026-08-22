@@ -187,7 +187,11 @@ explicitamente si no pudiste probar con sesion autenticada).
   `imported-orders-table.tsx`, `customer-duplicate-alerts.tsx`,
   `historical-report-panel.tsx`, `backup-compare.tsx`. La UI no restaura
   backups ni auto-unifica clientes; solo muestra evidencia y abre el flujo
-  manual existente de unificacion.
+  manual existente de unificacion. Validacion final local: lint con 2
+  warnings preexistentes de login, typecheck, 62 archivos/286 tests y build.
+  Produccion: push a `main` hasta `d7c0e39`, Vercel deployment
+  `purpleshoponline-antgtee2s-edwingalarcons-projects.vercel.app` Ready con
+  alias `https://purpleshoponline.vercel.app`.
 - 2026-08-19: se agrego numero de guia de rastreo por rotulo (cargable desde
   Historial, envio por WhatsApp). La migracion
   `202608190001_add_labels_tracking.sql` no se pudo aplicar por el CLI

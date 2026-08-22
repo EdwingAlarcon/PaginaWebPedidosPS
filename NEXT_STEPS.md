@@ -115,7 +115,12 @@ comparativos excluyen pedidos cancelados.
   `Reportes`; comparador de backup JSON en `Configuración` que lee un
   archivo local y compara contra `/api/export?format=json` sin subir el
   archivo ni escribir en la base. Commits: `f7917be`, `8368d75`, `49699f8`,
-  `ec9dbfe`, `b328576`.
+  `ec9dbfe`, `b328576`. Validación final local: `npm run lint`
+  (2 warnings preexistentes de `<img>` en login), `npm run typecheck`,
+  `npm test` (62 archivos, 286 tests) y `npm run build`. Producción:
+  push a `main` hasta `d7c0e39`, Vercel deployment
+  `purpleshoponline-antgtee2s-edwingalarcons-projects.vercel.app` en estado
+  `Ready`, alias `https://purpleshoponline.vercel.app`.
 - **Clientes repetidos por importación histórica sin teléfono** (2026-08-15):
   en producción había 1 duplicado visible por nombre (`PILAR CONGOTE`): una
   ficha `excel_import` sin teléfono y una ficha creada desde la app con
