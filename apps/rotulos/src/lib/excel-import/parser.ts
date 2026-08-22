@@ -4,6 +4,7 @@ const COL_REF = 0;
 const COL_CLIENTE = 1;
 const COL_DESCRIPCION = 2;
 const COL_CANTIDAD = 3;
+const COL_PRECIO_UNITARIO = 5;
 const COL_PRECIO_TOTAL = 6;
 
 const SHARED_TOTALS_WARNING =
@@ -19,7 +20,7 @@ function isRowEmpty(row: SheetRow): boolean {
 
 function isHeaderRow(row: SheetRow): boolean {
   return (
-    normCell(row[COL_REF]) === "REF" &&
+    (normCell(row[COL_REF]) === "REF" || normCell(row[COL_REF]) === "REF #") &&
     normCell(row[COL_CLIENTE]) === "CLIENTE" &&
     normCell(row[COL_DESCRIPCION]) === "DESCRIPCION" &&
     normCell(row[COL_CANTIDAD]) === "CANTIDAD"
@@ -52,6 +53,27 @@ function newBlock(sheetName: string, blockIndex: number, rowNumber: number): Par
   };
 }
 
+function markerFromRow(row: SheetRow): "SUBTOTAL" | "ENVIO" | "TOTAL" | null {
+  const cantidadMarker = normCell(row[COL_CANTIDAD]);
+  const unitPriceMarker = normCell(row[COL_PRECIO_UNITARIO]);
+  const marker = cantidadMarker || unitPriceMarker;
+  if (marker === "SUBTOTAL") return "SUBTOTAL";
+  if (marker === "ENVIO" || marker === "VALOR ENVIO") return "ENVIO";
+  if (marker === "TOTAL") return "TOTAL";
+  return null;
+}
+
+function historicalRefBaseFor(sheetName: string, description: string): string {
+  const normalized = normCell(description);
+  let category = "SIN_REF";
+  if (normalized.includes("CAMISETA")) category = "CAMISETA";
+  else if (normalized.includes("PERFUME")) category = "PERFUME";
+  else if (normalized.includes("MEDIA")) category = "MEDIA";
+
+  const sheetToken = normCell(sheetName).replace(/[^A-Z0-9]+/g, "_").replace(/^_+|_+$/g, "");
+  return `HIST_${category}_${sheetToken}`;
+}
+
 export function parseSheetRows(sheetName: string, rows: SheetRow[]): SheetParseResult {
   const blocks: ParsedBlock[] = [];
   const unexpectedCells: SheetParseResult["unexpectedCells"] = [];
@@ -60,6 +82,7 @@ export function parseSheetRows(sheetName: string, rows: SheetRow[]): SheetParseR
   let phase: "items" | "closed" = "items";
   let closingGroupIsShared = false;
   let blockIndex = 0;
+  const historicalRefCounts = new Map<string, number>();
 
   const pushUnexpectedCellsFrom = (row: SheetRow, rowNumber: number, fromColumn: number) => {
     for (let columnIndex = fromColumn; columnIndex < row.length; columnIndex++) {
@@ -102,10 +125,9 @@ export function parseSheetRows(sheetName: string, rows: SheetRow[]): SheetParseR
     if (!current) return;
     if (isRowEmpty(row)) return;
 
-    const cantidadCell = normCell(row[COL_CANTIDAD]);
-    const isMarkerWord = cantidadCell === "SUBTOTAL" || cantidadCell === "ENVIO" || cantidadCell === "TOTAL";
+    const marker = markerFromRow(row);
 
-    if (phase === "items" && cantidadCell === "SUBTOTAL") {
+    if (phase === "items" && marker === "SUBTOTAL") {
       const group = [...pendingGroup, current];
       pendingGroup = [];
       closingGroupIsShared = group.length > 1;
@@ -123,7 +145,7 @@ export function parseSheetRows(sheetName: string, rows: SheetRow[]): SheetParseR
       return;
     }
 
-    if (phase === "closed" && cantidadCell === "ENVIO") {
+    if (phase === "closed" && marker === "ENVIO") {
       if (closingGroupIsShared) {
         // ya explicado por SHARED_TOTALS_WARNING; el monto no es atribuible.
       } else if (!current.shippingRowSeen) {
@@ -137,7 +159,7 @@ export function parseSheetRows(sheetName: string, rows: SheetRow[]): SheetParseR
       return;
     }
 
-    if (phase === "closed" && cantidadCell === "TOTAL") {
+    if (phase === "closed" && marker === "TOTAL") {
       if (closingGroupIsShared) {
         // ya explicado por SHARED_TOTALS_WARNING; el monto no es atribuible.
       } else if (!current.totalRowSeen) {
@@ -151,7 +173,7 @@ export function parseSheetRows(sheetName: string, rows: SheetRow[]): SheetParseR
       return;
     }
 
-    if (isMarkerWord) {
+    if (marker) {
       // palabra marcador en un estado que no la espera (ej. SUBTOTAL repetido
       // estando ya cerrado, o ENVIO/TOTAL mientras el bloque sigue abierto).
       pushUnexpectedCellsFrom(row, rowNumber, 0);
@@ -160,11 +182,25 @@ export function parseSheetRows(sheetName: string, rows: SheetRow[]): SheetParseR
     }
 
     // fila de ítem
-    const ref = String(row[COL_REF] ?? "").trim();
+    let ref = String(row[COL_REF] ?? "").trim();
     const clientName = String(row[COL_CLIENTE] ?? "").trim().toUpperCase();
     const description = String(row[COL_DESCRIPCION] ?? "").trim();
-    const quantity = toNumber(row[COL_CANTIDAD]);
+    let quantity = toNumber(row[COL_CANTIDAD]);
     const lineTotal = toNumber(row[COL_PRECIO_TOTAL]);
+    if (quantity === null && description && lineTotal !== null) {
+      quantity = 1;
+    }
+    if (!ref && description && lineTotal !== null) {
+      const refBase = historicalRefBaseFor(sheetName, description);
+      const count = (historicalRefCounts.get(refBase) ?? 0) + 1;
+      historicalRefCounts.set(refBase, count);
+      ref = count === 1 ? refBase : `${refBase}_${count}`;
+    }
+    if (!ref && !clientName && !description && quantity === null && lineTotal === null) {
+      pushUnexpectedCellsFrom(row, rowNumber, COL_PRECIO_TOTAL + 1);
+      current.endRow = rowNumber;
+      return;
+    }
 
     if (clientName && current.clientName && clientName !== current.clientName) {
       // cambio de cliente sin header ni SUBTOTAL de por medio: cierra el

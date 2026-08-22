@@ -7,9 +7,14 @@ describe("parseSheetPeriod", () => {
   });
 
   it("interpreta meses con nombre largo (MAYO, JUNIO, JULIO)", () => {
+    expect(parseSheetPeriod("ENERO 2025")).toBe("2025-01-01");
+    expect(parseSheetPeriod("FEBRERO 2025")).toBe("2025-02-01");
+    expect(parseSheetPeriod("MARZO 2025")).toBe("2025-03-01");
+    expect(parseSheetPeriod("ABRIL 2025")).toBe("2025-04-01");
     expect(parseSheetPeriod("MAYO 2026")).toBe("2026-05-01");
     expect(parseSheetPeriod("JUNIO 2026")).toBe("2026-06-01");
     expect(parseSheetPeriod("JULIO 2026")).toBe("2026-07-01");
+    expect(parseSheetPeriod("AGOSTO 2025")).toBe("2025-08-01");
   });
 
   it("interpreta SEPT y ENE (casos límite de la lista real de hojas)", () => {

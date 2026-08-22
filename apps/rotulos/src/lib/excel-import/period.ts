@@ -1,17 +1,26 @@
 const MONTH_BY_TOKEN: Record<string, number> = {
   ENE: 1,
+  ENERO: 1,
   FEB: 2,
+  FEBRERO: 2,
   MAR: 3,
+  MARZO: 3,
   ABR: 4,
+  ABRIL: 4,
   MAYO: 5,
   JUNIO: 6,
   JULIO: 7,
   AGO: 8,
+  AGOSTO: 8,
   SEPT: 9,
   SEP: 9,
+  SEPTIEMBRE: 9,
   OCT: 10,
+  OCTUBRE: 10,
   NOV: 11,
+  NOVIEMBRE: 11,
   DIC: 12,
+  DICIEMBRE: 12,
 };
 
 export function parseSheetPeriod(sheetName: string): string {

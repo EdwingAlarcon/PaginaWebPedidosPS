@@ -3,6 +3,7 @@ import { parseSheetRows } from "@/lib/excel-import/parser";
 import type { SheetRow } from "@/lib/excel-import/types";
 
 const HEADER: SheetRow = ["REF", "CLIENTE", "DESCRIPCION", "CANTIDAD", "TALLA", "PRECIO UNITARIO", "PRECIO TOTAL"];
+const HEADER_REF_HASH: SheetRow = ["REF #", "CLIENTE", "DESCRIPCION", "CANTIDAD", "TALLA", "PRECIO UNITARIO", "PRECIO TOTAL"];
 
 describe("parseSheetRows", () => {
   it("parsea un bloque único con subtotal, ignorando columna extra pegada al último ítem", () => {
@@ -23,6 +24,67 @@ describe("parseSheetRows", () => {
     expect(block.subtotalDeclared).toBe(35000);
     expect(block.errors).toEqual([]);
     expect(result.unexpectedCells).toEqual([{ rowNumber: 4, columnIndex: 7, value: 100000 }]);
+  });
+
+  it("acepta headers REF # y filas de totales escritas en la columna PRECIO UNITARIO", () => {
+    const rows: SheetRow[] = [
+      HEADER_REF_HASH,
+      ["ACC814", "LAURA OLIS", "PORTACOMIDA 4 COMPARTIMIENTOS", 1, null, null, 26000],
+      ["ACC1043", "LAURA OLIS", "PORTACOMIDA INFANTIL GATICO", 1, null, null, 16500],
+      [null, null, null, null, null, "SUBTOTAL ", 42500],
+      [null, null, null, null, null, "VALOR ENVIO ", 8000],
+      [null, null, null, null, null, "TOTAL", 50500],
+    ];
+
+    const result = parseSheetRows("ENERO 2025", rows);
+
+    expect(result.blocks).toHaveLength(1);
+    expect(result.blocks[0].clientName).toBe("LAURA OLIS");
+    expect(result.blocks[0].items).toHaveLength(2);
+    expect(result.blocks[0].subtotalDeclared).toBe(42500);
+    expect(result.blocks[0].shippingDeclared).toBe(8000);
+    expect(result.blocks[0].totalDeclared).toBe(50500);
+    expect(result.blocks[0].errors).toEqual([]);
+  });
+
+  it("asume cantidad 1 cuando la cantidad viene vacía en históricos con precio total", () => {
+    const rows: SheetRow[] = [
+      HEADER_REF_HASH,
+      ["A466", "JOHANNA", "ANILLO GOTA DORADO", null, "UNICA", null, 19000],
+      ["P588", "JOHANNA", "PULSERA COVER GOLD BOLAS", null, null, null, 28000],
+      [null, null, null, null, null, "SUBTOTAL", 47000],
+    ];
+
+    const result = parseSheetRows("ABR 2024", rows);
+
+    expect(result.blocks).toHaveLength(1);
+    expect(result.blocks[0].items).toEqual([
+      { rowNumber: 2, ref: "A466", clientName: "JOHANNA", description: "ANILLO GOTA DORADO", quantity: 1, lineTotal: 19000 },
+      { rowNumber: 3, ref: "P588", clientName: "JOHANNA", description: "PULSERA COVER GOLD BOLAS", quantity: 1, lineTotal: 28000 },
+    ]);
+    expect(result.blocks[0].errors).toEqual([]);
+  });
+
+  it("genera códigos históricos por categoría y periodo cuando falta REF en camiseta, perfume o medias", () => {
+    const rows: SheetRow[] = [
+      HEADER_REF_HASH,
+      [null, "ZAIDA", "CAMISETA CORAZON ANIMAL PRINT", 1, null, null, 42000],
+      [null, "LINA", "PERFUME HOMBRE JEAN PAUL G", 1, null, null, 115000],
+      [null, "LINA", "MEDIA TOBILLERA HELLO KITTY", 1, null, null, 7500],
+      [null, "LINA", "MEDIA TOBILLERA YOSHI", 1, null, null, 7500],
+      [null, null, null, null, null, "SUBTOTAL", 164500],
+    ];
+
+    const result = parseSheetRows("AGOSTO 2025", rows);
+
+    expect(result.blocks.map((block) => block.clientName)).toEqual(["ZAIDA", "LINA"]);
+    expect(result.blocks[0].items[0].ref).toBe("HIST_CAMISETA_AGOSTO_2025");
+    expect(result.blocks[1].items.map((item) => item.ref)).toEqual([
+      "HIST_PERFUME_AGOSTO_2025",
+      "HIST_MEDIA_AGOSTO_2025",
+      "HIST_MEDIA_AGOSTO_2025_2",
+    ]);
+    expect(result.blocks.flatMap((block) => block.errors)).toEqual([]);
   });
 
   it("parsea múltiples bloques en la misma hoja, con ENVIO vacío en uno de ellos", () => {
@@ -147,6 +209,20 @@ describe("parseSheetRows", () => {
 
     expect(result.blocks).toHaveLength(1);
     expect(result.blocks[0].items).toHaveLength(2);
+  });
+
+  it("no invalida el bloque cuando una fila sin ítem solo trae datos sueltos en columnas extra", () => {
+    const rows: SheetRow[] = [
+      HEADER_REF_HASH,
+      ["Z1335", "PILAR", "SET 3 ARETES", 1, null, null, 13500],
+      [null, null, null, null, null, null, null, 13500],
+    ];
+
+    const result = parseSheetRows("FEB 2024", rows);
+
+    expect(result.blocks[0].items).toHaveLength(1);
+    expect(result.blocks[0].errors).toEqual([]);
+    expect(result.unexpectedCells).toEqual([{ rowNumber: 3, columnIndex: 7, value: 13500 }]);
   });
 
   it("un nuevo header cierra el bloque anterior aunque no haya SUBTOTAL", () => {
