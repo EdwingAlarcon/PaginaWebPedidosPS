@@ -1,11 +1,16 @@
 # Purple Shop — Próximos pasos / handoff
 
-> Actualización 2026-08-14 noche: implementadas la **Bandeja de
-> despacho**, la validación de calidad antes de generar rótulo, el resumen
-> post-guardar pedido, el fix de fechas de negocio en zona Colombia y los
-> **reportes más útiles para negocio**. Las próximas recomendaciones grandes
-> para retomar son: **historial unificado por cliente** y
-> **restaurar/comparar backup JSON**.
+> Actualización 2026-08-22: import histórico 2024/2025 cargado en
+> producción, alias de clientes unificados y lista de clientes ordenada
+> alfabéticamente. El próximo bloque queda como sprint post-importación:
+> pedidos importados, alias de importación, detector de duplicados, reporte
+> histórico 2024/2025 y comparador JSON solo lectura.
+
+> Plan de sprint listo:
+> `docs/superpowers/plans/2026-08-22-operacion-post-importacion.md`.
+> Spec:
+> `docs/superpowers/specs/2026-08-22-operacion-post-importacion-design.md`.
+> No comenzar restauración automática de backups sin aprobación explícita.
 
 > Última actualización: 2026-07-27 Colombia (sesión larga: proxy.ts de
 > Next.js 16 — con un bug real que causó un outage corto en producción,
@@ -86,13 +91,28 @@ comparativos excluyen pedidos cancelados.
 
 ### Próximas recomendaciones grandes
 
-1. **Historial unificado por cliente**: al abrir un cliente, ver sus pedidos,
-   rótulos, direcciones/teléfonos usados y total comprado.
-2. **Restaurar o comparar backup JSON**: ya existe exportación; falta una
-   restauración controlada o comparador técnico para emergencias.
+1. **Sprint post-importación 2024/2025**: plan completo en
+   `docs/superpowers/plans/2026-08-22-operacion-post-importacion.md`.
+   Orden recomendado: vista de pedidos importados, mapa de alias para
+   importación, detector de duplicados, reporte histórico y comparador de
+   backup JSON solo lectura.
+2. **Restauración controlada de backup JSON**: dejarla para después del
+   comparador. No escribir datos desde backups sin un diseño y aprobación
+   nuevos.
 
 ## Hecho recientemente
 
+- **Import histórico adicional 2024/2025 y limpieza de clientes**
+  (2026-08-22): usando `Copia de REFERENCIAS-2024-2025.xlsx`, el importador
+  quedó ajustado para `REF #`, nombres largos de meses, cantidades vacías
+  como `1` y refs historicas tipo `HIST_CAMISETA_MAR_2024` sin sufijo de
+  fila. Se creó backup JSON antes del import y antes de unificar clientes.
+  Producción terminó con 73 pedidos nuevos, 2 omitidos por idempotencia,
+  99 pedidos, 766 líneas y 14 clientes. Se unificaron JOHANNA -> JOHANNA
+  CICACHA, ZAIDA -> ZAIDA SUAREZ, LINA -> LINA GONZALEZ, PAULA -> PAULA
+  BAJONERO, ANDREA UBAQUE duplicado y PILAR CONGOTE duplicado. Clientes se
+  muestran alfabeticamente desde `business-store.ts`. Commits:
+  `5c9e8e4` y `35c365b`.
 - **Clientes repetidos por importación histórica sin teléfono** (2026-08-15):
   en producción había 1 duplicado visible por nombre (`PILAR CONGOTE`): una
   ficha `excel_import` sin teléfono y una ficha creada desde la app con

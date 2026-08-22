@@ -21,14 +21,20 @@ cliente (WhatsApp/PDF/imagen, con identidad de marca Purple Shop) y el
 numero de guia de rastreo por rotulo (envio por WhatsApp).
 Contexto completo en `NEXT_STEPS.md` → "Recomendaciones para próxima fase".
 
-La proxima recomendacion grande para retomar (acordado con Edwing
-2026-08-19):
+La proxima recomendacion grande para retomar quedo organizada como sprint
+post-importacion (acordado con Edwing 2026-08-22, no se empezo codigo ese
+dia):
 
-- **Restaurar o comparar backup JSON**: ya existe exportacion; falta una
-  restauracion controlada o comparador tecnico para emergencias. Es la mas
-  delicada porque implica sobrescribir datos de produccion — necesita
-  diseno cuidadoso (que se restaura, como se evitan sobrescrituras
-  accidentales) antes de tocar codigo.
+- Plan:
+  `docs/superpowers/plans/2026-08-22-operacion-post-importacion.md`
+- Spec:
+  `docs/superpowers/specs/2026-08-22-operacion-post-importacion-design.md`
+- Orden recomendado: vista de pedidos importados, mapa de alias para
+  importacion, detector de clientes duplicados, reporte historico
+  2024/2025, comparador de backup JSON solo lectura.
+- **No implementar restauracion automatica de JSON en este sprint** sin
+  aprobacion nueva de Edwing; el comparador debe ser primero una herramienta
+  de diagnostico sin escrituras.
 
 Mantener el flujo de cierre preferido por Edwing: verificar, commit, push y
 deploy siempre, salvo instruccion contraria explicita.
@@ -161,6 +167,18 @@ explicitamente si no pudiste probar con sesion autenticada).
 
 ## Estado operativo reciente
 
+- 2026-08-22: se amplio y corrio el importador contra
+  `Copia de REFERENCIAS-2024-2025.xlsx` en produccion. Resultado:
+  73 pedidos creados, 2 omitidos por idempotencia; verificacion posterior:
+  99 pedidos, 766 lineas, 14 clientes. Cambios versionados:
+  `5c9e8e4 fix(rotulos): soportar historicos excel 2024` y
+  `35c365b fix(rotulos): ordenar clientes alfabeticamente`.
+  Backups locales previos: `backups/backup-before-historical-import-2026-08-22T00-31-43-138Z.json`
+  y `backups/backup-before-client-alias-merge-2026-08-22T00-42-18-330Z.json`.
+  Se unificaron alias en produccion con `merge_customers`: JOHANNA ->
+  JOHANNA CICACHA, ZAIDA -> ZAIDA SUAREZ, LINA -> LINA GONZALEZ,
+  PAULA -> PAULA BAJONERO, ANDREA UBAQUE duplicado y PILAR CONGOTE
+  duplicado. Clientes queda alfabetico desde `business-store.ts`.
 - 2026-08-19: se agrego numero de guia de rastreo por rotulo (cargable desde
   Historial, envio por WhatsApp). La migracion
   `202608190001_add_labels_tracking.sql` no se pudo aplicar por el CLI
