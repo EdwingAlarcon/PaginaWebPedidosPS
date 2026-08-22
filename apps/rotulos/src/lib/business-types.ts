@@ -55,6 +55,9 @@ export type OrderRecord = {
   subtotal: number;
   total: number;
   items: OrderItem[];
+  source: "app" | "excel_import";
+  importBatchId: string | null;
+  importRowKey: string | null;
   createdAt: string;
   updatedAt: string;
 };

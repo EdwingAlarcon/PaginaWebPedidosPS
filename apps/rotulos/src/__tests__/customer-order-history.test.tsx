@@ -45,6 +45,9 @@ function makeOrder(overrides: Partial<OrderRecord> = {}): OrderRecord {
     createdAt: "2026-08-10T00:00:00.000Z",
     updatedAt: "2026-08-10T00:00:00.000Z",
     ...overrides,
+    source: overrides.source ?? "app",
+    importBatchId: overrides.importBatchId ?? null,
+    importRowKey: overrides.importRowKey ?? null,
   };
 }
 

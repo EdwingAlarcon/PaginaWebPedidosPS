@@ -9,6 +9,7 @@ import {
   BarChart3,
   ClipboardList,
   ClipboardCheck,
+  FileClock,
   Home,
   Menu,
   PackagePlus,
@@ -41,6 +42,7 @@ const NAV_GROUPS: NavGroup[] = [
     label: "Gestion",
     items: [
       { href: "/pedidos", label: "Pedidos", icon: ClipboardList },
+      { href: "/pedidos/importados", label: "Importados", icon: FileClock },
       { href: "/clientes", label: "Clientes", icon: Users },
       { href: "/inventario", label: "Inventario", icon: Archive },
       { href: "/reportes", label: "Reportes", icon: BarChart3 },
@@ -63,6 +65,7 @@ const PAGE_META: Record<string, { title: string; description: string }> = {
   "/": { title: "Inicio", description: "Resumen de la operacion diaria" },
   "/pedidos/nuevo": { title: "Nuevo pedido", description: "Registra un pedido para un cliente" },
   "/pedidos": { title: "Pedidos", description: "Consulta y gestiona los pedidos registrados" },
+  "/pedidos/importados": { title: "Importados", description: "Auditoria de pedidos cargados desde Excel" },
   "/clientes": { title: "Clientes", description: "Historial y datos de contacto de tus clientes" },
   "/inventario": { title: "Inventario", description: "Productos, stock y movimientos" },
   "/reportes": { title: "Reportes", description: "Ventas, productos y tendencias" },

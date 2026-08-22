@@ -43,6 +43,9 @@ type OrderRow = {
   shipping_cost: number | string;
   subtotal: number | string;
   total: number | string;
+  source?: OrderRecord["source"] | null;
+  import_batch_id?: string | null;
+  import_row_key?: string | null;
   created_at: string;
   updated_at: string;
   order_items?: OrderItemRow[];
@@ -173,6 +176,9 @@ function rowToOrder(row: OrderRow): OrderRecord {
     subtotal: Number(row.subtotal),
     total: Number(row.total),
     items: (row.order_items ?? []).map(rowToOrderItem),
+    source: row.source ?? "app",
+    importBatchId: row.import_batch_id ?? null,
+    importRowKey: row.import_row_key ?? null,
     createdAt: row.created_at,
     updatedAt: row.updated_at,
   };
@@ -370,6 +376,9 @@ function createLocalBusinessStore(): BusinessStore {
         subtotal: computed.subtotal,
         total: computed.total,
         items: normalizedDraft.items.map((item) => ({ ...item, id: crypto.randomUUID(), total: item.quantity * item.unitPrice })),
+        source: "app",
+        importBatchId: null,
+        importRowKey: null,
         createdAt: now,
         updatedAt: now,
       };

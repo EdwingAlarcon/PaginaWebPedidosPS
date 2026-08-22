@@ -35,6 +35,9 @@ function baseOrder(): OrderRecord {
     items: [],
     createdAt: "2026-07-27T00:00:00Z",
     updatedAt: "2026-07-27T00:00:00Z",
+    source: "app",
+    importBatchId: null,
+    importRowKey: null,
   };
 }
 
