@@ -8,11 +8,13 @@ import { getLabelStore } from "@/lib/label-store";
 import type { Customer, OrderRecord } from "@/lib/business-types";
 import type { LabelRecord } from "@/lib/types";
 import { isRelatedOrderToCustomer } from "@/lib/customer-orders";
+import { findCustomerDuplicateCandidates, type CustomerDuplicateCandidate } from "@/lib/customer-duplicates";
 import { DataTable, type DataTableColumn } from "@/components/ui/data-table";
 import { Button, IconButton } from "@/components/ui/button";
 import { Drawer, DrawerContent } from "@/components/ui/drawer";
 import { CustomerEditForm } from "@/components/customer-edit-form";
 import { CustomerOrderHistory } from "@/components/customer-order-history";
+import { CustomerDuplicateAlerts } from "@/components/customer-duplicate-alerts";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/components/ui/toast";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
@@ -57,11 +59,17 @@ export function CustomersTable() {
     setSelectedCustomer(customer);
   }
 
-  function openMerge(customer: Customer) {
+  function openMerge(customer: Customer, targetId = "") {
     setDrawerMode("merge");
-    setMergeTargetId("");
+    setMergeTargetId(targetId);
     setSelectedCustomer(customer);
     setFormDirty(false);
+  }
+
+  function reviewDuplicate(candidate: CustomerDuplicateCandidate) {
+    const [duplicate] = candidate.duplicates;
+    if (!duplicate) return;
+    openMerge(duplicate, candidate.primary.id);
   }
 
   function closeDrawer() {
@@ -167,9 +175,11 @@ export function CustomersTable() {
 
   const mergeTargets = customers.filter((customer) => customer.id !== selectedCustomer?.id);
   const mergeOrderCount = selectedCustomer ? orders.filter((order) => isRelatedOrderToCustomer(order, selectedCustomer)).length : 0;
+  const duplicateCandidates = findCustomerDuplicateCandidates(customers);
 
   return (
     <>
+      <CustomerDuplicateAlerts candidates={duplicateCandidates} onReview={reviewDuplicate} />
       <DataTable
         columns={columns}
         data={customers}

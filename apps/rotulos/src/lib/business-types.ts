@@ -8,6 +8,7 @@ export type Customer = {
   locality?: string;
   address: string;
   neighborhood: string;
+  source?: "app" | "excel_import";
   createdAt: string;
   updatedAt: string;
 };

@@ -28,6 +28,7 @@ type CustomerRow = {
   locality?: string;
   address: string;
   neighborhood: string;
+  source?: Customer["source"] | null;
   created_at: string;
   updated_at: string;
 };
@@ -130,6 +131,7 @@ function rowToCustomer(row: CustomerRow): Customer {
     locality: row.locality ?? "",
     address: row.address,
     neighborhood: row.neighborhood,
+    source: row.source ?? "app",
     createdAt: row.created_at,
     updatedAt: row.updated_at,
   };
