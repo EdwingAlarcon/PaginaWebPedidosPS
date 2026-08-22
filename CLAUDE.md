@@ -36,6 +36,9 @@ La recomendacion grande post-importacion quedo implementada en codigo el
 - **No implementar restauracion automatica de JSON en este sprint** sin
   aprobacion nueva de Edwing; el comparador debe ser primero una herramienta
   de diagnostico sin escrituras.
+- Diseño de restauración controlada listo en
+  `docs/superpowers/specs/2026-08-22-restauracion-controlada-backup-json-design.md`;
+  seguirlo por fases y no empezar por "restaurar todo".
 
 Mantener el flujo de cierre preferido por Edwing: verificar, commit, push y
 deploy siempre, salvo instruccion contraria explicita.

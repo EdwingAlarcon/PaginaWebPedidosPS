@@ -92,7 +92,8 @@ comparativos excluyen pedidos cancelados.
 
 1. **Restauración controlada de backup JSON**: dejarla para después del
    comparador. No escribir datos desde backups sin un diseño y aprobación
-   nuevos.
+   nuevos. Diseño listo en
+   `docs/superpowers/specs/2026-08-22-restauracion-controlada-backup-json-design.md`.
 
 ## Hecho recientemente
 
