@@ -7,6 +7,7 @@ import { getLabelStore } from "@/lib/label-store";
 import { businessDaysAgo, businessToday } from "@/lib/date";
 import { formatCop, formatDate } from "@/lib/format";
 import { isRelatedOrderToCustomer } from "@/lib/customer-orders";
+import { buildHistoricalReport } from "@/lib/historical-reports";
 import { buildWhatsAppLink } from "@/lib/whatsapp";
 import type { Product, StockAlerts } from "@/lib/inventory-types";
 import type { Customer, OrderRecord } from "@/lib/business-types";
@@ -19,6 +20,7 @@ import { Button } from "@/components/ui/button";
 import { EmptyState } from "@/components/ui/empty-state";
 import { PageHeading } from "@/components/ui/page-heading";
 import { Badge } from "@/components/ui/badge";
+import { HistoricalReportPanel } from "@/components/historical-report-panel";
 import { DollarSign, MessageCircle, Package, Receipt, Ticket, TriangleAlert, Users } from "lucide-react";
 
 const emptyAlerts: StockAlerts = { lowStock: [], critical: [], overstocked: [] };
@@ -221,6 +223,7 @@ export default function ReportsPage() {
     () => monthlySales.map((item) => ({ label: item.label, value: item.total, formattedValue: formatCop(item.total) })),
     [monthlySales],
   );
+  const historicalReport = useMemo(() => buildHistoricalReport(orders), [orders]);
 
   return (
     <main className="page-shell">
@@ -312,6 +315,8 @@ export default function ReportsPage() {
         <MetricCard label="Rotulos generados" value={rangeLabels.length} icon={Package} />
         <MetricCard label="Productos activos" value={products.length} icon={Package} />
       </div>
+
+      <HistoricalReportPanel report={historicalReport} />
 
       <Card className="mt-4">
         <div className="flex flex-wrap items-center justify-between gap-3">
