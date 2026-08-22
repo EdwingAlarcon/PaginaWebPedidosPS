@@ -20,7 +20,7 @@ describe("ProductForm", () => {
     render(<ProductForm onSaved={onSaved} />);
 
     await user.type(screen.getByLabelText(/nombre del producto/i), "Perfume 100ml");
-    await user.type(screen.getByLabelText(/categoria/i), "perfumes");
+    await user.type(screen.getByLabelText(/categoría/i), "perfumes");
     await user.type(screen.getByLabelText(/precio/i), "60000");
     await user.click(screen.getByRole("button", { name: /guardar producto/i }));
 

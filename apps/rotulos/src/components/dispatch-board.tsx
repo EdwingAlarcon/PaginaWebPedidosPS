@@ -240,12 +240,12 @@ export function DispatchBoard() {
       <Card>
         <div className="flex flex-wrap items-end justify-between gap-3">
           <div className="grid w-full gap-3 md:w-auto md:grid-cols-[220px_160px_160px]">
-            <Input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Cliente, telefono o producto" aria-label="Buscar despacho" />
+            <Input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Cliente, teléfono o producto" aria-label="Buscar despacho" />
             <Input type="date" value={fromDate} onChange={(event) => setFromDate(event.target.value)} aria-label="Filtrar desde fecha" />
             <Select value={filter} onChange={(event) => setFilter(event.target.value as DispatchFilter)} aria-label="Filtrar bandeja">
-              <option value="action">Con accion pendiente</option>
+              <option value="action">Con acción pendiente</option>
               <option value="missing-label">Sin rótulo</option>
-              <option value="label-ready">Rotulo por imprimir</option>
+              <option value="label-ready">Rótulo por imprimir</option>
               <option value="pending">Pedido pendiente</option>
               <option value="completed">Completados recientes</option>
               <option value="all">Todo</option>

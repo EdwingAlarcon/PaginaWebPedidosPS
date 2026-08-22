@@ -6,7 +6,7 @@ import { EmptyState } from "@/components/ui/empty-state";
 import { Badge } from "@/components/ui/badge";
 
 function CompactRows({ rows }: { rows: { label: string; detail: string; value: string }[] }) {
-  if (rows.length === 0) return <EmptyState title="Sin datos historicos" className="rounded-none border-0" />;
+  if (rows.length === 0) return <EmptyState title="Sin datos históricos" className="rounded-none border-0" />;
   return (
     <div className="divide-y divide-border rounded-md border border-border">
       {rows.map((row) => (
@@ -41,7 +41,7 @@ export function HistoricalReportPanel({ report }: { report: HistoricalReport }) 
       <div className="grid gap-4 sm:grid-cols-3">
         <MetricCard label="Pedidos importados" value={totalOrders} icon={Archive} />
         <MetricCard label="Unidades" value={totalUnits} icon={Package} />
-        <MetricCard label="Ventas historicas" value={formatCop(totalSales)} icon={Users} />
+        <MetricCard label="Ventas históricas" value={formatCop(totalSales)} icon={Users} />
       </div>
       <div className="mt-4 grid gap-4 lg:grid-cols-3">
         <Card>
@@ -57,7 +57,7 @@ export function HistoricalReportPanel({ report }: { report: HistoricalReport }) 
           </div>
         </Card>
         <Card>
-          <CardTitle>Productos historicos</CardTitle>
+          <CardTitle>Productos históricos</CardTitle>
           <div className="mt-4">
             <CompactRows
               rows={report.topProducts.map((item) => ({
@@ -69,7 +69,7 @@ export function HistoricalReportPanel({ report }: { report: HistoricalReport }) 
           </div>
         </Card>
         <Card>
-          <CardTitle>Clientes historicos</CardTitle>
+          <CardTitle>Clientes históricos</CardTitle>
           <div className="mt-4">
             <CompactRows
               rows={report.topCustomers.map((item) => ({

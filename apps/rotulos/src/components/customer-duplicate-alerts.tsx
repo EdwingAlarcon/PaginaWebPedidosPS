@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 
 const REASON_LABEL: Record<CustomerDuplicateReason, string> = {
   same_name: "Mismo nombre",
-  same_phone: "Mismo telefono",
+  same_phone: "Mismo teléfono",
   alias: "Alias conocido",
 };
 

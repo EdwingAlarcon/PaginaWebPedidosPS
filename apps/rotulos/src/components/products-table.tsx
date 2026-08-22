@@ -48,7 +48,7 @@ export function ProductsTable({
       .listProducts()
       .then((items) => {
         setProducts(items);
-        setStatus(items.length ? "" : "No hay productos en el inventario todavia.");
+        setStatus(items.length ? "" : "No hay productos en el inventario todavía.");
       })
       .catch(() => setStatus("No se pudieron cargar los productos."))
       .finally(() => setLoading(false));
@@ -87,7 +87,7 @@ export function ProductsTable({
   const columns: DataTableColumn<Product>[] = [
     { key: "name", header: "Producto", render: (p) => p.name, sortValue: (p) => p.name },
     { key: "sku", header: "SKU", render: (p) => p.sku || <span className="text-foreground-muted">Sin SKU</span> },
-    { key: "category", header: "Categoria", render: (p) => p.category },
+    { key: "category", header: "Categoría", render: (p) => p.category },
     {
       key: "price",
       header: "Precio",
@@ -151,13 +151,13 @@ export function ProductsTable({
         getRowId={(product) => product.id}
         loading={loading}
         initialQuery={initialQuery}
-        searchPlaceholder="Buscar por nombre, SKU o categoria"
+        searchPlaceholder="Buscar por nombre, SKU o categoría"
         searchPredicate={(product, query) =>
           product.name.toLowerCase().includes(query) ||
           product.sku.toLowerCase().includes(query) ||
           product.category.toLowerCase().includes(query)
         }
-        emptyTitle="No hay productos todavia"
+        emptyTitle="No hay productos todavía"
         emptyDescription="Agrega tu primer producto para empezar a llevar el inventario."
       />
 
@@ -170,8 +170,8 @@ export function ProductsTable({
             <p className="text-sm text-foreground-muted">Cargando movimientos...</p>
           ) : movements.length === 0 ? (
             <EmptyState
-              title="Sin movimientos todavia"
-              description="Las entradas, salidas y ajustes de este producto apareceran aqui."
+              title="Sin movimientos todavía"
+              description="Las entradas, salidas y ajustes de este producto aparecerán aquí."
             />
           ) : (
             <ul className="flex flex-col divide-y divide-border">
@@ -202,7 +202,7 @@ export function ProductsTable({
         title="Eliminar producto"
         description={
           pendingDelete
-            ? `Esta accion eliminara "${pendingDelete.name}" del inventario de forma permanente. El historial de movimientos ya registrado no se vera afectado.`
+            ? `Esta acción eliminará "${pendingDelete.name}" del inventario de forma permanente. El historial de movimientos ya registrado no se verá afectado.`
             : undefined
         }
         confirmLabel="Eliminar"

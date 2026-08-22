@@ -171,13 +171,13 @@ export function OrderForm() {
       nextErrors.items = "La cantidad de cada producto debe ser mayor a cero.";
     }
     const locationError = validateDepartmentCity(draft.customer);
-    if (locationError === "department") nextErrors["customer.department"] = "Selecciona un departamento valido.";
+    if (locationError === "department") nextErrors["customer.department"] = "Selecciona un departamento válido.";
     if (locationError === "city") nextErrors["customer.city"] = "Selecciona una ciudad que pertenezca al departamento.";
     if (isBogotaLocation(draft.customer) && !draft.customer.locality?.trim()) {
       nextErrors["customer.locality"] = "Selecciona la localidad.";
     }
     if (isBogotaLocation(draft.customer) && draft.customer.locality && !isValidBogotaLocality(draft.customer.locality)) {
-      nextErrors["customer.locality"] = "Selecciona una localidad valida de Bogota.";
+      nextErrors["customer.locality"] = "Selecciona una localidad válida de Bogotá.";
     }
     if (isBogotaLocation(draft.customer) && draft.customer.locality && draft.customer.neighborhood && !isValidBogotaNeighborhoodForLocality(draft.customer.locality, draft.customer.neighborhood)) {
       nextErrors["customer.neighborhood"] = "Selecciona un barrio que pertenezca a la localidad.";

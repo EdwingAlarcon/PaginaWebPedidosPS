@@ -162,7 +162,7 @@ export function HistoryTable({ labels }: { labels: LabelRecord[] }) {
         columns={columns}
         data={tableLabels}
         getRowId={(label) => label.id}
-        searchPlaceholder="Buscar por numero de pedido, cliente o telefono"
+        searchPlaceholder="Buscar por número de pedido, cliente o teléfono"
         searchPredicate={(label, query) =>
           label.orderNumber.toLowerCase().includes(query) ||
           label.recipient.fullName.toLowerCase().includes(query) ||

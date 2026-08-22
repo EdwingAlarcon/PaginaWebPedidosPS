@@ -2,8 +2,11 @@
 
 > Actualización 2026-08-22: sprint post-importación implementado en código:
 > pedidos importados, alias de importación, detector de duplicados, reporte
-> histórico 2024/2025 y comparador JSON solo lectura. La restauración
-> automática de backups sigue fuera de alcance sin aprobación explícita.
+> histórico 2024/2025 y comparador JSON. También quedó implementada la
+> restauración controlada Fase 1: preview servidor, auditoría, backup previo
+> obligatorio y ejecución explícita solo para `customers`, `labels` y
+> `settings`. La restauración automática o masiva de backups sigue fuera de
+> alcance sin aprobación explícita.
 
 > Plan de sprint:
 > `docs/superpowers/plans/2026-08-22-operacion-post-importacion.md`.
@@ -90,9 +93,11 @@ comparativos excluyen pedidos cancelados.
 
 ### Próximas recomendaciones grandes
 
-1. **Restauración controlada de backup JSON**: dejarla para después del
-   comparador. No escribir datos desde backups sin un diseño y aprobación
-   nuevos. Diseño listo en
+1. **Restauración controlada de backup JSON — Fase 2**: la Fase 1 ya permite
+   preview servidor y restauración explícita de `customers`, `labels` y
+   `settings` con auditoría en `backup_restore_runs`. Dejar para una Fase 2
+   cualquier restauración de pedidos, líneas, inventario o borrados, idealmente
+   con RPC transaccional. Diseño base:
    `docs/superpowers/specs/2026-08-22-restauracion-controlada-backup-json-design.md`.
 
 ## Hecho recientemente
@@ -118,10 +123,15 @@ comparativos excluyen pedidos cancelados.
   archivo ni escribir en la base. Commits: `f7917be`, `8368d75`, `49699f8`,
   `ec9dbfe`, `b328576`. Validación final local: `npm run lint`
   (2 warnings preexistentes de `<img>` en login), `npm run typecheck`,
-  `npm test` (62 archivos, 286 tests) y `npm run build`. Producción:
-  push a `main` hasta `d7c0e39`, Vercel deployment
-  `purpleshoponline-antgtee2s-edwingalarcons-projects.vercel.app` en estado
-  `Ready`, alias `https://purpleshoponline.vercel.app`.
+  `npm test` y `npm run build`.
+- **Restauración controlada de backup JSON Fase 1** (2026-08-22): implementada
+  en `Configuración` → `Comparar backup JSON`, con botón `Preparar
+  restauración`, selección explícita de filas y confirmación escrita
+  `RESTAURAR`. APIs protegidas: `POST /api/backups/restore/preview` y
+  `POST /api/backups/restore/execute`. Requiere `BACKUP_RESTORE_ENABLED=true`
+  y `BACKUP_RESTORE_ALLOWED_EMAILS` en servidor. Supabase producción
+  `purpleshop` tiene aplicada la tabla `backup_restore_runs` con RLS activo.
+  No restaura pedidos, inventario ni borra filas.
 - **Clientes repetidos por importación histórica sin teléfono** (2026-08-15):
   en producción había 1 duplicado visible por nombre (`PILAR CONGOTE`): una
   ficha `excel_import` sin teléfono y una ficha creada desde la app con

@@ -89,7 +89,7 @@ export function CustomerOrderHistory({ customer, orders, labels = [] }: Customer
       <Card className="shadow-none">
       <CardTitle>Historial de compras</CardTitle>
       {orders.length === 0 ? (
-        <p className="mt-4 text-sm text-foreground-muted">Este cliente todavia no tiene pedidos registrados.</p>
+        <p className="mt-4 text-sm text-foreground-muted">Este cliente todavía no tiene pedidos registrados.</p>
       ) : (
         <>
           <div className="mt-2 flex flex-wrap gap-2">

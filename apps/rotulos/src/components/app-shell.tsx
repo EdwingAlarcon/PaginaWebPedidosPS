@@ -39,7 +39,7 @@ const NAV_GROUPS: NavGroup[] = [
     ],
   },
   {
-    label: "Gestion",
+    label: "Gestión",
     items: [
       { href: "/pedidos", label: "Pedidos", icon: ClipboardList },
       { href: "/pedidos/importados", label: "Importados", icon: FileClock },
@@ -49,7 +49,7 @@ const NAV_GROUPS: NavGroup[] = [
     ],
   },
   {
-    label: "Envios",
+    label: "Envíos",
     items: [
       { href: "/despacho", label: "Despacho", icon: ClipboardCheck },
       { href: "/historial", label: "Historial", icon: PackagePlus },
@@ -65,17 +65,17 @@ const PAGE_META: Record<string, { title: string; description: string }> = {
   "/": { title: "Inicio", description: "Resumen de la operación diaria" },
   "/pedidos/nuevo": { title: "Nuevo pedido", description: "Registra un pedido para un cliente" },
   "/pedidos": { title: "Pedidos", description: "Consulta y gestiona los pedidos registrados" },
-  "/pedidos/importados": { title: "Importados", description: "Auditoria de pedidos cargados desde Excel" },
+  "/pedidos/importados": { title: "Importados", description: "Auditoría de pedidos cargados desde Excel" },
   "/clientes": { title: "Clientes", description: "Historial y datos de contacto de tus clientes" },
   "/inventario": { title: "Inventario", description: "Productos, stock y movimientos" },
   "/reportes": { title: "Reportes", description: "Ventas, productos y tendencias" },
   "/crear": { title: "Crear rótulo", description: "Genera el rótulo de envío de un pedido" },
   "/despacho": { title: "Despacho", description: "Pedidos por rotular, imprimir y completar" },
-  "/historial": { title: "Historial", description: "Rotulos generados anteriormente" },
+  "/historial": { title: "Historial", description: "Rótulos generados anteriormente" },
   "/configuracion": { title: "Configuración", description: "Ajustes de la aplicación" },
 };
 
-const DEFAULT_PAGE_META = { title: "PurpleShop", description: "Sistema de gestion de pedidos e inventario" };
+const DEFAULT_PAGE_META = { title: "PurpleShop", description: "Sistema de gestión de pedidos e inventario" };
 
 export function AppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();

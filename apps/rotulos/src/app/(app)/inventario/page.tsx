@@ -105,8 +105,8 @@ export default function InventoryPage() {
             <CardTitle>Movimientos recientes</CardTitle>
             {movements.length === 0 ? (
               <EmptyState
-                title="No hay movimientos todavia"
-                description="Los movimientos de entrada, salida o ajuste apareceran aqui."
+                title="No hay movimientos todavía"
+                description="Los movimientos de entrada, salida o ajuste aparecerán aquí."
                 className="mt-4"
               />
             ) : (

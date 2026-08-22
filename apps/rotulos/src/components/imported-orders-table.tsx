@@ -78,7 +78,7 @@ export function ImportedOrdersTable({ orders, loading = false }: { orders: Order
         </div>
       }
       emptyTitle="No hay pedidos importados"
-      emptyDescription="Los pedidos con origen Excel apareceran aqui para auditoria historica."
+      emptyDescription="Los pedidos con origen Excel aparecerán aquí para auditoría histórica."
       pageSize={12}
     />
   );

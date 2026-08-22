@@ -308,7 +308,7 @@ body {
 /* Datos superpuestos sobre las lineas en blanco de la plantilla
    (label-template-bg.png). Posiciones en % del contenedor, calculadas
    a partir de los pixeles de esa imagen (1310x1201) - funcionan igual
-   para los dos tamanos porque el fondo se estira con background-size:
+   para los dos tamaños porque el fondo se estira con background-size:
    100% 100%. */
 .lbl-f {
   position: absolute;

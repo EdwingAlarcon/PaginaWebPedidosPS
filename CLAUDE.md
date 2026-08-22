@@ -1,47 +1,51 @@
 # CLAUDE.md
 
-Guia tecnica para Claude Code / Codex al trabajar en este repositorio.
+Guía técnica para Claude Code / Codex al trabajar en este repositorio.
 Para pendientes priorizados, ver `NEXT_STEPS.md`. Para instrucciones de
 desarrollo/deploy paso a paso, ver `apps/rotulos/README.md`. Este archivo
-es el handoff tecnico: arquitectura, reglas que no romper y estado
+es el handoff técnico: arquitectura, reglas que no romper y estado
 reciente.
 
-## Proxima mejora recomendada
+## Próxima mejora recomendada
 
 Cuando Edwing pida continuar con las recomendaciones de producto, la
-**Bandeja de despacho / Por despachar**, los **reportes mas utiles para
-negocio**, el **historial unificado por cliente** (pestanas Datos/Historial
-en la ficha de cliente, con direcciones/telefonos historicos y conteo de
-rotulos) y las **alertas de clientes inactivos** (tarjeta en `Reportes`,
-umbral de dias editable, boton directo a WhatsApp) ya estan implementados
-y desplegados. Tambien quedaron implementados la validacion de calidad
-antes de generar rotulo, el resumen post-guardar pedido, el fix de fechas
-de negocio en zona Colombia, la exportacion de resumen de compra por
+**Bandeja de despacho / Por despachar**, los **reportes más útiles para
+negocio**, el **historial unificado por cliente** (pestañas Datos/Historial
+en la ficha de cliente, con direcciones/teléfonos históricos y conteo de
+rótulos) y las **alertas de clientes inactivos** (tarjeta en `Reportes`,
+umbral de días editable, botón directo a WhatsApp) ya están implementados
+y desplegados. También quedaron implementados la validación de calidad
+antes de generar rótulo, el resumen post-guardar pedido, el fix de fechas
+de negocio en zona Colombia, la exportación de resumen de compra por
 cliente (WhatsApp/PDF/imagen, con identidad de marca Purple Shop) y el
-numero de guia de rastreo por rotulo (envio por WhatsApp).
+numero de guía de rastreo por rótulo (envío por WhatsApp).
 Contexto completo en `NEXT_STEPS.md` → "Recomendaciones para próxima fase".
 
-La recomendacion grande post-importacion quedo implementada en codigo el
+La recomendación grande post-importación quedó implementada en código el
 2026-08-22:
 
 - Plan:
   `docs/superpowers/plans/2026-08-22-operacion-post-importacion.md`
 - Spec:
   `docs/superpowers/specs/2026-08-22-operacion-post-importacion-design.md`
-- Entregado: vista `/pedidos/importados`, mapa de alias para importacion,
-  detector de clientes duplicados en `Clientes`, reporte historico
+- Entregado: vista `/pedidos/importados`, mapa de alias para importación,
+  detector de clientes duplicados en `Clientes`, reporte histórico
   2024/2025 en `Reportes`, comparador de backup JSON solo lectura en
-  `Configuracion`.
+  `Configuración`.
 - Commits: `f7917be`, `8368d75`, `49699f8`, `ec9dbfe`, `b328576`.
-- **No implementar restauracion automatica de JSON en este sprint** sin
-  aprobacion nueva de Edwing; el comparador debe ser primero una herramienta
-  de diagnostico sin escrituras.
-- Diseño de restauración controlada listo en
+- Restauración controlada Fase 1 implementada el 2026-08-22: preview servidor,
+  auditoría en `backup_restore_runs`, backup previo obligatorio y ejecución
+  explícita solo para `customers`, `labels` y `settings`. Requiere
+  `BACKUP_RESTORE_ENABLED=true` y `BACKUP_RESTORE_ALLOWED_EMAILS` en servidor.
+- **No implementar restauración automática/masiva de JSON** sin aprobación
+  nueva de Edwing; pedidos, líneas, inventario y borrados siguen fuera de
+  alcance para una Fase 2.
+- Diseño de restauración controlada:
   `docs/superpowers/specs/2026-08-22-restauracion-controlada-backup-json-design.md`;
   seguirlo por fases y no empezar por "restaurar todo".
 
 Mantener el flujo de cierre preferido por Edwing: verificar, commit, push y
-deploy siempre, salvo instruccion contraria explicita.
+deploy siempre, salvo instrucción contraria explícita.
 
 ## Proyecto
 

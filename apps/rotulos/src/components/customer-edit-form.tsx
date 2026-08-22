@@ -47,11 +47,11 @@ function validateCustomer(value: CustomerFormValue): Record<string, string> {
   if (!value.fullName.trim()) errors.fullName = "El nombre del cliente es obligatorio.";
 
   const locationError = validateDepartmentCity(value);
-  if (locationError === "department") errors["customer.department"] = "Selecciona un departamento valido.";
+  if (locationError === "department") errors["customer.department"] = "Selecciona un departamento válido.";
   if (locationError === "city") errors["customer.city"] = "Selecciona una ciudad que pertenezca al departamento.";
 
   if (isBogotaLocation(value) && value.locality && !isValidBogotaLocality(value.locality)) {
-    errors["customer.locality"] = "Selecciona una localidad valida de Bogota.";
+    errors["customer.locality"] = "Selecciona una localidad válida de Bogotá.";
   }
   if (
     isBogotaLocation(value) &&

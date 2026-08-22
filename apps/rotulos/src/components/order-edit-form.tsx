@@ -128,10 +128,10 @@ function validateOrder(value: OrderEditValue, initialItems: OrderItem[]): Record
   }
 
   const locationError = validateDepartmentCity(value.customer);
-  if (locationError === "department") errors["customer.department"] = "Selecciona un departamento valido.";
+  if (locationError === "department") errors["customer.department"] = "Selecciona un departamento válido.";
   if (locationError === "city") errors["customer.city"] = "Selecciona una ciudad que pertenezca al departamento.";
   if (isBogotaLocation(value.customer) && value.customer.locality && !isValidBogotaLocality(value.customer.locality)) {
-    errors["customer.locality"] = "Selecciona una localidad valida de Bogota.";
+    errors["customer.locality"] = "Selecciona una localidad válida de Bogotá.";
   }
   if (
     isBogotaLocation(value.customer) &&
@@ -261,7 +261,7 @@ export function OrderEditForm({ order, onSaved, onCancel, onDirtyChange }: Order
       {status ? <Alert variant={status.tone}>{status.message}</Alert> : null}
       {changedItems ? (
         <Alert variant="warning">
-          Este ajuste cambia el pedido como documento comercial. Si las lineas estan vinculadas a
+          Este ajuste cambia el pedido como documento comercial. Si las líneas están vinculadas a
           un producto de Inventario, el cambio de cantidad genera un movimiento de stock
           automatico.
         </Alert>

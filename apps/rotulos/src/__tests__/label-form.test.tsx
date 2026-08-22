@@ -37,7 +37,7 @@ describe("LabelForm", () => {
     render(<LabelForm />);
     fireEvent.click(screen.getByRole("button", { name: "Imprimir" }));
 
-    const link = screen.getByRole("link", { name: "Ingresa el telefono del remitente." });
+    const link = screen.getByRole("link", { name: "Ingresa el teléfono del remitente." });
     fireEvent.click(link);
 
     const sender = within(screen.getByRole("group", { name: "Remitente" }));

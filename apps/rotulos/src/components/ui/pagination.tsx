@@ -20,7 +20,7 @@ export function Pagination({ page, pageCount, onPageChange, totalItems, pageSize
       <p className="text-xs text-foreground-muted">
         {rangeStart && rangeEnd && totalItems
           ? `${rangeStart}-${rangeEnd} de ${totalItems}`
-          : `Pagina ${page} de ${pageCount}`}
+          : `Página ${page} de ${pageCount}`}
       </p>
       <div className="flex items-center gap-2">
         <Button
@@ -28,7 +28,7 @@ export function Pagination({ page, pageCount, onPageChange, totalItems, pageSize
           size="sm"
           disabled={page <= 1}
           onClick={() => onPageChange(page - 1)}
-          aria-label="Pagina anterior"
+          aria-label="Página anterior"
         >
           <ChevronLeft className="size-4" aria-hidden="true" />
         </Button>
@@ -40,7 +40,7 @@ export function Pagination({ page, pageCount, onPageChange, totalItems, pageSize
           size="sm"
           disabled={page >= pageCount}
           onClick={() => onPageChange(page + 1)}
-          aria-label="Pagina siguiente"
+          aria-label="Página siguiente"
         >
           <ChevronRight className="size-4" aria-hidden="true" />
         </Button>

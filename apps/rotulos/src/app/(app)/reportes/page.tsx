@@ -312,7 +312,7 @@ export default function ReportsPage() {
           value={alerts.lowStock.length + alerts.critical.length}
           icon={TriangleAlert}
         />
-        <MetricCard label="Rotulos generados" value={rangeLabels.length} icon={Package} />
+        <MetricCard label="Rótulos generados" value={rangeLabels.length} icon={Package} />
         <MetricCard label="Productos activos" value={products.length} icon={Package} />
       </div>
 
@@ -325,7 +325,7 @@ export default function ReportsPage() {
         </div>
         <div className="mt-4 overflow-x-auto rounded-lg border border-border">
           {pendingOrders.length === 0 ? (
-            <EmptyState title="Sin pedidos pendientes" description="Todos los pedidos estan completados o cancelados." className="rounded-none border-0" />
+            <EmptyState title="Sin pedidos pendientes" description="Todos los pedidos están completados o cancelados." className="rounded-none border-0" />
           ) : (
             <table className="w-full min-w-[720px] border-collapse text-sm">
               <thead>
@@ -363,7 +363,7 @@ export default function ReportsPage() {
       <Card className="mt-4">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <CardTitle>Clientes inactivos</CardTitle>
-          <FormField label="Inactivo desde (dias)" className="mb-0">
+          <FormField label="Inactivo desde (días)" className="mb-0">
             <Input
               type="number"
               min={1}
@@ -377,7 +377,7 @@ export default function ReportsPage() {
           {inactiveCustomers.length === 0 ? (
             <EmptyState
               title="Sin clientes inactivos"
-              description={`Ningun cliente lleva ${inactiveThreshold}+ dias sin comprar.`}
+              description={`Ningún cliente lleva ${inactiveThreshold}+ días sin comprar.`}
               className="rounded-none border-0"
             />
           ) : (
@@ -386,9 +386,9 @@ export default function ReportsPage() {
                 <tr className="border-b border-border bg-surface-muted">
                   <th scope="col" className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-foreground-muted">Cliente</th>
                   <th scope="col" className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-foreground-muted">Teléfono</th>
-                  <th scope="col" className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-foreground-muted">Ultima compra</th>
-                  <th scope="col" className="px-4 py-3 text-right text-xs font-semibold uppercase tracking-wide text-foreground-muted">Dias inactivo</th>
-                  <th scope="col" className="px-4 py-3 text-right text-xs font-semibold uppercase tracking-wide text-foreground-muted">Accion</th>
+                  <th scope="col" className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-foreground-muted">Última compra</th>
+                  <th scope="col" className="px-4 py-3 text-right text-xs font-semibold uppercase tracking-wide text-foreground-muted">Días inactivo</th>
+                  <th scope="col" className="px-4 py-3 text-right text-xs font-semibold uppercase tracking-wide text-foreground-muted">Acción</th>
                 </tr>
               </thead>
               <tbody>
@@ -407,7 +407,7 @@ export default function ReportsPage() {
                           </a>
                         </Button>
                       ) : (
-                        <span className="text-xs text-foreground-muted">Sin telefono</span>
+                        <span className="text-xs text-foreground-muted">Sin teléfono</span>
                       )}
                     </td>
                   </tr>

@@ -96,7 +96,7 @@ export function DashboardStats({ labels }: { labels: LabelRecord[] }) {
 
         <Card>
           <CardHeader>
-            <CardTitle>Rotulos recientes</CardTitle>
+            <CardTitle>Rótulos recientes</CardTitle>
             <Button variant="link" size="sm" asChild>
               <Link href="/historial">Ver todos</Link>
             </Button>

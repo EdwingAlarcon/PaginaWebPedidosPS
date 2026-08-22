@@ -27,7 +27,7 @@ export default function ImportedOrdersPage() {
 
   return (
     <main className="page-shell">
-      <PageHeading eyebrow="Auditoria historica" title="Pedidos importados" />
+      <PageHeading eyebrow="Auditoría histórica" title="Pedidos importados" />
       <div className="grid grid-cols-2 gap-4 lg:grid-cols-5">
         <MetricCard label="Pedidos" value={summary.orders} icon={Receipt} loading={loading} />
         <MetricCard label="Unidades" value={summary.items} icon={Package} loading={loading} />

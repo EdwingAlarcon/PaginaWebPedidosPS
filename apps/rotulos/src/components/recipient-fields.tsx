@@ -25,7 +25,7 @@ const PRINTABLE_HELP: Record<keyof Recipient, string> = {
   phone: "Maximo 20 caracteres para imprimirlo completo.",
   department: "Maximo 35 caracteres para imprimirlo completo.",
   city: "Maximo 35 caracteres para imprimirla completa.",
-  locality: "Solo se pide para entregas en Bogota.",
+  locality: "Solo se pide para entregas en Bogotá.",
   address: "Maximo 170 caracteres para imprimirla completa.",
   neighborhood: "Maximo 45 caracteres para imprimirlo completo.",
   reference: "Maximo 90 caracteres para imprimirla completa.",

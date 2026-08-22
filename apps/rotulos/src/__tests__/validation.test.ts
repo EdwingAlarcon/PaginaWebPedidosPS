@@ -75,10 +75,10 @@ describe("label validation", () => {
   });
 
   it.each([
-    ["address", 171, "recipient.address", "La direccion puede tener maximo 170 caracteres para imprimirla completa."],
-    ["reference", 91, "recipient.reference", "La referencia puede tener maximo 90 caracteres para imprimirla completa."],
-    ["notes", 91, "recipient.notes", "Las observaciones pueden tener maximo 90 caracteres para imprimirlas completas."],
-    ["neighborhood", 46, "recipient.neighborhood", "El barrio puede tener maximo 45 caracteres para imprimirlo completo."],
+    ["address", 171, "recipient.address", "La dirección puede tener máximo 170 caracteres para imprimirla completa."],
+    ["reference", 91, "recipient.reference", "La referencia puede tener máximo 90 caracteres para imprimirla completa."],
+    ["notes", 91, "recipient.notes", "Las observaciones pueden tener máximo 90 caracteres para imprimirlas completas."],
+    ["neighborhood", 46, "recipient.neighborhood", "El barrio puede tener máximo 45 caracteres para imprimirlo completo."],
   ] as const)("rejects printable recipient %s content over its limit", (field, length, errorKey, message) => {
     const draft = createCompleteDraft();
     draft.recipient[field] = "x".repeat(length);
@@ -111,11 +111,11 @@ describe("label validation", () => {
   });
 
   it.each([
-    ["sender name", (draft: ReturnType<typeof createCompleteDraft>) => { draft.sender.name = "x".repeat(51); }, "sender.name", "El nombre del remitente puede tener maximo 50 caracteres para imprimirlo completo."],
-    ["sender address", (draft: ReturnType<typeof createCompleteDraft>) => { draft.sender.address = "x".repeat(121); }, "sender.address", "La direccion del remitente puede tener maximo 120 caracteres para imprimirla completa."],
-    ["recipient full name", (draft: ReturnType<typeof createCompleteDraft>) => { draft.recipient.fullName = "x".repeat(56); }, "recipient.fullName", "El nombre del destinatario puede tener maximo 55 caracteres para imprimirlo completo."],
-    ["order number", (draft: ReturnType<typeof createCompleteDraft>) => { draft.orderNumber = "x".repeat(33); }, "orderNumber", "El numero de pedido puede tener maximo 32 caracteres para imprimirlo completo."],
-    ["carrier", (draft: ReturnType<typeof createCompleteDraft>) => { draft.carrier = "x".repeat(41); }, "carrier", "La transportadora puede tener maximo 40 caracteres para imprimirla completa."],
+    ["sender name", (draft: ReturnType<typeof createCompleteDraft>) => { draft.sender.name = "x".repeat(51); }, "sender.name", "El nombre del remitente puede tener máximo 50 caracteres para imprimirlo completo."],
+    ["sender address", (draft: ReturnType<typeof createCompleteDraft>) => { draft.sender.address = "x".repeat(121); }, "sender.address", "La dirección del remitente puede tener máximo 120 caracteres para imprimirla completa."],
+    ["recipient full name", (draft: ReturnType<typeof createCompleteDraft>) => { draft.recipient.fullName = "x".repeat(56); }, "recipient.fullName", "El nombre del destinatario puede tener máximo 55 caracteres para imprimirlo completo."],
+    ["order number", (draft: ReturnType<typeof createCompleteDraft>) => { draft.orderNumber = "x".repeat(33); }, "orderNumber", "El número de pedido puede tener máximo 32 caracteres para imprimirlo completo."],
+    ["carrier", (draft: ReturnType<typeof createCompleteDraft>) => { draft.carrier = "x".repeat(41); }, "carrier", "La transportadora puede tener máximo 40 caracteres para imprimirla completa."],
   ] as const)("rejects over-limit %s", (_field, setValue, errorKey, message) => {
     const draft = createCompleteDraft();
     setValue(draft);
@@ -136,8 +136,8 @@ describe("label validation", () => {
   });
 
   it.each([
-    ["package count", (draft: ReturnType<typeof createCompleteDraft>) => { draft.packageCount = 100; }, "packageCount", "Ingresa maximo 99 paquetes para imprimirlos completos."],
-    ["COD amount", (draft: ReturnType<typeof createCompleteDraft>) => { draft.paymentMethod = "contraentrega"; draft.codAmount = 10_000_000; }, "codAmount", "Ingresa un valor contraentrega maximo de $9.999.999 para imprimirlo completo."],
+    ["package count", (draft: ReturnType<typeof createCompleteDraft>) => { draft.packageCount = 100; }, "packageCount", "Ingresa máximo 99 paquetes para imprimirlos completos."],
+    ["COD amount", (draft: ReturnType<typeof createCompleteDraft>) => { draft.paymentMethod = "contraentrega"; draft.codAmount = 10_000_000; }, "codAmount", "Ingresa un valor contraentrega máximo de $9.999.999 para imprimirlo completo."],
   ] as const)("rejects over-limit %s", (_field, setValue, errorKey, message) => {
     const draft = createCompleteDraft();
     setValue(draft);

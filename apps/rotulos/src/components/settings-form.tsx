@@ -56,7 +56,7 @@ export function SettingsForm({ initialSettings = defaultSettings, onSave = (sett
   const next = formatOrderNumber(settings.orderNumberConfig, {
     date: new Date("2026-07-15T00:00:00Z"),
     sequence: settings.orderNumberConfig.initialSequence,
-    city: "Bogota",
+    city: "Bogotá",
     department: "Cundinamarca",
   });
 

@@ -186,14 +186,14 @@ export function CustomersTable() {
         getRowId={(customer) => customer.id}
         loading={loading}
         onRowClick={openEdit}
-        searchPlaceholder="Buscar por nombre, telefono o ciudad"
+        searchPlaceholder="Buscar por nombre, teléfono o ciudad"
         searchPredicate={(customer, query) =>
           customer.fullName.toLowerCase().includes(query) ||
           customer.phone.includes(query) ||
           customer.city.toLowerCase().includes(query)
         }
-        emptyTitle="No hay clientes todavia"
-        emptyDescription="Los clientes se crean automaticamente al registrar un pedido."
+        emptyTitle="No hay clientes todavía"
+        emptyDescription="Los clientes se crean automáticamente al registrar un pedido."
         emptyAction={
           <Button size="sm" asChild>
             <Link href="/pedidos/nuevo">
@@ -237,7 +237,7 @@ export function CustomersTable() {
           {selectedCustomer && drawerMode === "merge" ? (
             <div className="grid gap-4">
               <Alert title="Los pedidos quedan con el cliente correcto">
-                Se actualizaran {mergeOrderCount} pedido(s) relacionados: el nombre, telefono, ciudad, direccion y demas datos del pedido pasaran al cliente que elijas.
+                Se actualizarán {mergeOrderCount} pedido(s) relacionados: el nombre, teléfono, ciudad, dirección y demás datos del pedido pasarán al cliente que elijas.
               </Alert>
               <FormField label="Cliente correcto" required>
                 <select

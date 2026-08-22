@@ -80,7 +80,7 @@ describe("HistoryTable", () => {
   it("filters labels by recipient name", () => {
     renderHistoryTable([createLabel("1", "Ana Perez", "3001111111"), createLabel("2", "Luis Gomez", "3002222222")]);
 
-    fireEvent.change(screen.getByLabelText("Buscar por numero de pedido, cliente o telefono"), { target: { value: "luis" } });
+    fireEvent.change(screen.getByLabelText("Buscar por número de pedido, cliente o teléfono"), { target: { value: "luis" } });
 
     expect(screen.getByText("Luis Gomez")).toBeInTheDocument();
     expect(screen.queryByText("Ana Perez")).not.toBeInTheDocument();
@@ -96,11 +96,11 @@ describe("HistoryTable", () => {
     expect(screen.getByText("Fecha")).toBeInTheDocument();
     expect(screen.getAllByText("2026-07-15")).toHaveLength(2);
 
-    fireEvent.change(screen.getByLabelText("Buscar por numero de pedido, cliente o telefono"), { target: { value: ana.orderNumber } });
+    fireEvent.change(screen.getByLabelText("Buscar por número de pedido, cliente o teléfono"), { target: { value: ana.orderNumber } });
     expect(screen.getByText("Ana Perez")).toBeInTheDocument();
     expect(screen.queryByText("Luis Gomez")).not.toBeInTheDocument();
 
-    fireEvent.change(screen.getByLabelText("Buscar por numero de pedido, cliente o telefono"), { target: { value: "3002222222" } });
+    fireEvent.change(screen.getByLabelText("Buscar por número de pedido, cliente o teléfono"), { target: { value: "3002222222" } });
     expect(screen.getByText("Luis Gomez")).toBeInTheDocument();
     expect(screen.queryByText("Ana Perez")).not.toBeInTheDocument();
   });

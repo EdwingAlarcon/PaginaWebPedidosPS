@@ -183,13 +183,13 @@ export function OrdersTable() {
         getRowId={(order) => order.id}
         loading={loading}
         onRowClick={openOrder}
-        searchPlaceholder="Buscar por cliente, telefono o producto"
+        searchPlaceholder="Buscar por cliente, teléfono o producto"
         searchPredicate={(order, query) =>
           order.displayCustomerName.toLowerCase().includes(query) ||
           order.displayPhone.includes(query) ||
           order.items.some((item) => item.productName.toLowerCase().includes(query))
         }
-        emptyTitle="No hay pedidos todavia"
+        emptyTitle="No hay pedidos todavía"
         emptyDescription="Crea tu primer pedido para comenzar a gestionar las ventas de PurpleShop."
         emptyAction={
           <Button size="sm" asChild>

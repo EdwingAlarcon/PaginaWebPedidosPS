@@ -51,7 +51,7 @@ export function ProductForm({ onSaved }: { onSaved: () => void }) {
       <FormField label="Nombre del producto" required>
         <Input value={name} onChange={(event) => setName(event.target.value)} required />
       </FormField>
-      <FormField label="Categoria" required>
+      <FormField label="Categoría" required>
         <Input value={category} onChange={(event) => setCategory(event.target.value)} required />
       </FormField>
       <FormField label="SKU">
@@ -64,7 +64,7 @@ export function ProductForm({ onSaved }: { onSaved: () => void }) {
         <FormField label="Stock minimo">
           <Input type="number" value={minStock} onChange={(event) => setMinStock(event.target.value)} />
         </FormField>
-        <FormField label="Stock maximo">
+        <FormField label="Stock máximo">
           <Input type="number" value={maxStock} onChange={(event) => setMaxStock(event.target.value)} />
         </FormField>
       </div>
