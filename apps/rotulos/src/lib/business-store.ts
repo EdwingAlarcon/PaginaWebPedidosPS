@@ -132,6 +132,10 @@ function rowToCustomer(row: CustomerRow): Customer {
   };
 }
 
+function sortCustomersByName(customers: Customer[]): Customer[] {
+  return [...customers].sort((a, b) => a.fullName.localeCompare(b.fullName, "es", { sensitivity: "base" }));
+}
+
 function rowToOrderItem(row: OrderItemRow): OrderItem {
   return {
     id: row.id,
@@ -402,7 +406,7 @@ function createLocalBusinessStore(): BusinessStore {
       return [];
     },
     async listCustomers() {
-      return readStorage<Customer[]>(storageKeys.customers, []);
+      return sortCustomersByName(readStorage<Customer[]>(storageKeys.customers, []));
     },
     async updateCustomer(id, patch) {
       const customers = readStorage<Customer[]>(storageKeys.customers, []);
@@ -518,9 +522,9 @@ function createSupabaseBusinessStore(): BusinessStore | null {
       return (data ?? []).map(rowToOrderEdit);
     },
     async listCustomers() {
-      const { data, error } = await supabase.from("customers").select("*").order("updated_at", { ascending: false }).returns<CustomerRow[]>();
+      const { data, error } = await supabase.from("customers").select("*").order("full_name", { ascending: true }).returns<CustomerRow[]>();
       if (error) throw error;
-      return (data ?? []).map(rowToCustomer);
+      return sortCustomersByName((data ?? []).map(rowToCustomer));
     },
     async updateCustomer(id, patch) {
       const normalizedPatch = normalizeCustomerPatch(patch);

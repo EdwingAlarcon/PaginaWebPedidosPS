@@ -54,6 +54,19 @@ describe("local business store", () => {
     expect(customers[0].city).toBe("CALI");
   });
 
+  it("lists local customers alphabetically by name", async () => {
+    const store = getBusinessStore();
+    for (const fullName of ["zaida suarez", "andrea ubaque", "paula bajonero"]) {
+      const draft = createBlankOrderDraft();
+      draft.customer.fullName = fullName;
+      await store.saveOrder(draft);
+    }
+
+    const customers = await store.listCustomers();
+
+    expect(customers.map((customer) => customer.fullName)).toEqual(["ANDREA UBAQUE", "PAULA BAJONERO", "ZAIDA SUAREZ"]);
+  });
+
   it("updates a customer without touching technical fields and normalizes editable text", async () => {
     const store = getBusinessStore();
     const draft = createBlankOrderDraft();

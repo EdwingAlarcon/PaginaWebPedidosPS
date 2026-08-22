@@ -29,9 +29,11 @@ function mockSupabase() {
   const rpc = vi.fn(async (): Promise<{ data: unknown; error: unknown }> => ({ data: ORDER_ROW, error: null }));
   const single = vi.fn(async () => ({ data: ORDER_ROW, error: null }));
   const eq = vi.fn(() => ({ single }));
-  const select = vi.fn(() => ({ eq }));
+  const returns = vi.fn(async () => ({ data: [], error: null }));
+  const order = vi.fn(() => ({ returns }));
+  const select = vi.fn(() => ({ eq, order, returns }));
   const from = vi.fn(() => ({ select }));
-  return { rpc, from, single, eq, select };
+  return { rpc, from, single, eq, select, order, returns };
 }
 
 afterEach(() => {
@@ -85,6 +87,18 @@ describe("createSupabaseBusinessStore (rama Supabase)", () => {
 
     expect(supabase.rpc).toHaveBeenCalledWith("merge_customers", { p_source_id: "source-1", p_target_id: "target-1" });
     expect(result).toEqual({ updatedOrders: 3 });
+  });
+
+  it("listCustomers pide a Supabase los clientes ordenados alfabeticamente", async () => {
+    const supabase = mockSupabase();
+    vi.doMock("@/lib/supabase/client", () => ({ createClient: vi.fn(() => supabase) }));
+    const { getBusinessStore } = await import("@/lib/business-store");
+
+    await getBusinessStore().listCustomers();
+
+    expect(supabase.from).toHaveBeenCalledWith("customers");
+    expect(supabase.select).toHaveBeenCalledWith("*");
+    expect(supabase.order).toHaveBeenCalledWith("full_name", { ascending: true });
   });
 
   it("propaga el error del RPC si save_order falla (sin dejar estado parcial en el cliente)", async () => {
