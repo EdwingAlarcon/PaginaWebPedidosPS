@@ -6,6 +6,7 @@ import { businessToday } from "@/lib/date";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/toast";
+import { BackupCompare } from "@/components/backup-compare";
 
 type CsvExportOption = {
   key: string;
@@ -98,6 +99,7 @@ export function DataExport() {
           JSON
         </Button>
       </div>
+      <BackupCompare />
     </Card>
   );
 }
