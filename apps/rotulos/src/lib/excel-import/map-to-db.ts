@@ -1,4 +1,5 @@
 import { createHash } from "node:crypto";
+import { resolveCustomerAlias } from "@/lib/customer-aliases";
 import { parseSheetPeriod } from "./period";
 import type { ParsedBlock, SheetParseResult } from "./types";
 
@@ -50,10 +51,11 @@ function blockToOrder(block: ParsedBlock): ImportOrder {
   const subtotal = block.subtotalDeclared ?? 0;
   const shippingCost = block.shippingDeclared ?? 0;
   const total = block.totalDeclared ?? subtotal + shippingCost;
+  const customerFullName = resolveCustomerAlias(block.clientName);
 
   return {
     importRowKey: computeImportRowKey(block.sheetName, block.clientName, block.blockIndex, subtotal),
-    customerFullName: block.clientName,
+    customerFullName,
     orderDate: parseSheetPeriod(block.sheetName),
     notes: `HOJA: ${block.sheetName}`,
     subtotal,
@@ -87,7 +89,7 @@ export function buildImportPlan(sheetResults: SheetParseResult[], runId: string)
         });
         continue;
       }
-      customerNames.add(block.clientName);
+      customerNames.add(resolveCustomerAlias(block.clientName));
       orders.push(blockToOrder(block));
     }
   }

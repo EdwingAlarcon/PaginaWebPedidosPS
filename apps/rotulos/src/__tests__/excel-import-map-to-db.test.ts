@@ -89,4 +89,17 @@ describe("buildImportPlan", () => {
     expect(plan.customers).toEqual([{ fullName: "ANDREA" }]);
     expect(plan.orders).toHaveLength(2);
   });
+
+  it("aplica alias canonicos antes de crear llaves de cliente", () => {
+    const sheet1 = makeSheetResult();
+    const sheet2 = makeSheetResult({ sheetName: "OCT 2025" });
+    sheet1.blocks[0].clientName = "JOHANNA";
+    sheet2.blocks[0].sheetName = "OCT 2025";
+    sheet2.blocks[0].clientName = "JOHANNA CICACHA";
+
+    const plan = buildImportPlan([sheet1, sheet2], "run-1");
+
+    expect(plan.customers).toEqual([{ fullName: "JOHANNA CICACHA" }]);
+    expect(plan.orders.map((order) => order.customerFullName)).toEqual(["JOHANNA CICACHA", "JOHANNA CICACHA"]);
+  });
 });
