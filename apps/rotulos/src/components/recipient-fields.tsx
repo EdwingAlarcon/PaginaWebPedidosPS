@@ -15,7 +15,7 @@ function normalizeName(value: string): string {
 
 const LABELS: Record<"fullName" | "phone" | "reference" | "notes", string> = {
   fullName: "Nombre y apellidos",
-  phone: "Telefono",
+  phone: "Teléfono",
   reference: "Referencia o indicaciones",
   notes: "Observaciones",
 };
@@ -120,7 +120,7 @@ export function RecipientFields({ value, onChange, errors }: { value: Recipient;
           onChange={onChange}
           errors={errors}
           prefix="recipient"
-          addressLabel="Direccion completa"
+          addressLabel="Dirección completa"
           addressAsTextarea
           addressRows={3}
           includeNeighborhood

@@ -7,7 +7,7 @@ import { LocationFields } from "@/components/location-fields";
 
 const LABELS: Record<"name" | "phone", string> = {
   name: "Nombre / Empresa",
-  phone: "Telefono",
+  phone: "Teléfono",
 };
 
 type SenderChange = Sender | ((current: Sender) => Sender);

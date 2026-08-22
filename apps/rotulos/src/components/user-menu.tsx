@@ -52,7 +52,7 @@ export function UserMenu() {
         <DropdownMenuSeparator />
         <DropdownMenuItem onSelect={signOut} className="text-danger data-[highlighted]:bg-[var(--danger-soft)]">
           <LogOut className="size-4" aria-hidden="true" />
-          Cerrar sesion
+          Cerrar sesión
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>

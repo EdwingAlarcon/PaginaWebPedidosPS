@@ -22,7 +22,7 @@ export type AlternateContact = {
 };
 
 /**
- * Telefonos/direcciones distintos al dato maestro del cliente que aparecen
+ * Teléfonos/direcciones distintos al dato maestro del cliente que aparecen
  * en sus pedidos (customer_snapshot). Util para detectar el dato correcto
  * cuando el cliente cambio de direccion o uso varios numeros.
  */

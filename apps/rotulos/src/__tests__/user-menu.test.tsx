@@ -32,7 +32,7 @@ describe("UserMenu", () => {
     expect(container).toBeEmptyDOMElement();
   });
 
-  it("muestra el correo y cierra sesion al elegir Cerrar sesion en el menu", async () => {
+  it("muestra el correo y cierra sesion al elegir Cerrar sesión en el menu", async () => {
     getUser.mockResolvedValue({ data: { user: { email: "vendedor@purpleshop.co" } } });
     const user = userEvent.setup();
 
@@ -43,7 +43,7 @@ describe("UserMenu", () => {
 
     expect(await screen.findByText("vendedor@purpleshop.co")).toBeInTheDocument();
 
-    await user.click(screen.getByRole("menuitem", { name: /cerrar sesion/i }));
+    await user.click(screen.getByRole("menuitem", { name: /cerrar sesión/i }));
 
     expect(signOut).toHaveBeenCalled();
     expect(push).toHaveBeenCalledWith("/login");

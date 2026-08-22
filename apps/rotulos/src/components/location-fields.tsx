@@ -33,7 +33,7 @@ export function LocationFields<T extends LocationFieldsValue>({
   onChange,
   errors,
   prefix,
-  addressLabel = "Direccion",
+  addressLabel = "Dirección",
   addressAsTextarea = false,
   addressRows = 2,
   includeNeighborhood = true,

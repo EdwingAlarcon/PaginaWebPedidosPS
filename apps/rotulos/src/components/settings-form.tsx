@@ -69,7 +69,7 @@ export function SettingsForm({ initialSettings = defaultSettings, onSave = (sett
     setSaving(true);
     try {
       await onSave(settings);
-      setSaveStatus("Configuracion guardada.");
+      setSaveStatus("Configuración guardada.");
     } finally {
       setSaving(false);
     }
@@ -84,13 +84,13 @@ export function SettingsForm({ initialSettings = defaultSettings, onSave = (sett
           <TabsTrigger value="marca">Marca</TabsTrigger>
           <TabsTrigger value="numeracion">Numeracion</TabsTrigger>
           <TabsTrigger value="remitente">Remitente</TabsTrigger>
-          <TabsTrigger value="rotulos">Rotulos</TabsTrigger>
+          <TabsTrigger value="rotulos">Rótulos</TabsTrigger>
         </TabsList>
 
         <TabsContent value="marca" forceMount className={panelClass}>
           <Card>
             <div className="grid gap-4 sm:grid-cols-2">
-              <FormField label="URL del logo" hint="Se usa en el rotulo y el generador de PDF.">
+              <FormField label="URL del logo" hint="Se usa en el rótulo y el generador de PDF.">
                 <Input value={settings.logoUrl} onChange={(event) => setSettings({ ...settings, logoUrl: event.target.value })} />
               </FormField>
               <div className="flex items-end">
@@ -99,7 +99,7 @@ export function SettingsForm({ initialSettings = defaultSettings, onSave = (sett
                   <img src={settings.logoUrl} alt="Vista previa del logo" className="h-16 rounded-md border border-border bg-surface-muted object-contain p-2" />
                 ) : null}
               </div>
-              <FormField label="URL del QR" hint="Codigo QR mostrado en el rotulo.">
+              <FormField label="URL del QR" hint="Código QR mostrado en el rótulo.">
                 <Input value={settings.qrUrl} onChange={(event) => setSettings({ ...settings, qrUrl: event.target.value })} />
               </FormField>
               <div className="flex items-end">
@@ -198,7 +198,7 @@ export function SettingsForm({ initialSettings = defaultSettings, onSave = (sett
               <FormField label="Nombre / Empresa" className="sm:col-span-2">
                 <Input value={settings.defaultSender.name} onChange={(event) => updateSender("name", event.target.value)} />
               </FormField>
-              <FormField label="Telefono">
+              <FormField label="Teléfono">
                 <Input value={settings.defaultSender.phone} onChange={(event) => updateSender("phone", event.target.value)} />
               </FormField>
               <LocationFields
@@ -219,7 +219,7 @@ export function SettingsForm({ initialSettings = defaultSettings, onSave = (sett
 
         <TabsContent value="rotulos" forceMount className={panelClass}>
           <Card>
-            <FormField label="Tamano predeterminado" hint="Se usa como valor inicial al crear un rotulo nuevo.">
+            <FormField label="Tamaño predeterminado" hint="Se usa como valor inicial al crear un rótulo nuevo.">
               <Select
                 value={`${settings.labelSize.widthCm}x${settings.labelSize.heightCm}`}
                 onChange={(event) => {

@@ -5,7 +5,7 @@ export function LabelPreview({ draft }: { draft: LabelDraft }) {
   const isCod = draft.paymentMethod === "contraentrega";
 
   return (
-    <section className="label-canvas" data-testid="label-canvas" data-size={draft.size} aria-label="Vista previa del rotulo">
+    <section className="label-canvas" data-testid="label-canvas" data-size={draft.size} aria-label="Vista previa del rótulo">
       <span className="lbl-f lbl-sender-name">{draft.sender.name}</span>
       <span className="lbl-f lbl-sender-phone">{draft.sender.phone}</span>
       <span className="lbl-f lbl-sender-city">{draft.sender.city}</span>

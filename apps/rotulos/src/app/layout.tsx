@@ -11,7 +11,7 @@ const inter = Inter({
 
 export const metadata: Metadata = {
   title: "PurpleShop",
-  description: "Gestion de pedidos, clientes y rotulos de envio para PurpleShop",
+  description: "Gestión de pedidos, clientes y rótulos de envío para PurpleShop",
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {

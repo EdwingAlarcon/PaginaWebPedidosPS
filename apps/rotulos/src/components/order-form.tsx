@@ -229,7 +229,7 @@ export function OrderForm() {
                 <Button type="button" size="sm" asChild>
                   <Link href={`/crear?fromOrderId=${savedOrder.id}`}>
                     <FilePlus2 className="size-4" aria-hidden="true" />
-                    Generar rotulo
+                    Generar rótulo
                   </Link>
                 </Button>
                 <Button type="button" size="sm" variant="secondary" asChild>
@@ -263,7 +263,7 @@ export function OrderForm() {
                 ))}
               </datalist>
             </FormField>
-            <FormField label="Telefono">
+            <FormField label="Teléfono">
               <Input value={draft.customer.phone} onChange={(event) => setCustomerField("phone", event.target.value)} />
             </FormField>
             <FormField label="Email">
@@ -283,7 +283,7 @@ export function OrderForm() {
               }
               errors={errors}
               prefix="customer"
-              addressLabel="Direccion"
+              addressLabel="Dirección"
               addressAsTextarea
               addressRows={2}
               includeNeighborhood

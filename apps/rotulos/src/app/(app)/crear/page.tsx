@@ -4,7 +4,7 @@ import { PageHeading } from "@/components/ui/page-heading";
 export default function CreateLabelPage() {
   return (
     <main className="page-shell">
-      <PageHeading eyebrow="Generador" title="Crear rotulo" />
+      <PageHeading eyebrow="Generador" title="Crear rótulo" />
       <LabelForm />
     </main>
   );

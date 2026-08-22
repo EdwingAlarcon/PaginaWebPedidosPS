@@ -273,7 +273,7 @@ export function OrderEditForm({ order, onSaved, onCancel, onDirtyChange }: Order
           <FormField label="Nombre" required error={errors.customer} className="sm:col-span-2">
             <Input value={value.customer.fullName} onChange={(event) => setCustomerField("fullName", event.target.value)} />
           </FormField>
-          <FormField label="Telefono">
+          <FormField label="Teléfono">
             <Input value={value.customer.phone} onChange={(event) => setCustomerField("phone", event.target.value)} />
           </FormField>
           <FormField label="Email">
@@ -289,7 +289,7 @@ export function OrderEditForm({ order, onSaved, onCancel, onDirtyChange }: Order
             }
             errors={errors}
             prefix="customer"
-            addressLabel="Direccion"
+            addressLabel="Dirección"
             addressAsTextarea
             addressRows={2}
             includeNeighborhood

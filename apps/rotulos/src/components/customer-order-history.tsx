@@ -63,7 +63,7 @@ export function CustomerOrderHistory({ customer, orders, labels = [] }: Customer
         <Card className="shadow-none">
           <CardTitle>Otros datos usados</CardTitle>
           <p className="mt-1 text-xs text-foreground-muted">
-            Telefonos o direcciones distintos al dato actual, encontrados en pedidos de este cliente.
+            Teléfonos o direcciones distintos al dato actual, encontrados en pedidos de este cliente.
           </p>
           <dl className="mt-3 grid gap-3">
             {alternateContacts.map((contact) => (
@@ -122,7 +122,7 @@ export function CustomerOrderHistory({ customer, orders, labels = [] }: Customer
           </div>
           {labelCount > 0 ? (
             <p className="mt-2 text-xs text-foreground-muted">
-              {labelCount} rotulo{labelCount === 1 ? "" : "s"} generado{labelCount === 1 ? "" : "s"} para este cliente.
+              {labelCount} rótulo{labelCount === 1 ? "" : "s"} generado{labelCount === 1 ? "" : "s"} para este cliente.
             </p>
           ) : null}
         </>

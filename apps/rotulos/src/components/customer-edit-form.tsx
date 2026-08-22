@@ -260,7 +260,7 @@ export function CustomerEditForm({ customer, onSaved, onCancel, onDirtyChange }:
           <FormField label="Nombre" required error={errors.fullName} className="sm:col-span-2">
             <Input value={value.fullName} onChange={(event) => setField("fullName", event.target.value)} />
           </FormField>
-          <FormField label="Telefono">
+          <FormField label="Teléfono">
             <Input value={value.phone} onChange={(event) => setField("phone", event.target.value)} />
           </FormField>
           <FormField label="Email">
@@ -277,7 +277,7 @@ export function CustomerEditForm({ customer, onSaved, onCancel, onDirtyChange }:
             onChange={(customer) => setValue((current) => (typeof customer === "function" ? customer(current) : customer))}
             errors={errors}
             prefix="customer"
-            addressLabel="Direccion"
+            addressLabel="Dirección"
             addressAsTextarea
             addressRows={2}
             includeNeighborhood
@@ -298,7 +298,7 @@ export function CustomerEditForm({ customer, onSaved, onCancel, onDirtyChange }:
             <span>
               <span className="block font-medium text-foreground">Aplicar cambios a pedidos pendientes</span>
               <span className="mt-1 block text-foreground-muted">
-                Se actualizaran los datos del cliente en {pendingOrderCount} pedido(s) pendiente(s). Los pedidos completados o cancelados y los rotulos ya creados no se modifican.
+                Se actualizarán los datos del cliente en {pendingOrderCount} pedido(s) pendiente(s). Los pedidos completados o cancelados y los rótulos ya creados no se modifican.
               </span>
             </span>
           </label>

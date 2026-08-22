@@ -42,7 +42,7 @@ export function ShipmentFields({ value, onChange, errors, allowManualEdit }: { v
             onChange={(event) => set("carrier", event.target.value)}
           />
         </FormField>
-        <FormField label="Tamano del rotulo">
+        <FormField label="Tamaño del rótulo">
           <Select value={value.size} onChange={(event) => set("size", event.target.value as LabelDraft["size"])}>
             {Object.entries(LABEL_SIZES).map(([key, info]) => (
               <option key={key} value={key}>

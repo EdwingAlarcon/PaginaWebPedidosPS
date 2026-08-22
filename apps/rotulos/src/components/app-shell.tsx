@@ -57,22 +57,22 @@ const NAV_GROUPS: NavGroup[] = [
   },
   {
     label: "Sistema",
-    items: [{ href: "/configuracion", label: "Configuracion", icon: Settings }],
+    items: [{ href: "/configuracion", label: "Configuración", icon: Settings }],
   },
 ];
 
 const PAGE_META: Record<string, { title: string; description: string }> = {
-  "/": { title: "Inicio", description: "Resumen de la operacion diaria" },
+  "/": { title: "Inicio", description: "Resumen de la operación diaria" },
   "/pedidos/nuevo": { title: "Nuevo pedido", description: "Registra un pedido para un cliente" },
   "/pedidos": { title: "Pedidos", description: "Consulta y gestiona los pedidos registrados" },
   "/pedidos/importados": { title: "Importados", description: "Auditoria de pedidos cargados desde Excel" },
   "/clientes": { title: "Clientes", description: "Historial y datos de contacto de tus clientes" },
   "/inventario": { title: "Inventario", description: "Productos, stock y movimientos" },
   "/reportes": { title: "Reportes", description: "Ventas, productos y tendencias" },
-  "/crear": { title: "Crear rotulo", description: "Genera el rotulo de envio de un pedido" },
+  "/crear": { title: "Crear rótulo", description: "Genera el rótulo de envío de un pedido" },
   "/despacho": { title: "Despacho", description: "Pedidos por rotular, imprimir y completar" },
   "/historial": { title: "Historial", description: "Rotulos generados anteriormente" },
-  "/configuracion": { title: "Configuracion", description: "Ajustes de la aplicacion" },
+  "/configuracion": { title: "Configuración", description: "Ajustes de la aplicación" },
 };
 
 const DEFAULT_PAGE_META = { title: "PurpleShop", description: "Sistema de gestion de pedidos e inventario" };

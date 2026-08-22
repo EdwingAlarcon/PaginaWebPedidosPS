@@ -13,9 +13,9 @@ describe("LabelActions", () => {
     expect(screen.getByRole("button", { name: "Descargar PDF" })).toBeEnabled();
   });
 
-  it("labels the save button 'Guardar rotulo' for a new label by default", () => {
+  it("labels the save button 'Guardar rótulo' for a new label by default", () => {
     render(<LabelActions onSave={vi.fn()} onPrint={vi.fn()} onDownloadPdf={vi.fn()} />);
-    expect(screen.getByRole("button", { name: "Guardar rotulo" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Guardar rótulo" })).toBeInTheDocument();
   });
 
   it("labels the save button 'Guardar cambios' when editing an existing label", () => {

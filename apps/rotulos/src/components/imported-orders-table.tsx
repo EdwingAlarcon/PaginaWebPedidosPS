@@ -63,8 +63,8 @@ export function ImportedOrdersTable({ orders, loading = false }: { orders: Order
       }
       toolbar={
         <div className="flex flex-wrap gap-2">
-          <Select value={year} onChange={(event) => setYear(event.target.value)} aria-label="Filtrar por ano">
-            <option value="all">Todos los anos</option>
+          <Select value={year} onChange={(event) => setYear(event.target.value)} aria-label="Filtrar por año">
+            <option value="all">Todos los años</option>
             {years.map((item) => (
               <option key={item} value={item}>{item}</option>
             ))}

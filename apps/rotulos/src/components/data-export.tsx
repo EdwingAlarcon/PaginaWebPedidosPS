@@ -55,8 +55,8 @@ export function DataExport() {
       <div>
         <h2 className="text-card-title">Exportar datos</h2>
         <p className="text-sm text-foreground-muted">
-          Descarga un snapshot antes de operaciones masivas (unificar clientes, importar Excel) o como respaldo periodico.
-          Requiere sesion activa; no se puede descargar sin haber iniciado sesion.
+          Descarga un snapshot antes de operaciones masivas (unificar clientes, importar Excel) o como respaldo periódico.
+          Requiere sesión activa; no se puede descargar sin haber iniciado sesión.
         </p>
       </div>
       <div className="grid gap-3 sm:grid-cols-2">
@@ -85,7 +85,7 @@ export function DataExport() {
         <div>
           <p className="text-sm font-medium text-foreground">Backup completo (JSON)</p>
           <p className="text-xs text-foreground-muted">
-            Incluye clientes, pedidos, catalogo, inventario, rotulos y configuracion. Para restauracion o diagnostico tecnico.
+            Incluye clientes, pedidos, catálogo, inventario, rótulos y configuración. Para restauración o diagnóstico técnico.
           </p>
         </div>
         <Button

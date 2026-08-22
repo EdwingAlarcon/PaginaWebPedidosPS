@@ -6,7 +6,7 @@ import { PageHeading } from "@/components/ui/page-heading";
 export default function SettingsPage() {
   return (
     <main className="page-shell">
-      <PageHeading eyebrow="Preferencias" title="Configuracion" />
+      <PageHeading eyebrow="Preferencias" title="Configuración" />
       <DataExport />
       <AllowedUsersAdmin />
       <SettingsForm />

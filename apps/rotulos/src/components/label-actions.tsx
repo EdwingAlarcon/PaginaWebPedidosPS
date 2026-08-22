@@ -15,7 +15,7 @@ export function LabelActions({ onSave, onPrint, onDownloadPdf, saving, downloadi
     <div className="flex flex-wrap gap-2">
       <Button type="button" onClick={onSave} loading={saving} disabled={downloading}>
         <Save className="size-4" aria-hidden="true" />
-        {isEditing ? "Guardar cambios" : "Guardar rotulo"}
+        {isEditing ? "Guardar cambios" : "Guardar rótulo"}
       </Button>
       <Button type="button" variant="secondary" onClick={onPrint} disabled={saving || downloading}>
         <Printer className="size-4" aria-hidden="true" />

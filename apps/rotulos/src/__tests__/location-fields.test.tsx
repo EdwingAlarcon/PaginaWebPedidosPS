@@ -24,7 +24,7 @@ describe("LocationFields", () => {
 
     await waitFor(() => expect(screen.getByLabelText("Ciudad / municipio")).toHaveValue(""));
     expect(screen.getByLabelText("Barrio / sector")).toHaveValue("");
-    expect(screen.getByLabelText("Direccion")).toHaveValue("CARRERA 45");
+    expect(screen.getByLabelText("Dirección")).toHaveValue("CARRERA 45");
   });
 
   it("uses a filtered neighborhood selector for Bogota", async () => {

@@ -196,7 +196,7 @@ export function OrderDetailDrawer({ order, onEdit }: OrderDetailDrawerProps) {
           Descargar imagen
         </Button>
         <Button type="button" variant="secondary" size="sm" asChild>
-          <Link href={`/crear?fromOrderId=${order.id}`}>Generar rotulo</Link>
+          <Link href={`/crear?fromOrderId=${order.id}`}>Generar rótulo</Link>
         </Button>
         {onEdit ? (
           <Button type="button" size="sm" onClick={onEdit}>
@@ -228,13 +228,13 @@ export function OrderDetailDrawer({ order, onEdit }: OrderDetailDrawerProps) {
         <CardTitle>Cliente</CardTitle>
         <dl className="mt-4">
           <DetailRow label="Nombre" value={order.customer.fullName} />
-          <DetailRow label="Telefono" value={order.customer.phone} />
+          <DetailRow label="Teléfono" value={order.customer.phone} />
           <DetailRow label="Email" value={order.customer.email} />
           <DetailRow label="Departamento" value={order.customer.department} />
           <DetailRow label="Ciudad" value={order.customer.city} />
           <DetailRow label="Localidad" value={order.customer.locality} />
           <DetailRow label="Barrio / sector" value={order.customer.neighborhood} />
-          <DetailRow label="Direccion" value={order.customer.address} />
+          <DetailRow label="Dirección" value={order.customer.address} />
         </dl>
       </Card>
 

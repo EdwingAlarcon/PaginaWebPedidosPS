@@ -103,11 +103,11 @@ export function DashboardStats({ labels }: { labels: LabelRecord[] }) {
           </CardHeader>
           {latestLabels.length === 0 ? (
             <EmptyState
-              title="Aun no hay rotulos"
-              description="Genera un rotulo de envio para verlo aqui."
+              title="Aún no hay rótulos"
+              description="Genera un rótulo de envío para verlo aquí."
               action={
                 <Button size="sm" asChild>
-                  <Link href="/crear">Crear rotulo</Link>
+                  <Link href="/crear">Crear rótulo</Link>
                 </Button>
               }
             />

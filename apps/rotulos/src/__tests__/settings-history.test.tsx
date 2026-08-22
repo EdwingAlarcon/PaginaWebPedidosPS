@@ -113,7 +113,7 @@ describe("HistoryTable", () => {
     const user = userEvent.setup();
     renderHistoryTable([saved]);
 
-    await user.click(screen.getByRole("button", { name: `Acciones para el rotulo ${saved.orderNumber}` }));
+    await user.click(screen.getByRole("button", { name: `Acciones para el rótulo ${saved.orderNumber}` }));
     await user.click(screen.getByRole("menuitem", { name: "Eliminar" }));
     await user.click(screen.getByRole("button", { name: "Eliminar" }));
 
@@ -131,7 +131,7 @@ describe("HistoryTable", () => {
     renderHistoryTable([]);
 
     expect(await screen.findByText("ANA PEREZ")).toBeInTheDocument();
-    await user.click(screen.getByRole("button", { name: `Acciones para el rotulo ${saved.orderNumber}` }));
+    await user.click(screen.getByRole("button", { name: `Acciones para el rótulo ${saved.orderNumber}` }));
     await user.click(screen.getByRole("menuitem", { name: "Duplicar" }));
 
     expect(await screen.findByText("Etiqueta PS-2026-000002 duplicada.")).toBeInTheDocument();
@@ -148,7 +148,7 @@ describe("HistoryTable", () => {
 
     renderHistoryTable([saved]);
 
-    await user.click(screen.getByRole("button", { name: `Acciones para el rotulo ${saved.orderNumber}` }));
+    await user.click(screen.getByRole("button", { name: `Acciones para el rótulo ${saved.orderNumber}` }));
     await user.click(screen.getByRole("menuitem", { name: "Agregar guia" }));
     await user.type(screen.getByLabelText("Numero de guia"), "987654321");
     await user.click(screen.getByRole("button", { name: "Guardar" }));
@@ -156,7 +156,7 @@ describe("HistoryTable", () => {
     expect(await screen.findByText("Guia de rastreo guardada.")).toBeInTheDocument();
     expect((await store.listLabels())[0].trackingNumber).toBe("987654321");
 
-    await user.click(screen.getByRole("button", { name: `Acciones para el rotulo ${saved.orderNumber}` }));
+    await user.click(screen.getByRole("button", { name: `Acciones para el rótulo ${saved.orderNumber}` }));
     expect(screen.getByRole("menuitem", { name: "Enviar guia por WhatsApp" })).toBeInTheDocument();
     expect(screen.getByRole("menuitem", { name: "Editar guia" })).toBeInTheDocument();
   });

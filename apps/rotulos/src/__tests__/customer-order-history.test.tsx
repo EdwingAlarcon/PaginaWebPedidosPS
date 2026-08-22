@@ -84,7 +84,7 @@ describe("CustomerOrderHistory", () => {
     expect(screen.getByText("Otros datos usados")).toBeInTheDocument();
     expect(screen.getByText("3009999999")).toBeInTheDocument();
     expect(screen.getByText(/CALLE VIEJA 2/)).toBeInTheDocument();
-    expect(screen.getByText("1 rotulo generado para este cliente.")).toBeInTheDocument();
+    expect(screen.getByText("1 rótulo generado para este cliente.")).toBeInTheDocument();
   });
 
   it("does not show the alternate data card when every order matches the current customer", () => {

@@ -59,7 +59,7 @@ describe("OrderForm con inventario real", () => {
       category: "ACCESORIOS",
       unitPrice: 25000,
     });
-    expect(screen.getByRole("link", { name: "Generar rotulo" })).toHaveAttribute("href", `/crear?fromOrderId=${order.id}`);
+    expect(screen.getByRole("link", { name: "Generar rótulo" })).toHaveAttribute("href", `/crear?fromOrderId=${order.id}`);
     expect(screen.getByRole("link", { name: "Ver despacho" })).toHaveAttribute("href", "/despacho");
     expect(screen.getByRole("button", { name: "Crear otro" })).toBeInTheDocument();
   });

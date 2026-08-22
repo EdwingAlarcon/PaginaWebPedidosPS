@@ -83,11 +83,11 @@ describe("business tables", () => {
     renderWithToast(<CustomersTable />);
 
     await user.click(await screen.findByText("ZAIDA"));
-    await user.type(screen.getByLabelText("Telefono"), "3009999999");
+    await user.type(screen.getByLabelText("Teléfono"), "3009999999");
     await user.selectOptions(screen.getByLabelText("Departamento"), "ANTIOQUIA");
     await user.selectOptions(screen.getByLabelText("Ciudad / municipio"), "MEDELLÍN");
-    await user.clear(screen.getByLabelText("Direccion"));
-    await user.type(screen.getByLabelText("Direccion"), "calle nueva");
+    await user.clear(screen.getByLabelText("Dirección"));
+    await user.type(screen.getByLabelText("Dirección"), "calle nueva");
     await user.type(screen.getByLabelText("Barrio / sector"), "castilla");
     await user.click(screen.getByLabelText("Completar datos faltantes en pedidos relacionados"));
     await user.click(screen.getByRole("button", { name: "Guardar cambios" }));
@@ -221,8 +221,8 @@ describe("business tables", () => {
     expect(options).toHaveLength(1);
 
     await user.type(screen.getByPlaceholderText("Busca o escribe un cliente nuevo"), "PILAR CONGOTE");
-    expect(screen.getByLabelText("Telefono")).toHaveValue("3002222222");
-    expect(screen.getByLabelText("Direccion")).toHaveValue("CALLE 10");
+    expect(screen.getByLabelText("Teléfono")).toHaveValue("3002222222");
+    expect(screen.getByLabelText("Dirección")).toHaveValue("CALLE 10");
   });
 
   it("edits safe order fields from the order drawer and keeps the item line visible", async () => {

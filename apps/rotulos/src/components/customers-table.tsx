@@ -138,10 +138,10 @@ export function CustomersTable() {
 
   const columns: DataTableColumn<Customer>[] = [
     { key: "name", header: "Cliente", render: (c) => c.fullName, sortValue: (c) => c.fullName },
-    { key: "phone", header: "Telefono", render: (c) => c.phone || "-" },
+    { key: "phone", header: "Teléfono", render: (c) => c.phone || "-" },
     { key: "email", header: "Email", render: (c) => c.email || "-" },
     { key: "city", header: "Ciudad", render: (c) => c.city || "-", sortValue: (c) => c.city },
-    { key: "address", header: "Direccion", render: (c) => c.address || "-" },
+    { key: "address", header: "Dirección", render: (c) => c.address || "-" },
     {
       key: "actions",
       header: "Acciones",

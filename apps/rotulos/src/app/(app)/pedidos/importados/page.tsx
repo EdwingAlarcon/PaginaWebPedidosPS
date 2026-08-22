@@ -33,7 +33,7 @@ export default function ImportedOrdersPage() {
         <MetricCard label="Unidades" value={summary.items} icon={Package} loading={loading} />
         <MetricCard label="Ventas" value={formatCop(summary.total)} icon={Archive} loading={loading} />
         <MetricCard label="Clientes" value={summary.customers} icon={Users} loading={loading} />
-        <MetricCard label="Anios" value={summary.years.join(", ") || "-"} icon={CalendarDays} loading={loading} />
+        <MetricCard label="Años" value={summary.years.join(", ") || "-"} icon={CalendarDays} loading={loading} />
       </div>
       <div className="mt-4">
         <ImportedOrdersTable orders={orders} loading={loading} />

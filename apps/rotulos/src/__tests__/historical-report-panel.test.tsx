@@ -18,7 +18,7 @@ describe("HistoricalReportPanel", () => {
   it("displays year totals and historical refs", () => {
     render(<HistoricalReportPanel report={report} />);
 
-    expect(screen.getByText("Historico importado 2024/2025")).toBeInTheDocument();
+    expect(screen.getByText("Histórico importado 2024/2025")).toBeInTheDocument();
     expect(screen.getByText("2024")).toBeInTheDocument();
     expect(screen.getByText("2025")).toBeInTheDocument();
     expect(screen.getByText("HIST_CAMISETA")).toBeInTheDocument();

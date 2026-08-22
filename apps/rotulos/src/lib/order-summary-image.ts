@@ -247,7 +247,7 @@ export async function renderOrderSummaryImage(order: OrderRecord, tracking?: Shi
   drawMeta(b, [
     ["Fecha", formatDate(order.orderDate)],
     ["Cliente", order.customer.fullName],
-    ["Telefono", order.customer.phone],
+    ["Teléfono", order.customer.phone],
   ]);
   drawItemsTable(b, order);
   drawTotals(b, order);
@@ -260,7 +260,7 @@ export async function renderCustomerHistoryImage(customer: Customer, orders: Ord
   const sorted = [...orders].sort((a, b) => a.orderDate.localeCompare(b.orderDate));
   const b = new ReceiptBuilder();
   drawHeader(b, "Historial de compras", customer.fullName);
-  drawMeta(b, [["Telefono", customer.phone]]);
+  drawMeta(b, [["Teléfono", customer.phone]]);
 
   let grandTotal = 0;
   for (const order of sorted) {

@@ -51,7 +51,7 @@ function rowMatchesQuery(row: DispatchRow, query: string): boolean {
 function dispatchStage(row: DispatchRow): { label: string; variant: "neutral" | "primary" | "success" | "warning" | "danger" } {
   if (row.order.status === "completed" && row.label?.status === "impreso") return { label: "Listo", variant: "success" };
   if (row.issues.length > 0) return { label: "Revisar datos", variant: "danger" };
-  if (!row.label) return { label: "Sin rotulo", variant: "warning" };
+  if (!row.label) return { label: "Sin rótulo", variant: "warning" };
   if (row.label.status !== "impreso") return { label: "Por imprimir", variant: "primary" };
   return { label: "Por completar", variant: "neutral" };
 }
@@ -145,8 +145,8 @@ export function DispatchBoard() {
       toast.push({ variant: "success", title: `Rotulo ${label.orderNumber} generado.` });
     } catch (error) {
       const message = error instanceof Error && error.message === "label_quality_failed"
-        ? "Completa los datos del rotulo antes de generarlo."
-        : "No se pudo generar el rotulo.";
+        ? "Completa los datos del rótulo antes de generarlo."
+        : "No se pudo generar el rótulo.";
       toast.push({ variant: "danger", title: message });
     } finally {
       setBusyId(null);
@@ -176,7 +176,7 @@ export function DispatchBoard() {
       toast.push({ variant: "success", title: "PDF descargado." });
     } catch (error) {
       const message = error instanceof Error && error.message === "label_quality_failed"
-        ? "Completa los datos del rotulo antes de descargarlo."
+        ? "Completa los datos del rótulo antes de descargarlo."
         : "No se pudo descargar el PDF.";
       toast.push({ variant: "danger", title: message });
     } finally {
@@ -195,7 +195,7 @@ export function DispatchBoard() {
       toast.push({ variant: "success", title: "Rotulo marcado como impreso." });
     } catch (error) {
       const message = error instanceof Error && error.message === "label_quality_failed"
-        ? "Completa los datos del rotulo antes de imprimirlo."
+        ? "Completa los datos del rótulo antes de imprimirlo."
         : "No se pudo preparar la impresion.";
       toast.push({ variant: "danger", title: message });
     } finally {
@@ -224,7 +224,7 @@ export function DispatchBoard() {
           <p className="mt-3 text-2xl font-semibold text-foreground">{metrics.action}</p>
         </Card>
         <Card>
-          <CardTitle>Sin rotulo</CardTitle>
+          <CardTitle>Sin rótulo</CardTitle>
           <p className="mt-3 text-2xl font-semibold text-warning">{metrics.missingLabel}</p>
         </Card>
         <Card>
@@ -244,7 +244,7 @@ export function DispatchBoard() {
             <Input type="date" value={fromDate} onChange={(event) => setFromDate(event.target.value)} aria-label="Filtrar desde fecha" />
             <Select value={filter} onChange={(event) => setFilter(event.target.value as DispatchFilter)} aria-label="Filtrar bandeja">
               <option value="action">Con accion pendiente</option>
-              <option value="missing-label">Sin rotulo</option>
+              <option value="missing-label">Sin rótulo</option>
               <option value="label-ready">Rotulo por imprimir</option>
               <option value="pending">Pedido pendiente</option>
               <option value="completed">Completados recientes</option>
@@ -300,7 +300,7 @@ export function DispatchBoard() {
                           <Link className="text-xs font-medium text-primary hover:underline" href={`/crear?id=${row.label.id}`}>{row.label.orderNumber}</Link>
                         </div>
                       ) : (
-                        <Badge variant="warning">Sin rotulo</Badge>
+                        <Badge variant="warning">Sin rótulo</Badge>
                       )}
                     </td>
                     <td className="px-4 py-3">
@@ -313,7 +313,7 @@ export function DispatchBoard() {
                       )}
                       {qualityReview?.orderId === row.order.id ? (
                         <div className="mt-2 max-w-[260px] rounded-md border border-danger/20 bg-[var(--danger-soft)] p-2 text-xs text-danger">
-                          <p className="font-medium">Completa el rotulo</p>
+                          <p className="font-medium">Completa el rótulo</p>
                           <ul className="mt-1 list-disc pl-4">
                             {qualityReview.issues.slice(0, 3).map((issue) => <li key={issue.field}>{issue.message}</li>)}
                           </ul>
@@ -327,7 +327,7 @@ export function DispatchBoard() {
                     <td className="px-4 py-3">
                       <div className="flex justify-end gap-1.5">
                         {!row.label ? (
-                          <IconButton label="Generar rotulo" size="sm" variant="secondary" onClick={() => generateLabel(row)} disabled={isBusy}>
+                          <IconButton label="Generar rótulo" size="sm" variant="secondary" onClick={() => generateLabel(row)} disabled={isBusy}>
                             <FilePlus2 className="size-4" aria-hidden="true" />
                           </IconButton>
                         ) : null}

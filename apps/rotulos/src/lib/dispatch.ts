@@ -15,8 +15,8 @@ export type DispatchRow = {
 };
 
 const ISSUE_LABELS: Record<DispatchIssueKey, string> = {
-  phone: "Telefono",
-  address: "Direccion",
+  phone: "Teléfono",
+  address: "Dirección",
   city: "Ciudad",
   locality: "Barrio/localidad",
   items: "Productos",

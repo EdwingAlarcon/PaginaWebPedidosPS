@@ -30,7 +30,7 @@ export function HistoricalReportPanel({ report }: { report: HistoricalReport }) 
   return (
     <section className="mt-4">
       <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
-        <CardTitle>Historico importado 2024/2025</CardTitle>
+        <CardTitle>Histórico importado 2024/2025</CardTitle>
         <div className="flex flex-wrap gap-2">
           <Badge variant="primary">{report.historicalRefItems.length} refs HIST</Badge>
           <Badge variant={report.missingRefItems.length > 0 ? "warning" : "neutral"}>
@@ -45,7 +45,7 @@ export function HistoricalReportPanel({ report }: { report: HistoricalReport }) 
       </div>
       <div className="mt-4 grid gap-4 lg:grid-cols-3">
         <Card>
-          <CardTitle>Totales por ano</CardTitle>
+          <CardTitle>Totales por año</CardTitle>
           <div className="mt-4">
             <CompactRows
               rows={report.totalsByYear.map((item) => ({

@@ -271,7 +271,7 @@ export async function renderOrderSummaryPdfBuffer(order: OrderRecord, tracking?:
   ctx = drawCustomerMeta(ctx, [
     ["Fecha", formatDate(order.orderDate)],
     ["Cliente", order.customer.fullName],
-    ["Telefono", order.customer.phone],
+    ["Teléfono", order.customer.phone],
   ]);
 
   ctx = drawItemsTable(ctx, order);
@@ -290,7 +290,7 @@ export async function renderCustomerHistoryPdfBuffer(customer: Customer, orders:
   let ctx: PdfContext = { ...base, page, y: PAGE_HEIGHT };
   ctx = drawHeaderBand(ctx, "Historial de compras", customer.fullName);
 
-  ctx = drawCustomerMeta(ctx, [["Telefono", customer.phone]]);
+  ctx = drawCustomerMeta(ctx, [["Teléfono", customer.phone]]);
 
   let grandTotal = 0;
   for (const order of sorted) {

@@ -41,15 +41,15 @@ describe("LabelForm", () => {
     fireEvent.click(link);
 
     const sender = within(screen.getByRole("group", { name: "Remitente" }));
-    expect(sender.getByLabelText("Telefono")).toHaveFocus();
+    expect(sender.getByLabelText("Teléfono")).toHaveFocus();
   });
 
   it("automatically focuses the first invalid field after a failed save attempt", async () => {
     render(<LabelForm />);
-    fireEvent.click(screen.getByRole("button", { name: "Guardar rotulo" }));
+    fireEvent.click(screen.getByRole("button", { name: "Guardar rótulo" }));
 
     const sender = within(screen.getByRole("group", { name: "Remitente" }));
-    await waitFor(() => expect(sender.getByLabelText("Telefono")).toHaveFocus());
+    await waitFor(() => expect(sender.getByLabelText("Teléfono")).toHaveFocus());
   });
 
 
@@ -59,20 +59,20 @@ describe("LabelForm", () => {
     const recipient = within(screen.getByRole("group", { name: "Destinatario" }));
     const shipment = within(screen.getByRole("group", { name: "Datos del envio" }));
 
-    fireEvent.change(sender.getByLabelText(/Telefono/), { target: { value: "3001234567" } });
+    fireEvent.change(sender.getByLabelText(/Teléfono/), { target: { value: "3001234567" } });
     fireEvent.change(sender.getByLabelText(/Departamento/), { target: { value: "VALLE DEL CAUCA" } });
     await waitFor(() => expect(sender.getByRole("option", { name: "SANTIAGO DE CALI" })).toBeInTheDocument());
     fireEvent.change(sender.getByLabelText(/Ciudad/), { target: { value: "SANTIAGO DE CALI" } });
-    fireEvent.change(sender.getByLabelText(/Direccion/), { target: { value: "Calle 1 # 2-3" } });
+    fireEvent.change(sender.getByLabelText(/Dirección/), { target: { value: "Calle 1 # 2-3" } });
     fireEvent.change(recipient.getByLabelText(/Nombre y apellidos/), { target: { value: "Ana Perez" } });
-    fireEvent.change(recipient.getByLabelText(/Telefono/), { target: { value: "3101234567" } });
+    fireEvent.change(recipient.getByLabelText(/Teléfono/), { target: { value: "3101234567" } });
     fireEvent.change(recipient.getByLabelText(/Departamento/), { target: { value: "ANTIOQUIA" } });
     await waitFor(() => expect(recipient.getByRole("option", { name: "MEDELLÍN" })).toBeInTheDocument());
     fireEvent.change(recipient.getByLabelText(/Ciudad/), { target: { value: "MEDELLÍN" } });
-    fireEvent.change(recipient.getByLabelText(/Direccion completa/), { target: { value: "Carrera 45 # 10-20" } });
+    fireEvent.change(recipient.getByLabelText(/Dirección completa/), { target: { value: "Carrera 45 # 10-20" } });
     fireEvent.change(shipment.getByLabelText(/Transportadora/), { target: { value: "Coordinadora" } });
 
-    fireEvent.click(screen.getByRole("button", { name: "Guardar rotulo" }));
+    fireEvent.click(screen.getByRole("button", { name: "Guardar rótulo" }));
 
     expect(await screen.findByText("Rotulo guardado.")).toBeInTheDocument();
     expect((await getLabelStore().listLabels())[0].orderNumber).toBe("PS-2026-000001");
@@ -164,14 +164,14 @@ describe("LabelForm", () => {
     render(<LabelForm />);
 
     expect(await screen.findByDisplayValue("ANA PEREZ")).toBeInTheDocument();
-    fireEvent.change(within(screen.getByRole("group", { name: "Remitente" })).getByLabelText(/Telefono/), { target: { value: "3001234567" } });
+    fireEvent.change(within(screen.getByRole("group", { name: "Remitente" })).getByLabelText(/Teléfono/), { target: { value: "3001234567" } });
     fireEvent.change(within(screen.getByRole("group", { name: "Remitente" })).getByLabelText(/Departamento/), { target: { value: "VALLE DEL CAUCA" } });
     await waitFor(() => expect(within(screen.getByRole("group", { name: "Remitente" })).getByRole("option", { name: "SANTIAGO DE CALI" })).toBeInTheDocument());
     fireEvent.change(within(screen.getByRole("group", { name: "Remitente" })).getByLabelText(/Ciudad/), { target: { value: "SANTIAGO DE CALI" } });
-    fireEvent.change(within(screen.getByRole("group", { name: "Remitente" })).getByLabelText(/Direccion/), { target: { value: "Calle 1 # 2-3" } });
+    fireEvent.change(within(screen.getByRole("group", { name: "Remitente" })).getByLabelText(/Dirección/), { target: { value: "Calle 1 # 2-3" } });
     fireEvent.change(within(screen.getByRole("group", { name: "Datos del envio" })).getByLabelText(/Transportadora/), { target: { value: "Coordinadora" } });
 
-    fireEvent.click(screen.getByRole("button", { name: "Guardar rotulo" }));
+    fireEvent.click(screen.getByRole("button", { name: "Guardar rótulo" }));
 
     expect(await screen.findByText("Rotulo guardado.")).toBeInTheDocument();
     expect((await getLabelStore().listLabels())[0].orderId).toBe(savedOrder.id);
@@ -182,17 +182,17 @@ describe("LabelForm", () => {
     const recipient = within(screen.getByRole("group", { name: "Destinatario" }));
     const shipment = within(screen.getByRole("group", { name: "Datos del envio" }));
 
-    fireEvent.change(sender.getByLabelText(/Telefono/), { target: { value: "3001234567" } });
+    fireEvent.change(sender.getByLabelText(/Teléfono/), { target: { value: "3001234567" } });
     fireEvent.change(sender.getByLabelText(/Departamento/), { target: { value: "VALLE DEL CAUCA" } });
     await waitFor(() => expect(sender.getByRole("option", { name: "SANTIAGO DE CALI" })).toBeInTheDocument());
     fireEvent.change(sender.getByLabelText(/Ciudad/), { target: { value: "SANTIAGO DE CALI" } });
-    fireEvent.change(sender.getByLabelText(/Direccion/), { target: { value: "Calle 1 # 2-3" } });
+    fireEvent.change(sender.getByLabelText(/Dirección/), { target: { value: "Calle 1 # 2-3" } });
     fireEvent.change(recipient.getByLabelText(/Nombre y apellidos/), { target: { value: "Ana Perez" } });
-    fireEvent.change(recipient.getByLabelText(/Telefono/), { target: { value: "3101234567" } });
+    fireEvent.change(recipient.getByLabelText(/Teléfono/), { target: { value: "3101234567" } });
     fireEvent.change(recipient.getByLabelText(/Departamento/), { target: { value: "ANTIOQUIA" } });
     await waitFor(() => expect(recipient.getByRole("option", { name: "MEDELLÍN" })).toBeInTheDocument());
     fireEvent.change(recipient.getByLabelText(/Ciudad/), { target: { value: "MEDELLÍN" } });
-    fireEvent.change(recipient.getByLabelText(/Direccion completa/), { target: { value: "Carrera 45 # 10-20" } });
+    fireEvent.change(recipient.getByLabelText(/Dirección completa/), { target: { value: "Carrera 45 # 10-20" } });
     fireEvent.change(shipment.getByLabelText(/Transportadora/), { target: { value: "Coordinadora" } });
   }
 
@@ -205,9 +205,9 @@ describe("LabelForm", () => {
       saveLabel: vi.fn().mockReturnValue(pending.promise),
     });
 
-    fireEvent.click(screen.getByRole("button", { name: "Guardar rotulo" }));
+    fireEvent.click(screen.getByRole("button", { name: "Guardar rótulo" }));
 
-    await waitFor(() => expect(screen.getByRole("button", { name: "Guardar rotulo" })).toBeDisabled());
+    await waitFor(() => expect(screen.getByRole("button", { name: "Guardar rótulo" })).toBeDisabled());
     pending.resolve({ ...createBlankLabelDraft(), id: "label-1", createdAt: "", updatedAt: "", pdfUrl: null, createdBy: null });
     await waitFor(() => expect(screen.getByRole("button", { name: "Guardar cambios" })).toBeEnabled());
   });

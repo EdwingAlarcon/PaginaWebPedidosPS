@@ -94,7 +94,7 @@ export function HistoryTable({ labels }: { labels: LabelRecord[] }) {
 
   const columns: DataTableColumn<LabelRecord>[] = [
     { key: "customer", header: "Cliente", render: (l) => l.recipient.fullName, sortValue: (l) => l.recipient.fullName },
-    { key: "phone", header: "Telefono", render: (l) => l.recipient.phone || "-" },
+    { key: "phone", header: "Teléfono", render: (l) => l.recipient.phone || "-" },
     { key: "city", header: "Ciudad", render: (l) => l.recipient.city || "-" },
     { key: "date", header: "Fecha", render: (l) => l.date, sortValue: (l) => l.date },
     { key: "order", header: "Pedido", render: (l) => l.orderNumber },
@@ -106,7 +106,7 @@ export function HistoryTable({ labels }: { labels: LabelRecord[] }) {
       render: (label) => (
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <IconButton label={`Acciones para el rotulo ${label.orderNumber}`} size="sm">
+            <IconButton label={`Acciones para el rótulo ${label.orderNumber}`} size="sm">
               <MoreHorizontal className="size-4" aria-hidden="true" />
             </IconButton>
           </DropdownMenuTrigger>
@@ -168,13 +168,13 @@ export function HistoryTable({ labels }: { labels: LabelRecord[] }) {
           label.recipient.fullName.toLowerCase().includes(query) ||
           label.recipient.phone.toLowerCase().includes(query)
         }
-        emptyTitle="No hay rotulos todavia"
-        emptyDescription="Genera tu primer rotulo de envio para verlo en el historial."
+        emptyTitle="No hay rótulos todavía"
+        emptyDescription="Genera tu primer rótulo de envío para verlo en el historial."
         emptyAction={
           <Button size="sm" asChild>
             <Link href="/crear">
               <Plus className="size-4" aria-hidden="true" />
-              Crear rotulo
+              Crear rótulo
             </Link>
           </Button>
         }
@@ -182,10 +182,10 @@ export function HistoryTable({ labels }: { labels: LabelRecord[] }) {
       <ConfirmDialog
         open={pendingDelete !== null}
         onOpenChange={(open) => !open && setPendingDelete(null)}
-        title="Eliminar rotulo"
+        title="Eliminar rótulo"
         description={
           pendingDelete
-            ? `Esta accion eliminara el rotulo ${pendingDelete.orderNumber} de forma permanente.`
+            ? `Esta acción eliminará el rótulo ${pendingDelete.orderNumber} de forma permanente.`
             : undefined
         }
         confirmLabel="Eliminar"

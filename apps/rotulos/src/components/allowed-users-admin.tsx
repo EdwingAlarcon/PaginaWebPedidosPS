@@ -96,7 +96,7 @@ export function AllowedUsersAdmin() {
       <div>
         <h2 className="text-card-title">Usuarios permitidos</h2>
         <p className="text-sm text-foreground-muted">
-          Solo los correos de esta lista pueden iniciar sesion en el sistema.
+          Solo los correos de esta lista pueden iniciar sesión en el sistema.
         </p>
       </div>
 
@@ -149,7 +149,7 @@ export function AllowedUsersAdmin() {
           if (!open) setPendingDelete(null);
         }}
         title="Eliminar usuario"
-        description={pendingDelete ? `${pendingDelete} ya no podra iniciar sesion.` : undefined}
+        description={pendingDelete ? `${pendingDelete} ya no podrá iniciar sesión.` : undefined}
         confirmLabel="Eliminar"
         variant="danger"
         loading={deleting}

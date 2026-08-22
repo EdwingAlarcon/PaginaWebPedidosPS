@@ -228,7 +228,7 @@ export default function ReportsPage() {
   return (
     <main className="page-shell">
       <div className="mb-6 flex flex-wrap items-end justify-between gap-4">
-        <PageHeading eyebrow="Analitica" title="Reportes" className="mb-0" />
+        <PageHeading eyebrow="Analítica" title="Reportes" className="mb-0" />
         <div className="flex flex-wrap items-end gap-3">
           <FormField label="Desde">
             <DatePicker value={from} onChange={(event) => setFrom(event.target.value)} />
@@ -385,7 +385,7 @@ export default function ReportsPage() {
               <thead>
                 <tr className="border-b border-border bg-surface-muted">
                   <th scope="col" className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-foreground-muted">Cliente</th>
-                  <th scope="col" className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-foreground-muted">Telefono</th>
+                  <th scope="col" className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-foreground-muted">Teléfono</th>
                   <th scope="col" className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-foreground-muted">Ultima compra</th>
                   <th scope="col" className="px-4 py-3 text-right text-xs font-semibold uppercase tracking-wide text-foreground-muted">Dias inactivo</th>
                   <th scope="col" className="px-4 py-3 text-right text-xs font-semibold uppercase tracking-wide text-foreground-muted">Accion</th>
