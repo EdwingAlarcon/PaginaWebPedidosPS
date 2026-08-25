@@ -153,7 +153,7 @@ describe("local business store", () => {
   it("normalizes a product code but leaves unitPrice untouched", async () => {
     const store = getBusinessStore();
 
-    const saved = await store.saveProductCode({ code: "med-001", productName: "medias largas", category: "medias", unitPrice: 15000 });
+    const saved = await store.saveProductCode({ code: "med-001", productName: "medias largas", category: "medias", unitPrice: 15000, imageUrl: null });
 
     expect(saved.code).toBe("MED-001");
     expect(saved.productName).toBe("MEDIAS LARGAS");

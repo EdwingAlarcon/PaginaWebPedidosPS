@@ -11,6 +11,7 @@ import {
   normalizeProductDraft,
   normalizeStockMovementDraft,
   normalizeProductCode,
+  normalizeProductCodePatch,
 } from "@/lib/normalize";
 import { createBlankLabelDraft, defaultSettings } from "@/lib/defaults";
 import { createBlankOrderDraft } from "@/lib/business-store";
@@ -195,5 +196,17 @@ describe("normalizeProductCode", () => {
     expect(result.code).toBe("MED-001");
     expect(result.productName).toBe("MEDIAS LARGAS");
     expect(result.category).toBe("MEDIAS");
+  });
+});
+
+describe("normalizeProductCodePatch", () => {
+  it("uppercases text fields present in the patch and leaves imageUrl untouched", () => {
+    const result = normalizeProductCodePatch({
+      productName: "chanel no 5",
+      imageUrl: "https://example.com/foto.png",
+    });
+    expect(result.productName).toBe("CHANEL NO 5");
+    expect(result.imageUrl).toBe("https://example.com/foto.png");
+    expect(result.category).toBeUndefined();
   });
 });

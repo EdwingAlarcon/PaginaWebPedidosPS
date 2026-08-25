@@ -1,5 +1,5 @@
 import type { LabelDraft, LabelSettings, Recipient, Sender } from "@/lib/types";
-import type { OrderDraft, OrderItemDraft, ProductCode } from "@/lib/business-types";
+import type { OrderDraft, OrderItemDraft, ProductCode, ProductCodePatch } from "@/lib/business-types";
 import type { ProductDraft, StockMovementDraft } from "@/lib/inventory-types";
 
 export function normalizeText(value: string): string {
@@ -113,5 +113,13 @@ export function normalizeProductCode<T extends ProductCodeTextFields>(code: T): 
     code: normalizeText(code.code),
     productName: normalizeText(code.productName),
     category: normalizeText(code.category),
+  };
+}
+
+export function normalizeProductCodePatch(patch: ProductCodePatch): ProductCodePatch {
+  return {
+    ...patch,
+    ...(patch.productName !== undefined ? { productName: normalizeText(patch.productName) } : {}),
+    ...(patch.category !== undefined ? { category: normalizeText(patch.category) } : {}),
   };
 }

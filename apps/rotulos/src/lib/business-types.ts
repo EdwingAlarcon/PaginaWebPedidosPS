@@ -69,9 +69,14 @@ export type ProductCode = {
   productName: string;
   category: string;
   unitPrice: number;
+  imageUrl: string | null;
   createdAt: string;
   updatedAt: string;
 };
+
+export type ProductCodePatch = Partial<
+  Pick<ProductCode, "productName" | "category" | "unitPrice" | "imageUrl">
+>;
 
 export type OrderEdit = {
   id: string;

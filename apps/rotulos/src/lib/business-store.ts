@@ -69,6 +69,7 @@ type ProductCodeRow = {
   product_name: string;
   category: string;
   unit_price: number | string;
+  image_url: string | null;
   created_at: string;
   updated_at: string;
 };
@@ -193,6 +194,7 @@ function rowToProductCode(row: ProductCodeRow): ProductCode {
     productName: row.product_name,
     category: row.category,
     unitPrice: Number(row.unit_price),
+    imageUrl: row.image_url || null,
     createdAt: row.created_at,
     updatedAt: row.updated_at,
   };
