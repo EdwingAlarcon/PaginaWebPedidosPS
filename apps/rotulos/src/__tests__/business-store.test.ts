@@ -161,6 +161,27 @@ describe("local business store", () => {
     expect(saved.unitPrice).toBe(15000);
   });
 
+  it("updates a product code and normalizes the patch", async () => {
+    const store = getBusinessStore();
+    const saved = await store.saveProductCode({ code: "med-001", productName: "medias largas", category: "medias", unitPrice: 15000, imageUrl: null });
+
+    const updated = await store.updateProductCode(saved.id, { unitPrice: 18000, imageUrl: "https://x.test/foto.png" });
+
+    expect(updated.unitPrice).toBe(18000);
+    expect(updated.imageUrl).toBe("https://x.test/foto.png");
+    expect(updated.productName).toBe("MEDIAS LARGAS");
+  });
+
+  it("deletes a product code", async () => {
+    const store = getBusinessStore();
+    const saved = await store.saveProductCode({ code: "med-002", productName: "medias cortas", category: "medias", unitPrice: 10000, imageUrl: null });
+
+    await store.deleteProductCode(saved.id);
+
+    const remaining = await store.listProductCodes();
+    expect(remaining.find((item) => item.id === saved.id)).toBeUndefined();
+  });
+
   it("updates safe order fields, recalculates totals, and keeps items unchanged", async () => {
     const store = getBusinessStore();
     const draft = createBlankOrderDraft();

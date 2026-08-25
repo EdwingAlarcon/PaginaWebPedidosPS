@@ -2,8 +2,8 @@
 
 import { createClient } from "@/lib/supabase/client";
 import { businessToday } from "@/lib/date";
-import { normalizeCustomerFields, normalizeOrderDraft, normalizeProductCode } from "@/lib/normalize";
-import type { Customer, CustomerPatch, OrderDraft, OrderEdit, OrderItem, OrderPatch, OrderRecord, ProductCode } from "@/lib/business-types";
+import { normalizeCustomerFields, normalizeOrderDraft, normalizeProductCode, normalizeProductCodePatch } from "@/lib/normalize";
+import type { Customer, CustomerPatch, OrderDraft, OrderEdit, OrderItem, OrderPatch, OrderRecord, ProductCode, ProductCodePatch } from "@/lib/business-types";
 
 export type BusinessStore = {
   listOrders(): Promise<OrderRecord[]>;
@@ -16,6 +16,8 @@ export type BusinessStore = {
   mergeCustomers(sourceId: string, targetId: string): Promise<{ updatedOrders: number }>;
   listProductCodes(): Promise<ProductCode[]>;
   saveProductCode(code: Omit<ProductCode, "id" | "createdAt" | "updatedAt">): Promise<ProductCode>;
+  updateProductCode(id: string, patch: ProductCodePatch): Promise<ProductCode>;
+  deleteProductCode(id: string): Promise<void>;
 };
 
 type CustomerRow = {
@@ -468,10 +470,24 @@ function createLocalBusinessStore(): BusinessStore {
     async saveProductCode(code) {
       const normalizedCode = normalizeProductCode(code);
       const now = new Date().toISOString();
-      const record = { ...normalizedCode, id: crypto.randomUUID(), createdAt: now, updatedAt: now };
+      const record: ProductCode = { ...normalizedCode, imageUrl: normalizedCode.imageUrl ?? null, id: crypto.randomUUID(), createdAt: now, updatedAt: now };
       const current = readStorage<ProductCode[]>(storageKeys.productCodes, []);
       writeStorage(storageKeys.productCodes, [record, ...current.filter((item) => item.code !== normalizedCode.code)]);
       return record;
+    },
+    async updateProductCode(id, patch) {
+      const products = readStorage<ProductCode[]>(storageKeys.productCodes, []);
+      const index = products.findIndex((item) => item.id === id);
+      if (index < 0) throw new Error("product_code_not_found");
+      const normalizedPatch = normalizeProductCodePatch(patch);
+      const updated = { ...products[index], ...normalizedPatch, updatedAt: new Date().toISOString() };
+      products[index] = updated;
+      writeStorage(storageKeys.productCodes, products);
+      return updated;
+    },
+    async deleteProductCode(id) {
+      const products = readStorage<ProductCode[]>(storageKeys.productCodes, []);
+      writeStorage(storageKeys.productCodes, products.filter((item) => item.id !== id));
     },
   };
 }
@@ -575,11 +591,35 @@ function createSupabaseBusinessStore(): BusinessStore | null {
       const normalizedCode = normalizeProductCode(code);
       const { data, error } = await supabase
         .from("product_codes")
-        .upsert({ code: normalizedCode.code, product_name: normalizedCode.productName, category: normalizedCode.category, unit_price: normalizedCode.unitPrice }, { onConflict: "code" })
+        .upsert(
+          { code: normalizedCode.code, product_name: normalizedCode.productName, category: normalizedCode.category, unit_price: normalizedCode.unitPrice, image_url: normalizedCode.imageUrl ?? null },
+          { onConflict: "code" },
+        )
         .select("*")
         .single<ProductCodeRow>();
       if (error) throw error;
       return rowToProductCode(data);
+    },
+    async updateProductCode(id, patch) {
+      const normalizedPatch = normalizeProductCodePatch(patch);
+      const payload = {
+        ...(normalizedPatch.productName !== undefined ? { product_name: normalizedPatch.productName } : {}),
+        ...(normalizedPatch.category !== undefined ? { category: normalizedPatch.category } : {}),
+        ...(normalizedPatch.unitPrice !== undefined ? { unit_price: normalizedPatch.unitPrice } : {}),
+        ...(normalizedPatch.imageUrl !== undefined ? { image_url: normalizedPatch.imageUrl } : {}),
+      };
+      const { data, error } = await supabase
+        .from("product_codes")
+        .update({ ...payload, updated_at: new Date().toISOString() })
+        .eq("id", id)
+        .select("*")
+        .single<ProductCodeRow>();
+      if (error) throw error;
+      return rowToProductCode(data);
+    },
+    async deleteProductCode(id) {
+      const { error } = await supabase.from("product_codes").delete().eq("id", id);
+      if (error) throw error;
     },
   };
 }
