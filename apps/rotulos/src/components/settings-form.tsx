@@ -111,6 +111,15 @@ export function SettingsForm({ initialSettings = defaultSettings, onSave = (sett
               <FormField label="Instagram">
                 <Input value={settings.instagramUser} onChange={(event) => setSettings({ ...settings, instagramUser: event.target.value })} />
               </FormField>
+              <FormField label="Facebook">
+                <Input value={settings.facebookUser} onChange={(event) => setSettings({ ...settings, facebookUser: event.target.value })} />
+              </FormField>
+              <FormField label="TikTok">
+                <Input value={settings.tiktokUser} onChange={(event) => setSettings({ ...settings, tiktokUser: event.target.value })} />
+              </FormField>
+              <FormField label="Correo del negocio">
+                <Input type="email" value={settings.email} onChange={(event) => setSettings({ ...settings, email: event.target.value })} />
+              </FormField>
               <FormField label="Frase de marca">
                 <Input value={settings.brandPhrase} onChange={(event) => setSettings({ ...settings, brandPhrase: event.target.value })} />
               </FormField>

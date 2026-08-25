@@ -27,6 +27,9 @@ export const defaultSettings: LabelSettings = {
   logoUrl: "/purple-shop-logo.png",
   qrUrl: "/purple-shop-qr.png",
   instagramUser: "@PURPLESHOP.ONLINE",
+  facebookUser: "",
+  tiktokUser: "",
+  email: "",
   brandPhrase: "Detalles que viajan con amor",
   brandColors: {
     primary: "#6B1FA2",

@@ -59,6 +59,9 @@ export type LabelSettings = {
   logoUrl: string;
   qrUrl: string;
   instagramUser: string;
+  facebookUser: string;
+  tiktokUser: string;
+  email: string;
   brandPhrase: string;
   brandColors: BrandColors;
   labelSize: { widthCm: number; heightCm: number };

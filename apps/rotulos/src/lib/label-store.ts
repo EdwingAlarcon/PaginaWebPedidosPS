@@ -51,6 +51,9 @@ type SettingsRow = {
   logo_url: string;
   qr_url: string;
   instagram_user: string;
+  facebook_user: string;
+  tiktok_user: string;
+  email: string;
   brand_phrase: string;
   brand_colors: LabelSettings["brandColors"];
   label_size: LabelSettings["labelSize"];
@@ -87,6 +90,9 @@ function settingsToRow(settings: LabelSettings) {
     logo_url: settings.logoUrl,
     qr_url: settings.qrUrl,
     instagram_user: settings.instagramUser,
+    facebook_user: settings.facebookUser,
+    tiktok_user: settings.tiktokUser,
+    email: settings.email,
     brand_phrase: settings.brandPhrase,
     brand_colors: settings.brandColors,
     label_size: settings.labelSize,
@@ -102,6 +108,9 @@ function rowToSettings(row: SettingsRow | null): LabelSettings {
     logoUrl: row.logo_url,
     qrUrl: row.qr_url,
     instagramUser: row.instagram_user,
+    facebookUser: row.facebook_user ?? "",
+    tiktokUser: row.tiktok_user ?? "",
+    email: row.email ?? "",
     brandPhrase: row.brand_phrase,
     brandColors: row.brand_colors,
     labelSize: row.label_size,
