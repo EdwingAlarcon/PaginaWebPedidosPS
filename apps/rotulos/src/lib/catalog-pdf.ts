@@ -30,9 +30,9 @@ const COVER_TOP: [number, number, number] = [0.176, 0.055, 0.373];
 const HOMBRE_TOP: [number, number, number] = [0.169, 0.157, 0.42];
 const MUJER_TOP: [number, number, number] = [0.827, 0.145, 0.435];
 
-const CATEGORY_DISPLAY: Record<string, { label: string; top: [number, number, number] }> = {
-  HOMBRE: { label: "HOMBRES", top: HOMBRE_TOP },
-  MUJER: { label: "MUJERES", top: MUJER_TOP },
+const CATEGORY_DISPLAY: Record<string, { label: string; top: [number, number, number]; imageKey: "men" | "women" | null }> = {
+  HOMBRE: { label: "HOMBRES", top: HOMBRE_TOP, imageKey: "men" },
+  MUJER: { label: "MUJERES", top: MUJER_TOP, imageKey: "women" },
 };
 
 function sanitize(value: string): string {
@@ -65,17 +65,48 @@ function drawVerticalGradient(
   }
 }
 
+/** Dibuja `image` centrada en `boxWidth`x`boxHeight` sin recortarla (contain-fit). */
+function drawContained(
+  page: PDFPage,
+  image: PDFImage,
+  boxX: number,
+  boxY: number,
+  boxWidth: number,
+  boxHeight: number,
+): void {
+  const scale = Math.min(boxWidth / image.width, boxHeight / image.height);
+  const width = image.width * scale;
+  const height = image.height * scale;
+  page.drawImage(image, { x: boxX + (boxWidth - width) / 2, y: boxY + (boxHeight - height) / 2, width, height });
+}
+
+type PdfImages = {
+  logo: PDFImage | null;
+  men: PDFImage | null;
+  women: PDFImage | null;
+  postal: PDFImage | null;
+};
+
 type PdfContext = {
   doc: PDFDocument;
   page: PDFPage;
   font: PDFFont;
   boldFont: PDFFont;
-  logo: PDFImage | null;
+  images: PdfImages;
   y: number;
   column: number;
 };
 
-async function createContext(): Promise<Pick<PdfContext, "doc" | "font" | "boldFont" | "logo">> {
+async function embedPublicJpg(doc: PDFDocument, fileName: string): Promise<PDFImage | null> {
+  try {
+    const bytes = await readFile(join(process.cwd(), "public", "catalog", fileName));
+    return await doc.embedJpg(bytes);
+  } catch {
+    return null;
+  }
+}
+
+async function createContext(): Promise<Pick<PdfContext, "doc" | "font" | "boldFont" | "images">> {
   const doc = await PDFDocument.create();
   const [font, boldFont] = await Promise.all([doc.embedFont(StandardFonts.Helvetica), doc.embedFont(StandardFonts.HelveticaBold)]);
   let logo: PDFImage | null = null;
@@ -85,7 +116,12 @@ async function createContext(): Promise<Pick<PdfContext, "doc" | "font" | "boldF
   } catch {
     logo = null;
   }
-  return { doc, font, boldFont, logo };
+  const [men, women, postal] = await Promise.all([
+    embedPublicJpg(doc, "men.jpg"),
+    embedPublicJpg(doc, "women.jpg"),
+    embedPublicJpg(doc, "postal.jpg"),
+  ]);
+  return { doc, font, boldFont, images: { logo, men, women, postal } };
 }
 
 function isAllowedProductImageUrl(url: string): boolean {
@@ -119,12 +155,12 @@ async function embedProductImage(doc: PDFDocument, url: string | null): Promise<
   }
 }
 
-function newPage(ctx: Pick<PdfContext, "doc" | "font" | "boldFont" | "logo">): PdfContext {
+function newPage(ctx: Pick<PdfContext, "doc" | "font" | "boldFont" | "images">): PdfContext {
   const page = ctx.doc.addPage([PAGE_WIDTH, PAGE_HEIGHT]);
   return { ...ctx, page, y: PAGE_HEIGHT - MARGIN, column: 0 };
 }
 
-function drawCoverPage(base: Pick<PdfContext, "doc" | "font" | "boldFont" | "logo">, settings: LabelSettings): void {
+function drawCoverPage(base: Pick<PdfContext, "doc" | "font" | "boldFont" | "images">, settings: LabelSettings): void {
   const page = base.doc.addPage([PAGE_WIDTH, PAGE_HEIGHT]);
   drawVerticalGradient(page, 0, 0, PAGE_WIDTH, PAGE_HEIGHT, COVER_TOP, PURPLE_600);
 
@@ -133,24 +169,34 @@ function drawCoverPage(base: Pick<PdfContext, "doc" | "font" | "boldFont" | "log
   page.drawCircle({ x: PAGE_WIDTH - 40, y: 260, size: 40, color: WHITE, opacity: 0.1 });
 
   const centerX = PAGE_WIDTH / 2;
-  const logoCenterY = PAGE_HEIGHT - 300;
-  page.drawCircle({ x: centerX, y: logoCenterY, size: 78, color: WHITE, opacity: 0.14 });
-  if (base.logo) {
+
+  let cursorY = PAGE_HEIGHT - 110;
+  if (base.images.postal) {
+    const boxWidth = CONTENT_WIDTH - 40;
+    const boxHeight = boxWidth * (base.images.postal.height / base.images.postal.width);
+    page.drawRectangle({ x: centerX - boxWidth / 2 - 6, y: cursorY - boxHeight - 6, width: boxWidth + 12, height: boxHeight + 12, color: WHITE, opacity: 0.95 });
+    drawContained(page, base.images.postal, centerX - boxWidth / 2, cursorY - boxHeight, boxWidth, boxHeight);
+    cursorY -= boxHeight + 46;
+  } else if (base.images.logo) {
     const logoSize = 100;
-    page.drawImage(base.logo, { x: centerX - logoSize / 2, y: logoCenterY - logoSize / 2, width: logoSize, height: logoSize });
+    page.drawCircle({ x: centerX, y: cursorY - logoSize / 2, size: 78, color: WHITE, opacity: 0.14 });
+    page.drawImage(base.images.logo, { x: centerX - logoSize / 2, y: cursorY - logoSize, width: logoSize, height: logoSize });
+    cursorY -= logoSize + 40;
   }
 
   const title = "CATALOGO";
-  const titleSize = 40;
+  const titleSize = 34;
   const titleWidth = base.boldFont.widthOfTextAtSize(title, titleSize);
-  page.drawText(title, { x: centerX - titleWidth / 2, y: logoCenterY - 130, size: titleSize, font: base.boldFont, color: WHITE });
+  page.drawText(title, { x: centerX - titleWidth / 2, y: cursorY, size: titleSize, font: base.boldFont, color: WHITE });
+  cursorY -= 26;
 
   const subtitle = tracked(sanitize(settings.brandPhrase).toUpperCase());
-  const subtitleSize = 12;
+  const subtitleSize = 11;
   const subtitleWidth = base.font.widthOfTextAtSize(subtitle, subtitleSize);
-  page.drawText(subtitle, { x: centerX - subtitleWidth / 2, y: logoCenterY - 156, size: subtitleSize, font: base.font, color: rgb(0.929, 0.914, 0.996) });
+  page.drawText(subtitle, { x: centerX - subtitleWidth / 2, y: cursorY, size: subtitleSize, font: base.font, color: rgb(0.929, 0.914, 0.996) });
+  cursorY -= 26;
 
-  page.drawRectangle({ x: centerX - 60, y: logoCenterY - 180, width: 120, height: 1.5, color: WHITE, opacity: 0.5 });
+  page.drawRectangle({ x: centerX - 60, y: cursorY, width: 120, height: 1.5, color: WHITE, opacity: 0.5 });
 
   const contactLines = [
     settings.defaultSender.phone ? `WhatsApp: ${settings.defaultSender.phone}` : "",
@@ -163,7 +209,7 @@ function drawCoverPage(base: Pick<PdfContext, "doc" | "font" | "boldFont" | "log
   if (contactLines.length > 0) {
     const cardWidth = 260;
     const cardHeight = 24 + contactLines.length * 18;
-    const cardY = 100;
+    const cardY = Math.min(cursorY - 40, 100);
     page.drawRectangle({ x: centerX - cardWidth / 2, y: cardY, width: cardWidth, height: cardHeight, color: WHITE, opacity: 0.1 });
     let lineY = cardY + cardHeight - 26;
     for (const line of contactLines) {
@@ -175,17 +221,25 @@ function drawCoverPage(base: Pick<PdfContext, "doc" | "font" | "boldFont" | "log
   }
 }
 
-function drawCategoryDividerPage(base: Pick<PdfContext, "doc" | "font" | "boldFont" | "logo">, category: string): void {
-  const meta = CATEGORY_DISPLAY[category.trim().toUpperCase()] ?? { label: sanitize(category) || "OTROS", top: PURPLE_900 };
+function drawCategoryDividerPage(base: Pick<PdfContext, "doc" | "font" | "boldFont" | "images">, category: string): void {
+  const meta = CATEGORY_DISPLAY[category.trim().toUpperCase()] ?? { label: sanitize(category) || "OTROS", top: PURPLE_900, imageKey: null };
   const page = base.doc.addPage([PAGE_WIDTH, PAGE_HEIGHT]);
   drawVerticalGradient(page, 0, 0, PAGE_WIDTH, PAGE_HEIGHT, meta.top, PURPLE_600);
+
+  const artwork = meta.imageKey ? base.images[meta.imageKey] : null;
+  if (artwork) {
+    // Sin recortar: la imagen ya trae marca, modelo y contacto disenados;
+    // se enmarca completa dejando el degradado como margen de color.
+    drawContained(page, artwork, 0, 0, PAGE_WIDTH, PAGE_HEIGHT);
+    return;
+  }
 
   page.drawCircle({ x: PAGE_WIDTH / 2, y: PAGE_HEIGHT / 2 + 20, size: 170, color: WHITE, opacity: 0.05 });
   page.drawCircle({ x: PAGE_WIDTH / 2, y: PAGE_HEIGHT / 2 + 20, size: 120, color: WHITE, opacity: 0.06 });
 
-  if (base.logo) {
+  if (base.images.logo) {
     const logoSize = 34;
-    page.drawImage(base.logo, { x: MARGIN, y: PAGE_HEIGHT - MARGIN - logoSize, width: logoSize, height: logoSize });
+    page.drawImage(base.images.logo, { x: MARGIN, y: PAGE_HEIGHT - MARGIN - logoSize, width: logoSize, height: logoSize });
   }
 
   const eyebrow = tracked("COLECCION PURPLE SHOP");
@@ -204,13 +258,13 @@ function drawCategoryDividerPage(base: Pick<PdfContext, "doc" | "font" | "boldFo
 
 function drawBrandStrip(ctx: PdfContext): PdfContext {
   ctx.page.drawRectangle({ x: 0, y: PAGE_HEIGHT - BRAND_STRIP_HEIGHT, width: PAGE_WIDTH, height: BRAND_STRIP_HEIGHT, color: PURPLE_50 });
-  if (ctx.logo) {
+  if (ctx.images.logo) {
     const logoSize = 18;
-    ctx.page.drawImage(ctx.logo, { x: MARGIN, y: PAGE_HEIGHT - BRAND_STRIP_HEIGHT / 2 - logoSize / 2, width: logoSize, height: logoSize });
+    ctx.page.drawImage(ctx.images.logo, { x: MARGIN, y: PAGE_HEIGHT - BRAND_STRIP_HEIGHT / 2 - logoSize / 2, width: logoSize, height: logoSize });
   }
   const label = "PURPLE SHOP";
   ctx.page.drawText(label, {
-    x: MARGIN + (ctx.logo ? 24 : 0),
+    x: MARGIN + (ctx.images.logo ? 24 : 0),
     y: PAGE_HEIGHT - BRAND_STRIP_HEIGHT / 2 - 3,
     size: 9,
     font: ctx.boldFont,
@@ -254,10 +308,7 @@ async function drawProductCard(ctx: PdfContext, product: ProductCode): Promise<P
   const image = await embedProductImage(next.doc, product.imageUrl);
   const photoY = cardTop - PHOTO_HEIGHT - 6;
   if (image) {
-    const scale = Math.min(CARD_WIDTH / image.width, PHOTO_HEIGHT / image.height);
-    const width = image.width * scale;
-    const height = image.height * scale;
-    next.page.drawImage(image, { x: cardX + (CARD_WIDTH - width) / 2, y: photoY + (PHOTO_HEIGHT - height) / 2, width, height });
+    drawContained(next.page, image, cardX, photoY, CARD_WIDTH, PHOTO_HEIGHT);
   } else {
     next.page.drawRectangle({ x: cardX + 6, y: photoY, width: CARD_WIDTH - 12, height: PHOTO_HEIGHT, color: PURPLE_100 });
     const label = "SIN FOTO";
