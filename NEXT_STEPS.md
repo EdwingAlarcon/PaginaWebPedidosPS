@@ -52,6 +52,13 @@
 >    end-to-end (subida real + URL pública responde 200).
 > 4. Prueba manual end-to-end en `/catalogo` con sesión real (login
 >    Microsoft) — Claude no tiene credenciales, sigue sin hacerse.
+> 5. **Fix de nombres cortados en el PDF (2026-08-26, commit `e3b45e1`,
+>    desplegado `dpl_4MQKta2zd1cWp165aCg3wH6QARro` READY):** los nombres
+>    largos (ej. varios "PACO RABANNE ...") se truncaban a 26 caracteres
+>    fijos, cortando justo la parte que distingue una variante de otra.
+>    Se cambió a wrap real por ancho de fuente (`wrapText`/`ellipsize` en
+>    `catalog-pdf.ts`, hasta 2 líneas por nombre, `CARD_HEIGHT` +12pt).
+>    Verificado visualmente con PDF de muestra antes de deployar.
 
 > **Actualización 2026-08-25 (en progreso, para retomar con Claude o Codex):**
 > feature "catálogo compartible" (PDF + imagen para WhatsApp, foto/precio/
