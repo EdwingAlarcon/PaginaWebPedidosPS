@@ -1,4 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
+import { PDFDocument } from "pdf-lib";
 import { renderCatalogPdfBuffer } from "@/lib/catalog-pdf";
 import type { ProductCode } from "@/lib/business-types";
 import type { LabelSettings } from "@/lib/types";
@@ -53,5 +54,21 @@ describe("renderCatalogPdfBuffer", () => {
     expect(buffer.subarray(0, 4).toString("latin1")).toBe("%PDF");
     expect(fetchSpy).not.toHaveBeenCalled();
     vi.unstubAllGlobals();
+  });
+
+  it("adds a cover page and a divider page per category", async () => {
+    const buffer = await renderCatalogPdfBuffer(
+      [makeProduct({ category: "HOMBRE" }), makeProduct({ category: "MUJER" })],
+      makeSettings(),
+    );
+    const doc = await PDFDocument.load(new Uint8Array(buffer));
+    // portada + (divisora + contenido) x 2 categorias = 5
+    expect(doc.getPageCount()).toBe(5);
+  });
+
+  it("adds only a cover page and a content page for an empty catalog", async () => {
+    const buffer = await renderCatalogPdfBuffer([], makeSettings());
+    const doc = await PDFDocument.load(new Uint8Array(buffer));
+    expect(doc.getPageCount()).toBe(2);
   });
 });
