@@ -12,6 +12,10 @@ import { JOSHUA_PERFUMES_2024 } from "./data/joshua-perfumes-2024";
 import { calculatePricingTiers } from "../src/lib/pricing";
 
 const CODE_PREFIX = "JOS";
+// product_codes.created_by es not null default auth.uid(); el service role
+// no trae auth.uid(), asi que hay que fijarlo a mano (mismo patron que
+// IMPORT_SYSTEM_USER_ID en import-excel.ts). No tiene FK a auth.users.
+const IMPORT_SYSTEM_USER_ID = "00000000-0000-0000-0000-000000000000";
 
 function buildCode(index: number): string {
   return `${CODE_PREFIX}-${String(index + 1).padStart(3, "0")}`;
@@ -28,6 +32,7 @@ async function main() {
       category: entry.category,
       supplier_price: entry.supplierPrice,
       unit_price: pricing.tiers[1].salePrice,
+      created_by: IMPORT_SYSTEM_USER_ID,
     };
   });
 
