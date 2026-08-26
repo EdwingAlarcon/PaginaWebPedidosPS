@@ -29,16 +29,28 @@
 >    MALE" $85.000 y $75.000; `PS-H-130`/`PS-H-133` ambos "PACO RABANNE
 >    BLACK XS" $55.000. Buscar esos códigos en `/catalogo` y renombrar a
 >    mano.
-> 2. **Ningún producto tiene foto todavía.** Se decidió explícitamente no
->    buscar/descargar fotos de marcas de internet (riesgo de infracción
->    de marca al vender réplicas con fotografía oficial). Edwing va a
->    subir sus propias fotos a `apps/rotulos/scripts/product-photos/`
->    (carpeta creada, gitignored, vacía), nombradas por código de
->    producto (ej. `JOS-045.jpg`). **Falta construir el script de import
->    masivo de fotos** (leer la carpeta, matchear archivo=código, subir a
->    bucket `product-images`, actualizar `image_url`) — recién cuando
->    Edwing avise que ya puso fotos ahí.
-> 3. Prueba manual end-to-end en `/catalogo` con sesión real (login
+> 2. **Fotos: piloto de 18 productos hecho (17 subidos, 1 sin foto a
+>    propósito).** Edwing pidió que Claude buscara las fotos (para que el
+>    cliente sepa qué frasco es y evitar errores de pedido/envío, no por
+>    fraude); se hizo un piloto chico primero verificando cada foto
+>    visualmente antes de subir (fuente: druni.es). Script:
+>    `scripts/import-product-photos.ts` (preview por defecto, `--commit`
+>    para subir; lee una carpeta, matchea archivo=código exacto ej.
+>    `PS-M-001.jpg`, sube a `product-images`, actualiza `image_url`).
+>    **Quedan ~301 productos sin foto** — seguir con más lotes (búsqueda +
+>    verificación visual manual, no escalable a ciegas) o esperar fotos
+>    propias de Edwing en `apps/rotulos/scripts/product-photos/` (creada,
+>    gitignored, vacía) o un pack del proveedor Joshua.
+> 3. **Bug real encontrado y arreglado (2026-08-26):**
+>    `product_codes.image_url` y el bucket `product-images` nunca
+>    existieron en producción — la migración de esa función (25 de
+>    agosto) nunca se aplicó completa. El botón "Elegir archivo" estuvo
+>    roto desde que se lanzó, sin que nadie lo notara porque nunca se
+>    probó con un archivo real. Ya arreglado: bucket creado vía Storage
+>    API, migración `202608260002_fix_product_images_storage_policies.sql`
+>    agrega la columna y las policies — ya aplicada y verificada
+>    end-to-end (subida real + URL pública responde 200).
+> 4. Prueba manual end-to-end en `/catalogo` con sesión real (login
 >    Microsoft) — Claude no tiene credenciales, sigue sin hacerse.
 
 > **Actualización 2026-08-25 (en progreso, para retomar con Claude o Codex):**
