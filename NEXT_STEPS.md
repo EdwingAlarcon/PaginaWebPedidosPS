@@ -16,11 +16,19 @@
 > productos generaba ~8 archivos y quedó muy por debajo del PDF en
 > calidad visual; solo queda "Descargar PDF" + WhatsApp.
 >
+> Los códigos se renombraron el mismo 2026-08-26 de `JOS-xxx` a
+> `PS-M-001..151` (mujer) / `PS-H-001..168` (hombre) — prefijo propio,
+> género distinguible de un vistazo (`scripts/rename-perfume-codes.ts`,
+> ya corrido en producción; `import-perfumes-catalog.ts` genera este
+> esquema para cualquier import futuro).
+>
 > **Pendiente, no bloqueante:**
-> 1. **4 nombres de producto ambiguos** (mismo nombre, precio distinto,
->    heredado del PDF de Joshua): `CH` (x2, $55.000), `LEAU` (x2,
->    $90.000), `BLACK XS` (x2, $55.000), `LE MALE` ($85.000 y $75.000).
->    Buscar por código `JOS-xxx` en `/catalogo` y renombrar a mano.
+> 1. **3 pares de producto con el mismo nombre pero precio distinto**
+>    (heredado del PDF de Joshua): `PS-M-026`/`PS-M-027` ambos "CAROLINA
+>    HERRERA LEAU" $90.000; `PS-H-085`/`PS-H-086` "JEAN PAUL GAULTIER LE
+>    MALE" $85.000 y $75.000; `PS-H-130`/`PS-H-133` ambos "PACO RABANNE
+>    BLACK XS" $55.000. Buscar esos códigos en `/catalogo` y renombrar a
+>    mano.
 > 2. **Ningún producto tiene foto todavía.** Se decidió explícitamente no
 >    buscar/descargar fotos de marcas de internet (riesgo de infracción
 >    de marca al vender réplicas con fotografía oficial). Edwing va a
