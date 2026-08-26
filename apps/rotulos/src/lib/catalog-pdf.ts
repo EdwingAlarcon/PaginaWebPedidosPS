@@ -35,6 +35,11 @@ const CATEGORY_DISPLAY: Record<string, { label: string; top: [number, number, nu
   MUJER: { label: "MUJERES", top: MUJER_TOP, imageKey: "women" },
 };
 
+const DISCLAIMER_LINES = [
+  "Fragancias inspiradas en tus marcas favoritas -- no somos distribuidores ni representantes oficiales.",
+  "Disponible bajo pedido, sujeto a confirmacion del proveedor. Entrega estimada: 3 dias habiles. Envio no incluido.",
+];
+
 function sanitize(value: string): string {
   return value.normalize("NFKD").replace(/[^\x20-\x7E]/g, "");
 }
@@ -218,6 +223,13 @@ function drawCoverPage(base: Pick<PdfContext, "doc" | "font" | "boldFont" | "ima
       page.drawText(clean, { x: centerX - width / 2, y: lineY, size: 10.5, font: base.font, color: WHITE });
       lineY -= 18;
     }
+  }
+
+  let disclaimerY = 34;
+  for (const line of DISCLAIMER_LINES) {
+    const width = base.font.widthOfTextAtSize(line, 7.5);
+    page.drawText(line, { x: centerX - width / 2, y: disclaimerY, size: 7.5, font: base.font, color: rgb(0.859, 0.816, 0.965) });
+    disclaimerY -= 11;
   }
 }
 
