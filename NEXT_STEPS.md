@@ -1,5 +1,38 @@
 # Purple Shop — Próximos pasos / handoff
 
+> **Actualización 2026-08-26 (para retomar con Claude o Codex):** el
+> catálogo compartible (feature de 2026-08-25 abajo) quedó **completo y
+> desplegado**, más una vuelta grande de mejoras la misma tarde:
+> calculadora de precios (`src/lib/pricing.ts`, tarjeta en `/catalogo`,
+> margen +30% sobre proveedor+envío prorrateado), `product_codes.supplier_price`
+> agregado (migración `202608260001_add_product_codes_supplier_price.sql`,
+> ya aplicada en Supabase remoto), 319 productos del catálogo mayorista de
+> Joshua Perfumería importados a producción (`JOS-001`..`JOS-319`, script
+> `scripts/import-perfumes-catalog.ts`), y el PDF del catálogo rediseñado
+> con portada/divisoras usando las artes de marca reales de Purple Shop
+> (`public/catalog/{women,men,postal}.jpg`) más aviso legal de "fragancia
+> inspirada / bajo pedido / envío no incluido". Se **eliminó** la
+> descarga de imagen del catálogo (`catalog-image.ts`) — con 319
+> productos generaba ~8 archivos y quedó muy por debajo del PDF en
+> calidad visual; solo queda "Descargar PDF" + WhatsApp.
+>
+> **Pendiente, no bloqueante:**
+> 1. **4 nombres de producto ambiguos** (mismo nombre, precio distinto,
+>    heredado del PDF de Joshua): `CH` (x2, $55.000), `LEAU` (x2,
+>    $90.000), `BLACK XS` (x2, $55.000), `LE MALE` ($85.000 y $75.000).
+>    Buscar por código `JOS-xxx` en `/catalogo` y renombrar a mano.
+> 2. **Ningún producto tiene foto todavía.** Se decidió explícitamente no
+>    buscar/descargar fotos de marcas de internet (riesgo de infracción
+>    de marca al vender réplicas con fotografía oficial). Edwing va a
+>    subir sus propias fotos a `apps/rotulos/scripts/product-photos/`
+>    (carpeta creada, gitignored, vacía), nombradas por código de
+>    producto (ej. `JOS-045.jpg`). **Falta construir el script de import
+>    masivo de fotos** (leer la carpeta, matchear archivo=código, subir a
+>    bucket `product-images`, actualizar `image_url`) — recién cuando
+>    Edwing avise que ya puso fotos ahí.
+> 3. Prueba manual end-to-end en `/catalogo` con sesión real (login
+>    Microsoft) — Claude no tiene credenciales, sigue sin hacerse.
+
 > **Actualización 2026-08-25 (en progreso, para retomar con Claude o Codex):**
 > feature "catálogo compartible" (PDF + imagen para WhatsApp, foto/precio/
 > datos de contacto) en ejecución vía Subagent-Driven Development. Spec:
