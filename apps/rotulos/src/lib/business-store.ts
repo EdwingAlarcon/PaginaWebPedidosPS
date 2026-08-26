@@ -71,6 +71,7 @@ type ProductCodeRow = {
   product_name: string;
   category: string;
   unit_price: number | string;
+  supplier_price: number | string;
   image_url: string | null;
   created_at: string;
   updated_at: string;
@@ -196,6 +197,7 @@ function rowToProductCode(row: ProductCodeRow): ProductCode {
     productName: row.product_name,
     category: row.category,
     unitPrice: Number(row.unit_price),
+    supplierPrice: Number(row.supplier_price),
     imageUrl: row.image_url || null,
     createdAt: row.created_at,
     updatedAt: row.updated_at,
@@ -592,7 +594,7 @@ function createSupabaseBusinessStore(): BusinessStore | null {
       const { data, error } = await supabase
         .from("product_codes")
         .upsert(
-          { code: normalizedCode.code, product_name: normalizedCode.productName, category: normalizedCode.category, unit_price: normalizedCode.unitPrice, image_url: normalizedCode.imageUrl ?? null },
+          { code: normalizedCode.code, product_name: normalizedCode.productName, category: normalizedCode.category, unit_price: normalizedCode.unitPrice, supplier_price: normalizedCode.supplierPrice, image_url: normalizedCode.imageUrl ?? null },
           { onConflict: "code" },
         )
         .select("*")
@@ -606,6 +608,7 @@ function createSupabaseBusinessStore(): BusinessStore | null {
         ...(normalizedPatch.productName !== undefined ? { product_name: normalizedPatch.productName } : {}),
         ...(normalizedPatch.category !== undefined ? { category: normalizedPatch.category } : {}),
         ...(normalizedPatch.unitPrice !== undefined ? { unit_price: normalizedPatch.unitPrice } : {}),
+        ...(normalizedPatch.supplierPrice !== undefined ? { supplier_price: normalizedPatch.supplierPrice } : {}),
         ...(normalizedPatch.imageUrl !== undefined ? { image_url: normalizedPatch.imageUrl } : {}),
       };
       const { data, error } = await supabase

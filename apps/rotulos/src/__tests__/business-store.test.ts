@@ -153,7 +153,7 @@ describe("local business store", () => {
   it("normalizes a product code but leaves unitPrice untouched", async () => {
     const store = getBusinessStore();
 
-    const saved = await store.saveProductCode({ code: "med-001", productName: "medias largas", category: "medias", unitPrice: 15000, imageUrl: null });
+    const saved = await store.saveProductCode({ code: "med-001", productName: "medias largas", category: "medias", unitPrice: 15000, supplierPrice: 0, imageUrl: null });
 
     expect(saved.code).toBe("MED-001");
     expect(saved.productName).toBe("MEDIAS LARGAS");
@@ -163,7 +163,7 @@ describe("local business store", () => {
 
   it("updates a product code and normalizes the patch", async () => {
     const store = getBusinessStore();
-    const saved = await store.saveProductCode({ code: "med-001", productName: "medias largas", category: "medias", unitPrice: 15000, imageUrl: null });
+    const saved = await store.saveProductCode({ code: "med-001", productName: "medias largas", category: "medias", unitPrice: 15000, supplierPrice: 0, imageUrl: null });
 
     const updated = await store.updateProductCode(saved.id, { unitPrice: 18000, imageUrl: "https://x.test/foto.png" });
 
@@ -174,7 +174,7 @@ describe("local business store", () => {
 
   it("deletes a product code", async () => {
     const store = getBusinessStore();
-    const saved = await store.saveProductCode({ code: "med-002", productName: "medias cortas", category: "medias", unitPrice: 10000, imageUrl: null });
+    const saved = await store.saveProductCode({ code: "med-002", productName: "medias cortas", category: "medias", unitPrice: 10000, supplierPrice: 0, imageUrl: null });
 
     await store.deleteProductCode(saved.id);
 

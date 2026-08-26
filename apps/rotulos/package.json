@@ -13,7 +13,8 @@
     "test:e2e": "playwright test",
     "test:e2e:headed": "playwright test --headed",
     "qa:final": "node scripts/qa-final.mjs",
-    "import:excel": "tsx scripts/import-excel.ts"
+    "import:excel": "tsx scripts/import-excel.ts",
+    "import:perfumes": "tsx scripts/import-perfumes-catalog.ts"
   },
   "dependencies": {
     "@radix-ui/react-checkbox": "^1.3.7",

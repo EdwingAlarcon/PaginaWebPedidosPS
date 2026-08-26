@@ -9,6 +9,7 @@ function makeProduct(overrides: Partial<ProductCode>): ProductCode {
     productName: "PRODUCTO",
     category: "",
     unitPrice: 1000,
+    supplierPrice: 0,
     imageUrl: null,
     createdAt: "2026-08-25T00:00:00.000Z",
     updatedAt: "2026-08-25T00:00:00.000Z",

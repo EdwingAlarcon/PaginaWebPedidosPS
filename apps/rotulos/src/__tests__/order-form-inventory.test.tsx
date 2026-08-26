@@ -42,6 +42,7 @@ describe("OrderForm con inventario real", () => {
       productName: "Set de Aretes",
       category: "Accesorios",
       unitPrice: 25000,
+      supplierPrice: 0,
       imageUrl: null,
     });
     const user = userEvent.setup();

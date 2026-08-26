@@ -11,7 +11,7 @@ import { CurrencyInput } from "@/components/ui/currency-input";
 import { FormField } from "@/components/ui/form-field";
 import { Input } from "@/components/ui/input";
 
-type ProductCodeFormValue = { code: string; productName: string; category: string; unitPrice: number };
+type ProductCodeFormValue = { code: string; productName: string; category: string; unitPrice: number; supplierPrice: number };
 
 function toFormValue(product?: ProductCode | null): ProductCodeFormValue {
   return {
@@ -19,6 +19,7 @@ function toFormValue(product?: ProductCode | null): ProductCodeFormValue {
     productName: product?.productName ?? "",
     category: product?.category ?? "",
     unitPrice: product?.unitPrice ?? 0,
+    supplierPrice: product?.supplierPrice ?? 0,
   };
 }
 
@@ -67,8 +68,21 @@ export function ProductCodeEditForm({
     try {
       const store = getBusinessStore();
       const saved = product
-        ? await store.updateProductCode(product.id, { productName: value.productName, category: value.category, unitPrice: value.unitPrice, imageUrl })
-        : await store.saveProductCode({ code: value.code, productName: value.productName, category: value.category, unitPrice: value.unitPrice, imageUrl });
+        ? await store.updateProductCode(product.id, {
+            productName: value.productName,
+            category: value.category,
+            unitPrice: value.unitPrice,
+            supplierPrice: value.supplierPrice,
+            imageUrl,
+          })
+        : await store.saveProductCode({
+            code: value.code,
+            productName: value.productName,
+            category: value.category,
+            unitPrice: value.unitPrice,
+            supplierPrice: value.supplierPrice,
+            imageUrl,
+          });
       onSaved(saved);
     } catch {
       setError("No se pudo guardar el producto.");
@@ -109,6 +123,9 @@ export function ProductCodeEditForm({
       </FormField>
       <FormField label="Precio">
         <CurrencyInput value={value.unitPrice} onValueChange={(unitPrice) => setValue({ ...value, unitPrice })} />
+      </FormField>
+      <FormField label="Precio proveedor" hint="Uso interno: nunca se muestra en el catalogo compartible con clientes.">
+        <CurrencyInput value={value.supplierPrice} onValueChange={(supplierPrice) => setValue({ ...value, supplierPrice })} />
       </FormField>
       <div className="flex justify-end gap-2">
         <Button type="button" variant="secondary" onClick={onCancel}>
