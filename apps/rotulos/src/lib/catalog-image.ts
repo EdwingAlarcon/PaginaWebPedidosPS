@@ -15,6 +15,12 @@ const CARD_WIDTH = (CONTENT_WIDTH - CARD_GAP * (COLUMNS - 1)) / COLUMNS;
 const PHOTO_HEIGHT = CARD_WIDTH * 0.8;
 const CARD_HEIGHT = PHOTO_HEIGHT + 56;
 const EXPORT_SCALE = 2;
+// Los navegadores limitan un <canvas> a ~32.767px de alto por lado; con
+// EXPORT_SCALE=2 eso deja ~16.000px de alto "logico" como techo seguro.
+// Con COLUMNS=2 y CARD_HEIGHT+CARD_GAP fijos, 80 productos en una sola
+// categoria ya se acerca a ese techo, asi que se limita ahi para no
+// generar un canvas invalido (toBlob falla en silencio si se excede).
+export const MAX_CATALOG_IMAGE_PRODUCTS = 80;
 
 const COLORS = {
   purple900: "#4C1D95",
@@ -57,6 +63,9 @@ function computeHeight(products: ProductCode[]): number {
 }
 
 export async function renderCatalogImage(products: ProductCode[], settings: LabelSettings): Promise<Blob> {
+  if (products.length > MAX_CATALOG_IMAGE_PRODUCTS) {
+    throw new Error("catalog_too_large_for_image");
+  }
   const height = computeHeight(products);
   const canvas = document.createElement("canvas");
   canvas.width = WIDTH * EXPORT_SCALE;

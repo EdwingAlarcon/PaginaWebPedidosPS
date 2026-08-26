@@ -4,7 +4,7 @@ import { useState } from "react";
 import { Download, Image as ImageIcon, MessageCircle } from "lucide-react";
 import { getBusinessStore } from "@/lib/business-store";
 import { getLabelStore } from "@/lib/label-store";
-import { renderCatalogImage } from "@/lib/catalog-image";
+import { MAX_CATALOG_IMAGE_PRODUCTS, renderCatalogImage } from "@/lib/catalog-image";
 import { downloadBlob } from "@/lib/order-summary-image";
 import { buildWhatsAppLink } from "@/lib/whatsapp";
 import { Button } from "@/components/ui/button";
@@ -49,8 +49,14 @@ export function CatalogGenerator() {
       const { products, settings } = await loadCatalogData();
       const blob = await renderCatalogImage(products, settings);
       await downloadBlob(blob, "catalogo-purple-shop.png");
-    } catch {
-      toast.push({ variant: "danger", title: "No se pudo generar la imagen del catalogo." });
+    } catch (err) {
+      const tooLarge = err instanceof Error && err.message === "catalog_too_large_for_image";
+      toast.push({
+        variant: "danger",
+        title: tooLarge
+          ? `El catalogo tiene mas de ${MAX_CATALOG_IMAGE_PRODUCTS} productos y no cabe en una sola imagen. Usa "Descargar PDF" en su lugar.`
+          : "No se pudo generar la imagen del catalogo.",
+      });
     } finally {
       setDownloadingImage(false);
     }
