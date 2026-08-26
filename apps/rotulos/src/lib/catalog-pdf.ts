@@ -14,7 +14,8 @@ const COLUMNS = 3;
 const CARD_GAP = 14;
 const CARD_WIDTH = (CONTENT_WIDTH - CARD_GAP * (COLUMNS - 1)) / COLUMNS;
 const PHOTO_HEIGHT = CARD_WIDTH * 0.8;
-const CARD_HEIGHT = PHOTO_HEIGHT + 46;
+const CARD_HEIGHT = PHOTO_HEIGHT + 58;
+const NAME_FONT_SIZE = 9;
 const BRAND_STRIP_HEIGHT = 34;
 
 const PURPLE_900: [number, number, number] = [0.298, 0.114, 0.584];
@@ -46,6 +47,34 @@ function sanitize(value: string): string {
 
 function tracked(value: string): string {
   return value.split("").join(" ");
+}
+
+/** Envuelve texto en lineas que caben en maxWidth, medido con el ancho real de fuente. */
+function wrapText(font: PDFFont, text: string, size: number, maxWidth: number): string[] {
+  const words = text.split(" ").filter(Boolean);
+  const lines: string[] = [];
+  let current = "";
+  for (const word of words) {
+    const candidate = current ? `${current} ${word}` : word;
+    if (current === "" || font.widthOfTextAtSize(candidate, size) <= maxWidth) {
+      current = candidate;
+    } else {
+      lines.push(current);
+      current = word;
+    }
+  }
+  if (current) lines.push(current);
+  return lines;
+}
+
+/** Ajusta `text` a lo que quepa en maxWidth agregando "..." si hace falta. */
+function ellipsize(font: PDFFont, text: string, size: number, maxWidth: number): string {
+  if (font.widthOfTextAtSize(text, size) <= maxWidth) return text;
+  let truncated = text;
+  while (truncated.length > 0 && font.widthOfTextAtSize(`${truncated}...`, size) > maxWidth) {
+    truncated = truncated.slice(0, -1);
+  }
+  return `${truncated}...`;
 }
 
 function lerp(a: number, b: number, t: number): number {
@@ -329,16 +358,24 @@ async function drawProductCard(ctx: PdfContext, product: ProductCode): Promise<P
   }
 
   const name = sanitize(product.productName);
-  next.page.drawText(name.length > 26 ? `${name.slice(0, 26)}...` : name, {
-    x: cardX + 8,
-    y: cardTop - CARD_HEIGHT + 28,
-    size: 9.5,
-    font: next.boldFont,
-    color: TEXT_COLOR,
+  const nameMaxWidth = CARD_WIDTH - 16;
+  const nameLines = wrapText(next.boldFont, name, NAME_FONT_SIZE, nameMaxWidth);
+  const displayLines = nameLines.slice(0, 2);
+  if (nameLines.length > 2) {
+    displayLines[1] = ellipsize(next.boldFont, displayLines[1], NAME_FONT_SIZE, nameMaxWidth);
+  }
+  displayLines.forEach((line, index) => {
+    next.page.drawText(line, {
+      x: cardX + 8,
+      y: cardTop - CARD_HEIGHT + 42 - index * 11,
+      size: NAME_FONT_SIZE,
+      font: next.boldFont,
+      color: TEXT_COLOR,
+    });
   });
   next.page.drawText(formatCop(product.unitPrice), {
     x: cardX + 8,
-    y: cardTop - CARD_HEIGHT + 12,
+    y: cardTop - CARD_HEIGHT + 14,
     size: 10,
     font: next.boldFont,
     color: rgb(PURPLE_900[0], PURPLE_900[1], PURPLE_900[2]),
