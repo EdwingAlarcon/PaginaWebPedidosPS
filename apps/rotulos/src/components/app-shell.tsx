@@ -7,6 +7,7 @@ import { usePathname } from "next/navigation";
 import {
   Archive,
   BarChart3,
+  BookImage,
   ClipboardList,
   ClipboardCheck,
   FileClock,
@@ -45,6 +46,7 @@ const NAV_GROUPS: NavGroup[] = [
       { href: "/pedidos/importados", label: "Importados", icon: FileClock },
       { href: "/clientes", label: "Clientes", icon: Users },
       { href: "/inventario", label: "Inventario", icon: Archive },
+      { href: "/catalogo", label: "Catálogo", icon: BookImage },
       { href: "/reportes", label: "Reportes", icon: BarChart3 },
     ],
   },
@@ -68,6 +70,7 @@ const PAGE_META: Record<string, { title: string; description: string }> = {
   "/pedidos/importados": { title: "Importados", description: "Auditoría de pedidos cargados desde Excel" },
   "/clientes": { title: "Clientes", description: "Historial y datos de contacto de tus clientes" },
   "/inventario": { title: "Inventario", description: "Productos, stock y movimientos" },
+  "/catalogo": { title: "Catálogo", description: "Productos, fotos y precios para compartir con clientes" },
   "/reportes": { title: "Reportes", description: "Ventas, productos y tendencias" },
   "/crear": { title: "Crear rótulo", description: "Genera el rótulo de envío de un pedido" },
   "/despacho": { title: "Despacho", description: "Pedidos por rotular, imprimir y completar" },
