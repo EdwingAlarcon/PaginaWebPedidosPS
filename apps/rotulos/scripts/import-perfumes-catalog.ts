@@ -11,23 +11,28 @@ import { createClient } from "@supabase/supabase-js";
 import { JOSHUA_PERFUMES_2024 } from "./data/joshua-perfumes-2024";
 import { calculatePricingTiers } from "../src/lib/pricing";
 
-const CODE_PREFIX = "JOS";
+const CODE_PREFIX = "PS";
+const GENDER_SEGMENT: Record<string, string> = { MUJER: "M", HOMBRE: "H" };
 // product_codes.created_by es not null default auth.uid(); el service role
 // no trae auth.uid(), asi que hay que fijarlo a mano (mismo patron que
 // IMPORT_SYSTEM_USER_ID en import-excel.ts). No tiene FK a auth.users.
 const IMPORT_SYSTEM_USER_ID = "00000000-0000-0000-0000-000000000000";
 
-function buildCode(index: number): string {
-  return `${CODE_PREFIX}-${String(index + 1).padStart(3, "0")}`;
+function buildCode(category: string, indexInCategory: number): string {
+  const segment = GENDER_SEGMENT[category] ?? "X";
+  return `${CODE_PREFIX}-${segment}-${String(indexInCategory + 1).padStart(3, "0")}`;
 }
 
 async function main() {
   const commit = process.argv.includes("--commit");
 
-  const rows = JOSHUA_PERFUMES_2024.map((entry, index) => {
+  const categoryCounters = new Map<string, number>();
+  const rows = JOSHUA_PERFUMES_2024.map((entry) => {
+    const indexInCategory = categoryCounters.get(entry.category) ?? 0;
+    categoryCounters.set(entry.category, indexInCategory + 1);
     const pricing = calculatePricingTiers(entry.supplierPrice);
     return {
-      code: buildCode(index),
+      code: buildCode(entry.category, indexInCategory),
       product_name: entry.productName,
       category: entry.category,
       supplier_price: entry.supplierPrice,
