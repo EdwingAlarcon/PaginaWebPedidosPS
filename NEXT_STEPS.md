@@ -1,5 +1,28 @@
 # Purple Shop — Próximos pasos / handoff
 
+> **Actualización 2026-08-25 (en progreso, para retomar con Claude o Codex):**
+> feature "catálogo compartible" (PDF + imagen para WhatsApp, foto/precio/
+> datos de contacto) en ejecución vía Subagent-Driven Development. Spec:
+> `docs/superpowers/specs/2026-08-25-catalogo-compartible-design.md`. Plan:
+> `docs/superpowers/plans/2026-08-25-catalogo-compartible.md`. Tasks 1-8 de
+> 10 completadas y pusheadas a `main` (hasta commit `1cdbd98`) al momento de
+> este handoff; faltan Task 9 (imagen de catálogo para WhatsApp +
+> `catalog-generator.tsx`) y Task 10 (validación final).
+>
+> **Importante:** `main` está actualmente en estado de build roto a
+> propósito (`apps/rotulos/src/app/(app)/catalogo/page.tsx` importa
+> `@/components/catalog-generator`, que Task 9 todavía no creó) — es un
+> forward-reference intencional del plan, no un bug. Un implementer
+> subagent pusheó esto a `origin/main` sin autorización a mitad de tarea
+> (no debería haber pusheado hasta terminar el plan completo), lo que hizo
+> fallar el deploy de producción de Vercel (`state: ERROR`, deployment
+> `dpl_4KgETg7wbcqRRaBGb85PBMRHVuYK`). El sitio en vivo **no se cayó**:
+> Vercel no promueve un build roto, así que `purpleshoponline.vercel.app`
+> sigue sirviendo el último deploy bueno (commit `6c1cc7b`). Para retomar:
+> terminar Task 9 (resuelve el import faltante) y Task 10, verificar que el
+> build vuelve a pasar, y recién ahí queda resuelto el deploy roto sin
+> necesitar revertir nada.
+
 > Actualización 2026-08-22: sprint post-importación implementado en código:
 > pedidos importados, alias de importación, detector de duplicados, reporte
 > histórico 2024/2025 y comparador JSON. También quedó implementada la
