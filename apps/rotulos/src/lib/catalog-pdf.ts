@@ -53,7 +53,15 @@ async function createContext(): Promise<Pick<PdfContext, "doc" | "font" | "boldF
   return { doc, font, boldFont, logo };
 }
 
+function isAllowedProductImageUrl(url: string): boolean {
+  const base = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  if (!base) return false;
+  const prefix = `${base}/storage/v1/object/public/product-images/`;
+  return url.startsWith(prefix);
+}
+
 async function fetchImageBytes(url: string): Promise<Uint8Array | null> {
+  if (!isAllowedProductImageUrl(url)) return null;
   try {
     const response = await fetch(url);
     if (!response.ok) return null;

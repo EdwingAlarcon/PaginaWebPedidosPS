@@ -25,7 +25,13 @@ export async function POST(request: NextRequest) {
   }
 
   const payload = await request.json().catch(() => null);
-  if (!isObject(payload) || !Array.isArray(payload.products) || !payload.products.every(isValidProduct) || !isValidSettings(payload.settings)) {
+  if (
+    !isObject(payload) ||
+    !Array.isArray(payload.products) ||
+    payload.products.length > 500 ||
+    !payload.products.every(isValidProduct) ||
+    !isValidSettings(payload.settings)
+  ) {
     return Response.json({ error: "invalid_payload" }, { status: 400 });
   }
 

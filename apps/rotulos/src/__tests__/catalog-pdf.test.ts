@@ -40,4 +40,17 @@ describe("renderCatalogPdfBuffer", () => {
     expect(buffer.length).toBeGreaterThan(0);
     vi.unstubAllGlobals();
   });
+
+  it("never fetches an imageUrl outside the Supabase product-images bucket (SSRF guard)", async () => {
+    const fetchSpy = vi.fn();
+    vi.stubGlobal("fetch", fetchSpy);
+    const buffer = await renderCatalogPdfBuffer(
+      [makeProduct({ imageUrl: "http://169.254.169.254/latest/meta-data" })],
+      makeSettings(),
+    );
+    expect(buffer.length).toBeGreaterThan(0);
+    expect(buffer.subarray(0, 4).toString("latin1")).toBe("%PDF");
+    expect(fetchSpy).not.toHaveBeenCalled();
+    vi.unstubAllGlobals();
+  });
 });
