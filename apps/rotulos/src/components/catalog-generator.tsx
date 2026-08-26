@@ -4,7 +4,7 @@ import { useState } from "react";
 import { Download, Image as ImageIcon, MessageCircle } from "lucide-react";
 import { getBusinessStore } from "@/lib/business-store";
 import { getLabelStore } from "@/lib/label-store";
-import { MAX_CATALOG_IMAGE_PRODUCTS, renderCatalogImage } from "@/lib/catalog-image";
+import { renderCatalogImages } from "@/lib/catalog-image";
 import { downloadBlob } from "@/lib/order-summary-image";
 import { buildWhatsAppLink } from "@/lib/whatsapp";
 import { Button } from "@/components/ui/button";
@@ -47,16 +47,23 @@ export function CatalogGenerator() {
     setDownloadingImage(true);
     try {
       const { products, settings } = await loadCatalogData();
-      const blob = await renderCatalogImage(products, settings);
-      await downloadBlob(blob, "catalogo-purple-shop.png");
-    } catch (err) {
-      const tooLarge = err instanceof Error && err.message === "catalog_too_large_for_image";
-      toast.push({
-        variant: "danger",
-        title: tooLarge
-          ? `El catalogo tiene mas de ${MAX_CATALOG_IMAGE_PRODUCTS} productos y no cabe en una sola imagen. Usa "Descargar PDF" en su lugar.`
-          : "No se pudo generar la imagen del catalogo.",
-      });
+      const pages = await renderCatalogImages(products, settings);
+      for (let index = 0; index < pages.length; index += 1) {
+        const fileName =
+          pages.length > 1
+            ? `catalogo-purple-shop-parte-${index + 1}-de-${pages.length}.png`
+            : "catalogo-purple-shop.png";
+        await downloadBlob(pages[index], fileName);
+        if (index < pages.length - 1) await new Promise((resolve) => setTimeout(resolve, 300));
+      }
+      if (pages.length > 1) {
+        toast.push({
+          variant: "success",
+          title: `Se descargaron ${pages.length} imagenes. Si el navegador pregunta, permite las descargas multiples.`,
+        });
+      }
+    } catch {
+      toast.push({ variant: "danger", title: "No se pudo generar la imagen del catalogo." });
     } finally {
       setDownloadingImage(false);
     }

@@ -17,10 +17,10 @@ const CARD_HEIGHT = PHOTO_HEIGHT + 56;
 const EXPORT_SCALE = 2;
 // Los navegadores limitan un <canvas> a ~32.767px de alto por lado; con
 // EXPORT_SCALE=2 eso deja ~16.000px de alto "logico" como techo seguro.
-// Con COLUMNS=2 y CARD_HEIGHT+CARD_GAP fijos, 80 productos en una sola
-// categoria ya se acerca a ese techo, asi que se limita ahi para no
-// generar un canvas invalido (toBlob falla en silencio si se excede).
-export const MAX_CATALOG_IMAGE_PRODUCTS = 80;
+// Catalogos grandes se parten en varias imagenes ("paginas" de folleto)
+// de a lo sumo este numero de productos cada una, muy por debajo de ese
+// techo (una pagina llena da ~13.700px de alto con escala aplicada).
+const PRODUCTS_PER_IMAGE_PAGE = 40;
 
 const COLORS = {
   purple900: "#4C1D95",
@@ -51,6 +51,15 @@ function loadImage(url: string | null): Promise<HTMLImageElement | null> {
   });
 }
 
+function chunk<T>(items: T[], size: number): T[][] {
+  if (items.length === 0) return [];
+  const chunks: T[][] = [];
+  for (let i = 0; i < items.length; i += size) {
+    chunks.push(items.slice(i, i + size));
+  }
+  return chunks;
+}
+
 function computeHeight(products: ProductCode[]): number {
   const groups = groupProductCodesByCategory(products);
   let height = HEADER_HEIGHT + 30;
@@ -62,10 +71,11 @@ function computeHeight(products: ProductCode[]): number {
   return Math.max(height, HEADER_HEIGHT + 80);
 }
 
-export async function renderCatalogImage(products: ProductCode[], settings: LabelSettings): Promise<Blob> {
-  if (products.length > MAX_CATALOG_IMAGE_PRODUCTS) {
-    throw new Error("catalog_too_large_for_image");
-  }
+async function renderCatalogImagePage(
+  products: ProductCode[],
+  settings: LabelSettings,
+  pageInfo: { index: number; count: number },
+): Promise<Blob> {
   const height = computeHeight(products);
   const canvas = document.createElement("canvas");
   canvas.width = WIDTH * EXPORT_SCALE;
@@ -85,6 +95,12 @@ export async function renderCatalogImage(products: ProductCode[], settings: Labe
   ctx.fillText("CATALOGO", MARGIN, 46);
   ctx.font = regularFont(11);
   ctx.fillText(settings.brandPhrase.toUpperCase(), MARGIN, 68);
+  if (pageInfo.count > 1) {
+    ctx.font = boldFont(11);
+    const label = `PARTE ${pageInfo.index + 1} DE ${pageInfo.count}`;
+    const labelWidth = ctx.measureText(label).width;
+    ctx.fillText(label, WIDTH - MARGIN - labelWidth, 46);
+  }
 
   const contactLines = [
     settings.defaultSender.phone ? `WhatsApp: ${settings.defaultSender.phone}` : "",
@@ -160,4 +176,20 @@ export async function renderCatalogImage(products: ProductCode[], settings: Labe
       else reject(new Error("blob_failed"));
     }, "image/png");
   });
+}
+
+export function paginateProductsForImages(products: ProductCode[]): ProductCode[][] {
+  const orderedProducts = groupProductCodesByCategory(products).flatMap((group) => group.products);
+  const pages = chunk(orderedProducts, PRODUCTS_PER_IMAGE_PAGE);
+  return pages.length === 0 ? [[]] : pages;
+}
+
+export async function renderCatalogImages(products: ProductCode[], settings: LabelSettings): Promise<Blob[]> {
+  const pages = paginateProductsForImages(products);
+
+  const blobs: Blob[] = [];
+  for (let index = 0; index < pages.length; index += 1) {
+    blobs.push(await renderCatalogImagePage(pages[index], settings, { index, count: pages.length }));
+  }
+  return blobs;
 }
