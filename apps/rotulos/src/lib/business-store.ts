@@ -605,6 +605,7 @@ function createSupabaseBusinessStore(): BusinessStore | null {
     async updateProductCode(id, patch) {
       const normalizedPatch = normalizeProductCodePatch(patch);
       const payload = {
+        ...(normalizedPatch.code !== undefined ? { code: normalizedPatch.code } : {}),
         ...(normalizedPatch.productName !== undefined ? { product_name: normalizedPatch.productName } : {}),
         ...(normalizedPatch.category !== undefined ? { category: normalizedPatch.category } : {}),
         ...(normalizedPatch.unitPrice !== undefined ? { unit_price: normalizedPatch.unitPrice } : {}),

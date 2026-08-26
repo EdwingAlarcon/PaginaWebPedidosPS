@@ -76,7 +76,7 @@ export type ProductCode = {
 };
 
 export type ProductCodePatch = Partial<
-  Pick<ProductCode, "productName" | "category" | "unitPrice" | "supplierPrice" | "imageUrl">
+  Pick<ProductCode, "code" | "productName" | "category" | "unitPrice" | "supplierPrice" | "imageUrl">
 >;
 
 export type OrderEdit = {

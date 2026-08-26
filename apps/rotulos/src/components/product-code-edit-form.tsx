@@ -70,6 +70,7 @@ export function ProductCodeEditForm({
       const store = getBusinessStore();
       const saved = product
         ? await store.updateProductCode(product.id, {
+            code: value.code,
             productName: value.productName,
             category: value.category,
             unitPrice: value.unitPrice,
@@ -85,8 +86,9 @@ export function ProductCodeEditForm({
             imageUrl,
           });
       onSaved(saved);
-    } catch {
-      setError("No se pudo guardar el producto.");
+    } catch (err) {
+      const isDuplicateCode = typeof err === "object" && err !== null && "code" in err && (err as { code?: string }).code === "23505";
+      setError(isDuplicateCode ? "Ese codigo ya esta en uso por otro producto." : "No se pudo guardar el producto.");
     } finally {
       setSaving(false);
     }
@@ -119,7 +121,7 @@ export function ProductCodeEditForm({
         </FormField>
       </div>
       <FormField label="Codigo" required>
-        <Input value={value.code} disabled={Boolean(product)} onChange={(event) => setValue({ ...value, code: event.target.value })} />
+        <Input value={value.code} onChange={(event) => setValue({ ...value, code: event.target.value })} />
       </FormField>
       <FormField label="Nombre del producto" required>
         <Input value={value.productName} onChange={(event) => setValue({ ...value, productName: event.target.value })} />

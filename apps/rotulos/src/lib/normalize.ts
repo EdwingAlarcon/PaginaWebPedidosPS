@@ -119,6 +119,7 @@ export function normalizeProductCode<T extends ProductCodeTextFields>(code: T): 
 export function normalizeProductCodePatch(patch: ProductCodePatch): ProductCodePatch {
   return {
     ...patch,
+    ...(patch.code !== undefined ? { code: normalizeText(patch.code) } : {}),
     ...(patch.productName !== undefined ? { productName: normalizeText(patch.productName) } : {}),
     ...(patch.category !== undefined ? { category: normalizeText(patch.category) } : {}),
   };
