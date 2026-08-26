@@ -36,7 +36,7 @@ export const DrawerContent = forwardRef<
           <X className="size-4" aria-hidden="true" />
         </Dialog.Close>
       </div>
-      <div className="flex-1 overflow-y-auto">{children}</div>
+      <div className="flex-1 overflow-y-auto overflow-x-hidden">{children}</div>
     </Dialog.Content>
   </Dialog.Portal>
 ));

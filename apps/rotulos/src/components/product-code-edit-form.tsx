@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import type { FormEvent } from "react";
+import { Upload } from "lucide-react";
 import { getBusinessStore } from "@/lib/business-store";
 import { uploadProductImage, validateProductImageFile } from "@/lib/product-image-upload";
 import type { ProductCode } from "@/lib/business-types";
@@ -94,22 +95,27 @@ export function ProductCodeEditForm({
   return (
     <form onSubmit={handleSubmit} className="grid gap-4">
       {error ? <Alert variant="danger">{error}</Alert> : null}
-      <div className="flex items-center gap-4">
+      <div className="flex flex-wrap items-center gap-4">
         {imageUrl ? (
           // eslint-disable-next-line @next/next/no-img-element
-          <img src={imageUrl} alt="Foto del producto" className="size-20 rounded-md border border-border object-cover" />
+          <img src={imageUrl} alt="Foto del producto" className="size-20 shrink-0 rounded-md border border-border object-cover" />
         ) : (
-          <div className="flex size-20 items-center justify-center rounded-md border border-dashed border-border text-xs text-foreground-muted">
+          <div className="flex size-20 shrink-0 items-center justify-center rounded-md border border-dashed border-border text-xs text-foreground-muted">
             Sin foto
           </div>
         )}
-        <FormField label="Foto (JPG o PNG, maximo 5MB)" hint={uploading ? "Subiendo..." : undefined}>
-          <input
-            type="file"
-            accept="image/jpeg,image/png"
-            disabled={uploading}
-            onChange={(event) => handleFileChange(event.target.files?.[0])}
-          />
+        <FormField label="Foto (JPG o PNG, maximo 5MB)" hint={uploading ? "Subiendo..." : undefined} className="min-w-0">
+          <label className="inline-flex h-9 max-w-full cursor-pointer items-center gap-2 rounded-md border border-border bg-surface px-3 text-sm font-medium text-foreground hover:bg-surface-muted">
+            <Upload className="size-4 shrink-0" aria-hidden="true" />
+            <span className="truncate">Elegir archivo</span>
+            <input
+              type="file"
+              accept="image/jpeg,image/png"
+              disabled={uploading}
+              className="sr-only"
+              onChange={(event) => handleFileChange(event.target.files?.[0])}
+            />
+          </label>
         </FormField>
       </div>
       <FormField label="Codigo" required>
