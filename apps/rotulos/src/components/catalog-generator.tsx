@@ -1,10 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import { Download, Image as ImageIcon, MessageCircle } from "lucide-react";
+import { Download, MessageCircle } from "lucide-react";
 import { getBusinessStore } from "@/lib/business-store";
 import { getLabelStore } from "@/lib/label-store";
-import { renderCatalogImages } from "@/lib/catalog-image";
 import { downloadBlob } from "@/lib/order-summary-image";
 import { buildWhatsAppLink } from "@/lib/whatsapp";
 import { Button } from "@/components/ui/button";
@@ -13,21 +12,15 @@ import { useToast } from "@/components/ui/toast";
 
 export function CatalogGenerator() {
   const [downloadingPdf, setDownloadingPdf] = useState(false);
-  const [downloadingImage, setDownloadingImage] = useState(false);
   const toast = useToast();
-
-  async function loadCatalogData() {
-    const [products, settings] = await Promise.all([
-      getBusinessStore().listProductCodes(),
-      getLabelStore().getSettings(),
-    ]);
-    return { products, settings };
-  }
 
   async function handleDownloadPdf() {
     setDownloadingPdf(true);
     try {
-      const { products, settings } = await loadCatalogData();
+      const [products, settings] = await Promise.all([
+        getBusinessStore().listProductCodes(),
+        getLabelStore().getSettings(),
+      ]);
       const response = await fetch("/api/catalog/pdf", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -43,41 +36,11 @@ export function CatalogGenerator() {
     }
   }
 
-  async function handleDownloadImage() {
-    setDownloadingImage(true);
-    try {
-      const { products, settings } = await loadCatalogData();
-      const pages = await renderCatalogImages(products, settings);
-      for (let index = 0; index < pages.length; index += 1) {
-        const fileName =
-          pages.length > 1
-            ? `catalogo-purple-shop-parte-${index + 1}-de-${pages.length}.png`
-            : "catalogo-purple-shop.png";
-        await downloadBlob(pages[index], fileName);
-        if (index < pages.length - 1) await new Promise((resolve) => setTimeout(resolve, 300));
-      }
-      if (pages.length > 1) {
-        toast.push({
-          variant: "success",
-          title: `Se descargaron ${pages.length} imagenes. Si el navegador pregunta, permite las descargas multiples.`,
-        });
-      }
-    } catch {
-      toast.push({ variant: "danger", title: "No se pudo generar la imagen del catalogo." });
-    } finally {
-      setDownloadingImage(false);
-    }
-  }
-
   return (
     <Card className="flex flex-wrap items-center gap-3">
       <Button onClick={handleDownloadPdf} loading={downloadingPdf}>
         <Download className="size-4" aria-hidden="true" />
         Descargar PDF
-      </Button>
-      <Button variant="secondary" onClick={handleDownloadImage} loading={downloadingImage}>
-        <ImageIcon className="size-4" aria-hidden="true" />
-        Descargar imagen
       </Button>
       <Button variant="secondary" asChild>
         <a href={buildWhatsAppLink("", "Hola! Te comparto nuestro catalogo de productos.")} target="_blank" rel="noreferrer">
