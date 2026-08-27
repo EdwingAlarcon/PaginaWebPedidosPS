@@ -29,18 +29,41 @@
 >    MALE" $85.000 y $75.000; `PS-H-130`/`PS-H-133` ambos "PACO RABANNE
 >    BLACK XS" $55.000. Buscar esos códigos en `/catalogo` y renombrar a
 >    mano.
-> 2. **Fotos: piloto de 18 productos hecho (17 subidos, 1 sin foto a
->    propósito).** Edwing pidió que Claude buscara las fotos (para que el
->    cliente sepa qué frasco es y evitar errores de pedido/envío, no por
->    fraude); se hizo un piloto chico primero verificando cada foto
->    visualmente antes de subir (fuente: druni.es). Script:
->    `scripts/import-product-photos.ts` (preview por defecto, `--commit`
->    para subir; lee una carpeta, matchea archivo=código exacto ej.
->    `PS-M-001.jpg`, sube a `product-images`, actualiza `image_url`).
->    **Quedan ~301 productos sin foto** — seguir con más lotes (búsqueda +
->    verificación visual manual, no escalable a ciegas) o esperar fotos
->    propias de Edwing en `apps/rotulos/scripts/product-photos/` (creada,
->    gitignored, vacía) o un pack del proveedor Joshua.
+> 2. **Fotos: 153 de 319 subidas al 2026-08-27 (quedan 149 sin foto).**
+>    Piloto inicial de 18 (17 subidos, 1 sin foto a propósito) escalado a
+>    import masivo por lotes en la sesión del 2026-08-27: cada foto se
+>    buscó en druni.es (retailer mainstream) o sitio oficial de marca para
+>    nicho (creedboutique.com, parfums-de-marly.com, montaleparfums.com,
+>    lattafa.com, bhararabeauty.com, cartier.com, franciskurkdjian.com,
+>    lelabofragrances.com) y **se verificó visualmente antes de subir,
+>    siempre** — se encontraron y descartaron al menos 4 casos de imagen
+>    mal emparejada (IDs genéricos de Prestashop devolviendo el producto
+>    equivocado, y páginas de marca/categoría de Druni cayendo al "más
+>    vendido" en vez de dar 404). Detalle completo del método y de qué se
+>    dejó afuera a propósito (variantes ambiguas, marcas de nicho sin
+>    fuente confiable) en memoria:
+>    `project_purpleshop_fotos_producto_import_masivo_2026-08-27.md`.
+>    Script: `scripts/import-product-photos.ts` (preview por defecto,
+>    `--commit` para subir; lee una carpeta, matchea archivo=código exacto
+>    ej. `PS-M-001.jpg`, sube a `product-images`, actualiza `image_url`).
+>    Script `scripts/list-missing-photos.ts` lista los códigos sin foto —
+>    es la fuente de verdad del progreso, no hace falta memoria para saber
+>    cuántos faltan. **Se cortó por límite de `WebSearch` de la sesión
+>    (200/200), no por falta de fotos encontrables** — una sesión nueva
+>    arranca con el límite reseteado, seguir ahí en vez de pedir subir el
+>    límite.
+>
+>    **Nuevo (2026-08-27, misma sesión): Edwing ya no necesita el CLI.**
+>    Se agregó un uploader en lote en `Configuración` →
+>    `src/components/product-photo-bulk-upload.tsx` — arrastrar/elegir
+>    varias fotos a la vez, cada archivo debe llamarse exactamente como el
+>    código (`PS-H-064.jpg`), sube directo a Supabase desde el navegador
+>    (RLS ya permite escritura `authenticated` en `product_codes` y en el
+>    bucket `product-images`, no hace falta service role) y muestra estado
+>    por archivo (subida / código no encontrado / error). Edwing puede
+>    buscar y guardar sus propias fotos (750x750px, JPG o PNG, máx 5MB —
+>    mismo estándar que las subidas por Claude) y soltarlas ahí sin correr
+>    nada por terminal.
 > 3. **Bug real encontrado y arreglado (2026-08-26):**
 >    `product_codes.image_url` y el bucket `product-images` nunca
 >    existieron en producción — la migración de esa función (25 de
