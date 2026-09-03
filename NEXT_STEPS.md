@@ -230,14 +230,27 @@ comparativos excluyen pedidos cancelados.
   `ec9dbfe`, `b328576`. Validación final local: `npm run lint`
   (2 warnings preexistentes de `<img>` en login), `npm run typecheck`,
   `npm test` y `npm run build`.
-- **Restauración controlada de backup JSON Fase 1** (2026-08-22): implementada
-  en `Configuración` → `Comparar backup JSON`, con botón `Preparar
-  restauración`, selección explícita de filas y confirmación escrita
-  `RESTAURAR`. APIs protegidas: `POST /api/backups/restore/preview` y
-  `POST /api/backups/restore/execute`. Requiere `BACKUP_RESTORE_ENABLED=true`
-  y `BACKUP_RESTORE_ALLOWED_EMAILS` en servidor. Supabase producción
-  `purpleshop` tiene aplicada la tabla `backup_restore_runs` con RLS activo.
-  No restaura pedidos, inventario ni borra filas.
+- **Restauración controlada de backup JSON Fase 1** (2026-08-22, código
+  llegó a producción recién el 2026-09-03): implementada en `Configuración`
+  → `Comparar backup JSON`, con botón `Preparar restauración`, selección
+  explícita de filas y confirmación escrita `RESTAURAR`. APIs protegidas:
+  `POST /api/backups/restore/preview` y `POST /api/backups/restore/execute`.
+  Requiere `BACKUP_RESTORE_ENABLED=true` y `BACKUP_RESTORE_ALLOWED_EMAILS`
+  en servidor. Supabase producción `purpleshop` tiene aplicada la tabla
+  `backup_restore_runs` con RLS activo. No restaura pedidos, inventario ni
+  borra filas.
+  **Bug descubierto el 2026-09-03**: `src/app/api/backups/restore/{preview,
+  execute}/route.ts` nunca se subieron a git — el `.gitignore` raíz tenía
+  `backups/` sin anclar, que también capturaba esa carpeta de código (no
+  solo la carpeta real de dumps JSON en la raíz del repo). Los archivos
+  existían en disco local desde el 22 de agosto pero nunca en el repo, así
+  que la función jamás corrió en producción pese a documentarse como
+  desplegada. Se detectó al revisar por qué el build de Vercel del commit
+  `a815e15` fallaba con `TS2307` pese a que el build local pasaba (untracked
+  = presente en disco, ausente en git). Fix: `.gitignore` ancla la regla a
+  `/backups/`, rutas recuperadas y comiteadas en `5f3c426`, deploy
+  `dpl_DXLFmoMUePs9XS79GV5L5WnBdrBh` READY. **Pendiente**: probar el flujo
+  manualmente en producción con datos reales, ya que nunca se validó ahí.
 - **Clientes repetidos por importación histórica sin teléfono** (2026-08-15):
   en producción había 1 duplicado visible por nombre (`PILAR CONGOTE`): una
   ficha `excel_import` sin teléfono y una ficha creada desde la app con
