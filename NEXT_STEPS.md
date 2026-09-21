@@ -694,3 +694,15 @@ real (todas las secciones) + lectura de código. Hallazgos priorizados:
 - Pendiente/no hecho: vincular catálogo con inventario real (solo se ocultó
   el ruido), Service Worker/offline, pago visible en la bandeja de Despacho,
   restauración de `order_payments` (Fase 2 de restauración, sin aprobar).
+
+**Pagos históricos (2026-09-21, tarde-noche):**
+- Regla corregida: solo los pedidos `excel_import` sin abonos son "sin registro"
+  (`legacy`). Un pedido de la app completado sin pago **sigue siendo deuda**
+  (antes completarlo en Despacho borraba el saldo por cobrar).
+- Edwing registró a mano los 2 pedidos de app del 2026-08-14 (PILAR 144.000
+  efectivo, ZAIDA 191.500 transferencia). Faltan los 97 importados
+  ($13.366.200): correr `apps/rotulos/scripts/backfill-historical-payments.sql`
+  en el SQL Editor (o `npm run backfill:payments -- --commit` con service role;
+  el clasificador de permisos bloqueó ese `--commit` desde Claude). Nota
+  marcadora `PAGO HISTORICO (ASUMIDO)`, método `otro`, fecha = fecha del pedido;
+  reversible borrando por esa nota. Volver a correrlo tras cada `import:excel`.

@@ -27,9 +27,11 @@ export const PAYMENT_STATUS_LABELS: Record<PaymentStatus, string> = {
 /**
  * Estado de pago de un pedido a partir de sus abonos registrados.
  *
- * Los pedidos completados o importados de Excel sin ningun abono registrado
- * se consideran "legacy": el sistema no sabe si se pagaron, pero no los
- * cuenta como deuda para no inventar cartera sobre ventas historicas.
+ * Solo los pedidos importados de Excel sin ningun abono se consideran
+ * "legacy": el sistema no sabe si se pagaron, pero no los cuenta como deuda
+ * para no inventar cartera sobre ventas historicas (scripts/backfill-historical-payments
+ * los registra como pagados). Un pedido creado en la app y completado sin pago
+ * SIGUE siendo deuda: completarlo (despacho) no debe borrar el saldo por cobrar.
  */
 export function summarizePayment(
   order: Pick<OrderRecord, "total" | "status" | "source">,
@@ -37,7 +39,7 @@ export function summarizePayment(
 ): PaymentSummary {
   const paid = payments.reduce((sum, payment) => sum + payment.amount, 0);
   if (order.status === "cancelled") return { status: "cancelled", paid, balance: 0 };
-  if (paid <= 0 && (order.source === "excel_import" || order.status === "completed")) {
+  if (paid <= 0 && order.source === "excel_import") {
     return { status: "legacy", paid: 0, balance: 0 };
   }
   if (order.total > 0 && paid >= order.total) return { status: "paid", paid, balance: 0 };

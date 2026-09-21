@@ -14,6 +14,7 @@
     "test:e2e:headed": "playwright test --headed",
     "qa:final": "node scripts/qa-final.mjs",
     "import:excel": "tsx scripts/import-excel.ts",
+    "backfill:payments": "tsx --env-file=.env.local scripts/backfill-historical-payments.ts",
     "import:perfumes": "tsx scripts/import-perfumes-catalog.ts"
   },
   "dependencies": {

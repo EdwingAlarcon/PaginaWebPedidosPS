@@ -101,7 +101,7 @@ export function OrderPaymentsCard({ order, payments, onPaymentAdded, onPaymentDe
 
       {summary.status === "legacy" ? (
         <p className="mt-3 text-xs text-foreground-muted">
-          Este pedido no tiene pagos registrados; no se cuenta como deuda. Registra un pago si quieres llevar el control.
+          Pedido importado sin pagos registrados; no se cuenta como deuda. Márcalo como pagado si ya se cobró.
         </p>
       ) : null}
 
@@ -149,15 +149,15 @@ export function OrderPaymentsCard({ order, payments, onPaymentAdded, onPaymentDe
               <Wallet className="size-4" aria-hidden="true" />
               Registrar pago
             </Button>
-            {summary.balance > 0 ? (
+            {summary.balance > 0 || summary.status === "legacy" ? (
               <Button
                 type="button"
                 size="sm"
                 variant="secondary"
                 loading={saving}
-                onClick={() => void register(summary.balance)}
+                onClick={() => void register(summary.balance > 0 ? summary.balance : order.total)}
               >
-                Pagar saldo ({formatCop(summary.balance)})
+                {summary.balance > 0 ? `Pagar saldo (${formatCop(summary.balance)})` : "Marcar como pagado"}
               </Button>
             ) : null}
           </div>

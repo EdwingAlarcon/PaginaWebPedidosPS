@@ -24,9 +24,13 @@ describe("summarizePayment", () => {
     expect(summarizePayment(order(), [payment(120000)])).toEqual({ status: "paid", paid: 120000, balance: 0 });
   });
 
-  it("does not invent debt for completed or imported orders with no payment records", () => {
-    expect(summarizePayment(order({ status: "completed" }), []).status).toBe("legacy");
-    expect(summarizePayment(order({ source: "excel_import" }), []).status).toBe("legacy");
+  it("does not invent debt for imported orders with no payment records", () => {
+    expect(summarizePayment(order({ source: "excel_import" }), [])).toEqual({ status: "legacy", paid: 0, balance: 0 });
+    expect(summarizePayment(order({ source: "excel_import", status: "completed" }), []).balance).toBe(0);
+  });
+
+  it("keeps an app order as debt after it is completed without payment", () => {
+    expect(summarizePayment(order({ status: "completed" }), [])).toEqual({ status: "unpaid", paid: 0, balance: 100000 });
   });
 
   it("still tracks the balance of a completed order once a partial payment exists", () => {
@@ -47,7 +51,7 @@ describe("listReceivables", () => {
     const orders = [
       order({ id: "a", orderDate: "2026-09-10" }),
       order({ id: "b", orderDate: "2026-08-01", total: 50000 }),
-      order({ id: "c", orderDate: "2026-07-01", status: "completed" }),
+      order({ id: "c", orderDate: "2026-07-01", source: "excel_import", status: "completed" }),
     ];
     const receivables = listReceivables(orders, [payment(100000, "a")]);
     expect(receivables.map((entry) => entry.order.id)).toEqual(["b"]);
