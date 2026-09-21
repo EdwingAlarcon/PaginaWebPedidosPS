@@ -674,9 +674,8 @@ real (todas las secciones) + lectura de código. Hallazgos priorizados:
 - Orden de `/pedidos` por `orderDate desc` (`DataTable` ganó `initialSort`) +
   filtros de estado, pago y rango de fechas.
 - Pagos por pedido: tabla `order_payments` (migración
-  `202609210001_create_order_payments.sql`, **Edwing debe aplicarla a mano en el
-  SQL Editor de Supabase**; hasta entonces `listPayments` devuelve `[]` y
-  registrar un pago muestra un toast explicativo). Lógica en
+  `202609210001_create_order_payments.sql`, **aplicada por Edwing en el SQL
+  Editor el 2026-09-21**; verificado 200 en `order_payments`). Lógica en
   `src/lib/payments.ts` (pedidos completados/importados sin abonos = "sin
   registro", no cuentan como deuda). UI: `order-payments-card.tsx` en el
   drawer, columna "Pago" en Pedidos, "Pago inicial" en Nuevo pedido, tarjeta
