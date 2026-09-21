@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { Download, ImageDown, MessageCircle } from "lucide-react";
+import { CheckCircle2, Download, ImageDown, Lock, MessageCircle, Undo2 } from "lucide-react";
 import { formatCop } from "@/lib/format";
 import { getBusinessStore } from "@/lib/business-store";
 import { getLabelStore } from "@/lib/label-store";
@@ -12,6 +12,7 @@ import { downloadBlob, renderOrderSummaryImage } from "@/lib/order-summary-image
 import { labelToShipmentTracking, type ShipmentTracking } from "@/lib/label-tracking";
 import { buildOrderTimeline } from "@/lib/order-timeline";
 import { summarizePayment } from "@/lib/payments";
+import { getOrderLock, ORDER_LOCK_MESSAGES } from "@/lib/order-lock";
 import type { LabelRecord } from "@/lib/types";
 import type { OrderEdit, OrderPayment, OrderRecord } from "@/lib/business-types";
 import { Button } from "@/components/ui/button";
@@ -24,6 +25,10 @@ type OrderDetailDrawerProps = {
   order: OrderRecord;
   payments?: OrderPayment[];
   onEdit?: () => void;
+  /** Completar el pedido (con opcion de registrar el pago del saldo). Solo se ofrece si esta pendiente. */
+  onComplete?: () => void;
+  /** Volver un pedido completado a pendiente para poder corregirlo. */
+  onReopen?: () => void;
   onPaymentAdded?: (payment: OrderPayment) => void;
   onPaymentDeleted?: (paymentId: string) => void;
 };
@@ -119,7 +124,8 @@ function OrderEditEntry({ edit }: { edit: OrderEdit }) {
   );
 }
 
-export function OrderDetailDrawer({ order, payments = [], onEdit, onPaymentAdded, onPaymentDeleted }: OrderDetailDrawerProps) {
+export function OrderDetailDrawer({ order, payments = [], onEdit, onComplete, onReopen, onPaymentAdded, onPaymentDeleted }: OrderDetailDrawerProps) {
+  const lock = getOrderLock(order, payments);
   const adjustment = latestAdjustment(order.notes);
   const [edits, setEdits] = useState<OrderEdit[]>([]);
   const [downloadingPdf, setDownloadingPdf] = useState(false);
@@ -210,12 +216,33 @@ export function OrderDetailDrawer({ order, payments = [], onEdit, onPaymentAdded
         <Button type="button" variant="secondary" size="sm" asChild>
           <Link href={`/crear?fromOrderId=${order.id}`}>Generar rótulo</Link>
         </Button>
-        {onEdit ? (
+        {onComplete && order.status === "pending" ? (
+          <Button type="button" size="sm" variant="secondary" onClick={onComplete}>
+            <CheckCircle2 className="size-4" aria-hidden="true" />
+            Marcar completado
+          </Button>
+        ) : null}
+        {onEdit && !lock.locked ? (
           <Button type="button" size="sm" onClick={onEdit}>
             Editar pedido
           </Button>
         ) : null}
       </div>
+
+      {lock.locked && lock.reason ? (
+        <div className="flex flex-wrap items-center justify-between gap-3 rounded-md border border-border bg-surface-muted px-3 py-2 text-sm text-foreground-muted">
+          <span className="flex items-center gap-2">
+            <Lock className="size-4 shrink-0" aria-hidden="true" />
+            {ORDER_LOCK_MESSAGES[lock.reason]}
+          </span>
+          {lock.reason === "completed" && onReopen ? (
+            <Button type="button" size="sm" variant="secondary" onClick={onReopen}>
+              <Undo2 className="size-4" aria-hidden="true" />
+              Reabrir pedido
+            </Button>
+          ) : null}
+        </div>
+      ) : null}
 
       <Card className="shadow-none">
         <div className="flex items-start justify-between gap-3">

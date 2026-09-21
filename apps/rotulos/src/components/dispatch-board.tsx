@@ -4,13 +4,16 @@ import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { CheckCircle2, Download, FilePlus2, Printer, RefreshCw } from "lucide-react";
 import { getBusinessStore } from "@/lib/business-store";
-import type { OrderRecord } from "@/lib/business-types";
+import type { OrderPayment, OrderRecord } from "@/lib/business-types";
+import { completeOrderWithPayment, completionBalance, type CompletionOptions } from "@/lib/order-completion";
+import { groupPaymentsByOrder, summarizePayment } from "@/lib/payments";
 import { buildLabelDraftFromOrder } from "@/lib/label-from-order";
 import { reviewLabelQuality, type LabelQualityIssue } from "@/lib/label-quality";
 import { getLabelStore } from "@/lib/label-store";
 import { buildDispatchRows, type DispatchRow } from "@/lib/dispatch";
 import type { LabelRecord, LabelSettings } from "@/lib/types";
-import { Badge, LabelStatusBadge, StatusBadge } from "@/components/ui/badge";
+import { Badge, LabelStatusBadge, PaymentBadge, StatusBadge } from "@/components/ui/badge";
+import { CompleteOrdersDialog, type CompletionTarget } from "@/components/complete-orders-dialog";
 import { Button, IconButton } from "@/components/ui/button";
 import { Card, CardTitle } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -68,6 +71,8 @@ export function DispatchBoard() {
   const [query, setQuery] = useState("");
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [batchBusy, setBatchBusy] = useState(false);
+  const [payments, setPayments] = useState<OrderPayment[]>([]);
+  const [completeTargets, setCompleteTargets] = useState<CompletionTarget[]>([]);
   const toast = useToast();
 
   async function load() {
@@ -75,13 +80,15 @@ export function DispatchBoard() {
     try {
       const businessStore = getBusinessStore();
       const labelStore = getLabelStore();
-      const [orders, labels, savedSettings] = await Promise.all([
+      const [orders, labels, savedSettings, savedPayments] = await Promise.all([
         businessStore.listOrders(),
         labelStore.listLabels(),
         labelStore.getSettings(),
+        businessStore.listPayments().catch(() => []),
       ]);
       setRows(buildDispatchRows(orders, labels));
       setSettings(savedSettings);
+      setPayments(savedPayments);
     } finally {
       setLoading(false);
     }
@@ -92,14 +99,16 @@ export function DispatchBoard() {
     async function loadInitial() {
       const businessStore = getBusinessStore();
       const labelStore = getLabelStore();
-      const [orders, labels, savedSettings] = await Promise.all([
+      const [orders, labels, savedSettings, savedPayments] = await Promise.all([
         businessStore.listOrders(),
         labelStore.listLabels(),
         labelStore.getSettings(),
+        businessStore.listPayments().catch(() => []),
       ]);
       if (!active) return;
       setRows(buildDispatchRows(orders, labels));
       setSettings(savedSettings);
+      setPayments(savedPayments);
       setLoading(false);
     }
     void loadInitial().catch(() => {
@@ -222,27 +231,52 @@ export function DispatchBoard() {
     setSelectedIds(checked ? new Set(filteredRows.map((row) => row.order.id)) : new Set());
   }
 
-  async function completeSelected() {
-    const targets = selectedRows.filter((row) => row.order.status !== "completed");
-    if (targets.length === 0) return;
-    if (!window.confirm(`¿Marcar ${targets.length} pedido(s) como completados?`)) return;
+  const paymentsByOrder = useMemo(() => groupPaymentsByOrder(payments), [payments]);
+
+  function requestComplete(targetRows: DispatchRow[]) {
+    const targets = targetRows
+      .filter((row) => row.order.status !== "completed" && row.order.status !== "cancelled")
+      .map((row) => ({ order: row.order, balance: completionBalance(row.order, paymentsByOrder.get(row.order.id) ?? []) }));
+    if (targets.length > 0) setCompleteTargets(targets);
+  }
+
+  async function confirmComplete(options: CompletionOptions) {
+    const targets = completeTargets;
     setBatchBusy(true);
     let done = 0;
+    let paid = 0;
     let failed = 0;
-    for (const row of targets) {
+    for (const target of targets) {
+      const row = rows.find((item) => item.order.id === target.order.id);
       try {
-        const updated = await getBusinessStore().updateOrder(row.order.id, { status: "completed" });
-        updateRow(updated, row.label);
+        const result = await completeOrderWithPayment(
+          getBusinessStore(),
+          target.order,
+          paymentsByOrder.get(target.order.id) ?? [],
+          options,
+        );
+        updateRow(result.order, row?.label ?? null);
+        const newPayment = result.payment;
+        if (newPayment) {
+          setPayments((current) => [...current, newPayment]);
+          paid += 1;
+        }
         done += 1;
       } catch {
         failed += 1;
       }
     }
-    setSelectedIds(new Set());
     setBatchBusy(false);
+    setCompleteTargets([]);
+    setSelectedIds(new Set());
     toast.push({
       variant: failed > 0 ? "danger" : "success",
-      title: failed > 0 ? `${done} completado(s), ${failed} con error.` : `${done} pedido(s) marcados como completados.`,
+      title:
+        failed > 0
+          ? `${done} completado(s), ${failed} con error (revisa y reintenta).`
+          : paid > 0
+            ? `${done} pedido(s) completado(s) y ${paid} pago(s) registrado(s).`
+            : `${done} pedido(s) marcado(s) como completado(s).`,
     });
   }
 
@@ -274,19 +308,6 @@ export function DispatchBoard() {
         ? `${done} rótulo(s) generado(s); ${skipped} omitido(s) por datos incompletos o error.`
         : `${done} rótulo(s) generado(s).`,
     });
-  }
-
-  async function completeOrder(row: DispatchRow) {
-    setBusyId(row.order.id);
-    try {
-      const updated = await getBusinessStore().updateOrder(row.order.id, { status: "completed" });
-      updateRow(updated, row.label);
-      toast.push({ variant: "success", title: "Pedido marcado como completado." });
-    } catch {
-      toast.push({ variant: "danger", title: "No se pudo completar el pedido." });
-    } finally {
-      setBusyId(null);
-    }
   }
 
   return (
@@ -338,7 +359,7 @@ export function DispatchBoard() {
                 <FilePlus2 className="size-4" aria-hidden="true" />
                 Generar rótulos
               </Button>
-              <Button type="button" size="sm" onClick={completeSelected} loading={batchBusy}>
+              <Button type="button" size="sm" onClick={() => requestComplete(selectedRows)} loading={batchBusy}>
                 <CheckCircle2 className="size-4" aria-hidden="true" />
                 Marcar completados
               </Button>
@@ -395,7 +416,15 @@ export function DispatchBoard() {
                     <td className="px-4 py-3">
                       <div className="font-medium text-foreground">{row.order.customer.fullName || "Cliente sin nombre"}</div>
                       <div className="mt-1 text-xs text-foreground-muted">{row.order.orderDate} · {row.order.items.length} item(s)</div>
-                      <div className="mt-2"><StatusBadge status={row.order.status} /></div>
+                      <div className="mt-2 flex flex-wrap items-center gap-1.5">
+                        <StatusBadge status={row.order.status} />
+                        <PaymentBadge status={summarizePayment(row.order, paymentsByOrder.get(row.order.id) ?? []).status} />
+                      </div>
+                      {completionBalance(row.order, paymentsByOrder.get(row.order.id) ?? []) > 0 ? (
+                        <div className="mt-1 text-xs text-foreground-muted">
+                          Debe {currency(completionBalance(row.order, paymentsByOrder.get(row.order.id) ?? []))}
+                        </div>
+                      ) : null}
                     </td>
                     <td className="px-4 py-3">
                       <Badge variant={stage.variant}>{stage.label}</Badge>
@@ -445,7 +474,7 @@ export function DispatchBoard() {
                         <IconButton label="Imprimir" size="sm" variant="secondary" onClick={() => printLabel(row)} disabled={isBusy}>
                           <Printer className="size-4" aria-hidden="true" />
                         </IconButton>
-                        <IconButton label="Marcar completado" size="sm" variant="secondary" onClick={() => completeOrder(row)} disabled={isBusy || row.order.status === "completed"}>
+                        <IconButton label="Marcar completado" size="sm" variant="secondary" onClick={() => requestComplete([row])} disabled={isBusy || row.order.status === "completed" || row.order.status === "cancelled"}>
                           <CheckCircle2 className="size-4" aria-hidden="true" />
                         </IconButton>
                       </div>
@@ -460,6 +489,14 @@ export function DispatchBoard() {
           ) : null}
         </div>
       </Card>
+
+      <CompleteOrdersDialog
+        key={completeTargets.map((target) => target.order.id).join(",")}
+        targets={completeTargets}
+        loading={batchBusy}
+        onCancel={() => setCompleteTargets([])}
+        onConfirm={confirmComplete}
+      />
     </div>
   );
 }

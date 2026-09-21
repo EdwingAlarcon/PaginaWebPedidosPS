@@ -706,3 +706,24 @@ real (todas las secciones) + lectura de código. Hallazgos priorizados:
   el clasificador de permisos bloqueó ese `--commit` desde Claude). Nota
   marcadora `PAGO HISTORICO (ASUMIDO)`, método `otro`, fecha = fecha del pedido;
   reversible borrando por esa nota. Volver a correrlo tras cada `import:excel`.
+
+**Estado del pedido vs pago (2026-09-21, noche) — una sola acción:**
+- Son dos ejes independientes: `status` (pendiente/completado/cancelado) y pago
+  (derivado de `order_payments`). Pagar NO completa (prepago es normal) y completar
+  NO pagaba nada solo.
+- "Marcar completado" (Despacho, uno o varios, y Pedidos → detalle) abre un mismo
+  diálogo (`complete-orders-dialog.tsx`) con "Registrar también el pago del saldo"
+  marcado por defecto + método (default transferencia). Lógica en
+  `src/lib/order-completion.ts`: registra el pago primero y luego cambia el estado
+  (si falla el pago, no se completa). Sin marcar → queda en "Por cobrar".
+- Despacho muestra ahora badge de pago y "Debe $X" por pedido.
+- Bloqueo de edición (`src/lib/order-lock.ts`): completado o pagado ⇒ sin "Editar
+  pedido"; "Reabrir pedido" vuelve a Pendiente; si está pagado hay que quitar el
+  pago. Es bloqueo de interfaz (la RPC `update_order` sigue permitiendo cambios
+  de sistema: estado y sincronizar snapshot del cliente). El form de edición ya no
+  ofrece "Completado".
+- Backfill de los 97 importados ahora usa método `transferencia`
+  (`scripts/backfill-historical-payments.sql`; incluye el `update` por si ya se
+  había corrido con `otro`).
+- Idea pendiente: la etiqueta (rótulo) tiene su propio `paymentMethod`
+  pagado/contraentrega + `codAmount`; hoy no se cruza con los pagos del pedido.

@@ -6,6 +6,9 @@ import { Plus } from "lucide-react";
 import { getBusinessStore } from "@/lib/business-store";
 import type { Customer, OrderPayment, OrderRecord } from "@/lib/business-types";
 import { groupPaymentsByOrder, summarizePayment, type PaymentStatus } from "@/lib/payments";
+import { completeOrderWithPayment, completionBalance, type CompletionOptions } from "@/lib/order-completion";
+import { getOrderLock } from "@/lib/order-lock";
+import { CompleteOrdersDialog, type CompletionTarget } from "@/components/complete-orders-dialog";
 import { DataTable, type DataTableColumn } from "@/components/ui/data-table";
 import { PaymentBadge, StatusBadge } from "@/components/ui/badge";
 import { DatePicker } from "@/components/ui/date-picker";
@@ -147,6 +150,8 @@ export function OrdersTable() {
   const [selectedOrder, setSelectedOrder] = useState<OrderRecord | null>(null);
   const [mode, setMode] = useState<"detail" | "edit">("detail");
   const [formDirty, setFormDirty] = useState(false);
+  const [completeTargets, setCompleteTargets] = useState<CompletionTarget[]>([]);
+  const [completing, setCompleting] = useState(false);
   const toast = useToast();
 
   async function syncLinkedOrderSnapshots(ordersToSync: OrderRecord[], customersToSync: Customer[]) {
@@ -236,6 +241,44 @@ export function OrdersTable() {
   }
 
   const selectedPayments = selectedOrder ? payments.filter((payment) => payment.orderId === selectedOrder.id) : [];
+  const selectedLock = selectedOrder ? getOrderLock(selectedOrder, selectedPayments) : null;
+
+  function requestComplete() {
+    if (!selectedOrder) return;
+    setCompleteTargets([{ order: selectedOrder, balance: completionBalance(selectedOrder, selectedPayments) }]);
+  }
+
+  async function confirmComplete(options: CompletionOptions) {
+    const target = completeTargets[0];
+    if (!target) return;
+    setCompleting(true);
+    try {
+      const result = await completeOrderWithPayment(getBusinessStore(), target.order, selectedPayments, options);
+      setOrders((current) => current.map((item) => (item.id === result.order.id ? result.order : item)));
+      const newPayment = result.payment;
+      if (newPayment) setPayments((current) => [...current, newPayment]);
+      setSelectedOrder(result.order);
+      setCompleteTargets([]);
+      toast.push({ variant: "success", title: newPayment ? "Pedido completado y pago registrado." : "Pedido completado." });
+    } catch {
+      toast.push({ variant: "danger", title: "No se pudo completar el pedido." });
+    } finally {
+      setCompleting(false);
+    }
+  }
+
+  async function handleReopen() {
+    if (!selectedOrder) return;
+    if (!window.confirm("¿Reabrir el pedido? Volverá a Pendiente y podrás editarlo.")) return;
+    try {
+      const reopened = await getBusinessStore().updateOrder(selectedOrder.id, { status: "pending" });
+      setOrders((current) => current.map((item) => (item.id === reopened.id ? reopened : item)));
+      setSelectedOrder(reopened);
+      toast.push({ variant: "success", title: "Pedido reabierto." });
+    } catch {
+      toast.push({ variant: "danger", title: "No se pudo reabrir el pedido." });
+    }
+  }
 
   return (
     <>
@@ -303,12 +346,12 @@ export function OrdersTable() {
 
       <Drawer open={selectedOrder !== null} onOpenChange={handleOpenChange}>
         <DrawerContent
-          title={mode === "edit" ? "Editar pedido" : "Detalle del pedido"}
+          title={mode === "edit" && !selectedLock?.locked ? "Editar pedido" : "Detalle del pedido"}
           description={selectedOrder?.customer.fullName}
           className="max-w-3xl"
         >
           {selectedOrder ? (
-            mode === "edit" ? (
+            mode === "edit" && !selectedLock?.locked ? (
               <OrderEditForm
                 key={`${selectedOrder.id}-${selectedOrder.updatedAt}`}
                 order={selectedOrder}
@@ -321,6 +364,8 @@ export function OrdersTable() {
                 order={selectedOrder}
                 payments={selectedPayments}
                 onEdit={() => setMode("edit")}
+                onComplete={requestComplete}
+                onReopen={handleReopen}
                 onPaymentAdded={(payment) => setPayments((current) => [...current, payment])}
                 onPaymentDeleted={(paymentId) => setPayments((current) => current.filter((payment) => payment.id !== paymentId))}
               />
@@ -328,6 +373,14 @@ export function OrdersTable() {
           ) : null}
         </DrawerContent>
       </Drawer>
+
+      <CompleteOrdersDialog
+        key={completeTargets.map((target) => target.order.id).join(",")}
+        targets={completeTargets}
+        loading={completing}
+        onCancel={() => setCompleteTargets([])}
+        onConfirm={confirmComplete}
+      />
     </>
   );
 }

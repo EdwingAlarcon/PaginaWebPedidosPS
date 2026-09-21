@@ -3,7 +3,7 @@
 // Registra como pagados los pedidos COMPLETADOS que todavia no tienen ningun
 // abono en order_payments (pedidos historicos importados de Excel y pedidos ya
 // despachados antes de existir el control de pagos). Un pago por pedido, por el
-// total, con fecha = fecha del pedido, metodo "otro" (no se sabe cual fue) y la
+// total, con fecha = fecha del pedido, metodo transferencia (--method=... para otro) y la
 // nota marcadora PAGO HISTORICO (ASUMIDO) para poder revertirlo.
 //
 // Es idempotente: solo toca pedidos completados sin pagos, asi que se puede
@@ -14,6 +14,7 @@
 //   npx tsx --env-file=.env.local scripts/backfill-historical-payments.ts            (preview, no escribe)
 //   npx tsx --env-file=.env.local scripts/backfill-historical-payments.ts --commit   (escribe en Supabase)
 //   ... --until=2026-07-31   solo pedidos con fecha <= esa (deja fuera los mas recientes)
+//   ... --method=efectivo    metodo de los pagos (default transferencia)
 //
 // Revertir (SQL Editor de Supabase):
 //   delete from public.order_payments
@@ -44,6 +45,11 @@ function cop(value: number): string {
 async function main() {
   const commit = process.argv.includes("--commit");
   const until = readArg("until");
+  const method = readArg("method") ?? "transferencia";
+  if (!["efectivo", "transferencia", "nequi", "daviplata", "otro"].includes(method)) {
+    console.error(`Metodo invalido: ${method}`);
+    process.exit(1);
+  }
 
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
@@ -107,7 +113,7 @@ async function main() {
   const rows = candidates.map((order) => ({
     order_id: order.id,
     amount: Number(order.total),
-    method: "otro",
+    method,
     paid_at: order.order_date,
     note: HISTORICAL_PAYMENT_NOTE,
     created_by: "sistema",

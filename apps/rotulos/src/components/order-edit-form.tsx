@@ -304,10 +304,10 @@ export function OrderEditForm({ order, onSaved, onCancel, onDirtyChange }: Order
           <FormField label="Fecha" required error={errors.orderDate}>
             <DatePicker value={value.orderDate} onChange={(event) => setValue((current) => ({ ...current, orderDate: event.target.value }))} />
           </FormField>
-          <FormField label="Estado">
+          <FormField label="Estado" hint={order.status === "completed" ? undefined : "Para completar el pedido usa «Marcar completado» en el detalle: ahí también se registra el pago."}>
             <Select value={value.status} onChange={(event) => setValue((current) => ({ ...current, status: event.target.value as OrderRecord["status"] }))}>
               <option value="pending">Pendiente</option>
-              <option value="completed">Completado</option>
+              {order.status === "completed" ? <option value="completed">Completado</option> : null}
               <option value="cancelled">Cancelado</option>
             </Select>
           </FormField>
