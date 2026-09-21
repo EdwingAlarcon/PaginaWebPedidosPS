@@ -13,6 +13,7 @@ import type { LabelRecord, LabelSettings } from "@/lib/types";
 import { Badge, LabelStatusBadge, StatusBadge } from "@/components/ui/badge";
 import { Button, IconButton } from "@/components/ui/button";
 import { Card, CardTitle } from "@/components/ui/card";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Input, Select } from "@/components/ui/input";
 import { EmptyState } from "@/components/ui/empty-state";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -65,6 +66,8 @@ export function DispatchBoard() {
   const [filter, setFilter] = useState<DispatchFilter>("action");
   const [fromDate, setFromDate] = useState("");
   const [query, setQuery] = useState("");
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+  const [batchBusy, setBatchBusy] = useState(false);
   const toast = useToast();
 
   async function load() {
@@ -203,6 +206,76 @@ export function DispatchBoard() {
     }
   }
 
+  const selectedRows = filteredRows.filter((row) => selectedIds.has(row.order.id));
+  const allVisibleSelected = filteredRows.length > 0 && selectedRows.length === filteredRows.length;
+
+  function toggleRow(orderId: string, checked: boolean) {
+    setSelectedIds((current) => {
+      const next = new Set(current);
+      if (checked) next.add(orderId);
+      else next.delete(orderId);
+      return next;
+    });
+  }
+
+  function toggleAllVisible(checked: boolean) {
+    setSelectedIds(checked ? new Set(filteredRows.map((row) => row.order.id)) : new Set());
+  }
+
+  async function completeSelected() {
+    const targets = selectedRows.filter((row) => row.order.status !== "completed");
+    if (targets.length === 0) return;
+    if (!window.confirm(`¿Marcar ${targets.length} pedido(s) como completados?`)) return;
+    setBatchBusy(true);
+    let done = 0;
+    let failed = 0;
+    for (const row of targets) {
+      try {
+        const updated = await getBusinessStore().updateOrder(row.order.id, { status: "completed" });
+        updateRow(updated, row.label);
+        done += 1;
+      } catch {
+        failed += 1;
+      }
+    }
+    setSelectedIds(new Set());
+    setBatchBusy(false);
+    toast.push({
+      variant: failed > 0 ? "danger" : "success",
+      title: failed > 0 ? `${done} completado(s), ${failed} con error.` : `${done} pedido(s) marcados como completados.`,
+    });
+  }
+
+  async function generateSelectedLabels() {
+    const targets = selectedRows.filter((row) => !row.label);
+    if (targets.length === 0 || !settings) return;
+    setBatchBusy(true);
+    let done = 0;
+    let skipped = 0;
+    for (const row of targets) {
+      const draft = buildLabelDraftFromOrder(row.order, settings.defaultSender);
+      if (!reviewLabelQuality(draft).ready) {
+        skipped += 1;
+        continue;
+      }
+      try {
+        const label = await getLabelStore().saveLabel(draft, settings);
+        updateRow(row.order, label);
+        done += 1;
+      } catch {
+        skipped += 1;
+      }
+    }
+    setSelectedIds(new Set());
+    setBatchBusy(false);
+    toast.push({
+      variant: skipped > 0 ? "danger" : "success",
+      title: skipped > 0
+        ? `${done} rótulo(s) generado(s); ${skipped} omitido(s) por datos incompletos o error.`
+        : `${done} rótulo(s) generado(s).`,
+    });
+  }
+
   async function completeOrder(row: DispatchRow) {
     setBusyId(row.order.id);
     try {
@@ -257,10 +330,37 @@ export function DispatchBoard() {
           </Button>
         </div>
 
+        {selectedRows.length > 0 ? (
+          <div className="mt-4 flex flex-wrap items-center justify-between gap-3 rounded-md border border-border bg-surface-muted px-4 py-3">
+            <span className="text-sm font-medium text-foreground">{selectedRows.length} pedido(s) seleccionado(s)</span>
+            <div className="flex flex-wrap gap-2">
+              <Button type="button" size="sm" variant="secondary" onClick={generateSelectedLabels} loading={batchBusy}>
+                <FilePlus2 className="size-4" aria-hidden="true" />
+                Generar rótulos
+              </Button>
+              <Button type="button" size="sm" onClick={completeSelected} loading={batchBusy}>
+                <CheckCircle2 className="size-4" aria-hidden="true" />
+                Marcar completados
+              </Button>
+              <Button type="button" size="sm" variant="ghost" onClick={() => setSelectedIds(new Set())} disabled={batchBusy}>
+                Limpiar selección
+              </Button>
+            </div>
+          </div>
+        ) : null}
+
         <div className="mt-4 overflow-x-auto rounded-lg border border-border">
-          <table className="w-full min-w-[980px] border-collapse text-sm">
+          <table className="w-full min-w-[1020px] border-collapse text-sm">
             <thead>
               <tr className="border-b border-border bg-surface-muted">
+                <th className="w-10 px-4 py-3">
+                  <Checkbox
+                    aria-label="Seleccionar todos los pedidos visibles"
+                    checked={allVisibleSelected}
+                    onCheckedChange={(checked) => toggleAllVisible(checked === true)}
+                    disabled={filteredRows.length === 0}
+                  />
+                </th>
                 <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-foreground-muted">Pedido</th>
                 <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-foreground-muted">Despacho</th>
                 <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-foreground-muted">Rotulo</th>
@@ -272,6 +372,7 @@ export function DispatchBoard() {
             <tbody>
               {loading ? Array.from({ length: 5 }).map((_, index) => (
                 <tr key={index} className="border-b border-border last:border-0">
+                  <td className="px-4 py-3"><Skeleton className="h-4 w-4" /></td>
                   <td className="px-4 py-3"><Skeleton className="h-4 w-40" /></td>
                   <td className="px-4 py-3"><Skeleton className="h-4 w-28" /></td>
                   <td className="px-4 py-3"><Skeleton className="h-4 w-28" /></td>
@@ -284,6 +385,13 @@ export function DispatchBoard() {
                 const isBusy = busyId === row.order.id;
                 return (
                   <tr key={row.order.id} className="border-b border-border align-top last:border-0">
+                    <td className="px-4 py-3">
+                      <Checkbox
+                        aria-label={`Seleccionar pedido de ${row.order.customer.fullName || "cliente sin nombre"}`}
+                        checked={selectedIds.has(row.order.id)}
+                        onCheckedChange={(checked) => toggleRow(row.order.id, checked === true)}
+                      />
+                    </td>
                     <td className="px-4 py-3">
                       <div className="font-medium text-foreground">{row.order.customer.fullName || "Cliente sin nombre"}</div>
                       <div className="mt-1 text-xs text-foreground-muted">{row.order.orderDate} · {row.order.items.length} item(s)</div>

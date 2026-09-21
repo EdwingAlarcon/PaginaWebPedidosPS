@@ -26,7 +26,7 @@ const columns: DataTableColumn<OrderRecord>[] = [
     sortValue: (order) => order.total,
     align: "right",
   },
-  { key: "row", header: "Fila importada", render: (order) => order.importRowKey ?? "-", sortValue: (order) => order.importRowKey ?? "" },
+  { key: "row", header: "Fila importada", render: (order) => (order.importRowKey && order.importRowKey.length > 16 ? <span title={order.importRowKey}>{order.importRowKey.slice(0, 8)}…</span> : order.importRowKey ?? "-"), sortValue: (order) => order.importRowKey ?? "" },
 ];
 
 export function ImportedOrdersTable({ orders, loading = false }: { orders: OrderRecord[]; loading?: boolean }) {

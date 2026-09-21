@@ -1,12 +1,15 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Plus } from "lucide-react";
 import { getBusinessStore } from "@/lib/business-store";
-import type { Customer, OrderRecord } from "@/lib/business-types";
+import type { Customer, OrderPayment, OrderRecord } from "@/lib/business-types";
+import { groupPaymentsByOrder, summarizePayment, type PaymentStatus } from "@/lib/payments";
 import { DataTable, type DataTableColumn } from "@/components/ui/data-table";
-import { StatusBadge } from "@/components/ui/badge";
+import { PaymentBadge, StatusBadge } from "@/components/ui/badge";
+import { DatePicker } from "@/components/ui/date-picker";
+import { Select } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Drawer, DrawerContent } from "@/components/ui/drawer";
 import { OrderDetailDrawer } from "@/components/order-detail-drawer";
@@ -16,7 +19,12 @@ import { useToast } from "@/components/ui/toast";
 type OrderTableRow = OrderRecord & {
   displayCustomerName: string;
   displayPhone: string;
+  paymentStatus: PaymentStatus;
+  paymentBalance: number;
 };
+
+type StatusFilter = "all" | OrderRecord["status"];
+type PaymentFilter = "all" | "receivable" | "paid" | "unrecorded";
 
 function normalizeName(value: string): string {
   return value.trim().replace(/\s+/g, " ").toUpperCase();
@@ -64,7 +72,7 @@ function needsCustomerSnapshotSync(order: OrderRecord, customer: Customer): bool
   );
 }
 
-function orderToRow(order: OrderRecord, customers: Customer[]): OrderTableRow {
+function orderToRow(order: OrderRecord, customers: Customer[], payments: OrderPayment[]): OrderTableRow {
   const customer = relatedCustomer(order, customers);
   const syncedCustomer = customer && order.customerId === customer.id ? customerSnapshot(customer) : order.customer;
   const displayCustomerName =
@@ -72,6 +80,7 @@ function orderToRow(order: OrderRecord, customers: Customer[]): OrderTableRow {
       ? customer?.fullName ?? order.customer.fullName
       : order.customer.fullName;
   const displayPhone = customer && order.customerId === customer.id ? customer.phone : order.customer.phone || customer?.phone || "";
+  const paymentSummary = summarizePayment(order, payments);
   return {
     ...order,
     customer: {
@@ -81,6 +90,8 @@ function orderToRow(order: OrderRecord, customers: Customer[]): OrderTableRow {
     },
     displayCustomerName,
     displayPhone,
+    paymentStatus: paymentSummary.status,
+    paymentBalance: paymentSummary.balance,
   };
 }
 
@@ -102,11 +113,36 @@ const columns: DataTableColumn<OrderTableRow>[] = [
     align: "right",
   },
   { key: "status", header: "Estado", render: (order) => <StatusBadge status={order.status} /> },
+  {
+    key: "payment",
+    header: "Pago",
+    render: (order) => (
+      <div className="flex flex-col items-start gap-0.5">
+        <PaymentBadge status={order.paymentStatus} />
+        {order.paymentBalance > 0 ? (
+          <span className="text-xs text-foreground-muted">Debe ${Math.round(order.paymentBalance).toLocaleString("es-CO")}</span>
+        ) : null}
+      </div>
+    ),
+    sortValue: (order) => order.paymentBalance,
+  },
 ];
+
+function matchesPaymentFilter(row: OrderTableRow, filter: PaymentFilter): boolean {
+  if (filter === "all") return true;
+  if (filter === "receivable") return row.paymentBalance > 0;
+  if (filter === "paid") return row.paymentStatus === "paid";
+  return row.paymentStatus === "legacy";
+}
 
 export function OrdersTable() {
   const [orders, setOrders] = useState<OrderRecord[]>([]);
   const [customers, setCustomers] = useState<Customer[]>([]);
+  const [payments, setPayments] = useState<OrderPayment[]>([]);
+  const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
+  const [paymentFilter, setPaymentFilter] = useState<PaymentFilter>("all");
+  const [dateFrom, setDateFrom] = useState("");
+  const [dateTo, setDateTo] = useState("");
   const [loading, setLoading] = useState(true);
   const [selectedOrder, setSelectedOrder] = useState<OrderRecord | null>(null);
   const [mode, setMode] = useState<"detail" | "edit">("detail");
@@ -140,10 +176,12 @@ export function OrdersTable() {
     Promise.all([
       store.listOrders(),
       store.listCustomers().catch(() => []),
+      store.listPayments().catch(() => []),
     ])
-      .then(([ordersResult, customersResult]) => {
+      .then(([ordersResult, customersResult, paymentsResult]) => {
         setOrders(ordersResult);
         setCustomers(customersResult);
+        setPayments(paymentsResult);
         void syncLinkedOrderSnapshots(ordersResult, customersResult);
       })
       .finally(() => setLoading(false));
@@ -175,11 +213,73 @@ export function OrdersTable() {
     toast.push({ variant: "success", title: "Pedido actualizado." });
   }
 
+  const rows = useMemo(() => {
+    const byOrder = groupPaymentsByOrder(payments);
+    return orders
+      .map((order) => orderToRow(order, customers, byOrder.get(order.id) ?? []))
+      .filter(
+        (row) =>
+          (statusFilter === "all" || row.status === statusFilter) &&
+          matchesPaymentFilter(row, paymentFilter) &&
+          (!dateFrom || row.orderDate >= dateFrom) &&
+          (!dateTo || row.orderDate <= dateTo),
+      );
+  }, [orders, customers, payments, statusFilter, paymentFilter, dateFrom, dateTo]);
+
+  const hasFilters = statusFilter !== "all" || paymentFilter !== "all" || dateFrom !== "" || dateTo !== "";
+
+  function clearFilters() {
+    setStatusFilter("all");
+    setPaymentFilter("all");
+    setDateFrom("");
+    setDateTo("");
+  }
+
+  const selectedPayments = selectedOrder ? payments.filter((payment) => payment.orderId === selectedOrder.id) : [];
+
   return (
     <>
       <DataTable
         columns={columns}
-        data={orders.map((order) => orderToRow(order, customers))}
+        data={rows}
+        initialSort={{ key: "date", direction: "desc" }}
+        toolbar={
+          <div className="flex flex-wrap items-center gap-2">
+            <Select
+              aria-label="Filtrar por estado"
+              value={statusFilter}
+              onChange={(event) => setStatusFilter(event.target.value as StatusFilter)}
+              className="w-auto"
+            >
+              <option value="all">Todos los estados</option>
+              <option value="pending">Pendiente</option>
+              <option value="completed">Completado</option>
+              <option value="cancelled">Cancelado</option>
+            </Select>
+            <Select
+              aria-label="Filtrar por pago"
+              value={paymentFilter}
+              onChange={(event) => setPaymentFilter(event.target.value as PaymentFilter)}
+              className="w-auto"
+            >
+              <option value="all">Todos los pagos</option>
+              <option value="receivable">Por cobrar</option>
+              <option value="paid">Pagados</option>
+              <option value="unrecorded">Sin registro de pago</option>
+            </Select>
+            <div className="w-40">
+              <DatePicker aria-label="Desde" value={dateFrom} onChange={(event) => setDateFrom(event.target.value)} />
+            </div>
+            <div className="w-40">
+              <DatePicker aria-label="Hasta" value={dateTo} onChange={(event) => setDateTo(event.target.value)} />
+            </div>
+            {hasFilters ? (
+              <Button type="button" variant="ghost" size="sm" onClick={clearFilters}>
+                Limpiar filtros
+              </Button>
+            ) : null}
+          </div>
+        }
         getRowId={(order) => order.id}
         loading={loading}
         onRowClick={openOrder}
@@ -217,7 +317,13 @@ export function OrdersTable() {
                 onDirtyChange={setFormDirty}
               />
             ) : (
-              <OrderDetailDrawer order={selectedOrder} onEdit={() => setMode("edit")} />
+              <OrderDetailDrawer
+                order={selectedOrder}
+                payments={selectedPayments}
+                onEdit={() => setMode("edit")}
+                onPaymentAdded={(payment) => setPayments((current) => [...current, payment])}
+                onPaymentDeleted={(paymentId) => setPayments((current) => current.filter((payment) => payment.id !== paymentId))}
+              />
             )
           ) : null}
         </DrawerContent>

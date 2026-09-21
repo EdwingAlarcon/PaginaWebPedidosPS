@@ -42,6 +42,21 @@ export function StatusBadge({ status }: { status: OrderStatus }) {
   );
 }
 
+export type PaymentBadgeStatus = "paid" | "partial" | "unpaid" | "legacy" | "cancelled";
+
+const PAYMENT_STATUS_MAP: Record<PaymentBadgeStatus, { label: string; variant: BadgeProps["variant"] }> = {
+  paid: { label: "Pagado", variant: "success" },
+  partial: { label: "Abonado", variant: "warning" },
+  unpaid: { label: "Sin pago", variant: "danger" },
+  legacy: { label: "Sin registro", variant: "neutral" },
+  cancelled: { label: "-", variant: "neutral" },
+};
+
+export function PaymentBadge({ status }: { status: PaymentBadgeStatus }) {
+  const config = PAYMENT_STATUS_MAP[status];
+  return <Badge variant={config.variant}>{config.label}</Badge>;
+}
+
 export type LabelStatus = "borrador" | "generado" | "impreso" | "anulado";
 
 const LABEL_STATUS_MAP: Record<LabelStatus, { label: string; variant: BadgeProps["variant"] }> = {

@@ -7,6 +7,8 @@ export type FullBackupPayload = {
   orders: unknown[];
   orderItems: unknown[];
   orderEdits: unknown[];
+  /** Ausente en backups anteriores a la tabla order_payments. */
+  orderPayments?: unknown[];
   productCodes: unknown[];
   products: unknown[];
   stockMovements: unknown[];
@@ -34,6 +36,9 @@ export async function buildFullBackupPayload(
   );
   if (failed?.error) return { error: failed.error.message };
 
+  // Tabla nueva (migracion 202609210001): si aun no existe no debe romper el backup.
+  const orderPayments = await supabase.from("order_payments").select("*");
+
   return {
     payload: {
       generatedAt: new Date().toISOString(),
@@ -42,6 +47,7 @@ export async function buildFullBackupPayload(
       orders: orders.data ?? [],
       orderItems: orderItems.data ?? [],
       orderEdits: orderEdits.data ?? [],
+      orderPayments: orderPayments.error ? [] : (orderPayments.data ?? []),
       productCodes: productCodes.data ?? [],
       products: products.data ?? [],
       stockMovements: stockMovements.data ?? [],

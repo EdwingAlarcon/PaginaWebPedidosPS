@@ -32,6 +32,7 @@ interface DataTableProps<T> {
   pageSize?: number;
   onRowClick?: (row: T) => void;
   initialQuery?: string;
+  initialSort?: { key: string; direction: "asc" | "desc" };
 }
 
 export function DataTable<T>({
@@ -48,9 +49,10 @@ export function DataTable<T>({
   pageSize = 10,
   onRowClick,
   initialQuery = "",
+  initialSort,
 }: DataTableProps<T>) {
   const [query, setQuery] = useState(initialQuery);
-  const [sort, setSort] = useState<{ key: string; direction: "asc" | "desc" } | null>(null);
+  const [sort, setSort] = useState<{ key: string; direction: "asc" | "desc" } | null>(initialSort ?? null);
   const [page, setPage] = useState(1);
 
   const filtered = useMemo(() => {

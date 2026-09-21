@@ -3,13 +3,17 @@
 import { createClient } from "@/lib/supabase/client";
 import { businessToday } from "@/lib/date";
 import { normalizeCustomerFields, normalizeOrderDraft, normalizeProductCode, normalizeProductCodePatch } from "@/lib/normalize";
-import type { Customer, CustomerPatch, OrderDraft, OrderEdit, OrderItem, OrderPatch, OrderRecord, ProductCode, ProductCodePatch } from "@/lib/business-types";
+import type { Customer, CustomerPatch, OrderDraft, OrderEdit, OrderItem, OrderPatch, OrderPayment, OrderPaymentDraft, OrderRecord, PaymentMethod, ProductCode, ProductCodePatch } from "@/lib/business-types";
 
 export type BusinessStore = {
   listOrders(): Promise<OrderRecord[]>;
   saveOrder(draft: OrderDraft): Promise<OrderRecord>;
   updateOrder(id: string, patch: OrderPatch): Promise<OrderRecord>;
   listOrderEdits(orderId: string): Promise<OrderEdit[]>;
+  /** Devuelve [] si la tabla order_payments aun no existe (migracion pendiente). */
+  listPayments(): Promise<OrderPayment[]>;
+  addPayment(orderId: string, draft: OrderPaymentDraft): Promise<OrderPayment>;
+  deletePayment(id: string): Promise<void>;
   listCustomers(): Promise<Customer[]>;
   updateCustomer(id: string, patch: CustomerPatch): Promise<Customer>;
   deleteCustomer(id: string): Promise<void>;
@@ -86,6 +90,36 @@ type OrderEditRow = {
   reason: string | null;
 };
 
+type OrderPaymentRow = {
+  id: string;
+  order_id: string;
+  amount: number | string;
+  method: PaymentMethod;
+  paid_at: string;
+  note: string;
+  created_by: string;
+  created_at: string;
+};
+
+function rowToPayment(row: OrderPaymentRow): OrderPayment {
+  return {
+    id: row.id,
+    orderId: row.order_id,
+    amount: Number(row.amount),
+    method: row.method,
+    paidAt: row.paid_at,
+    note: row.note ?? "",
+    createdBy: row.created_by,
+    createdAt: row.created_at,
+  };
+}
+
+function normalizePaymentDraft(draft: OrderPaymentDraft): OrderPaymentDraft {
+  const amount = Math.round(Number(draft.amount));
+  if (!Number.isFinite(amount) || amount <= 0) throw new Error("payment_amount_invalid");
+  return { ...draft, amount, note: draft.note.trim().toUpperCase() };
+}
+
 function rowToOrderEdit(row: OrderEditRow): OrderEdit {
   return {
     id: row.id,
@@ -101,6 +135,7 @@ const storageKeys = {
   orders: "purpleshop.business.orders",
   customers: "purpleshop.business.customers",
   productCodes: "purpleshop.business.productCodes",
+  payments: "purpleshop.business.payments",
 };
 
 export function createBlankOrderDraft(): OrderDraft {
@@ -422,6 +457,27 @@ function createLocalBusinessStore(): BusinessStore {
     async listOrderEdits() {
       return [];
     },
+    async listPayments() {
+      return readStorage<OrderPayment[]>(storageKeys.payments, []);
+    },
+    async addPayment(orderId, draft) {
+      const normalized = normalizePaymentDraft(draft);
+      const record: OrderPayment = {
+        ...normalized,
+        id: crypto.randomUUID(),
+        orderId,
+        createdBy: "local",
+        createdAt: new Date().toISOString(),
+      };
+      writeStorage(storageKeys.payments, [...readStorage<OrderPayment[]>(storageKeys.payments, []), record]);
+      return record;
+    },
+    async deletePayment(id) {
+      writeStorage(
+        storageKeys.payments,
+        readStorage<OrderPayment[]>(storageKeys.payments, []).filter((payment) => payment.id !== id),
+      );
+    },
     async listCustomers() {
       return sortCustomersByName(readStorage<Customer[]>(storageKeys.customers, []));
     },
@@ -551,6 +607,36 @@ function createSupabaseBusinessStore(): BusinessStore | null {
         .returns<OrderEditRow[]>();
       if (error) throw error;
       return (data ?? []).map(rowToOrderEdit);
+    },
+    async listPayments() {
+      const { data, error } = await supabase
+        .from("order_payments")
+        .select("*")
+        .order("paid_at", { ascending: true })
+        .returns<OrderPaymentRow[]>();
+      // Migracion 202609210001 aun no aplicada: la app sigue funcionando sin pagos.
+      if (error) return [];
+      return (data ?? []).map(rowToPayment);
+    },
+    async addPayment(orderId, draft) {
+      const normalized = normalizePaymentDraft(draft);
+      const { data, error } = await supabase
+        .from("order_payments")
+        .insert({
+          order_id: orderId,
+          amount: normalized.amount,
+          method: normalized.method,
+          paid_at: normalized.paidAt,
+          note: normalized.note,
+        })
+        .select("*")
+        .single<OrderPaymentRow>();
+      if (error) throw error;
+      return rowToPayment(data);
+    },
+    async deletePayment(id) {
+      const { error } = await supabase.from("order_payments").delete().eq("id", id);
+      if (error) throw error;
     },
     async listCustomers() {
       const { data, error } = await supabase.from("customers").select("*").order("full_name", { ascending: true }).returns<CustomerRow[]>();

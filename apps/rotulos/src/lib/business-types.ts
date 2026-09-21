@@ -79,6 +79,22 @@ export type ProductCodePatch = Partial<
   Pick<ProductCode, "code" | "productName" | "category" | "unitPrice" | "supplierPrice" | "imageUrl">
 >;
 
+export const PAYMENT_METHODS = ["efectivo", "transferencia", "nequi", "daviplata", "otro"] as const;
+export type PaymentMethod = (typeof PAYMENT_METHODS)[number];
+
+export type OrderPayment = {
+  id: string;
+  orderId: string;
+  amount: number;
+  method: PaymentMethod;
+  paidAt: string;
+  note: string;
+  createdBy: string;
+  createdAt: string;
+};
+
+export type OrderPaymentDraft = Pick<OrderPayment, "amount" | "method" | "paidAt" | "note">;
+
 export type OrderEdit = {
   id: string;
   orderId: string;

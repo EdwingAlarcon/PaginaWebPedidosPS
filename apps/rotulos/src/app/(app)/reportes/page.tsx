@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { getInventoryStore } from "@/lib/inventory-store";
 import { getBusinessStore } from "@/lib/business-store";
@@ -10,7 +11,8 @@ import { isRelatedOrderToCustomer } from "@/lib/customer-orders";
 import { buildHistoricalReport } from "@/lib/historical-reports";
 import { buildWhatsAppLink } from "@/lib/whatsapp";
 import type { Product, StockAlerts } from "@/lib/inventory-types";
-import type { Customer, OrderRecord } from "@/lib/business-types";
+import type { Customer, OrderPayment, OrderRecord } from "@/lib/business-types";
+import { buildPaymentReminderText, listReceivables, totalReceivable } from "@/lib/payments";
 import type { LabelRecord } from "@/lib/types";
 import { MetricCard, Card, CardTitle } from "@/components/ui/card";
 import { DatePicker } from "@/components/ui/date-picker";
@@ -21,7 +23,7 @@ import { EmptyState } from "@/components/ui/empty-state";
 import { PageHeading } from "@/components/ui/page-heading";
 import { Badge } from "@/components/ui/badge";
 import { HistoricalReportPanel } from "@/components/historical-report-panel";
-import { DollarSign, MessageCircle, Package, Receipt, Ticket, TriangleAlert, Users } from "lucide-react";
+import { DollarSign, MessageCircle, Package, Receipt, Ticket, TriangleAlert, Users, Wallet } from "lucide-react";
 
 const emptyAlerts: StockAlerts = { lowStock: [], critical: [], overstocked: [] };
 
@@ -153,6 +155,7 @@ export default function ReportsPage() {
   const [orders, setOrders] = useState<OrderRecord[]>([]);
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [labels, setLabels] = useState<LabelRecord[]>([]);
+  const [payments, setPayments] = useState<OrderPayment[]>([]);
   const [from, setFrom] = useState(daysAgo(30));
   const [to, setTo] = useState(daysAgo(0));
   const [inactiveThreshold, setInactiveThreshold] = useState(45);
@@ -164,6 +167,7 @@ export default function ReportsPage() {
     getBusinessStore().listOrders().then(setOrders).catch(() => setOrders([]));
     getBusinessStore().listCustomers().then(setCustomers).catch(() => setCustomers([]));
     getLabelStore().listLabels().then(setLabels).catch(() => setLabels([]));
+    getBusinessStore().listPayments().then(setPayments).catch(() => setPayments([]));
   }, []);
 
   const rangeOrders = useMemo(
@@ -193,6 +197,9 @@ export default function ReportsPage() {
     [customers, orders, inactiveThreshold],
   );
   const inactiveCustomersShown = inactiveCustomers.slice(0, 15);
+  const inactiveWithoutPhone = inactiveCustomers.filter(({ customer }) => !customer.phone.trim()).length;
+  const receivables = useMemo(() => listReceivables(orders, payments), [orders, payments]);
+  const receivableTotal = totalReceivable(receivables);
 
   const topProducts = useMemo(() => {
     const totals = new Map<string, number>();
@@ -306,17 +313,88 @@ export default function ReportsPage() {
       </div>
 
       <div className="mt-4 grid grid-cols-2 gap-4 lg:grid-cols-4">
-        <MetricCard label="Inventario valorizado" value={formatCop(inventoryValue)} icon={Package} />
         <MetricCard
-          label="Alertas de stock"
-          value={alerts.lowStock.length + alerts.critical.length}
-          icon={TriangleAlert}
+          label="Por cobrar"
+          value={formatCop(receivableTotal)}
+          icon={Wallet}
+          className={receivableTotal > 0 ? "border-[var(--warning)]" : undefined}
         />
         <MetricCard label="Rótulos generados" value={rangeLabels.length} icon={Package} />
-        <MetricCard label="Productos activos" value={products.length} icon={Package} />
+        {products.length > 0 ? (
+          <>
+            <MetricCard label="Inventario valorizado" value={formatCop(inventoryValue)} icon={Package} />
+            <MetricCard
+              label="Alertas de stock"
+              value={alerts.lowStock.length + alerts.critical.length}
+              icon={TriangleAlert}
+            />
+          </>
+        ) : (
+          <Card className="col-span-2 flex flex-col justify-center gap-1">
+            <CardTitle>Inventario sin configurar</CardTitle>
+            <p className="text-sm text-foreground-muted">
+              Aún no hay productos con stock. Cuando cargues inventario aparecerán aquí el valor y las alertas.{" "}
+              <Link href="/inventario" className="font-medium text-primary hover:underline">
+                Ir a Inventario
+              </Link>
+            </p>
+          </Card>
+        )}
       </div>
 
       <HistoricalReportPanel report={historicalReport} />
+
+      <Card className="mt-4">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <CardTitle>Por cobrar</CardTitle>
+          <span className="text-sm font-medium text-foreground-muted">{formatCop(receivableTotal)} en {receivables.length} pedido(s)</span>
+        </div>
+        <div className="mt-4 overflow-x-auto rounded-lg border border-border">
+          {receivables.length === 0 ? (
+            <EmptyState title="Nada por cobrar" description="Los pedidos sin pago o con abono parcial aparecerán aquí." className="rounded-none border-0" />
+          ) : (
+            <table className="w-full min-w-[720px] border-collapse text-sm">
+              <thead>
+                <tr className="border-b border-border bg-surface-muted">
+                  <th scope="col" className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-foreground-muted">Fecha</th>
+                  <th scope="col" className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-foreground-muted">Cliente</th>
+                  <th scope="col" className="px-4 py-3 text-right text-xs font-semibold uppercase tracking-wide text-foreground-muted">Total</th>
+                  <th scope="col" className="px-4 py-3 text-right text-xs font-semibold uppercase tracking-wide text-foreground-muted">Pagado</th>
+                  <th scope="col" className="px-4 py-3 text-right text-xs font-semibold uppercase tracking-wide text-foreground-muted">Saldo</th>
+                  <th scope="col" className="px-4 py-3 text-right text-xs font-semibold uppercase tracking-wide text-foreground-muted">Acción</th>
+                </tr>
+              </thead>
+              <tbody>
+                {receivables.map((entry) => (
+                  <tr key={entry.order.id} className="border-b border-border last:border-0">
+                    <td className="px-4 py-3 text-foreground-muted">{formatDate(entry.order.orderDate)}</td>
+                    <td className="px-4 py-3 font-medium text-foreground">{entry.order.customer.fullName}</td>
+                    <td className="px-4 py-3 text-right text-foreground-muted">{formatCop(entry.order.total)}</td>
+                    <td className="px-4 py-3 text-right text-foreground-muted">{formatCop(entry.summary.paid)}</td>
+                    <td className="px-4 py-3 text-right font-semibold text-danger">{formatCop(entry.summary.balance)}</td>
+                    <td className="px-4 py-3 text-right">
+                      {entry.order.customer.phone ? (
+                        <Button type="button" variant="secondary" size="sm" asChild>
+                          <a
+                            href={buildWhatsAppLink(entry.order.customer.phone, buildPaymentReminderText(entry, formatCop))}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                          >
+                            <MessageCircle className="size-4" aria-hidden="true" />
+                            Recordar pago
+                          </a>
+                        </Button>
+                      ) : (
+                        <span className="text-xs text-foreground-muted">Sin teléfono</span>
+                      )}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
+        </div>
+      </Card>
 
       <Card className="mt-4">
         <div className="flex flex-wrap items-center justify-between gap-3">
@@ -407,7 +485,9 @@ export default function ReportsPage() {
                           </a>
                         </Button>
                       ) : (
-                        <span className="text-xs text-foreground-muted">Sin teléfono</span>
+                        <Link href={`/clientes?filtro=sin-telefono`} className="text-xs font-medium text-primary hover:underline">
+                          Agregar teléfono
+                        </Link>
                       )}
                     </td>
                   </tr>
@@ -416,6 +496,14 @@ export default function ReportsPage() {
             </table>
           )}
         </div>
+        {inactiveWithoutPhone > 0 ? (
+          <p className="mt-3 text-xs text-foreground-muted">
+            {inactiveWithoutPhone} de {inactiveCustomers.length} clientes inactivos no tienen teléfono, por eso no se les puede escribir.{" "}
+            <Link href="/clientes?filtro=sin-telefono" className="font-medium text-primary hover:underline">
+              Completar teléfonos
+            </Link>
+          </p>
+        ) : null}
         {inactiveCustomers.length > inactiveCustomersShown.length ? (
           <p className="mt-3 text-xs text-foreground-muted">
             Mostrando {inactiveCustomersShown.length} de {inactiveCustomers.length} clientes inactivos.

@@ -10,15 +10,22 @@ import { buildOrderSummaryText, downloadOrderSummaryPdf } from "@/lib/order-summ
 import { buildWhatsAppLink } from "@/lib/whatsapp";
 import { downloadBlob, renderOrderSummaryImage } from "@/lib/order-summary-image";
 import { labelToShipmentTracking, type ShipmentTracking } from "@/lib/label-tracking";
-import type { OrderEdit, OrderRecord } from "@/lib/business-types";
+import { buildOrderTimeline } from "@/lib/order-timeline";
+import { summarizePayment } from "@/lib/payments";
+import type { LabelRecord } from "@/lib/types";
+import type { OrderEdit, OrderPayment, OrderRecord } from "@/lib/business-types";
 import { Button } from "@/components/ui/button";
 import { Card, CardTitle } from "@/components/ui/card";
-import { Badge, StatusBadge } from "@/components/ui/badge";
+import { Badge, PaymentBadge, StatusBadge } from "@/components/ui/badge";
+import { OrderPaymentsCard } from "@/components/order-payments-card";
 import { useToast } from "@/components/ui/toast";
 
 type OrderDetailDrawerProps = {
   order: OrderRecord;
+  payments?: OrderPayment[];
   onEdit?: () => void;
+  onPaymentAdded?: (payment: OrderPayment) => void;
+  onPaymentDeleted?: (paymentId: string) => void;
 };
 
 function valueOrDash(value: string | number | null | undefined): string {
@@ -112,12 +119,13 @@ function OrderEditEntry({ edit }: { edit: OrderEdit }) {
   );
 }
 
-export function OrderDetailDrawer({ order, onEdit }: OrderDetailDrawerProps) {
+export function OrderDetailDrawer({ order, payments = [], onEdit, onPaymentAdded, onPaymentDeleted }: OrderDetailDrawerProps) {
   const adjustment = latestAdjustment(order.notes);
   const [edits, setEdits] = useState<OrderEdit[]>([]);
   const [downloadingPdf, setDownloadingPdf] = useState(false);
   const [downloadingImage, setDownloadingImage] = useState(false);
   const [tracking, setTracking] = useState<ShipmentTracking | null>(null);
+  const [orderLabel, setOrderLabel] = useState<LabelRecord | null>(null);
   const toast = useToast();
 
   function handleSendWhatsApp() {
@@ -170,10 +178,14 @@ export function OrderDetailDrawer({ order, onEdit }: OrderDetailDrawerProps) {
       .then((labels) => {
         if (!active) return;
         const label = labels.find((item) => item.orderId === order.id) ?? null;
+        setOrderLabel(label);
         setTracking(labelToShipmentTracking(label));
       })
       .catch(() => {
-        if (active) setTracking(null);
+        if (active) {
+          setOrderLabel(null);
+          setTracking(null);
+        }
       });
     return () => {
       active = false;
@@ -210,6 +222,7 @@ export function OrderDetailDrawer({ order, onEdit }: OrderDetailDrawerProps) {
           <CardTitle>Resumen</CardTitle>
           <div className="flex flex-wrap justify-end gap-2">
             {adjustment ? <Badge variant="primary">Pedido ajustado</Badge> : null}
+            <PaymentBadge status={summarizePayment(order, payments).status} />
             <StatusBadge status={order.status} />
           </div>
         </div>
@@ -223,6 +236,15 @@ export function OrderDetailDrawer({ order, onEdit }: OrderDetailDrawerProps) {
           <DetailRow label="Notas" value={order.notes} />
         </dl>
       </Card>
+
+      {onPaymentAdded && onPaymentDeleted ? (
+        <OrderPaymentsCard
+          order={order}
+          payments={payments}
+          onPaymentAdded={onPaymentAdded}
+          onPaymentDeleted={onPaymentDeleted}
+        />
+      ) : null}
 
       <Card className="shadow-none">
         <CardTitle>Cliente</CardTitle>
@@ -271,6 +293,20 @@ export function OrderDetailDrawer({ order, onEdit }: OrderDetailDrawerProps) {
             </table>
           </div>
         )}
+      </Card>
+
+      <Card className="shadow-none">
+        <CardTitle>Línea de tiempo</CardTitle>
+        <ol className="mt-4 space-y-3 border-l border-border pl-4">
+          {buildOrderTimeline(order, edits, payments, orderLabel).map((event) => (
+            <li key={event.id} className="relative text-sm">
+              <span className="absolute -left-[21px] top-1.5 size-2 rounded-full bg-primary" aria-hidden="true" />
+              <span className="block font-medium text-foreground">{event.title}</span>
+              {event.detail ? <span className="block text-xs text-foreground-muted">{event.detail}</span> : null}
+              <span className="block text-xs text-foreground-muted">{new Date(event.at).toLocaleString("es-CO")}</span>
+            </li>
+          ))}
+        </ol>
       </Card>
 
       {edits.length > 0 ? (

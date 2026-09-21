@@ -2,12 +2,13 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { ClipboardList, DollarSign, PackagePlus, TriangleAlert } from "lucide-react";
+import { ClipboardList, DollarSign, PackagePlus, TriangleAlert, Wallet } from "lucide-react";
 import { getBusinessStore } from "@/lib/business-store";
 import { businessToday } from "@/lib/date";
 import { getLabelStore } from "@/lib/label-store";
 import { getInventoryStore } from "@/lib/inventory-store";
-import type { OrderRecord } from "@/lib/business-types";
+import type { OrderPayment, OrderRecord } from "@/lib/business-types";
+import { listReceivables, totalReceivable } from "@/lib/payments";
 import type { LabelRecord } from "@/lib/types";
 import { MetricCard, Card, CardHeader, CardTitle } from "@/components/ui/card";
 import { EmptyState } from "@/components/ui/empty-state";
@@ -22,7 +23,9 @@ const currency = (value: number) => `$${Math.round(value).toLocaleString("es-CO"
 export function DashboardStats({ labels }: { labels: LabelRecord[] }) {
   const [dashboardLabels, setDashboardLabels] = useState(labels);
   const [orders, setOrders] = useState<OrderRecord[]>([]);
+  const [payments, setPayments] = useState<OrderPayment[]>([]);
   const [lowStockCount, setLowStockCount] = useState(0);
+  const [hasInventory, setHasInventory] = useState(false);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -33,10 +36,17 @@ export function DashboardStats({ labels }: { labels: LabelRecord[] }) {
         .getStockAlerts()
         .then((alerts) => alerts.lowStock.length + alerts.critical.length)
         .catch(() => 0),
-    ]).then(([labelsResult, ordersResult, lowStock]) => {
+      getBusinessStore().listPayments().catch(() => []),
+      getInventoryStore()
+        .listProducts()
+        .then((products) => products.length > 0)
+        .catch(() => false),
+    ]).then(([labelsResult, ordersResult, lowStock, paymentsResult, inventoryPresent]) => {
       setDashboardLabels(labelsResult);
       setOrders(ordersResult);
       setLowStockCount(lowStock);
+      setPayments(paymentsResult);
+      setHasInventory(inventoryPresent);
       setLoading(false);
     });
   }, [labels]);
@@ -48,20 +58,41 @@ export function DashboardStats({ labels }: { labels: LabelRecord[] }) {
     .sort((a, b) => b.orderDate.localeCompare(a.orderDate))
     .slice(0, 5);
   const latestLabels = dashboardLabels.slice(0, 5);
+  const receivables = listReceivables(orders, payments);
+  const receivableTotal = totalReceivable(receivables);
 
   return (
     <div className="flex flex-col gap-6">
-      <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
+      <div className="grid grid-cols-2 gap-4 lg:grid-cols-4 xl:grid-cols-5">
         <MetricCard label="Pedidos hoy" value={todayOrders.length} icon={ClipboardList} loading={loading} />
         <MetricCard label="Ventas hoy" value={currency(todayRevenue)} icon={DollarSign} loading={loading} />
         <MetricCard label="Pedidos pendientes" value={pendingOrders.length} icon={PackagePlus} loading={loading} />
-        <MetricCard
-          label="Bajo stock"
-          value={lowStockCount}
-          icon={TriangleAlert}
-          loading={loading}
-          className={lowStockCount > 0 ? "border-[var(--warning)]" : undefined}
-        />
+        {hasInventory ? (
+          <MetricCard
+            label="Por cobrar"
+            value={currency(receivableTotal)}
+            icon={Wallet}
+            loading={loading}
+            className={receivableTotal > 0 ? "border-[var(--warning)]" : undefined}
+          />
+        ) : null}
+        {hasInventory ? (
+          <MetricCard
+            label="Bajo stock"
+            value={lowStockCount}
+            icon={TriangleAlert}
+            loading={loading}
+            className={lowStockCount > 0 ? "border-[var(--warning)]" : undefined}
+          />
+        ) : (
+          <MetricCard
+            label="Por cobrar"
+            value={currency(receivableTotal)}
+            icon={Wallet}
+            loading={loading}
+            className={receivableTotal > 0 ? "border-[var(--warning)]" : undefined}
+          />
+        )}
       </div>
 
       <div className="grid gap-4 lg:grid-cols-2">

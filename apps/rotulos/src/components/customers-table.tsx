@@ -35,6 +35,11 @@ export function CustomersTable() {
   const [pendingDelete, setPendingDelete] = useState<Customer | null>(null);
   const [formDirty, setFormDirty] = useState(false);
   const [working, setWorking] = useState(false);
+  // Solo afecta al DOM tras cargar (mientras loading la tabla muestra skeleton), asi que no hay mismatch de hidratacion.
+  const [onlyMissingPhone, setOnlyMissingPhone] = useState(
+    () => typeof window !== "undefined" && new URLSearchParams(window.location.search).get("filtro") === "sin-telefono",
+  );
+  const [guidedPhoneFlow, setGuidedPhoneFlow] = useState(false);
   const toast = useToast();
 
   useEffect(() => {
@@ -76,6 +81,7 @@ export function CustomersTable() {
     setSelectedCustomer(null);
     setMergeTargetId("");
     setFormDirty(false);
+    setGuidedPhoneFlow(false);
   }
 
   function handleOpenChange(open: boolean) {
@@ -86,12 +92,30 @@ export function CustomersTable() {
 
   function handleSaved(customer: Customer, affectedOrders = 0) {
     setCustomers((current) => current.map((item) => (item.id === customer.id ? customer : item)));
-    setSelectedCustomer(customer);
     setFormDirty(false);
     toast.push({
       variant: "success",
       title: affectedOrders > 0 ? `Cliente actualizado y ${affectedOrders} pedido(s) relacionado(s) actualizado(s).` : "Cliente actualizado.",
     });
+    if (guidedPhoneFlow && customer.phone.trim()) {
+      const next = customers.find((item) => item.id !== customer.id && !item.phone.trim());
+      if (next) {
+        openEdit(next);
+        return;
+      }
+      setGuidedPhoneFlow(false);
+      closeDrawer();
+      toast.push({ variant: "success", title: "Todos los clientes tienen teléfono." });
+      return;
+    }
+    setSelectedCustomer(customer);
+  }
+
+  function startPhoneFlow() {
+    const first = customers.find((item) => !item.phone.trim());
+    if (!first) return;
+    setGuidedPhoneFlow(true);
+    openEdit(first);
   }
 
   async function handleMerge() {
@@ -176,13 +200,30 @@ export function CustomersTable() {
   const mergeTargets = customers.filter((customer) => customer.id !== selectedCustomer?.id);
   const mergeOrderCount = selectedCustomer ? orders.filter((order) => isRelatedOrderToCustomer(order, selectedCustomer)).length : 0;
   const duplicateCandidates = findCustomerDuplicateCandidates(customers);
+  const withoutPhoneCount = customers.filter((customer) => !customer.phone.trim()).length;
+  const visibleCustomers = onlyMissingPhone ? customers.filter((customer) => !customer.phone.trim()) : customers;
 
   return (
     <>
       <CustomerDuplicateAlerts candidates={duplicateCandidates} onReview={reviewDuplicate} />
+      {!loading && withoutPhoneCount > 0 ? (
+        <Alert variant="warning" title={`${withoutPhoneCount} cliente(s) sin teléfono`} className="mb-4">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <span>Sin teléfono no puedes enviarles pedidos, recordatorios de pago ni mensajes de reactivación por WhatsApp.</span>
+            <div className="flex gap-2">
+              <Button type="button" size="sm" onClick={startPhoneFlow}>
+                Completar uno por uno
+              </Button>
+              <Button type="button" size="sm" variant="secondary" onClick={() => setOnlyMissingPhone((current) => !current)}>
+                {onlyMissingPhone ? "Ver todos" : "Ver solo esos"}
+              </Button>
+            </div>
+          </div>
+        </Alert>
+      ) : null}
       <DataTable
         columns={columns}
-        data={customers}
+        data={visibleCustomers}
         getRowId={(customer) => customer.id}
         loading={loading}
         onRowClick={openEdit}

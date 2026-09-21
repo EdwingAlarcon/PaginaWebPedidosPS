@@ -28,7 +28,7 @@ export function Alert({ className, variant = "info", title, children, ...props }
   return (
     <div role="alert" className={cn(alertVariants({ variant }), className)} {...props}>
       <Icon className="mt-0.5 size-4 shrink-0" aria-hidden="true" />
-      <div>
+      <div className="min-w-0 flex-1">
         {title ? <p className="font-medium">{title}</p> : null}
         {children ? <div className="text-foreground-muted">{children}</div> : null}
       </div>

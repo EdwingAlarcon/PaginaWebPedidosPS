@@ -175,6 +175,11 @@ explicitamente si no pudiste probar con sesion autenticada).
 
 ## Estado operativo reciente
 
+- 2026-09-21: auditoría de producto y 7 mejoras implementadas (pagos/saldo por
+  pedido con tabla `order_payments`, orden y filtros en Pedidos, línea de tiempo,
+  clientes sin teléfono, autocompletar por código, lote en Despacho, PWA/a11y).
+  **Migración `202609210001_create_order_payments.sql` pendiente de aplicar a mano
+  en Supabase** (CLI sin sesión). Detalle en `NEXT_STEPS.md`.
 - 2026-08-22: se amplio y corrio el importador contra
   `Copia de REFERENCIAS-2024-2025.xlsx` en produccion. Resultado:
   73 pedidos creados, 2 omitidos por idempotencia; verificacion posterior:

@@ -118,6 +118,9 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 
   return (
     <div className="app-shell">
+      <a className="skip-link" href="#contenido-principal">
+        Saltar al contenido
+      </a>
       <aside className={`app-shell-sidebar${collapsed ? " collapsed" : ""}`}>
         <div className="app-shell-sidebar-header">
           <div className="app-shell-brand">
@@ -175,7 +178,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           </button>
           <div className="app-shell-topbar-title">
             <p>{pageMeta.title}</p>
-            <h1>{pageMeta.description}</h1>
+            <p className="app-shell-topbar-desc">{pageMeta.description}</p>
           </div>
           <div className="app-shell-topbar-actions">
             <ThemeToggle />
@@ -218,7 +221,9 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           </div>
         )}
 
-        <div className="app-shell-main">{children}</div>
+        <div className="app-shell-main" id="contenido-principal" tabIndex={-1}>
+          {children}
+        </div>
       </div>
     </div>
   );

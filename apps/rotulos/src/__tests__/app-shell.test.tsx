@@ -30,9 +30,9 @@ describe("AppShell", () => {
       </AppShell>,
     );
 
-    expect(screen.getByRole("heading", { level: 1 })).toHaveTextContent(
-      "Consulta y gestiona los pedidos registrados",
-    );
+    // La descripcion es texto de apoyo, no un h1: cada pagina aporta su propio h1 (PageHeading).
+    expect(screen.getByText("Consulta y gestiona los pedidos registrados")).toBeInTheDocument();
+    expect(screen.queryByRole("heading", { level: 1 })).not.toBeInTheDocument();
   });
 
   it("contrae el sidebar y persiste la preferencia en localStorage", async () => {

@@ -6,10 +6,12 @@ import { useEffect, useId, useMemo, useState } from "react";
 import { ClipboardCheck, FilePlus2, Plus, RotateCcw, Trash2 } from "lucide-react";
 import { createBlankOrderDraft, getBusinessStore } from "@/lib/business-store";
 import { getInventoryStore } from "@/lib/inventory-store";
-import type { Customer, OrderDraft, OrderRecord, ProductCode } from "@/lib/business-types";
+import { PAYMENT_METHODS } from "@/lib/business-types";
+import type { Customer, OrderDraft, OrderRecord, PaymentMethod, ProductCode } from "@/lib/business-types";
+import { PAYMENT_METHOD_LABELS } from "@/lib/payments";
 import type { Product } from "@/lib/inventory-types";
 import { Card, CardTitle } from "@/components/ui/card";
-import { Input, Textarea } from "@/components/ui/input";
+import { Input, Select, Textarea } from "@/components/ui/input";
 import { FormField } from "@/components/ui/form-field";
 import { CurrencyInput } from "@/components/ui/currency-input";
 import { DatePicker } from "@/components/ui/date-picker";
@@ -74,8 +76,11 @@ export function OrderForm() {
   const [status, setStatus] = useState<{ tone: "success" | "danger"; message: string } | null>(null);
   const [savedOrder, setSavedOrder] = useState<OrderRecord | null>(null);
   const [saving, setSaving] = useState(false);
+  const [initialPayment, setInitialPayment] = useState(0);
+  const [initialPaymentMethod, setInitialPaymentMethod] = useState<PaymentMethod>("efectivo");
   const customerListId = useId();
   const productListId = useId();
+  const codeListId = useId();
 
   useEffect(() => {
     getBusinessStore().listCustomers().then(setCustomers).catch(() => setCustomers([]));
@@ -145,6 +150,29 @@ export function OrderForm() {
     }));
   }
 
+  function handleProductCodeChange(index: number, code: string) {
+    setItem(index, "productCode", code);
+    const key = code.trim().toUpperCase();
+    if (!key) return;
+    const productMatch = products.find((product) => product.sku.trim().toUpperCase() === key);
+    const catalogMatch = productCodes.find((entry) => entry.code.trim().toUpperCase() === key);
+    if (!productMatch && !catalogMatch) return;
+    setDraft((current) => ({
+      ...current,
+      items: current.items.map((item, itemIndex) =>
+        itemIndex === index
+          ? {
+              ...item,
+              productId: productMatch?.id ?? null,
+              productName: productMatch?.name ?? catalogMatch?.productName ?? item.productName,
+              category: productMatch?.category ?? catalogMatch?.category ?? item.category,
+              unitPrice: productMatch?.unitPrice ?? catalogMatch?.unitPrice ?? item.unitPrice,
+            }
+          : item,
+      ),
+    }));
+  }
+
   function addItem() {
     setDraft((current) => ({
       ...current,
@@ -191,12 +219,26 @@ export function OrderForm() {
         ...draft,
         items: draft.items.filter((item) => item.productName.trim()),
       });
+      let paymentWarning = "";
+      if (initialPayment > 0) {
+        try {
+          await getBusinessStore().addPayment(saved.id, {
+            amount: Math.min(initialPayment, saved.total),
+            method: initialPaymentMethod,
+            paidAt: draft.orderDate,
+            note: "PAGO INICIAL",
+          });
+        } catch {
+          paymentWarning = " El pedido se guardó, pero no se pudo registrar el pago inicial (revisa la migración de pagos).";
+        }
+      }
       setDraft(createBlankOrderDraft());
+      setInitialPayment(0);
       getBusinessStore().listProductCodes().then(setProductCodes).catch(() => undefined);
       getInventoryStore().listProducts().then(setProducts).catch(() => undefined);
       setStatus({
         tone: "success",
-        message: `Pedido guardado para ${saved.customer.fullName}. Total $${Math.round(saved.total).toLocaleString("es-CO")}.`,
+        message: `Pedido guardado para ${saved.customer.fullName}. Total $${Math.round(saved.total).toLocaleString("es-CO")}.${paymentWarning}`,
       });
       setSavedOrder(saved);
     } catch (error) {
@@ -306,6 +348,11 @@ export function OrderForm() {
               <option key={productName} value={productName} />
             ))}
           </datalist>
+          <datalist id={codeListId}>
+            {productCodes.map((entry) => (
+              <option key={entry.code} value={entry.code} label={entry.productName} />
+            ))}
+          </datalist>
 
           <div className="mt-4 flex flex-col gap-3">
             {draft.items.map((item, index) => (
@@ -315,8 +362,9 @@ export function OrderForm() {
               >
                 <FormField label="Codigo" className="sm:col-span-1">
                   <Input
+                    list={codeListId}
                     value={item.productCode}
-                    onChange={(event) => setItem(index, "productCode", event.target.value)}
+                    onChange={(event) => handleProductCodeChange(index, event.target.value)}
                   />
                 </FormField>
                 <FormField label="Producto" className="col-span-2 sm:col-span-2">
@@ -393,6 +441,29 @@ export function OrderForm() {
                 onValueChange={(value) => setDraft((current) => ({ ...current, shippingCost: value }))}
               />
             </FormField>
+          </div>
+        </Card>
+
+        <Card>
+          <CardTitle>Pago inicial (opcional)</CardTitle>
+          <div className="mt-4 grid gap-4 sm:grid-cols-2">
+            <FormField label="Abono recibido" hint={total > 0 ? `Saldo: $${Math.max(0, Math.round(total - initialPayment)).toLocaleString("es-CO")}` : undefined}>
+              <CurrencyInput value={initialPayment} onValueChange={setInitialPayment} />
+            </FormField>
+            <FormField label="Método de pago">
+              <Select value={initialPaymentMethod} onChange={(event) => setInitialPaymentMethod(event.target.value as PaymentMethod)}>
+                {PAYMENT_METHODS.map((method) => (
+                  <option key={method} value={method}>
+                    {PAYMENT_METHOD_LABELS[method]}
+                  </option>
+                ))}
+              </Select>
+            </FormField>
+            <div className="sm:col-span-2">
+              <Button type="button" variant="secondary" size="sm" onClick={() => setInitialPayment(total)} disabled={total <= 0}>
+                Pagado completo
+              </Button>
+            </div>
           </div>
         </Card>
       </div>

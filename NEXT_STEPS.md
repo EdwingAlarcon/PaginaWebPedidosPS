@@ -669,3 +669,29 @@ real (todas las secciones) + lectura de código. Hallazgos priorizados:
    usarlo.
 6. Cambio de estado de pedido en lote (Despacho) y timeline por pedido.
 7. PWA instalable + revisión móvil.
+
+**Estado (2026-09-21, misma noche): los 7 puntos quedaron implementados en código.**
+- Orden de `/pedidos` por `orderDate desc` (`DataTable` ganó `initialSort`) +
+  filtros de estado, pago y rango de fechas.
+- Pagos por pedido: tabla `order_payments` (migración
+  `202609210001_create_order_payments.sql`, **Edwing debe aplicarla a mano en el
+  SQL Editor de Supabase**; hasta entonces `listPayments` devuelve `[]` y
+  registrar un pago muestra un toast explicativo). Lógica en
+  `src/lib/payments.ts` (pedidos completados/importados sin abonos = "sin
+  registro", no cuentan como deuda). UI: `order-payments-card.tsx` en el
+  drawer, columna "Pago" en Pedidos, "Pago inicial" en Nuevo pedido, tarjeta
+  y tabla "Por cobrar" (con recordatorio por WhatsApp) en Reportes/Inicio.
+- Línea de tiempo por pedido (`order-timeline.ts`, drawer).
+- Clientes: aviso "N sin teléfono", flujo "Completar uno por uno" y filtro
+  `/clientes?filtro=sin-telefono` (enlazado desde Reportes → inactivos).
+- Nuevo pedido: autocompletar por **código** de catálogo además del nombre.
+- Tarjetas de inventario/stock se ocultan mientras no haya productos; Inicio
+  muestra "Por cobrar" en su lugar.
+- Despacho: selección múltiple, "Generar rótulos" y "Marcar completados" en lote.
+- PWA (`src/app/manifest.ts`, `manifest.webmanifest` excluido del matcher de
+  `proxy.ts`, themeColor), un solo `h1` por página, skip link, hash de
+  "Fila importada" abreviado.
+- Backup JSON incluye `orderPayments` (tolerante si la tabla no existe).
+- Pendiente/no hecho: vincular catálogo con inventario real (solo se ocultó
+  el ruido), Service Worker/offline, pago visible en la bandeja de Despacho,
+  restauración de `order_payments` (Fase 2 de restauración, sin aprobar).
