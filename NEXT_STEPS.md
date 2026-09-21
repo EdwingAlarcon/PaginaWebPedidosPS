@@ -630,3 +630,42 @@ Del critique persistido en `.impeccable/critique/2026-07-26T22-55-14Z__apps-rotu
   salvo que Edwing diga explicitamente que no lo hagas en esa conversacion.
   Regla reafirmada por Edwing el 2026-08-15: "siempre debes hacer commit,
   push y deploy".
+
+## Auditoría de producto en producción (2026-09-21)
+
+Auditoría hecha navegando `https://purpleshoponline.vercel.app` con sesión
+real (todas las secciones) + lectura de código. Hallazgos priorizados:
+
+**Bugs / inconsistencias (verificados)**
+- `/pedidos` no es cronológico: `listOrders` ordena por `created_at desc`
+  (`business-store.ts`) pero la columna "Fecha" muestra `orderDate`; los
+  pedidos importados de 2026 (mar–ago) quedan enterrados entre 2024/2025.
+  Fix: orden inicial por `orderDate desc` en `orders-table.tsx`.
+- Sin filtros en `/pedidos` (estado, rango de fechas, cliente); 100 pedidos
+  paginados de a 10.
+- `/pedidos` ("Completado" 2025-11) vs dashboard: mezcla de historial
+  importado con operación real sin separación visual.
+- Página con 2 `h1` (tagline de topbar + título de página); sin skip link.
+- Sin `manifest`/PWA (uso móvil probable con WhatsApp).
+
+**Datos**
+- 10 de 14 clientes sin teléfono ni dirección -> las alertas de clientes
+  inactivos (12) muestran "Sin teléfono" y no se pueden accionar.
+- `Inventario` vacío (0 productos) aunque el catálogo tiene 319 (`products`
+  y `product_codes` son tablas separadas); "Bajo stock", "Inventario
+  valorizado" y "Productos activos" siempre en 0 = tarjetas sin señal.
+- Pedidos sin campo de pago (método/estado/abono/saldo): solo Pendiente/
+  Completado/Cancelado. Es el hueco funcional más grande.
+
+**Features propuestas (orden sugerido)**
+1. Control de pago y saldo por pedido (pagado/abono/por cobrar) + tarjeta
+   "Por cobrar" en Inicio/Reportes.
+2. Filtros y orden por fecha de negocio en Pedidos.
+3. Completar teléfonos de clientes (cola "clientes sin teléfono") para
+   habilitar reactivación por WhatsApp.
+4. Autocompletar líneas de pedido desde el catálogo (319 refs) con precio
+   y envío ($10k) sugeridos.
+5. Vincular catálogo con inventario o esconder tarjetas de stock hasta
+   usarlo.
+6. Cambio de estado de pedido en lote (Despacho) y timeline por pedido.
+7. PWA instalable + revisión móvil.
