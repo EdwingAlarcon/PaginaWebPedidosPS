@@ -701,7 +701,7 @@ real (todas las secciones) + lectura de código. Hallazgos priorizados:
   (antes completarlo en Despacho borraba el saldo por cobrar).
 - Edwing registró a mano los 2 pedidos de app del 2026-08-14 (PILAR 144.000
   efectivo, ZAIDA 191.500 transferencia). Faltan los 97 importados
-  ($13.366.200): correr `apps/rotulos/scripts/backfill-historical-payments.sql`
+  ($13.366.200): correr `apps/rotulos/supabase/manual/202609210002_backfill_historical_payments.sql`
   en el SQL Editor (o `npm run backfill:payments -- --commit` con service role;
   el clasificador de permisos bloqueó ese `--commit` desde Claude). Nota
   marcadora `PAGO HISTORICO (ASUMIDO)`, método `otro`, fecha = fecha del pedido;
@@ -723,7 +723,13 @@ real (todas las secciones) + lectura de código. Hallazgos priorizados:
   de sistema: estado y sincronizar snapshot del cliente). El form de edición ya no
   ofrece "Completado".
 - Backfill de los 97 importados ahora usa método `transferencia`
-  (`scripts/backfill-historical-payments.sql`; incluye el `update` por si ya se
+  (`supabase/manual/202609210002_backfill_historical_payments.sql`; incluye el `update` por si ya se
   había corrido con `otro`).
 - Idea pendiente: la etiqueta (rótulo) tiene su propio `paymentMethod`
   pagado/contraentrega + `codAmount`; hoy no se cruza con los pagos del pedido.
+
+**SQL manual (2026-09-21):** las consultas que Edwing corre a mano en el SQL Editor
+viven en `apps/rotulos/supabase/manual/` (fuera de `migrations/`, `db push` no las
+ejecuta): `202609210002_backfill_historical_payments.sql` (97 pagos por transferencia,
+con vista previa/verificación/reversión) y `verificar_migraciones_pendientes.sql`
+(solo lectura: qué migraciones ya están aplicadas).
