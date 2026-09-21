@@ -259,8 +259,8 @@ comparativos excluyen pedidos cancelados.
   nombre normalizado. Quedó versionada la migración
   `202608150002_reuse_empty_phone_customer_by_name.sql` para que `save_order`
   reutilice un cliente existente con el mismo nombre cuando ese cliente no
-  tiene teléfono y el pedido nuevo sí trae teléfono. **Pendiente operativo:**
-  aplicar esa migración en Supabase remoto; `supabase db push --workdir
+  tiene teléfono y el pedido nuevo sí trae teléfono. **Pendiente operativo (RESUELTO: aplicada, verificada el
+  2026-09-21):** aplicar esa migración en Supabase remoto; `supabase db push --workdir
   apps/rotulos` falló localmente con `Unauthorized` porque la sesión de
   Supabase CLI está vencida.
 - **Importador de data histórica desde Excel** (2026-07-19): 23 pedidos
