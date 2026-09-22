@@ -758,8 +758,11 @@ todos aplicados, catálogo con 303/319 fotos, catálogo PDF listo para compartir
    exacto (Edwing las bajó a mano y las dejó en una carpeta local). Catálogo de
    productos completo por primera vez. Método y scripts en la memoria
    `project_purpleshop_fotos_catalogo_2026-09-21` (sitemaps + og:image + hojas de contacto).
-2. **Revisar fotos "más probables"** que Edwing debe confirmar: H-003, H-004, H-062, H-076,
-   M-004, M-021, M-026/027, M-049, M-073, M-077, M-080, M-007, M-070, M-106.
+2. ~~**Revisar fotos "más probables"**~~ — **resuelto 2026-09-22.** Edwing reemplazó 12 de
+   los 15 códigos con fotos correctas (bajadas a mano): PS-H-003, PS-H-004, PS-H-062,
+   PS-M-004, PS-M-007, PS-M-021, PS-M-027, PS-M-049, PS-M-070, PS-M-073, PS-M-077,
+   PS-M-080. Subidas y verificadas en prod. H-076, M-026 y M-106 no se reemplazaron
+   (se asume que la foto existente ya era correcta).
 3. ~~**Prueba real de pagos de punta a punta**~~ — **hecha y verificada 2026-09-22** en prod
    con Edwing presente, pedido de ZAIDA SUAREZ ($212.000): abono parcial $100.000
    (transferencia) → saldo $112.000, sigue "Pendiente" (no se autocompleta); aparece en
