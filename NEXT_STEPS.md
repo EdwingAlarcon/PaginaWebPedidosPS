@@ -758,10 +758,14 @@ todos aplicados, catálogo con 303/319 fotos, catálogo PDF listo para compartir
    `project_purpleshop_fotos_catalogo_2026-09-21` (sitemaps + og:image + hojas de contacto).
 2. **Revisar fotos "más probables"** que Edwing debe confirmar: H-003, H-004, H-062, H-076,
    M-004, M-021, M-026/027, M-049, M-073, M-077, M-080, M-007, M-070, M-106.
-3. **Prueba real de pagos de punta a punta** (nunca se registró un pago nuevo en prod):
-   abrir el pedido de ZAIDA ($212.000), registrar un abono, ver saldo/línea de tiempo/
-   "Por cobrar", borrarlo; y probar "Marcar completado" con el diálogo "Completar y marcar
-   pagado" (escribe en prod: hacerlo con Edwing presente).
+3. ~~**Prueba real de pagos de punta a punta**~~ — **hecha y verificada 2026-09-22** en prod
+   con Edwing presente, pedido de ZAIDA SUAREZ ($212.000): abono parcial $100.000
+   (transferencia) → saldo $112.000, sigue "Pendiente" (no se autocompleta); aparece en
+   línea de tiempo con fecha/monto correctos; borrado del abono → saldo vuelve a $212.000;
+   diálogo "Marcar completado" abre con "Registrar también el pago del saldo" tildado por
+   defecto y botón "Completar y marcar pagado" — se destildó y canceló sin confirmar
+   (el cliente real aún no pagó, no se tocó el estado del pedido). Todo funcionó según
+   diseño, sin bugs encontrados.
 4. **Vista móvil sin probar** (el redimensionado de ventana no cambió el viewport;
    probar en teléfono real o con Playwright/DevTools). PWA (manifest) desplegada, sin
    Service Worker/offline.
