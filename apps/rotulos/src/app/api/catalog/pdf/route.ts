@@ -5,6 +5,8 @@ import type { ProductCode } from "@/lib/business-types";
 import type { LabelSettings } from "@/lib/types";
 
 export const runtime = "nodejs";
+// El PDF descarga y embebe ~300 fotos; con el limite por defecto puede cortarse.
+export const maxDuration = 60;
 
 function isObject(value: unknown): value is Record<string, unknown> {
   return Boolean(value && typeof value === "object" && !Array.isArray(value));

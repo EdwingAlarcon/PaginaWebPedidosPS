@@ -165,21 +165,53 @@ function isAllowedProductImageUrl(url: string): boolean {
   return url.startsWith(prefix);
 }
 
+/** Las fotos se suben a 750px+; en tarjetas de ~150pt sobra con 480px. Reduce el PDF de decenas de MB a unos pocos. */
+async function shrinkForPdf(bytes: Uint8Array): Promise<Uint8Array> {
+  try {
+    const sharp = (await import("sharp")).default;
+    const out = await sharp(bytes)
+      .flatten({ background: "#ffffff" })
+      .resize(480, 480, { fit: "inside", withoutEnlargement: true })
+      .jpeg({ quality: 80, mozjpeg: true })
+      .toBuffer();
+    return new Uint8Array(out);
+  } catch {
+    return bytes;
+  }
+}
+
 async function fetchImageBytes(url: string): Promise<Uint8Array | null> {
   if (!isAllowedProductImageUrl(url)) return null;
   try {
-    const response = await fetch(url);
+    const response = await fetch(url, { signal: AbortSignal.timeout(15000) });
     if (!response.ok) return null;
-    const buffer = await response.arrayBuffer();
-    return new Uint8Array(buffer);
+    const buffer = new Uint8Array(await response.arrayBuffer());
+    return await shrinkForPdf(buffer);
   } catch {
     return null;
   }
 }
 
-async function embedProductImage(doc: PDFDocument, url: string | null): Promise<PDFImage | null> {
+type ImageBytesCache = Map<string, Uint8Array | null>;
+
+/** Descarga las fotos en paralelo (con tope) antes de armar el PDF: en serie, ~200 fotos tardaban minutos. */
+async function prefetchImageBytes(urls: (string | null)[], concurrency = 12): Promise<ImageBytesCache> {
+  const cache: ImageBytesCache = new Map();
+  const queue = [...new Set(urls.filter((url): url is string => Boolean(url)))];
+  await Promise.all(
+    Array.from({ length: Math.min(concurrency, queue.length) }, async () => {
+      while (queue.length > 0) {
+        const url = queue.shift() as string;
+        cache.set(url, await fetchImageBytes(url));
+      }
+    }),
+  );
+  return cache;
+}
+
+async function embedProductImage(doc: PDFDocument, url: string | null, cache?: ImageBytesCache): Promise<PDFImage | null> {
   if (!url) return null;
-  const bytes = await fetchImageBytes(url);
+  const bytes = cache?.has(url) ? cache.get(url) : await fetchImageBytes(url);
   if (!bytes) return null;
   const isPng = bytes.length > 4 && bytes[0] === 0x89 && bytes[1] === 0x50 && bytes[2] === 0x4e && bytes[3] === 0x47;
   try {
@@ -329,7 +361,7 @@ function drawCategoryTitle(ctx: PdfContext, category: string): PdfContext {
   return { ...next, y: next.y - 30, column: 0 };
 }
 
-async function drawProductCard(ctx: PdfContext, product: ProductCode): Promise<PdfContext> {
+async function drawProductCard(ctx: PdfContext, product: ProductCode, imageCache?: ImageBytesCache): Promise<PdfContext> {
   let next = ctx;
   if (next.y - CARD_HEIGHT < MARGIN) next = { ...newPage(next), column: 0 };
 
@@ -346,7 +378,7 @@ async function drawProductCard(ctx: PdfContext, product: ProductCode): Promise<P
     borderWidth: 1,
   });
 
-  const image = await embedProductImage(next.doc, product.imageUrl);
+  const image = await embedProductImage(next.doc, product.imageUrl, imageCache);
   const photoY = cardTop - PHOTO_HEIGHT - 6;
   if (image) {
     drawContained(next.page, image, cardX, photoY, CARD_WIDTH, PHOTO_HEIGHT);
@@ -391,6 +423,7 @@ export async function renderCatalogPdfBuffer(products: ProductCode[], settings: 
   drawCoverPage(base, settings);
 
   const groups = groupProductCodesByCategory(products);
+  const imageCache = await prefetchImageBytes(products.map((product) => product.imageUrl));
 
   if (groups.length === 0) {
     let ctx = drawBrandStrip(newPage(base));
@@ -402,7 +435,7 @@ export async function renderCatalogPdfBuffer(products: ProductCode[], settings: 
     let ctx = drawBrandStrip(newPage(base));
     ctx = drawCategoryTitle(ctx, group.category);
     for (const product of group.products) {
-      ctx = await drawProductCard(ctx, product);
+      ctx = await drawProductCard(ctx, product, imageCache);
     }
   }
 
