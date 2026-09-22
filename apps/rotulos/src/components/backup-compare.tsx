@@ -2,17 +2,15 @@
 
 import { useState } from "react";
 import { FileJson, GitCompare, RotateCcw, ShieldCheck } from "lucide-react";
-import { compareBackupSnapshots, type BackupCompareReport, type BackupTableName } from "@/lib/backup-compare";
+import { compareBackupSnapshots, type BackupCompareReport } from "@/lib/backup-compare";
 import type { FullBackupPayload } from "@/lib/backup";
-import type { RestoreAction, RestoreSelection } from "@/lib/backup-restore";
+import { RESTORABLE_TABLES, type RestoreAction, type RestoreSelection } from "@/lib/backup-restore";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 
 function plural(value: number, label: string): string {
   return `${value} ${label}${value === 1 ? "" : "s"}`;
 }
-
-const RESTORABLE_TABLES: BackupTableName[] = ["customers", "labels", "settings"];
 
 function selectionId(item: RestoreSelection): string {
   return `${item.table}:${item.key}:${item.action}`;

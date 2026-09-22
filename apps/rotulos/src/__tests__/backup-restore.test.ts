@@ -44,10 +44,30 @@ describe("backup restore helpers", () => {
       }),
     );
 
-    expect(plan.restorableTables).toEqual(["customers", "labels", "settings"]);
+    expect(plan.restorableTables).toEqual(["customers", "labels", "settings", "orderPayments"]);
     expect(plan.unsupportedTables).toContain("orders");
     expect(plan.report.tables.customers.missing).toEqual([{ key: "customer-1" }]);
     expect(plan.report.tables.settings.changed).toEqual([{ key: "theme" }]);
+  });
+
+  it("accepts backups from before order_payments existed", () => {
+    const legacy = snapshot();
+    const legacyWithoutOrderPayments = { ...legacy } as Partial<FullBackupPayload>;
+    delete legacyWithoutOrderPayments.orderPayments;
+
+    const result = validateFullBackupPayload(legacyWithoutOrderPayments);
+
+    expect(result.ok).toBe(true);
+  });
+
+  it("restores missing order payments as a supported table", () => {
+    const plan = buildRestorePlan(
+      snapshot({ orderPayments: [{ id: "payment-1", order_id: "order-1", amount: 50000 }] }),
+      snapshot(),
+    );
+
+    expect(plan.restorableTables).toContain("orderPayments");
+    expect(plan.report.tables.orderPayments.missing).toEqual([{ key: "payment-1" }]);
   });
 
   it("normalizes selected changes and sorts them by restore order", () => {

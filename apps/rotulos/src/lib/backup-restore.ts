@@ -2,6 +2,7 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import type { FullBackupPayload } from "@/lib/backup";
 import {
   BACKUP_TABLES,
+  OPTIONAL_BACKUP_TABLES,
   compareBackupSnapshots,
   getBackupRowKey,
   type BackupCompareReport,
@@ -28,17 +29,19 @@ export const RESTORE_TABLE_ORDER: BackupTableName[] = [
   "orders",
   "orderItems",
   "orderEdits",
+  "orderPayments",
   "stockMovements",
   "labels",
   "settings",
 ];
 
-export const RESTORABLE_TABLES = ["customers", "labels", "settings"] as const satisfies readonly BackupTableName[];
+export const RESTORABLE_TABLES = ["customers", "labels", "settings", "orderPayments"] as const satisfies readonly BackupTableName[];
 
 const RESTORE_TABLE_CONFIG: Partial<Record<BackupTableName, RestoreTableConfig>> = {
   customers: { apiTable: "customers", keyColumn: "id" },
   labels: { apiTable: "labels", keyColumn: "id" },
   settings: { apiTable: "settings", keyColumn: "key" },
+  orderPayments: { apiTable: "order_payments", keyColumn: "id" },
 };
 
 function isRecord(value: unknown): value is Record<string, unknown> {
@@ -68,7 +71,9 @@ export function validateFullBackupPayload(value: unknown): { ok: true; payload: 
   const unknownKey = Object.keys(value).find((key) => !allowedKeys.has(key));
   if (unknownKey) return { ok: false, error: `Tabla desconocida en el backup: ${unknownKey}.` };
 
-  const missingTable = BACKUP_TABLES.find((table) => !Array.isArray(value[table]));
+  const missingTable = BACKUP_TABLES.find(
+    (table) => !Array.isArray(value[table]) && !(OPTIONAL_BACKUP_TABLES as readonly BackupTableName[]).includes(table),
+  );
   if (missingTable) return { ok: false, error: `Falta la tabla ${missingTable} en el backup.` };
 
   return { ok: true, payload: value as FullBackupPayload };

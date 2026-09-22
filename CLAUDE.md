@@ -37,9 +37,14 @@ La recomendación grande post-importación quedó implementada en código el
   auditoría en `backup_restore_runs`, backup previo obligatorio y ejecución
   explícita solo para `customers`, `labels` y `settings`. Requiere
   `BACKUP_RESTORE_ENABLED=true` y `BACKUP_RESTORE_ALLOWED_EMAILS` en servidor.
+- `order_payments` se sumó a la restauración controlada el 2026-09-22 (aprobación
+  explícita de Edwing, mismo mecanismo: `RESTORE_TABLE_CONFIG` en
+  `src/lib/backup-restore.ts`). Backups previos a esa tabla (antes de
+  `202609210001_create_order_payments.sql`) siguen siendo válidos: se tratan
+  como tabla opcional en `validateFullBackupPayload`.
 - **No implementar restauración automática/masiva de JSON** sin aprobación
   nueva de Edwing; pedidos, líneas, inventario y borrados siguen fuera de
-  alcance para una Fase 2.
+  alcance.
 - Diseño de restauración controlada:
   `docs/superpowers/specs/2026-08-22-restauracion-controlada-backup-json-design.md`;
   seguirlo por fases y no empezar por "restaurar todo".

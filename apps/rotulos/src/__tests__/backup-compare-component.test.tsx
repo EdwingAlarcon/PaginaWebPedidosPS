@@ -69,6 +69,7 @@ describe("BackupCompare", () => {
                 orders: { summary: { missing: 0, extra: 0, changed: 0, unchanged: 0 }, missing: [], extra: [], changed: [] },
                 orderItems: { summary: { missing: 0, extra: 0, changed: 0, unchanged: 0 }, missing: [], extra: [], changed: [] },
                 orderEdits: { summary: { missing: 0, extra: 0, changed: 0, unchanged: 0 }, missing: [], extra: [], changed: [] },
+                orderPayments: { summary: { missing: 0, extra: 0, changed: 0, unchanged: 0 }, missing: [], extra: [], changed: [] },
                 productCodes: { summary: { missing: 0, extra: 0, changed: 0, unchanged: 0 }, missing: [], extra: [], changed: [] },
                 products: { summary: { missing: 0, extra: 0, changed: 0, unchanged: 0 }, missing: [], extra: [], changed: [] },
                 stockMovements: { summary: { missing: 0, extra: 0, changed: 0, unchanged: 0 }, missing: [], extra: [], changed: [] },

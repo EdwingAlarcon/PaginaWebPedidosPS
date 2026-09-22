@@ -27,12 +27,16 @@ export const BACKUP_TABLES: BackupTableName[] = [
   "orders",
   "orderItems",
   "orderEdits",
+  "orderPayments",
   "productCodes",
   "products",
   "stockMovements",
   "labels",
   "settings",
 ];
+
+/** Tablas que pueden faltar en un backup viejo (previas a que la tabla existiera) sin que el backup sea invalido. */
+export const OPTIONAL_BACKUP_TABLES: BackupTableName[] = ["orderPayments"];
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
