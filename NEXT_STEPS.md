@@ -780,9 +780,10 @@ todos aplicados, catálogo con 303/319 fotos, catálogo PDF listo para compartir
    de outline (bajo contraste) a estilo primario. Sin probar aún en teléfono real tras el
    deploy — pendiente que Edwing confirme visualmente. PWA (manifest) desplegada, sin
    Service Worker/offline.
-5. **Cruzar rótulo con pago:** `labels.paymentMethod` (pagado/contraentrega) + `codAmount`
-   no se relaciona con `order_payments`. Idea: rótulo "pagado" => sugerir pago; contraentrega
-   => saldo esperado al completar.
+5. ~~**Cruzar rótulo con pago**~~ — **descartado 2026-09-22 (Edwing).** El rótulo es solo
+   instrucción de envío para transportadora/cliente (`paymentMethod`/`codAmount`), no un
+   registro contable; automatizarlo con `order_payments` mezclaría eso con el pago
+   verificado a mano. No se implementa.
 6. ~~**Catálogo <-> inventario**~~ — **decidido 2026-09-22 (Edwing): no cargar inventario.**
    `product_codes` (319, catálogo/pedidos) y `products` (0, stock real) siguen
    separadas a propósito: venta por revista/catálogo sin bodega fija que rastrear,
