@@ -1,4 +1,4 @@
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 interface PaginationProps {
@@ -27,6 +27,15 @@ export function Pagination({ page, pageCount, onPageChange, totalItems, pageSize
           variant="secondary"
           size="sm"
           disabled={page <= 1}
+          onClick={() => onPageChange(1)}
+          aria-label="Primera página"
+        >
+          <ChevronsLeft className="size-4" aria-hidden="true" />
+        </Button>
+        <Button
+          variant="secondary"
+          size="sm"
+          disabled={page <= 1}
           onClick={() => onPageChange(page - 1)}
           aria-label="Página anterior"
         >
@@ -43,6 +52,15 @@ export function Pagination({ page, pageCount, onPageChange, totalItems, pageSize
           aria-label="Página siguiente"
         >
           <ChevronRight className="size-4" aria-hidden="true" />
+        </Button>
+        <Button
+          variant="secondary"
+          size="sm"
+          disabled={page >= pageCount}
+          onClick={() => onPageChange(pageCount)}
+          aria-label="Última página"
+        >
+          <ChevronsRight className="size-4" aria-hidden="true" />
         </Button>
       </div>
     </div>

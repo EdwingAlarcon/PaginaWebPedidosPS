@@ -108,6 +108,7 @@ export function ProductCodesTable() {
         getRowId={(product) => product.id}
         loading={loading}
         onRowClick={setEditing}
+        pageSize={25}
         searchPlaceholder="Buscar por nombre, codigo o categoria"
         searchPredicate={(product, query) =>
           product.productName.toLowerCase().includes(query) ||
