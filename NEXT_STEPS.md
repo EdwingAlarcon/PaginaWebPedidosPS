@@ -752,9 +752,15 @@ descargadas en paralelo y reducidas con `sharp` a 480px (83 s/24 MB -> ~11 s/~5 
 Estado al cerrar: producción al día (commits hasta `776a6f0`), migraciones y SQL manual
 todos aplicados, catálogo con 303/319 fotos, catálogo PDF listo para compartir.
 
-1. **Fotos que faltan (16)** — ver lista en "Fotos de catálogo" arriba. Necesita que Edwing
-   diga qué producto exacto son H-151, M-028, M-034, M-051, M-091, M-101/102 (MFK) y
-   M-132/133 (Ralph Lauren). Método y scripts en la memoria
+1. **Fotos que faltan** — **2026-09-22: 7 de 16 subidas y verificadas** (PS-H-151,
+   PS-M-028, PS-M-034, PS-M-051, PS-M-091, PS-M-132, PS-M-133) via
+   `scripts/import-product-photos.ts <carpeta> --commit`, archivos convertidos a
+   JPG con `sharp` y renombrados al código exacto. Catálogo: 310/319. Quedan 9:
+   PS-H-066 Hugo Boss Bottled Sport, PS-H-071 Hugo Boss Element, PS-H-075 Hugo
+   Boss Orange Man, PS-H-082 Jean Pascal, PS-H-131 Paco Rabanne Black XS
+   L'Aphrodisiaque, PS-M-043 Christian Dior Blooming Bouquet, PS-M-072 Guess
+   Gold, PS-M-101 Maison Francis Kurkdjian Eau de Parfum, PS-M-102 Maison
+   Francis Kurkdjian Extrait Parfum. Método y scripts en la memoria
    `project_purpleshop_fotos_catalogo_2026-09-21` (sitemaps + og:image + hojas de contacto).
 2. **Revisar fotos "más probables"** que Edwing debe confirmar: H-003, H-004, H-062, H-076,
    M-004, M-021, M-026/027, M-049, M-073, M-077, M-080, M-007, M-070, M-106.
