@@ -771,8 +771,14 @@ todos aplicados, catálogo con 303/319 fotos, catálogo PDF listo para compartir
    defecto y botón "Completar y marcar pagado" — se destildó y canceló sin confirmar
    (el cliente real aún no pagó, no se tocó el estado del pedido). Todo funcionó según
    diseño, sin bugs encontrados.
-4. **Vista móvil sin probar** (el redimensionado de ventana no cambió el viewport;
-   probar en teléfono real o con Playwright/DevTools). PWA (manifest) desplegada, sin
+4. ~~**Vista móvil sin probar**~~ — **probada y con ajustes 2026-09-22.** Edwing mandó 11
+   capturas reales del cel (screen mirroring vía `/remote-control`). Críticas aplicadas:
+   tablas (Pedidos, Clientes, Historial, Pedidos importados, Inventario) ocultan columnas
+   secundarias en celular (`DataTableColumn.hideOnMobile`) para que Total/Estado no queden
+   fuera de pantalla; tilde corregida "Acción pendiente" en Despacho; banner de clientes sin
+   teléfono compactado en pantallas chicas; botón "Compartir por WhatsApp" del catálogo pasó
+   de outline (bajo contraste) a estilo primario. Sin probar aún en teléfono real tras el
+   deploy — pendiente que Edwing confirme visualmente. PWA (manifest) desplegada, sin
    Service Worker/offline.
 5. **Cruzar rótulo con pago:** `labels.paymentMethod` (pagado/contraentrega) + `codAmount`
    no se relaciona con `order_payments`. Idea: rótulo "pagado" => sugerir pago; contraentrega
