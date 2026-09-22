@@ -101,7 +101,7 @@ export function ProductPhotoBulkUpload() {
         <h2 className="text-card-title">Subir fotos de producto en lote</h2>
         <p className="text-sm text-foreground-muted">
           Arrastra o selecciona varias fotos a la vez. Cada archivo debe llamarse exactamente como el codigo
-          del producto (ej. <code className="rounded bg-surface-muted px-1">PS-H-064.jpg</code>). Formato JPG o PNG,
+          del producto (ej. <code className="rounded bg-surface-muted px-1">PS-H-064.jpg</code>). Formato JPG, PNG o WEBP,
           maximo 5MB, cuadrada de 750x750px recomendado.
         </p>
       </div>
@@ -123,7 +123,7 @@ export function ProductPhotoBulkUpload() {
           <span>Elegir archivos</span>
           <input
             type="file"
-            accept="image/jpeg,image/png"
+            accept="image/jpeg,image/png,image/webp"
             multiple
             disabled={processing}
             className="sr-only"

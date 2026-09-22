@@ -11,7 +11,12 @@ import { readdir, readFile } from "node:fs/promises";
 import { extname, join, basename } from "node:path";
 import { createClient } from "@supabase/supabase-js";
 
-const ALLOWED_EXT: Record<string, string> = { ".jpg": "image/jpeg", ".jpeg": "image/jpeg", ".png": "image/png" };
+const ALLOWED_EXT: Record<string, string> = {
+  ".jpg": "image/jpeg",
+  ".jpeg": "image/jpeg",
+  ".png": "image/png",
+  ".webp": "image/webp",
+};
 const MAX_BYTES = 5 * 1024 * 1024;
 
 async function main() {

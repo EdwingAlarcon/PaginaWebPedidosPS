@@ -3,10 +3,10 @@
 import { createClient } from "@/lib/supabase/client";
 
 const MAX_BYTES = 5 * 1024 * 1024;
-const ALLOWED_TYPES = new Set(["image/jpeg", "image/png"]);
+const ALLOWED_TYPES = new Set(["image/jpeg", "image/png", "image/webp"]);
 
 export function validateProductImageFile(file: File): string | null {
-  if (!ALLOWED_TYPES.has(file.type)) return "Solo se permiten fotos JPG o PNG.";
+  if (!ALLOWED_TYPES.has(file.type)) return "Solo se permiten fotos JPG, PNG o WEBP.";
   if (file.size > MAX_BYTES) return "La foto no puede pesar mas de 5MB.";
   return null;
 }
@@ -18,7 +18,7 @@ export async function uploadProductImage(productCodeId: string, file: File): Pro
   const supabase = createClient();
   if (!supabase) throw new Error("supabase_unavailable");
 
-  const extension = file.type === "image/png" ? "png" : "jpg";
+  const extension = file.type === "image/png" ? "png" : file.type === "image/webp" ? "webp" : "jpg";
   const path = `${productCodeId}-${Date.now()}.${extension}`;
 
   const { error: uploadError } = await supabase.storage.from("product-images").upload(path, file, {

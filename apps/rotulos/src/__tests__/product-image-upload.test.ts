@@ -6,13 +6,14 @@ function makeFile(type: string, sizeBytes: number): File {
 }
 
 describe("validateProductImageFile", () => {
-  it("accepts jpeg and png under 5MB", () => {
+  it("accepts jpeg, png and webp under 5MB", () => {
     expect(validateProductImageFile(makeFile("image/jpeg", 1024))).toBeNull();
     expect(validateProductImageFile(makeFile("image/png", 1024))).toBeNull();
+    expect(validateProductImageFile(makeFile("image/webp", 1024))).toBeNull();
   });
 
   it("rejects other file types", () => {
-    expect(validateProductImageFile(makeFile("application/pdf", 1024))).toBe("Solo se permiten fotos JPG o PNG.");
+    expect(validateProductImageFile(makeFile("application/pdf", 1024))).toBe("Solo se permiten fotos JPG, PNG o WEBP.");
   });
 
   it("rejects files over 5MB", () => {
