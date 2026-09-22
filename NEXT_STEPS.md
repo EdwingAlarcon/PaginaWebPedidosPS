@@ -772,8 +772,11 @@ todos aplicados, catálogo con 303/319 fotos, catálogo PDF listo para compartir
 5. **Cruzar rótulo con pago:** `labels.paymentMethod` (pagado/contraentrega) + `codAmount`
    no se relaciona con `order_payments`. Idea: rótulo "pagado" => sugerir pago; contraentrega
    => saldo esperado al completar.
-6. **Catálogo <-> inventario:** `product_codes` (319) vs `products` (0, inventario vacío);
-   solo se ocultaron las tarjetas de stock. Decidir si se carga inventario real.
+6. ~~**Catálogo <-> inventario**~~ — **decidido 2026-09-22 (Edwing): no cargar inventario.**
+   `product_codes` (319, catálogo/pedidos) y `products` (0, stock real) siguen
+   separadas a propósito: venta por revista/catálogo sin bodega fija que rastrear,
+   cargar 319 stocks manuales no tendría uso real. `products` queda vacía como hoy;
+   tarjetas de stock siguen ocultas.
 7. **Bloqueo de edición (completado/pagado) es solo de interfaz.** Si se quiere a prueba de
    todo: validarlo en la RPC `update_order` (migración nueva, manual por Edwing).
 8. **Restauración de `order_payments`** desde backup JSON: Fase 2, requiere aprobación nueva
