@@ -314,7 +314,7 @@ export function DispatchBoard() {
     <div className="flex flex-col gap-4">
       <div className="grid gap-3 md:grid-cols-4">
         <Card>
-          <CardTitle>Accion pendiente</CardTitle>
+          <CardTitle>Acción pendiente</CardTitle>
           <p className="mt-3 text-2xl font-semibold text-foreground">{metrics.action}</p>
         </Card>
         <Card>

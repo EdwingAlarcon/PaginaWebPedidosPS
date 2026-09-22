@@ -16,6 +16,8 @@ export interface DataTableColumn<T> {
   sortValue?: (row: T) => string | number;
   align?: "left" | "right" | "center";
   className?: string;
+  /** Columna secundaria: se oculta en celular para que las columnas clave (total, estado) no queden fuera de pantalla. */
+  hideOnMobile?: boolean;
 }
 
 interface DataTableProps<T> {
@@ -110,7 +112,7 @@ export function DataTable<T>({
       )}
 
       <div className="overflow-x-auto rounded-lg border border-border">
-        <table className="w-full min-w-[640px] border-collapse text-sm">
+        <table className="w-full min-w-[420px] border-collapse text-sm">
           <thead>
             <tr className="border-b border-border bg-surface-muted">
               {columns.map((column) => (
@@ -121,6 +123,7 @@ export function DataTable<T>({
                     "px-4 py-3 text-xs font-semibold uppercase tracking-wide text-foreground-muted",
                     column.align === "right" && "text-right",
                     column.align === "center" && "text-center",
+                    column.hideOnMobile && "hidden sm:table-cell",
                   )}
                 >
                   {column.sortValue ? (
@@ -152,7 +155,7 @@ export function DataTable<T>({
               ? Array.from({ length: 5 }).map((_, i) => (
                   <tr key={i} className="border-b border-border last:border-0">
                     {columns.map((column) => (
-                      <td key={column.key} className="px-4 py-3">
+                      <td key={column.key} className={cn("px-4 py-3", column.hideOnMobile && "hidden sm:table-cell")}>
                         <Skeleton className="h-4 w-24" />
                       </td>
                     ))}
@@ -174,6 +177,7 @@ export function DataTable<T>({
                           "px-4 py-3",
                           column.align === "right" && "text-right",
                           column.align === "center" && "text-center",
+                          column.hideOnMobile && "hidden sm:table-cell",
                           column.className,
                         )}
                       >

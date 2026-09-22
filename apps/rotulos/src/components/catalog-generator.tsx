@@ -111,7 +111,7 @@ export function CatalogGenerator() {
           </span>
         </label>
       ) : null}
-      <Button variant="secondary" onClick={handleShareWhatsApp} loading={sharingWhatsApp}>
+      <Button onClick={handleShareWhatsApp} loading={sharingWhatsApp}>
         <MessageCircle className="size-4" aria-hidden="true" />
         Compartir por WhatsApp
       </Button>

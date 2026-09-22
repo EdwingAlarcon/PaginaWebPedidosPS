@@ -71,7 +71,7 @@ export function ProductCodesTable() {
     },
     { key: "productName", header: "Producto", render: (p) => p.productName, sortValue: (p) => p.productName },
     { key: "code", header: "Codigo", render: (p) => p.code },
-    { key: "category", header: "Categoria", render: (p) => p.category || "-", sortValue: (p) => p.category },
+    { key: "category", header: "Categoria", render: (p) => p.category || "-", sortValue: (p) => p.category, hideOnMobile: true },
     { key: "unitPrice", header: "Precio", align: "right", render: (p) => formatCop(p.unitPrice), sortValue: (p) => p.unitPrice },
     {
       key: "actions",

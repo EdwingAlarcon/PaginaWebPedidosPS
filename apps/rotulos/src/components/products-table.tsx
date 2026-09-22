@@ -86,8 +86,8 @@ export function ProductsTable({
 
   const columns: DataTableColumn<Product>[] = [
     { key: "name", header: "Producto", render: (p) => p.name, sortValue: (p) => p.name },
-    { key: "sku", header: "SKU", render: (p) => p.sku || <span className="text-foreground-muted">Sin SKU</span> },
-    { key: "category", header: "Categoría", render: (p) => p.category },
+    { key: "sku", header: "SKU", render: (p) => p.sku || <span className="text-foreground-muted">Sin SKU</span>, hideOnMobile: true },
+    { key: "category", header: "Categoría", render: (p) => p.category, hideOnMobile: true },
     {
       key: "price",
       header: "Precio",

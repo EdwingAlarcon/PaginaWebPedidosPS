@@ -18,6 +18,7 @@ const columns: DataTableColumn<OrderRecord>[] = [
     render: (order) => order.items.reduce((sum, item) => sum + item.quantity, 0),
     sortValue: (order) => order.items.reduce((sum, item) => sum + item.quantity, 0),
     align: "center",
+    hideOnMobile: true,
   },
   {
     key: "total",
@@ -26,7 +27,7 @@ const columns: DataTableColumn<OrderRecord>[] = [
     sortValue: (order) => order.total,
     align: "right",
   },
-  { key: "row", header: "Fila importada", render: (order) => (order.importRowKey && order.importRowKey.length > 16 ? <span title={order.importRowKey}>{order.importRowKey.slice(0, 8)}…</span> : order.importRowKey ?? "-"), sortValue: (order) => order.importRowKey ?? "" },
+  { key: "row", header: "Fila importada", render: (order) => (order.importRowKey && order.importRowKey.length > 16 ? <span title={order.importRowKey}>{order.importRowKey.slice(0, 8)}…</span> : order.importRowKey ?? "-"), sortValue: (order) => order.importRowKey ?? "", hideOnMobile: true },
 ];
 
 export function ImportedOrdersTable({ orders, loading = false }: { orders: OrderRecord[]; loading?: boolean }) {

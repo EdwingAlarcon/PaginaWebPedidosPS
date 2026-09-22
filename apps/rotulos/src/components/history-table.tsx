@@ -94,8 +94,8 @@ export function HistoryTable({ labels }: { labels: LabelRecord[] }) {
 
   const columns: DataTableColumn<LabelRecord>[] = [
     { key: "customer", header: "Cliente", render: (l) => l.recipient.fullName, sortValue: (l) => l.recipient.fullName },
-    { key: "phone", header: "Teléfono", render: (l) => l.recipient.phone || "-" },
-    { key: "city", header: "Ciudad", render: (l) => l.recipient.city || "-" },
+    { key: "phone", header: "Teléfono", render: (l) => l.recipient.phone || "-", hideOnMobile: true },
+    { key: "city", header: "Ciudad", render: (l) => l.recipient.city || "-", hideOnMobile: true },
     { key: "date", header: "Fecha", render: (l) => l.date, sortValue: (l) => l.date },
     { key: "order", header: "Pedido", render: (l) => l.orderNumber },
     { key: "status", header: "Estado", render: (l) => <LabelStatusBadge status={l.status} /> },

@@ -106,8 +106,8 @@ const columns: DataTableColumn<OrderTableRow>[] = [
     render: (order) => order.displayCustomerName,
     sortValue: (order) => order.displayCustomerName,
   },
-  { key: "phone", header: "Teléfono", render: (order) => order.displayPhone || "-" },
-  { key: "items", header: "Items", render: (order) => order.items.length, align: "center" },
+  { key: "phone", header: "Teléfono", render: (order) => order.displayPhone || "-", hideOnMobile: true },
+  { key: "items", header: "Items", render: (order) => order.items.length, align: "center", hideOnMobile: true },
   {
     key: "total",
     header: "Total",
