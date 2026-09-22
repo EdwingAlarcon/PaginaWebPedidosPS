@@ -111,7 +111,15 @@ function itemComparable(item: OrderItem) {
   };
 }
 
-function validateOrder(value: OrderEditValue, initialItems: OrderItem[]): Record<string, string> {
+function moneyFieldsChanged(value: OrderEditValue, initialValue: OrderEditValue): boolean {
+  return (
+    itemsChanged(value.items, initialValue.items) ||
+    value.discount !== initialValue.discount ||
+    value.shippingCost !== initialValue.shippingCost
+  );
+}
+
+function validateOrder(value: OrderEditValue, initialValue: OrderEditValue, order: OrderRecord): Record<string, string> {
   const errors: Record<string, string> = {};
   if (!value.customer.fullName.trim()) errors.customer = "El nombre del cliente es obligatorio.";
   if (!value.orderDate.trim()) errors.orderDate = "La fecha es obligatoria.";
@@ -123,7 +131,9 @@ function validateOrder(value: OrderEditValue, initialItems: OrderItem[]): Record
     if (item.quantity <= 0) errors[`items.${index}.quantity`] = "La cantidad debe ser mayor a cero.";
     if (item.unitPrice < 0) errors[`items.${index}.unitPrice`] = "El precio no puede ser negativo.";
   });
-  if (itemsChanged(value.items, initialItems) && !value.adjustmentReason.trim()) {
+  const touchesMoney = moneyFieldsChanged(value, initialValue);
+  const reasonRequired = touchesMoney && (itemsChanged(value.items, initialValue.items) || order.status === "completed");
+  if (reasonRequired && !value.adjustmentReason.trim()) {
     errors.adjustmentReason = "Selecciona el motivo del ajuste.";
   }
 
@@ -155,6 +165,7 @@ export function OrderEditForm({ order, onSaved, onCancel, onDirtyChange }: Order
   const productListId = useId();
   const dirty = JSON.stringify(value) !== JSON.stringify(initialValue);
   const changedItems = itemsChanged(value.items, initialValue.items);
+  const reasonRequired = moneyFieldsChanged(value, initialValue) && (changedItems || order.status === "completed");
   const subtotal = value.items.reduce((sum, item) => sum + item.quantity * item.unitPrice, 0);
   const total = Math.max(0, subtotal - value.discount + value.shippingCost);
   const productNameOptions = useMemo(
@@ -224,11 +235,13 @@ export function OrderEditForm({ order, onSaved, onCancel, onDirtyChange }: Order
     event.preventDefault();
     if (saving) return;
 
-    const nextErrors = validateOrder(value, initialValue.items);
+    const nextErrors = validateOrder(value, initialValue, order);
     setErrors(nextErrors);
     setStatus(null);
     if (Object.keys(nextErrors).length > 0) return;
     if (changedItems && order.status === "completed" && !window.confirm("Este pedido esta completado. ¿Quieres guardar el ajuste de todas formas?")) return;
+
+    const touchesMoney = moneyFieldsChanged(value, initialValue);
 
     setSaving(true);
     try {
@@ -245,12 +258,21 @@ export function OrderEditForm({ order, onSaved, onCancel, onDirtyChange }: Order
         notes: normalized.notes,
         discount: normalized.discount,
         shippingCost: normalized.shippingCost,
-        ...(changedItems ? { items: normalizedItems, adjustmentReason: value.adjustmentReason } : {}),
+        ...(changedItems ? { items: normalizedItems } : {}),
+        ...(touchesMoney ? { adjustmentReason: value.adjustmentReason } : {}),
       });
       setStatus({ tone: "success", message: "Pedido actualizado." });
       onSaved(saved);
-    } catch {
-      setStatus({ tone: "danger", message: "No se pudo actualizar el pedido. Intenta de nuevo." });
+    } catch (err) {
+      const reasonRequired =
+        typeof err === "object" && err !== null && "message" in err &&
+        String((err as { message?: unknown }).message).includes("adjustment_reason_required");
+      if (reasonRequired) {
+        setErrors((current) => ({ ...current, adjustmentReason: "Selecciona el motivo del ajuste." }));
+        setStatus({ tone: "danger", message: "Este pedido ya está pagado por completo. Selecciona el motivo del ajuste para guardarlo." });
+      } else {
+        setStatus({ tone: "danger", message: "No se pudo actualizar el pedido. Intenta de nuevo." });
+      }
     } finally {
       setSaving(false);
     }
@@ -368,7 +390,7 @@ export function OrderEditForm({ order, onSaved, onCancel, onDirtyChange }: Order
           <Plus className="size-4" aria-hidden="true" />
           Agregar producto
         </Button>
-        <FormField label="Motivo del ajuste" required={changedItems} error={errors.adjustmentReason} className="mt-4">
+        <FormField label="Motivo del ajuste" required={reasonRequired} error={errors.adjustmentReason} className="mt-4">
           <Select value={value.adjustmentReason} onChange={(event) => setValue((current) => ({ ...current, adjustmentReason: event.target.value }))}>
             <option value="">Selecciona un motivo si cambias productos o precios</option>
             {ADJUSTMENT_REASONS.map((reason) => (
