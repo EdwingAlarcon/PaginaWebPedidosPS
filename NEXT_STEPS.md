@@ -733,3 +733,16 @@ viven en `apps/rotulos/supabase/manual/` (fuera de `migrations/`, `db push` no l
 ejecuta): `202609210002_backfill_historical_payments.sql` (97 pagos por transferencia,
 con vista previa/verificación/reversión) y `verificar_migraciones_pendientes.sql`
 (solo lectura: qué migraciones ya están aplicadas).
+
+**Fotos de catálogo (2026-09-21, noche):** 170 -> 303 de 319 con foto. Método: sitemaps de
+Druni/Parfumdreams + búsqueda en tiendas para las niche, descarga de `og:image`,
+revisión visual en hojas de contacto y subida por el uploader de Configuración
+(sesión real; no service role). Fotos con cada variante verificada a ojo; ambiguas
+descartadas. Faltan 16 (nombres genéricos/sin foto limpia): H-066 Bottled Sport,
+H-071 Element, H-075 Orange Man, H-082 Jean Pascal, H-131 Black XS L'Aphrodisiaque,
+H-151 Philipp Plein, M-028 CH New York, M-034 Good Girl New York, M-043 Miss Dior
+Blooming Bouquet, M-051 Donna Karan NY, M-072 Guess Gold, M-091 Eau de Lacoste,
+M-101/M-102 MFK, M-132/M-133 Ralph Lauren.
+Cambios de código: PDF del catálogo con "Solo productos con foto" (default), fotos
+descargadas en paralelo y reducidas con `sharp` a 480px (83 s/24 MB -> ~11 s/~5 MB),
+`maxDuration = 60` en `/api/catalog/pdf`.
