@@ -39,6 +39,7 @@ const CATEGORY_DISPLAY: Record<string, { label: string; top: [number, number, nu
 const DISCLAIMER_LINES = [
   "Fragancias inspiradas en tus marcas favoritas -- no somos distribuidores ni representantes oficiales.",
   "Disponible bajo pedido, sujeto a confirmacion del proveedor. Entrega estimada: 3 dias habiles. Envio no incluido.",
+  "Las fotos son de referencia: algun producto puede variar levemente del empaque mostrado.",
 ];
 
 function sanitize(value: string): string {
@@ -286,11 +287,12 @@ function drawCoverPage(base: Pick<PdfContext, "doc" | "font" | "boldFont" | "ima
     }
   }
 
-  let disclaimerY = 34;
+  const disclaimerSize = 9.5;
+  let disclaimerY = 6 + (DISCLAIMER_LINES.length - 1) * 13;
   for (const line of DISCLAIMER_LINES) {
-    const width = base.font.widthOfTextAtSize(line, 7.5);
-    page.drawText(line, { x: centerX - width / 2, y: disclaimerY, size: 7.5, font: base.font, color: rgb(0.859, 0.816, 0.965) });
-    disclaimerY -= 11;
+    const width = base.font.widthOfTextAtSize(line, disclaimerSize);
+    page.drawText(line, { x: centerX - width / 2, y: disclaimerY, size: disclaimerSize, font: base.font, color: WHITE });
+    disclaimerY -= 13;
   }
 }
 
