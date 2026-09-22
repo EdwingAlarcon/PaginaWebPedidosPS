@@ -746,3 +746,41 @@ M-101/M-102 MFK, M-132/M-133 Ralph Lauren.
 Cambios de código: PDF del catálogo con "Solo productos con foto" (default), fotos
 descargadas en paralelo y reducidas con `sharp` a 480px (83 s/24 MB -> ~11 s/~5 MB),
 `maxDuration = 60` en `/api/catalog/pdf`.
+
+## Pendientes para retomar (guardado 2026-09-21 noche)
+
+Estado al cerrar: producción al día (commits hasta `776a6f0`), migraciones y SQL manual
+todos aplicados, catálogo con 303/319 fotos, catálogo PDF listo para compartir.
+
+1. **Fotos que faltan (16)** — ver lista en "Fotos de catálogo" arriba. Necesita que Edwing
+   diga qué producto exacto son H-151, M-028, M-034, M-051, M-091, M-101/102 (MFK) y
+   M-132/133 (Ralph Lauren). Método y scripts en la memoria
+   `project_purpleshop_fotos_catalogo_2026-09-21` (sitemaps + og:image + hojas de contacto).
+2. **Revisar fotos "más probables"** que Edwing debe confirmar: H-003, H-004, H-062, H-076,
+   M-004, M-021, M-026/027, M-049, M-073, M-077, M-080, M-007, M-070, M-106.
+3. **Prueba real de pagos de punta a punta** (nunca se registró un pago nuevo en prod):
+   abrir el pedido de ZAIDA ($212.000), registrar un abono, ver saldo/línea de tiempo/
+   "Por cobrar", borrarlo; y probar "Marcar completado" con el diálogo "Completar y marcar
+   pagado" (escribe en prod: hacerlo con Edwing presente).
+4. **Vista móvil sin probar** (el redimensionado de ventana no cambió el viewport;
+   probar en teléfono real o con Playwright/DevTools). PWA (manifest) desplegada, sin
+   Service Worker/offline.
+5. **Cruzar rótulo con pago:** `labels.paymentMethod` (pagado/contraentrega) + `codAmount`
+   no se relaciona con `order_payments`. Idea: rótulo "pagado" => sugerir pago; contraentrega
+   => saldo esperado al completar.
+6. **Catálogo <-> inventario:** `product_codes` (319) vs `products` (0, inventario vacío);
+   solo se ocultaron las tarjetas de stock. Decidir si se carga inventario real.
+7. **Bloqueo de edición (completado/pagado) es solo de interfaz.** Si se quiere a prueba de
+   todo: validarlo en la RPC `update_order` (migración nueva, manual por Edwing).
+8. **Restauración de `order_payments`** desde backup JSON: Fase 2, requiere aprobación nueva
+   de Edwing (el backup ya incluye `orderPayments`).
+9. **npm audit:** 2 vulnerabilidades moderadas en dev (vitest / @vitest/mocker) aparecidas hoy;
+   se arreglan con `npm audit fix --force` (sube vitest mayor): evaluar antes.
+10. **Tras cada `npm run import:excel`:** correr `supabase/manual/202609210002_backfill_historical_payments.sql`
+    (los pedidos importados nuevos salen "Sin registro" hasta entonces).
+
+Entorno (para no tropezar): curl/wget bloqueados por hook (usar `node fetch`); el
+clasificador de permisos de Claude Code bloquea escrituras/lecturas de prod con la service
+role desde la máquina (usar SQL Editor de Supabase o la UI con la sesión de Edwing);
+heredocs largos en el Bash de Windows fallan (escribir scripts con Write y ejecutarlos);
+el tecleo de la extensión de Chrome no dispara eventos de React (usar setter nativo).
