@@ -11,8 +11,12 @@ import { Card } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useToast } from "@/components/ui/toast";
 
+const CATALOG_FILENAME = "catalogo-purple-shop.pdf";
+const WHATSAPP_MESSAGE = "Hola! Te comparto nuestro catalogo de productos.";
+
 export function CatalogGenerator() {
   const [downloadingPdf, setDownloadingPdf] = useState(false);
+  const [sharingWhatsApp, setSharingWhatsApp] = useState(false);
   // Un catalogo con tarjetas "SIN FOTO" se ve incompleto al compartirlo: por defecto solo se incluyen productos con foto.
   const [onlyWithPhoto, setOnlyWithPhoto] = useState(true);
   const [counts, setCounts] = useState<{ total: number; withoutPhoto: number } | null>(null);
@@ -25,26 +29,62 @@ export function CatalogGenerator() {
       .catch(() => setCounts(null));
   }, []);
 
+  async function generateCatalogPdf(): Promise<Blob> {
+    const [allProducts, settings] = await Promise.all([
+      getBusinessStore().listProductCodes(),
+      getLabelStore().getSettings(),
+    ]);
+    const products = onlyWithPhoto ? allProducts.filter((product) => product.imageUrl) : allProducts;
+    const response = await fetch("/api/catalog/pdf", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ products, settings }),
+    });
+    if (!response.ok) throw new Error("pdf_failed");
+    return response.blob();
+  }
+
   async function handleDownloadPdf() {
     setDownloadingPdf(true);
     try {
-      const [allProducts, settings] = await Promise.all([
-        getBusinessStore().listProductCodes(),
-        getLabelStore().getSettings(),
-      ]);
-      const products = onlyWithPhoto ? allProducts.filter((product) => product.imageUrl) : allProducts;
-      const response = await fetch("/api/catalog/pdf", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ products, settings }),
-      });
-      if (!response.ok) throw new Error("pdf_failed");
-      const blob = await response.blob();
-      await downloadBlob(blob, "catalogo-purple-shop.pdf");
+      const blob = await generateCatalogPdf();
+      await downloadBlob(blob, CATALOG_FILENAME);
     } catch {
       toast.push({ variant: "danger", title: "No se pudo generar el PDF del catalogo." });
     } finally {
       setDownloadingPdf(false);
+    }
+  }
+
+  async function handleShareWhatsApp() {
+    setSharingWhatsApp(true);
+    try {
+      const blob = await generateCatalogPdf();
+      const file = new File([blob], CATALOG_FILENAME, { type: "application/pdf" });
+      const canShareFile = typeof navigator.canShare === "function" && navigator.canShare({ files: [file] });
+
+      if (canShareFile) {
+        try {
+          await navigator.share({ files: [file], text: WHATSAPP_MESSAGE });
+          return;
+        } catch (shareError) {
+          // El usuario cancelo el dialogo de compartir: no es un error, no hacer nada mas.
+          if (shareError instanceof Error && shareError.name === "AbortError") return;
+        }
+      }
+
+      // Sin soporte para compartir archivos (ej. navegador de escritorio): bajamos el PDF
+      // y abrimos WhatsApp aclarando que hay que adjuntarlo a mano.
+      await downloadBlob(blob, CATALOG_FILENAME);
+      window.open(
+        buildWhatsAppLink("", `${WHATSAPP_MESSAGE} (Adjunta el PDF "${CATALOG_FILENAME}" que se acaba de descargar)`),
+        "_blank",
+        "noreferrer",
+      );
+    } catch {
+      toast.push({ variant: "danger", title: "No se pudo preparar el catalogo para compartir." });
+    } finally {
+      setSharingWhatsApp(false);
     }
   }
 
@@ -71,11 +111,9 @@ export function CatalogGenerator() {
           </span>
         </label>
       ) : null}
-      <Button variant="secondary" asChild>
-        <a href={buildWhatsAppLink("", "Hola! Te comparto nuestro catalogo de productos.")} target="_blank" rel="noreferrer">
-          <MessageCircle className="size-4" aria-hidden="true" />
-          Abrir WhatsApp
-        </a>
+      <Button variant="secondary" onClick={handleShareWhatsApp} loading={sharingWhatsApp}>
+        <MessageCircle className="size-4" aria-hidden="true" />
+        Compartir por WhatsApp
       </Button>
     </Card>
   );
