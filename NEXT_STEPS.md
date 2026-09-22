@@ -761,8 +761,8 @@ todos aplicados, catálogo con 303/319 fotos, catálogo PDF listo para compartir
 2. ~~**Revisar fotos "más probables"**~~ — **resuelto 2026-09-22.** Edwing reemplazó 12 de
    los 15 códigos con fotos correctas (bajadas a mano): PS-H-003, PS-H-004, PS-H-062,
    PS-M-004, PS-M-007, PS-M-021, PS-M-027, PS-M-049, PS-M-070, PS-M-073, PS-M-077,
-   PS-M-080. Subidas y verificadas en prod. H-076, M-026 y M-106 no se reemplazaron
-   (se asume que la foto existente ya era correcta).
+   PS-M-080. Subidas y verificadas en prod. H-076, M-026 y M-106 no se reemplazaron —
+   **confirmado 2026-09-22 por Edwing: la foto existente ya era correcta.**
 3. ~~**Prueba real de pagos de punta a punta**~~ — **hecha y verificada 2026-09-22** en prod
    con Edwing presente, pedido de ZAIDA SUAREZ ($212.000): abono parcial $100.000
    (transferencia) → saldo $112.000, sigue "Pendiente" (no se autocompleta); aparece en
@@ -777,9 +777,8 @@ todos aplicados, catálogo con 303/319 fotos, catálogo PDF listo para compartir
    secundarias en celular (`DataTableColumn.hideOnMobile`) para que Total/Estado no queden
    fuera de pantalla; tilde corregida "Acción pendiente" en Despacho; banner de clientes sin
    teléfono compactado en pantallas chicas; botón "Compartir por WhatsApp" del catálogo pasó
-   de outline (bajo contraste) a estilo primario. Sin probar aún en teléfono real tras el
-   deploy — pendiente que Edwing confirme visualmente. PWA (manifest) desplegada, sin
-   Service Worker/offline.
+   de outline (bajo contraste) a estilo primario. **Confirmado visualmente en el teléfono
+   por Edwing el 2026-09-22: bien.** PWA (manifest) desplegada, sin Service Worker/offline.
 5. ~~**Cruzar rótulo con pago**~~ — **descartado 2026-09-22 (Edwing).** El rótulo es solo
    instrucción de envío para transportadora/cliente (`paymentMethod`/`codAmount`), no un
    registro contable; automatizarlo con `order_payments` mezclaría eso con el pago
