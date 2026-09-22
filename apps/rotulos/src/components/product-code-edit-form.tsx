@@ -106,13 +106,13 @@ export function ProductCodeEditForm({
             Sin foto
           </div>
         )}
-        <FormField label="Foto (JPG o PNG, maximo 5MB)" hint={uploading ? "Subiendo..." : undefined} className="min-w-0">
+        <FormField label="Foto (JPG, PNG o WEBP, maximo 5MB)" hint={uploading ? "Subiendo..." : undefined} className="min-w-0">
           <label className="inline-flex h-9 max-w-full cursor-pointer items-center gap-2 rounded-md border border-border bg-surface px-3 text-sm font-medium text-foreground hover:bg-surface-muted">
             <Upload className="size-4 shrink-0" aria-hidden="true" />
             <span className="truncate">Elegir archivo</span>
             <input
               type="file"
-              accept="image/jpeg,image/png"
+              accept="image/jpeg,image/png,image/webp"
               disabled={uploading}
               className="sr-only"
               onChange={(event) => handleFileChange(event.target.files?.[0])}
