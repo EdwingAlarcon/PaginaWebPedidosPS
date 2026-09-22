@@ -795,10 +795,14 @@ todos aplicados, catálogo con 303/319 fotos, catálogo PDF listo para compartir
    `order_payments`); antes era solo un `window.confirm()` saltable sin dejar rastro.
    Migración `202609220001_require_reason_editing_locked_orders.sql` **aplicada a
    mano en Supabase por Edwing el 2026-09-22.** Efecto activo en producción.
-8. **Restauración de `order_payments`** desde backup JSON: Fase 2, requiere aprobación nueva
-   de Edwing (el backup ya incluye `orderPayments`).
-9. **npm audit:** 2 vulnerabilidades moderadas en dev (vitest / @vitest/mocker) aparecidas hoy;
-   se arreglan con `npm audit fix --force` (sube vitest mayor): evaluar antes.
+8. ~~**Restauración de `order_payments`** desde backup JSON~~ — **implementado 2026-09-22
+   con aprobación explícita de Edwing.** Se sumó a `RESTORABLE_TABLES`/`RESTORE_TABLE_CONFIG`
+   en `src/lib/backup-restore.ts`, mismo mecanismo genérico de Fase 1 (sin tocar rutas API).
+   Backups previos a la tabla (antes de `202609210001`) siguen siendo válidos, tratada
+   como tabla opcional en `validateFullBackupPayload`.
+9. ~~**npm audit**~~ — **resuelto 2026-09-22.** `npm install --save-dev vitest@4.1.11`
+   (sin `--force`, bloqueado por el clasificador de permisos) corrigió la vulnerabilidad
+   moderada de `@vitest/mocker`. `npm audit` en 0 vulnerabilidades.
 10. **Tras cada `npm run import:excel`:** correr `supabase/manual/202609210002_backfill_historical_payments.sql`
     (los pedidos importados nuevos salen "Sin registro" hasta entonces).
 
