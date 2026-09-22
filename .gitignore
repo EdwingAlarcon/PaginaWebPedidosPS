@@ -86,3 +86,6 @@ apps/rotulos/test-results/
 
 # Grafo de conocimiento generado por graphify (regenerable con `graphify update .`)
 graphify-out/
+
+# Scratch local de baton (handoff staged), no versionar
+.baton/local/
