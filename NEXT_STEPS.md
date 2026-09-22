@@ -789,8 +789,13 @@ todos aplicados, catálogo con 303/319 fotos, catálogo PDF listo para compartir
    separadas a propósito: venta por revista/catálogo sin bodega fija que rastrear,
    cargar 319 stocks manuales no tendría uso real. `products` queda vacía como hoy;
    tarjetas de stock siguen ocultas.
-7. **Bloqueo de edición (completado/pagado) es solo de interfaz.** Si se quiere a prueba de
-   todo: validarlo en la RPC `update_order` (migración nueva, manual por Edwing).
+7. ~~**Bloqueo de edición (completado/pagado) es solo de interfaz**~~ — **implementado
+   2026-09-22.** RPC `update_order` ahora exige `adjustmentReason` no vacío para tocar
+   items/descuento/envío en un pedido `completed` o ya pagado en su totalidad (suma de
+   `order_payments`); antes era solo un `window.confirm()` saltable sin dejar rastro.
+   Migración `202609220001_require_reason_editing_locked_orders.sql` **pendiente de
+   aplicar a mano en Supabase** (mismo flujo manual de siempre) antes de que el fix
+   tenga efecto en producción.
 8. **Restauración de `order_payments`** desde backup JSON: Fase 2, requiere aprobación nueva
    de Edwing (el backup ya incluye `orderPayments`).
 9. **npm audit:** 2 vulnerabilidades moderadas en dev (vitest / @vitest/mocker) aparecidas hoy;
