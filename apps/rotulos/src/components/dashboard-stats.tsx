@@ -66,7 +66,13 @@ export function DashboardStats({ labels }: { labels: LabelRecord[] }) {
       <div className="grid grid-cols-2 gap-4 lg:grid-cols-4 xl:grid-cols-5">
         <MetricCard label="Pedidos hoy" value={todayOrders.length} icon={ClipboardList} loading={loading} />
         <MetricCard label="Ventas hoy" value={currency(todayRevenue)} icon={DollarSign} loading={loading} />
-        <MetricCard label="Pedidos pendientes" value={pendingOrders.length} icon={PackagePlus} loading={loading} />
+        <MetricCard
+          label="Pedidos pendientes"
+          value={pendingOrders.length}
+          icon={PackagePlus}
+          loading={loading}
+          className={pendingOrders.length > 0 ? "border-[var(--warning)]" : undefined}
+        />
         {hasInventory ? (
           <MetricCard
             label="Por cobrar"
