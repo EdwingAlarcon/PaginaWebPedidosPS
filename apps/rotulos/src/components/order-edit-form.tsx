@@ -5,6 +5,7 @@ import type { FormEvent } from "react";
 import { Plus, Trash2 } from "lucide-react";
 import { getBusinessStore } from "@/lib/business-store";
 import { getInventoryStore } from "@/lib/inventory-store";
+import { matchesGenderFilter, type CatalogGenderFilter } from "@/lib/catalog-filter";
 import type { OrderDraft, OrderItem, OrderRecord, ProductCode } from "@/lib/business-types";
 import type { Product } from "@/lib/inventory-types";
 import {
@@ -162,15 +163,25 @@ export function OrderEditForm({ order, onSaved, onCancel, onDirtyChange }: Order
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [status, setStatus] = useState<{ tone: "success" | "danger"; message: string } | null>(null);
   const [saving, setSaving] = useState(false);
+  const [genderFilter, setGenderFilter] = useState<CatalogGenderFilter>("all");
   const productListId = useId();
+  const codeListId = useId();
   const dirty = JSON.stringify(value) !== JSON.stringify(initialValue);
   const changedItems = itemsChanged(value.items, initialValue.items);
   const reasonRequired = moneyFieldsChanged(value, initialValue) && (changedItems || order.status === "completed");
   const subtotal = value.items.reduce((sum, item) => sum + item.quantity * item.unitPrice, 0);
   const total = Math.max(0, subtotal - value.discount + value.shippingCost);
+  const filteredProductCodes = useMemo(
+    () => productCodes.filter((code) => matchesGenderFilter(code.category, genderFilter)),
+    [productCodes, genderFilter],
+  );
+  const filteredProducts = useMemo(
+    () => products.filter((product) => matchesGenderFilter(product.category, genderFilter)),
+    [products, genderFilter],
+  );
   const productNameOptions = useMemo(
-    () => uniqueProductNameOptions(products, productCodes),
-    [products, productCodes],
+    () => uniqueProductNameOptions(filteredProducts, filteredProductCodes),
+    [filteredProducts, filteredProductCodes],
   );
 
   useEffect(() => {
@@ -209,6 +220,30 @@ export function OrderEditForm({ order, onSaved, onCancel, onDirtyChange }: Order
               productId: productMatch?.id ?? (catalogMatch ? null : item.productId ?? null),
               productName: name,
               productCode: productMatch?.sku ?? catalogMatch?.code ?? item.productCode,
+              category: productMatch?.category ?? catalogMatch?.category ?? item.category,
+              unitPrice: productMatch?.unitPrice ?? catalogMatch?.unitPrice ?? item.unitPrice,
+              total: item.quantity * (productMatch?.unitPrice ?? catalogMatch?.unitPrice ?? item.unitPrice),
+            }
+          : item,
+      ),
+    }));
+  }
+
+  function handleProductCodeChange(index: number, code: string) {
+    setItem(index, "productCode", code);
+    const key = code.trim().toUpperCase();
+    if (!key) return;
+    const productMatch = products.find((product) => product.sku.trim().toUpperCase() === key);
+    const catalogMatch = productCodes.find((entry) => entry.code.trim().toUpperCase() === key);
+    if (!productMatch && !catalogMatch) return;
+    setValue((current) => ({
+      ...current,
+      items: current.items.map((item, itemIndex) =>
+        itemIndex === index
+          ? {
+              ...item,
+              productId: productMatch?.id ?? (catalogMatch ? null : item.productId ?? null),
+              productName: productMatch?.name ?? catalogMatch?.productName ?? item.productName,
               category: productMatch?.category ?? catalogMatch?.category ?? item.category,
               unitPrice: productMatch?.unitPrice ?? catalogMatch?.unitPrice ?? item.unitPrice,
               total: item.quantity * (productMatch?.unitPrice ?? catalogMatch?.unitPrice ?? item.unitPrice),
@@ -346,13 +381,31 @@ export function OrderEditForm({ order, onSaved, onCancel, onDirtyChange }: Order
       </Card>
 
       <Card className="shadow-none">
-        <CardTitle>Productos</CardTitle>
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <CardTitle>Productos</CardTitle>
+          <FormField label="Categoría" className="w-40">
+            <Select value={genderFilter} onChange={(event) => setGenderFilter(event.target.value as CatalogGenderFilter)}>
+              <option value="all">Todos</option>
+              <option value="MUJER">Mujer</option>
+              <option value="HOMBRE">Hombre</option>
+            </Select>
+          </FormField>
+        </div>
         {errors.items ? <p className="mt-2 text-xs font-medium text-danger">{errors.items}</p> : null}
+        <datalist id={codeListId}>
+          {filteredProductCodes.map((entry) => (
+            <option key={entry.code} value={entry.code} label={entry.productName} />
+          ))}
+        </datalist>
         <div className="mt-4 flex flex-col gap-3">
           {value.items.map((item, index) => (
             <div key={item.id} className="grid grid-cols-2 gap-3 rounded-md border border-border p-3 sm:grid-cols-6 sm:items-end">
               <FormField label="Codigo" className="sm:col-span-1">
-                <Input value={item.productCode} onChange={(event) => setItem(index, "productCode", event.target.value)} />
+                <Input
+                  list={codeListId}
+                  value={item.productCode}
+                  onChange={(event) => handleProductCodeChange(index, event.target.value)}
+                />
               </FormField>
               <FormField label="Producto" error={errors[`items.${index}.productName`]} className="col-span-2 sm:col-span-2">
                 <Input

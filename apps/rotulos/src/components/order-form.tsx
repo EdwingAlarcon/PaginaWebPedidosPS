@@ -6,6 +6,7 @@ import { useEffect, useId, useMemo, useState } from "react";
 import { ClipboardCheck, FilePlus2, Plus, RotateCcw, Trash2 } from "lucide-react";
 import { createBlankOrderDraft, getBusinessStore } from "@/lib/business-store";
 import { getInventoryStore } from "@/lib/inventory-store";
+import { matchesGenderFilter, type CatalogGenderFilter } from "@/lib/catalog-filter";
 import { PAYMENT_METHODS } from "@/lib/business-types";
 import type { Customer, OrderDraft, OrderRecord, PaymentMethod, ProductCode } from "@/lib/business-types";
 import { PAYMENT_METHOD_LABELS } from "@/lib/payments";
@@ -78,6 +79,7 @@ export function OrderForm() {
   const [saving, setSaving] = useState(false);
   const [initialPayment, setInitialPayment] = useState(0);
   const [initialPaymentMethod, setInitialPaymentMethod] = useState<PaymentMethod>("efectivo");
+  const [genderFilter, setGenderFilter] = useState<CatalogGenderFilter>("all");
   const customerListId = useId();
   const productListId = useId();
   const codeListId = useId();
@@ -94,9 +96,17 @@ export function OrderForm() {
   );
   const total = Math.max(0, subtotal - draft.discount + draft.shippingCost);
   const customerOptions = useMemo(() => uniqueCustomerOptions(customers), [customers]);
+  const filteredProductCodes = useMemo(
+    () => productCodes.filter((code) => matchesGenderFilter(code.category, genderFilter)),
+    [productCodes, genderFilter],
+  );
+  const filteredProducts = useMemo(
+    () => products.filter((product) => matchesGenderFilter(product.category, genderFilter)),
+    [products, genderFilter],
+  );
   const productNameOptions = useMemo(
-    () => uniqueProductNameOptions(products, productCodes),
-    [products, productCodes],
+    () => uniqueProductNameOptions(filteredProducts, filteredProductCodes),
+    [filteredProducts, filteredProductCodes],
   );
 
   function setCustomerField(field: keyof OrderDraft["customer"], value: string) {
@@ -334,8 +344,15 @@ export function OrderForm() {
         </Card>
 
         <Card>
-          <div className="flex items-center justify-between">
+          <div className="flex flex-wrap items-center justify-between gap-3">
             <CardTitle>Productos</CardTitle>
+            <FormField label="Categoría" className="w-40">
+              <Select value={genderFilter} onChange={(event) => setGenderFilter(event.target.value as CatalogGenderFilter)}>
+                <option value="all">Todos</option>
+                <option value="MUJER">Mujer</option>
+                <option value="HOMBRE">Hombre</option>
+              </Select>
+            </FormField>
           </div>
           {errors.items ? (
             <p className="mt-2 text-xs font-medium text-danger" role="alert">
@@ -349,7 +366,7 @@ export function OrderForm() {
             ))}
           </datalist>
           <datalist id={codeListId}>
-            {productCodes.map((entry) => (
+            {filteredProductCodes.map((entry) => (
               <option key={entry.code} value={entry.code} label={entry.productName} />
             ))}
           </datalist>
