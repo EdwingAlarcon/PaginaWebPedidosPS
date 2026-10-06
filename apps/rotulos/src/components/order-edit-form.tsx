@@ -5,7 +5,8 @@ import type { FormEvent } from "react";
 import { Plus, Trash2 } from "lucide-react";
 import { getBusinessStore } from "@/lib/business-store";
 import { getInventoryStore } from "@/lib/inventory-store";
-import { matchesGenderFilter, type CatalogGenderFilter } from "@/lib/catalog-filter";
+import { ALL_CATEGORIES, catalogFilterOptions, matchesCategoryFilter } from "@/lib/catalog-filter";
+import { CatalogCategorySelect } from "@/components/catalog-category-select";
 import type { OrderDraft, OrderItem, OrderRecord, ProductCode } from "@/lib/business-types";
 import type { Product } from "@/lib/inventory-types";
 import {
@@ -163,7 +164,7 @@ export function OrderEditForm({ order, onSaved, onCancel, onDirtyChange }: Order
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [status, setStatus] = useState<{ tone: "success" | "danger"; message: string } | null>(null);
   const [saving, setSaving] = useState(false);
-  const [genderFilter, setGenderFilter] = useState<CatalogGenderFilter>("all");
+  const [categoryFilter, setCategoryFilter] = useState(ALL_CATEGORIES);
   const productListId = useId();
   const codeListId = useId();
   const dirty = JSON.stringify(value) !== JSON.stringify(initialValue);
@@ -171,13 +172,17 @@ export function OrderEditForm({ order, onSaved, onCancel, onDirtyChange }: Order
   const reasonRequired = moneyFieldsChanged(value, initialValue) && (changedItems || order.status === "completed");
   const subtotal = value.items.reduce((sum, item) => sum + item.quantity * item.unitPrice, 0);
   const total = Math.max(0, subtotal - value.discount + value.shippingCost);
+  const categoryOptions = useMemo(
+    () => catalogFilterOptions([...productCodes.map((code) => code.category), ...products.map((product) => product.category)]),
+    [productCodes, products],
+  );
   const filteredProductCodes = useMemo(
-    () => productCodes.filter((code) => matchesGenderFilter(code.category, genderFilter)),
-    [productCodes, genderFilter],
+    () => productCodes.filter((code) => matchesCategoryFilter(code.category, categoryFilter)),
+    [productCodes, categoryFilter],
   );
   const filteredProducts = useMemo(
-    () => products.filter((product) => matchesGenderFilter(product.category, genderFilter)),
-    [products, genderFilter],
+    () => products.filter((product) => matchesCategoryFilter(product.category, categoryFilter)),
+    [products, categoryFilter],
   );
   const productNameOptions = useMemo(
     () => uniqueProductNameOptions(filteredProducts, filteredProductCodes),
@@ -383,13 +388,7 @@ export function OrderEditForm({ order, onSaved, onCancel, onDirtyChange }: Order
       <Card className="shadow-none">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <CardTitle>Productos</CardTitle>
-          <FormField label="Categoría" className="w-40">
-            <Select value={genderFilter} onChange={(event) => setGenderFilter(event.target.value as CatalogGenderFilter)}>
-              <option value="all">Todos</option>
-              <option value="MUJER">Mujer</option>
-              <option value="HOMBRE">Hombre</option>
-            </Select>
-          </FormField>
+          <CatalogCategorySelect value={categoryFilter} options={categoryOptions} onChange={setCategoryFilter} />
         </div>
         {errors.items ? <p className="mt-2 text-xs font-medium text-danger">{errors.items}</p> : null}
         <datalist id={codeListId}>

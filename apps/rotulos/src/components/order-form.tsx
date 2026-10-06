@@ -6,7 +6,8 @@ import { useEffect, useId, useMemo, useState } from "react";
 import { ClipboardCheck, FilePlus2, Plus, RotateCcw, Trash2 } from "lucide-react";
 import { createBlankOrderDraft, getBusinessStore } from "@/lib/business-store";
 import { getInventoryStore } from "@/lib/inventory-store";
-import { matchesGenderFilter, type CatalogGenderFilter } from "@/lib/catalog-filter";
+import { ALL_CATEGORIES, catalogFilterOptions, matchesCategoryFilter } from "@/lib/catalog-filter";
+import { CatalogCategorySelect } from "@/components/catalog-category-select";
 import { PAYMENT_METHODS } from "@/lib/business-types";
 import type { Customer, OrderDraft, OrderRecord, PaymentMethod, ProductCode } from "@/lib/business-types";
 import { PAYMENT_METHOD_LABELS } from "@/lib/payments";
@@ -21,8 +22,9 @@ import { Alert } from "@/components/ui/alert";
 import { LocationFields } from "@/components/location-fields";
 import { isBogotaLocation, isValidBogotaLocality, isValidBogotaNeighborhoodForLocality, validateDepartmentCity } from "@/lib/location";
 
+// Sin tildes: "MARIA" y "MARÍA" son el mismo nombre al buscar un cliente.
 function normalizeName(value: string): string {
-  return value.trim().replace(/\s+/g, " ").toUpperCase();
+  return value.normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim().replace(/\s+/g, " ").toUpperCase();
 }
 
 function customerCompleteness(customer: Customer): number {
@@ -79,7 +81,7 @@ export function OrderForm() {
   const [saving, setSaving] = useState(false);
   const [initialPayment, setInitialPayment] = useState(0);
   const [initialPaymentMethod, setInitialPaymentMethod] = useState<PaymentMethod>("efectivo");
-  const [genderFilter, setGenderFilter] = useState<CatalogGenderFilter>("all");
+  const [categoryFilter, setCategoryFilter] = useState(ALL_CATEGORIES);
   const customerListId = useId();
   const productListId = useId();
   const codeListId = useId();
@@ -96,13 +98,25 @@ export function OrderForm() {
   );
   const total = Math.max(0, subtotal - draft.discount + draft.shippingCost);
   const customerOptions = useMemo(() => uniqueCustomerOptions(customers), [customers]);
+  const registeredCustomer = customerOptions.find(
+    (customer) => normalizeName(customer.fullName) === normalizeName(draft.customer.fullName),
+  );
+  const registeredCustomerHint = registeredCustomer
+    ? registeredCustomer.phone
+      ? "Cliente registrado: sus datos se cargaron automáticamente."
+      : "Cliente registrado sin teléfono. Si lo agregas aquí, queda guardado en su ficha."
+    : undefined;
+  const categoryOptions = useMemo(
+    () => catalogFilterOptions([...productCodes.map((code) => code.category), ...products.map((product) => product.category)]),
+    [productCodes, products],
+  );
   const filteredProductCodes = useMemo(
-    () => productCodes.filter((code) => matchesGenderFilter(code.category, genderFilter)),
-    [productCodes, genderFilter],
+    () => productCodes.filter((code) => matchesCategoryFilter(code.category, categoryFilter)),
+    [productCodes, categoryFilter],
   );
   const filteredProducts = useMemo(
-    () => products.filter((product) => matchesGenderFilter(product.category, genderFilter)),
-    [products, genderFilter],
+    () => products.filter((product) => matchesCategoryFilter(product.category, categoryFilter)),
+    [products, categoryFilter],
   );
   const productNameOptions = useMemo(
     () => uniqueProductNameOptions(filteredProducts, filteredProductCodes),
@@ -302,7 +316,7 @@ export function OrderForm() {
         <Card>
           <CardTitle>Cliente</CardTitle>
           <div className="mt-4 grid gap-4 sm:grid-cols-2">
-            <FormField label="Nombre" required error={errors.customer} className="sm:col-span-2">
+            <FormField label="Nombre" required error={errors.customer} hint={registeredCustomerHint} className="sm:col-span-2">
               <Input
                 list={customerListId}
                 value={draft.customer.fullName}
@@ -346,13 +360,7 @@ export function OrderForm() {
         <Card>
           <div className="flex flex-wrap items-center justify-between gap-3">
             <CardTitle>Productos</CardTitle>
-            <FormField label="Categoría" className="w-40">
-              <Select value={genderFilter} onChange={(event) => setGenderFilter(event.target.value as CatalogGenderFilter)}>
-                <option value="all">Todos</option>
-                <option value="MUJER">Mujer</option>
-                <option value="HOMBRE">Hombre</option>
-              </Select>
-            </FormField>
+            <CatalogCategorySelect value={categoryFilter} options={categoryOptions} onChange={setCategoryFilter} />
           </div>
           {errors.items ? (
             <p className="mt-2 text-xs font-medium text-danger" role="alert">
