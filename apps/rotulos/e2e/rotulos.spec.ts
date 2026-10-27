@@ -8,9 +8,10 @@ test("creates visible label preview with QR and exact ratio", async ({ page }) =
   await expect(page.getByAltText("QR de Instagram PurpleShop")).toBeVisible();
 
   await page.getByLabel("Nombre y apellidos").pressSequentially("Ana Perez");
-  await page.getByLabel("Telefono").nth(1).pressSequentially("3101234567");
-  await page.getByLabel("Ciudad").nth(1).pressSequentially("Medellin");
-  await page.getByLabel("Direccion completa").pressSequentially("Carrera 45 # 10-20");
+  await page.getByLabel("Teléfono").nth(1).pressSequentially("3101234567");
+  await page.getByLabel("Departamento").nth(1).selectOption("ANTIOQUIA");
+  await page.getByLabel("Ciudad / municipio").nth(1).selectOption("MEDELLÍN");
+  await page.getByLabel("Dirección completa").pressSequentially("Carrera 45 # 10-20");
 
   await expect(canvas.getByText("Ana Perez")).toBeVisible();
   await expect(canvas.getByText("Carrera 45 # 10-20")).toBeVisible();
@@ -24,7 +25,7 @@ test("history search field is available", async ({ page }) => {
   await page.goto("/historial");
 
   await expect(page.getByRole("heading", { name: "Historial" })).toBeVisible();
-  await expect(page.getByLabel("Buscar por numero de pedido, cliente o telefono")).toBeVisible();
+  await expect(page.getByLabel("Buscar por número de pedido, cliente o teléfono")).toBeVisible();
 });
 
 test("settings shows estimated next order number", async ({ page }) => {
