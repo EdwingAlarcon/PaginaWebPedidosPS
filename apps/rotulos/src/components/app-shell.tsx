@@ -18,6 +18,7 @@ import {
   PanelLeftOpen,
   Receipt,
   Settings,
+  Truck,
   Users,
   X,
   type LucideIcon,
@@ -54,6 +55,7 @@ const NAV_GROUPS: NavGroup[] = [
     label: "Envíos",
     items: [
       { href: "/despacho", label: "Despacho", icon: ClipboardCheck },
+      { href: "/guias", label: "Guías", icon: Truck },
       { href: "/historial", label: "Historial", icon: PackagePlus },
     ],
   },

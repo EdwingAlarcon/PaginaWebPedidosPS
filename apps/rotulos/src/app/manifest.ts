@@ -20,6 +20,14 @@ export default function manifest(): MetadataRoute.Manifest {
     shortcuts: [
       { name: "Nuevo pedido", url: "/pedidos/nuevo" },
       { name: "Despacho", url: "/despacho" },
+      { name: "Asignar guías", url: "/guias" },
     ],
+    // Android: "Compartir -> Purple Shop" desde la pagina del comprobante de la
+    // transportadora abre /guias con el texto compartido.
+    share_target: {
+      action: "/guias",
+      method: "GET",
+      params: { title: "title", text: "text", url: "url" },
+    },
   };
 }

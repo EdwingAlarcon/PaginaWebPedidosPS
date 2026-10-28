@@ -180,6 +180,21 @@ explicitamente si no pudiste probar con sesion autenticada).
 
 ## Estado operativo reciente
 
+- 2026-10-28: pantalla `/guias` ("Asignar guías") para Interrapidísimo. El
+  usuario comparte (share_target del manifest, Android) o pega el texto de la
+  página "Ver detalles" del comprobante; `src/lib/interrapidisimo-receipt.ts`
+  lee guía/destinatario/destino y `src/lib/tracking-match.ts` busca el rótulo
+  sin guía (nombre + ciudad, últimos 30 días). Coincidencia única se guarda
+  sola; si hay duda, el usuario elige. `trackingUrl` = link del comprobante
+  (decisión de Edwing). **No consultar la API interna de Interrapidísimo**
+  (requiere token propio de su sitio); solo se usa el texto que el usuario ve.
+  El envío al cliente sigue siendo `wa.me` con un toque. Leer el WhatsApp del
+  negocio automáticamente quedó descartado: el mensaje no trae guía ni cliente
+  (solo el botón "Ver detalles"); vía oficial sería Cloud API + coexistencia.
+- Tests con Node 26 local: correr con
+  `NODE_OPTIONS=--no-experimental-webstorage` (el `localStorage` nativo de Node
+  tapa el de jsdom y rompe ~70 tests que no tienen relación).
+
 - 2026-09-21: auditoría de producto y 7 mejoras implementadas (pagos/saldo por
   pedido con tabla `order_payments`, orden y filtros en Pedidos, línea de tiempo,
   clientes sin teléfono, autocompletar por código, lote en Despacho, PWA/a11y).
