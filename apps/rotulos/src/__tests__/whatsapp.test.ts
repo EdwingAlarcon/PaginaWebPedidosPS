@@ -16,15 +16,22 @@ describe("normalizePhoneForWhatsApp", () => {
 });
 
 describe("buildWhatsAppLink", () => {
-  it("builds a wa.me link with the normalized phone and encoded text", () => {
+  it("builds an api.whatsapp.com link with the normalized phone and encoded text", () => {
     const link = buildWhatsAppLink("3001111111", "Hola & gracias");
 
-    expect(link).toBe("https://wa.me/573001111111?text=Hola%20%26%20gracias");
+    expect(link).toBe("https://api.whatsapp.com/send?phone=573001111111&text=Hola%20%26%20gracias");
   });
 
   it("falls back to a link without a phone when there is none", () => {
     const link = buildWhatsAppLink("", "Hola");
 
-    expect(link).toBe("https://wa.me/?text=Hola");
+    expect(link).toBe("https://api.whatsapp.com/send?text=Hola");
+  });
+
+  it("keeps emojis as UTF-8 and avoids the wa.me redirect that breaks them", () => {
+    const link = buildWhatsAppLink("3001111111", "Hola 💜");
+
+    expect(link).not.toContain("wa.me");
+    expect(link).toContain("Hola%20%F0%9F%92%9C");
   });
 });
