@@ -188,9 +188,18 @@ explicitamente si no pudiste probar con sesion autenticada).
   sola; si hay duda, el usuario elige. `trackingUrl` = link del comprobante
   (decisión de Edwing). **No consultar la API interna de Interrapidísimo**
   (requiere token propio de su sitio); solo se usa el texto que el usuario ve.
-  El envío al cliente sigue siendo `wa.me` con un toque. Leer el WhatsApp del
-  negocio automáticamente quedó descartado: el mensaje no trae guía ni cliente
-  (solo el botón "Ver detalles"); vía oficial sería Cloud API + coexistencia.
+  El envío al cliente sigue siendo un link de WhatsApp con un toque.
+  **Automatización completa descartada (cerrado por Edwing):** el WhatsApp y el
+  correo de Interrapidísimo (`notificaciones@interrapidisimo.com`, botón "Ver
+  envíos" → `sms.inter.la/...` → mismo comprobante) no traen guía ni cliente;
+  Edwing confirmó con Interrapidísimo que no hay API para clientes, que las
+  notificaciones no pueden incluir la guía y que solo avisan al remitente, no
+  al destinatario. No volver a proponer Cloud API/MacroDroid/Gmail salvo que
+  la transportadora cambie.
+- 2026-10-28: links de WhatsApp (`src/lib/whatsapp.ts`) ahora usan
+  `https://api.whatsapp.com/send?phone=...&text=...` en vez de `wa.me`: la
+  redirección de `wa.me` cambia cada emoji por "�" (U+FFFD). No volver a
+  `wa.me`. Verificado por Edwing en su celular (commit `b322409`).
 - Tests con Node 26 local: correr con
   `NODE_OPTIONS=--no-experimental-webstorage` (el `localStorage` nativo de Node
   tapa el de jsdom y rompe ~70 tests que no tienen relación).
