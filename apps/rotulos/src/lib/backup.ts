@@ -1,4 +1,5 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
+import { fetchAllPages } from "@/lib/paginate";
 
 export type FullBackupPayload = {
   generatedAt: string;
@@ -16,20 +17,38 @@ export type FullBackupPayload = {
   settings: unknown[];
 };
 
+/**
+ * Trae TODAS las filas de una tabla. Supabase corta en 1000 filas sin avisar:
+ * un backup/export truncado en silencio seria peor que no tenerlo.
+ * Todas las tablas del backup tienen `id` (se usa como orden estable).
+ */
+export async function selectAllRows(
+  supabase: SupabaseClient,
+  table: string,
+): Promise<{ data: unknown[]; error: { message: string } | null }> {
+  const result = await fetchAllPages<unknown>((from, to) =>
+    supabase.from(table).select("*").order("id").range(from, to),
+  );
+  return {
+    data: result.data,
+    error: result.error ? { message: (result.error as { message?: string }).message ?? "query_failed" } : null,
+  };
+}
+
 export async function buildFullBackupPayload(
   supabase: SupabaseClient,
   generatedBy: string,
 ): Promise<{ payload: FullBackupPayload } | { error: string }> {
   const [customers, orders, orderItems, orderEdits, productCodes, products, stockMovements, labels, settings] = await Promise.all([
-    supabase.from("customers").select("*"),
-    supabase.from("orders").select("*"),
-    supabase.from("order_items").select("*"),
-    supabase.from("order_edits").select("*"),
-    supabase.from("product_codes").select("*"),
-    supabase.from("products").select("*"),
-    supabase.from("stock_movements").select("*"),
-    supabase.from("labels").select("*"),
-    supabase.from("settings").select("*"),
+    selectAllRows(supabase, "customers"),
+    selectAllRows(supabase, "orders"),
+    selectAllRows(supabase, "order_items"),
+    selectAllRows(supabase, "order_edits"),
+    selectAllRows(supabase, "product_codes"),
+    selectAllRows(supabase, "products"),
+    selectAllRows(supabase, "stock_movements"),
+    selectAllRows(supabase, "labels"),
+    selectAllRows(supabase, "settings"),
   ]);
   const failed = [customers, orders, orderItems, orderEdits, productCodes, products, stockMovements, labels, settings].find(
     (result) => result.error,
@@ -37,7 +56,7 @@ export async function buildFullBackupPayload(
   if (failed?.error) return { error: failed.error.message };
 
   // Tabla nueva (migracion 202609210001): si aun no existe no debe romper el backup.
-  const orderPayments = await supabase.from("order_payments").select("*");
+  const orderPayments = await selectAllRows(supabase, "order_payments");
 
   return {
     payload: {

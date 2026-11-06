@@ -2,7 +2,7 @@ import { NextRequest } from "next/server";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 function mockServiceClient(overrides: { listResult?: { data: unknown; error: unknown } } = {}) {
-  const selectAll = vi.fn(async () => ({ data: [], error: null }));
+  const selectAll = vi.fn(() => ({ order: () => ({ range: async () => ({ data: [], error: null }) }) }));
   const upload = vi.fn(async () => ({ error: null }));
   const remove = vi.fn(async () => ({ error: null }));
   const list = vi.fn(async () => overrides.listResult ?? { data: [], error: null });

@@ -1,6 +1,7 @@
 import { createBlankLabelDraft, defaultSettings } from "@/lib/defaults";
 import { formatOrderNumber, getSequenceScope } from "@/lib/order-number";
 import { createClient } from "@/lib/supabase/client";
+import { fetchAllPages } from "@/lib/paginate";
 import { normalizeLabelDraft, normalizeLabelSettings } from "@/lib/normalize";
 import type { LabelDraft, LabelRecord, LabelSettings } from "@/lib/types";
 
@@ -146,7 +147,9 @@ function createSupabaseLabelStore(): LabelStore | null {
   if (!supabase) return null;
   return {
     async listLabels() {
-      const { data, error } = await supabase.from("labels").select("*").order("created_at", { ascending: false }).returns<LabelRow[]>();
+      const { data, error } = await fetchAllPages<LabelRow>((from, to) =>
+        supabase.from("labels").select("*").order("created_at", { ascending: false }).order("id").range(from, to).returns<LabelRow[]>(),
+      );
       if (error) throw error;
       return (data ?? []).map(rowToLabel);
     },

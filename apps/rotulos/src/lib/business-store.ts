@@ -2,6 +2,7 @@
 
 import { createClient } from "@/lib/supabase/client";
 import { businessToday } from "@/lib/date";
+import { fetchAllPages } from "@/lib/paginate";
 import { normalizeCustomerFields, normalizeOrderDraft, normalizeProductCode, normalizeProductCodePatch } from "@/lib/normalize";
 import type { Customer, CustomerPatch, OrderDraft, OrderEdit, OrderItem, OrderPatch, OrderPayment, OrderPaymentDraft, OrderRecord, PaymentMethod, ProductCode, ProductCodePatch } from "@/lib/business-types";
 
@@ -565,13 +566,17 @@ function createSupabaseBusinessStore(): BusinessStore | null {
   if (!supabase) return null;
   return {
     async listOrders() {
-      const { data, error } = await supabase
-        .from("orders")
-        .select("*, order_items(*)")
-        .order("created_at", { ascending: false })
-        .returns<OrderRow[]>();
+      const { data, error } = await fetchAllPages<OrderRow>((from, to) =>
+        supabase
+          .from("orders")
+          .select("*, order_items(*)")
+          .order("created_at", { ascending: false })
+          .order("id")
+          .range(from, to)
+          .returns<OrderRow[]>(),
+      );
       if (error) throw error;
-      return (data ?? []).map(rowToOrder);
+      return data.map(rowToOrder);
     },
     async saveOrder(draft) {
       const normalizedDraft = normalizeOrderDraft(draft);
@@ -609,14 +614,18 @@ function createSupabaseBusinessStore(): BusinessStore | null {
       return (data ?? []).map(rowToOrderEdit);
     },
     async listPayments() {
-      const { data, error } = await supabase
-        .from("order_payments")
-        .select("*")
-        .order("paid_at", { ascending: true })
-        .returns<OrderPaymentRow[]>();
+      const { data, error } = await fetchAllPages<OrderPaymentRow>((from, to) =>
+        supabase
+          .from("order_payments")
+          .select("*")
+          .order("paid_at", { ascending: true })
+          .order("id")
+          .range(from, to)
+          .returns<OrderPaymentRow[]>(),
+      );
       // Migracion 202609210001 aun no aplicada: la app sigue funcionando sin pagos.
       if (error) return [];
-      return (data ?? []).map(rowToPayment);
+      return data.map(rowToPayment);
     },
     async addPayment(orderId, draft) {
       const normalized = normalizePaymentDraft(draft);
@@ -639,9 +648,17 @@ function createSupabaseBusinessStore(): BusinessStore | null {
       if (error) throw error;
     },
     async listCustomers() {
-      const { data, error } = await supabase.from("customers").select("*").order("full_name", { ascending: true }).returns<CustomerRow[]>();
+      const { data, error } = await fetchAllPages<CustomerRow>((from, to) =>
+        supabase
+          .from("customers")
+          .select("*")
+          .order("full_name", { ascending: true })
+          .order("id")
+          .range(from, to)
+          .returns<CustomerRow[]>(),
+      );
       if (error) throw error;
-      return sortCustomersByName((data ?? []).map(rowToCustomer));
+      return sortCustomersByName(data.map(rowToCustomer));
     },
     async updateCustomer(id, patch) {
       const normalizedPatch = normalizeCustomerPatch(patch);
@@ -671,9 +688,11 @@ function createSupabaseBusinessStore(): BusinessStore | null {
       return { updatedOrders: Number(data) };
     },
     async listProductCodes() {
-      const { data, error } = await supabase.from("product_codes").select("*").order("code").returns<ProductCodeRow[]>();
+      const { data, error } = await fetchAllPages<ProductCodeRow>((from, to) =>
+        supabase.from("product_codes").select("*").order("code").order("id").range(from, to).returns<ProductCodeRow[]>(),
+      );
       if (error) throw error;
-      return (data ?? []).map(rowToProductCode);
+      return data.map(rowToProductCode);
     },
     async saveProductCode(code) {
       const normalizedCode = normalizeProductCode(code);

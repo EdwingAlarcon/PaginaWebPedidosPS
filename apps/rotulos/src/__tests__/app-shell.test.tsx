@@ -43,10 +43,10 @@ describe("AppShell", () => {
       </AppShell>,
     );
 
-    await user.click(screen.getByRole("button", { name: /contraer menu/i }));
+    await user.click(screen.getByRole("button", { name: /contraer menú/i }));
 
     expect(localStorage.getItem("purpleshop.sidebar-collapsed")).toBe("true");
-    expect(screen.getByRole("button", { name: /expandir menu/i })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /expandir menú/i })).toBeInTheDocument();
   });
 
   it("abre el drawer movil, lo cierra con Escape y devuelve el foco al boton que lo abrio", async () => {
@@ -57,13 +57,13 @@ describe("AppShell", () => {
       </AppShell>,
     );
 
-    const openBtn = screen.getByRole("button", { name: /abrir menu de navegacion/i });
+    const openBtn = screen.getByRole("button", { name: /abrir menú de navegación/i });
     await user.click(openBtn);
-    expect(screen.getByRole("navigation", { name: /navegacion movil/i })).toBeInTheDocument();
+    expect(screen.getByRole("navigation", { name: /navegación móvil/i })).toBeInTheDocument();
 
     await user.keyboard("{Escape}");
 
-    expect(screen.queryByRole("navigation", { name: /navegacion movil/i })).not.toBeInTheDocument();
+    expect(screen.queryByRole("navigation", { name: /navegación móvil/i })).not.toBeInTheDocument();
     expect(openBtn).toHaveFocus();
   });
 });

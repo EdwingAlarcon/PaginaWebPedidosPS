@@ -1,6 +1,7 @@
 "use client";
 
 import { createClient } from "@/lib/supabase/client";
+import { fetchAllPages } from "@/lib/paginate";
 import { normalizeProductDraft, normalizeStockMovementDraft } from "@/lib/normalize";
 import type {
   Product,
@@ -180,9 +181,11 @@ function createSupabaseInventoryStore(): InventoryStore | null {
   if (!supabase) return null;
   return {
     async listProducts() {
-      const { data, error } = await supabase.from("products").select("*").order("name").returns<ProductRow[]>();
+      const { data, error } = await fetchAllPages<ProductRow>((from, to) =>
+        supabase.from("products").select("*").order("name").order("id").range(from, to).returns<ProductRow[]>(),
+      );
       if (error) throw error;
-      return (data ?? []).map(rowToProduct);
+      return data.map(rowToProduct);
     },
     async saveProduct(draft, id) {
       const normalizedDraft = normalizeProductDraft(draft);
@@ -206,11 +209,13 @@ function createSupabaseInventoryStore(): InventoryStore | null {
       if (error) throw error;
     },
     async listMovements(productId) {
-      let query = supabase.from("stock_movements").select("*").order("created_at", { ascending: false });
-      if (productId) query = query.eq("product_id", productId);
-      const { data, error } = await query.returns<StockMovementRow[]>();
+      const { data, error } = await fetchAllPages<StockMovementRow>((from, to) => {
+        let query = supabase.from("stock_movements").select("*").order("created_at", { ascending: false }).order("id");
+        if (productId) query = query.eq("product_id", productId);
+        return query.range(from, to).returns<StockMovementRow[]>();
+      });
       if (error) throw error;
-      return (data ?? []).map(rowToMovement);
+      return data.map(rowToMovement);
     },
     async recordMovement(draft) {
       const normalizedDraft = normalizeStockMovementDraft(draft);

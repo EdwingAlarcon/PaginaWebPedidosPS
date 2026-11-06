@@ -30,8 +30,9 @@ function mockSupabase() {
   const single = vi.fn(async () => ({ data: ORDER_ROW, error: null }));
   const eq = vi.fn(() => ({ single }));
   const returns = vi.fn(async () => ({ data: [], error: null }));
-  const order = vi.fn(() => ({ returns }));
-  const select = vi.fn(() => ({ eq, order, returns }));
+  const range = vi.fn(() => ({ returns }));
+  const order: ReturnType<typeof vi.fn> = vi.fn(() => ({ order, range, returns }));
+  const select = vi.fn(() => ({ eq, order, range, returns }));
   const from = vi.fn(() => ({ select }));
   return { rpc, from, single, eq, select, order, returns };
 }

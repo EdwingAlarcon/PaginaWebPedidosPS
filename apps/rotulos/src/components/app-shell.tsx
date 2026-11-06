@@ -44,7 +44,6 @@ const NAV_GROUPS: NavGroup[] = [
     label: "Gestión",
     items: [
       { href: "/pedidos", label: "Pedidos", icon: ClipboardList },
-      { href: "/pedidos/importados", label: "Importados", icon: FileClock },
       { href: "/clientes", label: "Clientes", icon: Users },
       { href: "/inventario", label: "Inventario", icon: Archive },
       { href: "/catalogo", label: "Catálogo", icon: BookImage },
@@ -61,7 +60,10 @@ const NAV_GROUPS: NavGroup[] = [
   },
   {
     label: "Sistema",
-    items: [{ href: "/configuracion", label: "Configuración", icon: Settings }],
+    items: [
+      { href: "/configuracion", label: "Configuración", icon: Settings },
+      { href: "/pedidos/importados", label: "Importados", icon: FileClock },
+    ],
   },
 ];
 
@@ -75,6 +77,7 @@ const PAGE_META: Record<string, { title: string; description: string }> = {
   "/catalogo": { title: "Catálogo", description: "Productos, fotos y precios para compartir con clientes" },
   "/reportes": { title: "Reportes", description: "Ventas, productos y tendencias" },
   "/crear": { title: "Crear rótulo", description: "Genera el rótulo de envío de un pedido" },
+  "/guias": { title: "Guías", description: "Asigna la guía de rastreo a cada rótulo" },
   "/despacho": { title: "Despacho", description: "Pedidos por rotular, imprimir y completar" },
   "/historial": { title: "Historial", description: "Rótulos generados anteriormente" },
   "/configuracion": { title: "Configuración", description: "Ajustes de la aplicación" },
@@ -130,7 +133,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             {!collapsed && (
               <div>
                 <strong>Purple Shop</strong>
-                <span>Sistema de Gestion</span>
+                <span>Sistema de Gestión</span>
               </div>
             )}
           </div>
@@ -138,12 +141,12 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             type="button"
             className="sidebar-collapse-btn"
             onClick={toggleCollapsed}
-            aria-label={collapsed ? "Expandir menu" : "Contraer menu"}
+            aria-label={collapsed ? "Expandir menú" : "Contraer menú"}
           >
             {collapsed ? <PanelLeftOpen size={18} /> : <PanelLeftClose size={18} />}
           </button>
         </div>
-        <nav className="app-shell-nav" aria-label="Navegacion principal">
+        <nav className="app-shell-nav" aria-label="Navegación principal">
           {NAV_GROUPS.map((group) => (
             <div className="sidebar-group" key={group.label}>
               {!collapsed && <p className="sidebar-group-label">{group.label}</p>}
@@ -173,7 +176,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             type="button"
             className="topbar-menu-toggle"
             onClick={() => setMobileOpen(true)}
-            aria-label="Abrir menu de navegacion"
+            aria-label="Abrir menú de navegación"
             ref={mobileToggleRef}
           >
             <Menu size={20} />
@@ -193,14 +196,14 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           <div className="mobile-drawer-backdrop" onClick={closeMobileDrawer}>
             <nav
               className="mobile-drawer"
-              aria-label="Navegacion movil"
+              aria-label="Navegación móvil"
               onClick={(event) => event.stopPropagation()}
             >
               <button
                 type="button"
                 className="mobile-drawer-close"
                 onClick={closeMobileDrawer}
-                aria-label="Cerrar menu de navegacion"
+                aria-label="Cerrar menú de navegación"
               >
                 <X size={20} />
               </button>

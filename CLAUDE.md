@@ -180,6 +180,17 @@ explicitamente si no pudiste probar con sesion autenticada).
 
 ## Estado operativo reciente
 
+- 2026-11-06: listados sin truncar + Inicio orientado a accion. Supabase corta cada
+  consulta en 1000 filas SIN error; `src/lib/paginate.ts` (`fetchAllPages`) recorre
+  todas las paginas (orden estable con `id` de desempate) y lo usan `listOrders`,
+  `listPayments`, `listCustomers`, `listProductCodes`, `listLabels`, `listProducts`,
+  `listMovements`. Backup (`buildFullBackupPayload`) y `/api/export` usan
+  `selectAllRows` (`src/lib/backup.ts`): antes un backup con >1000 filas (p. ej.
+  `order_items`) salia truncado en silencio. **Toda consulta nueva de listado
+  completo debe paginar.** Inicio: bloque "Que hacer hoy" (por despachar, por
+  cobrar, clientes por reactivar a 45 dias; `src/lib/inactive-customers.ts`
+  extraido de Reportes). Menu: "Importados" paso a grupo Sistema, tildes corregidas.
+
 - 2026-10-28: pantalla `/guias` ("Asignar guías") para Interrapidísimo. El
   usuario comparte (share_target del manifest, Android) o pega el texto de la
   página "Ver detalles" del comprobante; `src/lib/interrapidisimo-receipt.ts`

@@ -3,7 +3,7 @@ import { requireSession } from "@/lib/require-session";
 import { createServiceClient } from "@/lib/supabase/server";
 import { businessToday } from "@/lib/date";
 import { toCsv } from "@/lib/export-csv";
-import { buildFullBackupPayload } from "@/lib/backup";
+import { buildFullBackupPayload, selectAllRows } from "@/lib/backup";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -87,7 +87,7 @@ export async function GET(request: NextRequest) {
   }
 
   const config = CSV_TABLES[tableParam];
-  const { data, error } = await supabase.from(config.table).select("*");
+  const { data, error } = await selectAllRows(supabase, config.table);
   if (error) {
     return Response.json({ error: "export_failed", detail: error.message }, { status: 500 });
   }

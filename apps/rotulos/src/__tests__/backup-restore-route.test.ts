@@ -66,7 +66,7 @@ function createSupabaseMock(current: FullBackupPayload = snapshot()) {
         };
       }
       return {
-        select: vi.fn(async () => ({ data: tableData.get(table) ?? [], error: null })),
+        select: vi.fn(() => ({ order: () => ({ range: async () => ({ data: tableData.get(table) ?? [], error: null }) }) })),
         insert: table === "customers" ? insertCustomer : vi.fn(async () => ({ error: null })),
         update: vi.fn(() => ({ eq: vi.fn(async () => ({ error: null })) })),
       };

@@ -5,9 +5,10 @@ import { useEffect, useMemo, useState } from "react";
 import { getInventoryStore } from "@/lib/inventory-store";
 import { getBusinessStore } from "@/lib/business-store";
 import { getLabelStore } from "@/lib/label-store";
-import { businessDaysAgo, businessToday } from "@/lib/date";
+import { businessDaysAgo } from "@/lib/date";
 import { formatCop, formatDate } from "@/lib/format";
-import { isRelatedOrderToCustomer } from "@/lib/customer-orders";
+import { getInactiveCustomers } from "@/lib/inactive-customers";
+import type { InactiveCustomer } from "@/lib/inactive-customers";
 import { buildHistoricalReport } from "@/lib/historical-reports";
 import { buildWhatsAppLink } from "@/lib/whatsapp";
 import type { Product, StockAlerts } from "@/lib/inventory-types";
@@ -117,37 +118,8 @@ export function getPendingOrders(orders: OrderRecord[], limit = 6): OrderRecord[
     .slice(0, limit);
 }
 
-export type InactiveCustomer = {
-  customer: Customer;
-  lastOrderDate: string;
-  daysInactive: number;
-};
-
-function daysBetween(from: string, to: string): number {
-  const fromMs = Date.parse(`${from}T00:00:00Z`);
-  const toMs = Date.parse(`${to}T00:00:00Z`);
-  return Math.floor((toMs - fromMs) / (24 * 60 * 60 * 1000));
-}
-
-export function getInactiveCustomers(
-  customers: Customer[],
-  orders: OrderRecord[],
-  thresholdDays: number,
-  today: string = businessToday(),
-): InactiveCustomer[] {
-  const result: InactiveCustomer[] = [];
-  for (const customer of customers) {
-    let lastOrderDate = "";
-    for (const order of orders) {
-      if (!isRelatedOrderToCustomer(order, customer)) continue;
-      if (order.orderDate > lastOrderDate) lastOrderDate = order.orderDate;
-    }
-    if (!lastOrderDate) continue;
-    const daysInactive = daysBetween(lastOrderDate, today);
-    if (daysInactive >= thresholdDays) result.push({ customer, lastOrderDate, daysInactive });
-  }
-  return result.sort((a, b) => b.daysInactive - a.daysInactive);
-}
+export { getInactiveCustomers };
+export type { InactiveCustomer };
 
 export default function ReportsPage() {
   const [products, setProducts] = useState<Product[]>([]);
