@@ -1,5 +1,15 @@
 # Purple Shop — Próximos pasos / handoff
 
+> **Pendiente para retomar (2026-11-06, a pedido de Edwing: "esta noche"):**
+> listados paginados e Inicio "Qué hacer hoy" ya están en producción y verificados
+> por Edwing (commit `6678fc5`). Quedan dos mejoras opcionales, no urgentes:
+> 1. Mover los cálculos del Inicio (`dashboard-stats.tsx`, hoy en el navegador)
+>    a un resumen agregado en servidor (RPC `dashboard_summary`). Requiere una
+>    migración SQL que Edwing aplica a mano en el SQL Editor de Supabase.
+> 2. `src/app/(app)/page.tsx` trae los rótulos en servidor y `DashboardStats`
+>    los vuelve a traer en cliente; quitar la carga duplicada.
+> Prioridad: recién necesario cuando el volumen se acerque a miles de pedidos.
+
 > **Actualización 2026-08-26 (para retomar con Claude o Codex):** el
 > catálogo compartible (feature de 2026-08-25 abajo) quedó **completo y
 > desplegado**, más una vuelta grande de mejoras la misma tarde:
