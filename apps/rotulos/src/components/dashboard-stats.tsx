@@ -81,8 +81,9 @@ function ActionCard({
   );
 }
 
-export function DashboardStats({ labels }: { labels: LabelRecord[] }) {
-  const [dashboardLabels, setDashboardLabels] = useState(labels);
+export function DashboardStats() {
+  const [dashboardLabels, setDashboardLabels] = useState<LabelRecord[]>([]);
+  const [labelsFailed, setLabelsFailed] = useState(false);
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [orders, setOrders] = useState<OrderRecord[]>([]);
   const [payments, setPayments] = useState<OrderPayment[]>([]);
@@ -92,7 +93,13 @@ export function DashboardStats({ labels }: { labels: LabelRecord[] }) {
 
   useEffect(() => {
     Promise.all([
-      getLabelStore().listLabels().catch(() => labels),
+      getLabelStore()
+        .listLabels()
+        .then((result) => ({ result, failed: false }))
+        .catch((error: unknown) => {
+          console.error("No se pudieron cargar los rotulos", error);
+          return { result: [] as LabelRecord[], failed: true };
+        }),
       getBusinessStore().listOrders().catch(() => []),
       getInventoryStore()
         .getStockAlerts()
@@ -105,7 +112,8 @@ export function DashboardStats({ labels }: { labels: LabelRecord[] }) {
         .catch(() => false),
       getBusinessStore().listCustomers().catch(() => []),
     ]).then(([labelsResult, ordersResult, lowStock, paymentsResult, inventoryPresent, customersResult]) => {
-      setDashboardLabels(labelsResult);
+      setDashboardLabels(labelsResult.result);
+      setLabelsFailed(labelsResult.failed);
       setCustomers(customersResult);
       setOrders(ordersResult);
       setLowStockCount(lowStock);
@@ -113,7 +121,7 @@ export function DashboardStats({ labels }: { labels: LabelRecord[] }) {
       setHasInventory(inventoryPresent);
       setLoading(false);
     });
-  }, [labels]);
+  }, []);
 
   const todayOrders = orders.filter((order) => isToday(order.orderDate));
   const todayRevenue = todayOrders.reduce((sum, order) => sum + order.total, 0);
@@ -241,7 +249,12 @@ export function DashboardStats({ labels }: { labels: LabelRecord[] }) {
               <Link href="/historial">Ver todos</Link>
             </Button>
           </CardHeader>
-          {latestLabels.length === 0 ? (
+          {labelsFailed ? (
+            <EmptyState
+              title="No se pudieron cargar los rótulos"
+              description="Recarga la página. Si sigue igual, revisa la conexión o vuelve a iniciar sesión."
+            />
+          ) : latestLabels.length === 0 ? (
             <EmptyState
               title="Aún no hay rótulos"
               description="Genera un rótulo de envío para verlo aquí."

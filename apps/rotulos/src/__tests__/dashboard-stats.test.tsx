@@ -58,7 +58,8 @@ vi.mock("@/lib/business-store", () => ({
     listCustomers: async () => [customerLuisa],
   }),
 }));
-vi.mock("@/lib/label-store", () => ({ getLabelStore: () => ({ listLabels: async () => [] }) }));
+const listLabelsMock = vi.fn(async (): Promise<unknown[]> => []);
+vi.mock("@/lib/label-store", () => ({ getLabelStore: () => ({ listLabels: () => listLabelsMock() }) }));
 vi.mock("@/lib/inventory-store", () => ({
   getInventoryStore: () => ({
     getStockAlerts: async () => ({ lowStock: [], critical: [], overstocked: [] }),
@@ -70,7 +71,7 @@ import { DashboardStats } from "@/components/dashboard-stats";
 
 describe("DashboardStats - Que hacer hoy", () => {
   it("resume lo accionable: por despachar, por cobrar y clientes por reactivar", async () => {
-    render(<DashboardStats labels={[]} />);
+    render(<DashboardStats />);
 
     const section = await waitFor(() => {
       const el = screen.getByRole("region", { name: /qué hacer hoy/i });
@@ -83,5 +84,16 @@ describe("DashboardStats - Que hacer hoy", () => {
     expect(within(section).getByText("1 pedido con saldo")).toBeInTheDocument();
     expect(within(section).getByRole("link", { name: /clientes por reactivar/i })).toHaveAttribute("href", "/reportes");
     expect(within(section).getByText(/más de 45 días sin comprar/i)).toBeInTheDocument();
+  });
+
+  it("avisa cuando no se pueden cargar los rotulos en vez de decir que no hay", async () => {
+    listLabelsMock.mockRejectedValueOnce(new Error("boom"));
+    const errorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+
+    render(<DashboardStats />);
+
+    expect(await screen.findByText("No se pudieron cargar los rótulos")).toBeInTheDocument();
+    expect(screen.queryByText("Aún no hay rótulos")).not.toBeInTheDocument();
+    errorSpy.mockRestore();
   });
 });

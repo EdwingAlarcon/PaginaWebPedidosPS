@@ -26,6 +26,7 @@ export function HistoryTable({ labels }: { labels: LabelRecord[] }) {
   const [pendingDelete, setPendingDelete] = useState<LabelRecord | null>(null);
   const [deleting, setDeleting] = useState(false);
   const [trackingLabel, setTrackingLabel] = useState<LabelRecord | null>(null);
+  const [loadFailed, setLoadFailed] = useState(false);
   const toast = useToast();
 
   async function saveTracking(trackingNumber: string, trackingUrl: string) {
@@ -44,7 +45,19 @@ export function HistoryTable({ labels }: { labels: LabelRecord[] }) {
   }
 
   useEffect(() => {
-    getLabelStore().listLabels().then(setTableLabels);
+    getLabelStore()
+      .listLabels()
+      .then((loaded) => {
+        setTableLabels(loaded);
+        setLoadFailed(false);
+      })
+      .catch((error: unknown) => {
+        console.error("No se pudieron cargar los rotulos", error);
+        setLoadFailed(true);
+        toast.push({ variant: "danger", title: "No se pudieron cargar los rótulos. Recarga la página." });
+      });
+    // toast cambia en cada render del proveedor; solo cargamos al montar.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   async function duplicateLabel(id: string) {
@@ -168,15 +181,21 @@ export function HistoryTable({ labels }: { labels: LabelRecord[] }) {
           label.recipient.fullName.toLowerCase().includes(query) ||
           label.recipient.phone.toLowerCase().includes(query)
         }
-        emptyTitle="No hay rótulos todavía"
-        emptyDescription="Genera tu primer rótulo de envío para verlo en el historial."
+        emptyTitle={loadFailed ? "No se pudieron cargar los rótulos" : "No hay rótulos todavía"}
+        emptyDescription={
+          loadFailed
+            ? "Recarga la página. Si sigue igual, revisa la conexión o vuelve a iniciar sesión."
+            : "Genera tu primer rótulo de envío para verlo en el historial."
+        }
         emptyAction={
-          <Button size="sm" asChild>
-            <Link href="/crear">
-              <Plus className="size-4" aria-hidden="true" />
-              Crear rótulo
-            </Link>
-          </Button>
+          loadFailed ? undefined : (
+            <Button size="sm" asChild>
+              <Link href="/crear">
+                <Plus className="size-4" aria-hidden="true" />
+                Crear rótulo
+              </Link>
+            </Button>
+          )
         }
       />
       <ConfirmDialog

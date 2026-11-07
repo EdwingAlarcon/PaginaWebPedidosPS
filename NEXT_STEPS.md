@@ -1,13 +1,19 @@
 # Purple Shop — Próximos pasos / handoff
 
-> **Pendiente para retomar (2026-11-06, a pedido de Edwing: "esta noche"):**
+> **Pendiente para retomar (actualizado 2026-11-07):**
 > listados paginados e Inicio "Qué hacer hoy" ya están en producción y verificados
-> por Edwing (commit `6678fc5`). Quedan dos mejoras opcionales, no urgentes:
-> 1. Mover los cálculos del Inicio (`dashboard-stats.tsx`, hoy en el navegador)
->    a un resumen agregado en servidor (RPC `dashboard_summary`). Requiere una
->    migración SQL que Edwing aplica a mano en el SQL Editor de Supabase.
-> 2. `src/app/(app)/page.tsx` trae los rótulos en servidor y `DashboardStats`
->    los vuelve a traer en cliente; quitar la carga duplicada.
+> por Edwing (commit `6678fc5`). Quedó hecho el 2026-11-07: el Inicio ya no trae
+> los rótulos en servidor (esa carga siempre devolvía `[]` porque el store de
+> Supabase solo existe en el navegador) y, junto con el Historial, avisa cuando
+> falla la carga de rótulos en vez de mostrar "no hay rótulos".
+> Queda una mejora opcional, no urgente:
+> - Mover los cálculos del Inicio (`dashboard-stats.tsx`, hoy en el navegador)
+>   a un resumen agregado en servidor (RPC `dashboard_summary`). Requiere una
+>   migración SQL que Edwing aplica a mano en el SQL Editor de Supabase, y
+>   obliga a reescribir en SQL las reglas de despacho incompleto, cartera
+>   (`summarizePayment`), coincidencia de cliente por nombre
+>   (`isRelatedOrderToCustomer`) y alertas de stock; sin una base para probarlo,
+>   el riesgo es que el Inicio y Despacho muestren números distintos.
 > Prioridad: recién necesario cuando el volumen se acerque a miles de pedidos.
 
 > **Actualización 2026-08-26 (para retomar con Claude o Codex):** el

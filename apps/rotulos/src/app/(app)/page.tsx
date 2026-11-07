@@ -1,16 +1,13 @@
 import Link from "next/link";
 import { Plus } from "lucide-react";
 import { DashboardStats } from "@/components/dashboard-stats";
-import { getLabelStore } from "@/lib/label-store";
 import { Button } from "@/components/ui/button";
 
 export const dynamic = "force-dynamic";
 
 const today = new Intl.DateTimeFormat("es-CO", { dateStyle: "full" });
 
-export default async function DashboardPage() {
-  const labels = await getLabelStore().listLabels();
-
+export default function DashboardPage() {
   return (
     <main className="page-shell">
       <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
@@ -25,7 +22,7 @@ export default async function DashboardPage() {
           </Link>
         </Button>
       </div>
-      <DashboardStats labels={labels} />
+      <DashboardStats />
     </main>
   );
 }
