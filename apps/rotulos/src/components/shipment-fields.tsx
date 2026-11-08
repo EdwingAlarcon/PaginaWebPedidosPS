@@ -9,11 +9,11 @@ import { FormField } from "@/components/ui/form-field";
 export function ShipmentFields({ value, onChange, errors, allowManualEdit }: { value: LabelDraft; onChange: (value: LabelDraft) => void; errors: Record<string, string>; allowManualEdit: boolean }) {
   const set = <K extends keyof LabelDraft>(key: K, next: LabelDraft[K]) => onChange({ ...value, [key]: next });
   return (
-    <Card role="group" aria-label="Datos del envio">
-      <CardTitle>Datos del envio</CardTitle>
+    <Card role="group" aria-label="Datos del envío">
+      <CardTitle>Datos del envío</CardTitle>
       <div className="mt-4 grid gap-4 sm:grid-cols-2">
         <FormField
-          label="Numero de pedido"
+          label="Número de pedido"
           htmlFor="orderNumber"
           hint={`Maximo ${PRINTABLE_LABEL_LIMITS.orderNumber} caracteres para imprimirlo completo.`}
           error={errors.orderNumber}

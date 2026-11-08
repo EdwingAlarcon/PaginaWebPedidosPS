@@ -154,7 +154,7 @@ export function DispatchBoard() {
     setBusyId(row.order.id);
     try {
       const label = await ensureLabel(row);
-      toast.push({ variant: "success", title: `Rotulo ${label.orderNumber} generado.` });
+      toast.push({ variant: "success", title: `Rótulo ${label.orderNumber} generado.` });
     } catch (error) {
       const message = error instanceof Error && error.message === "label_quality_failed"
         ? "Completa los datos del rótulo antes de generarlo."
@@ -204,11 +204,11 @@ export function DispatchBoard() {
       const printed = await getLabelStore().saveLabel({ ...label, status: "impreso" }, settings);
       updateRow(row.order, printed);
       window.open(`/crear?id=${printed.id}&print=1`, "_blank", "noopener,noreferrer");
-      toast.push({ variant: "success", title: "Rotulo marcado como impreso." });
+      toast.push({ variant: "success", title: "Rótulo marcado como impreso." });
     } catch (error) {
       const message = error instanceof Error && error.message === "label_quality_failed"
         ? "Completa los datos del rótulo antes de imprimirlo."
-        : "No se pudo preparar la impresion.";
+        : "No se pudo preparar la impresión.";
       toast.push({ variant: "danger", title: message });
     } finally {
       setBusyId(null);

@@ -37,13 +37,14 @@ const CATEGORY_DISPLAY: Record<string, { label: string; top: [number, number, nu
 };
 
 const DISCLAIMER_LINES = [
-  "Fragancias inspiradas en tus marcas favoritas -- no somos distribuidores ni representantes oficiales.",
-  "Disponible bajo pedido, sujeto a confirmacion del proveedor. Entrega estimada: 3 dias habiles. Envio no incluido.",
-  "Las fotos son de referencia: algun producto puede variar levemente del empaque mostrado.",
+  "Fragancias inspiradas en tus marcas favoritas — no somos distribuidores ni representantes oficiales.",
+  "Disponible bajo pedido, sujeto a confirmación del proveedor. Entrega estimada: 3 días hábiles. Envío no incluido.",
+  "Las fotos son de referencia: algún producto puede variar levemente del empaque mostrado.",
 ];
 
 function sanitize(value: string): string {
-  return value.normalize("NFKD").replace(/[^\x20-\x7E]/g, "");
+  // Helvetica (WinAnsi) dibuja Latin-1: se conservan tildes, ñ, ¡ y ¿; lo demás (emojis, etc.) se descarta.
+  return value.normalize("NFKC").replace(/[^\x20-\x7E\u00A0-\u00FF]/g, "");
 }
 
 function tracked(value: string): string {
@@ -119,7 +120,6 @@ type PdfImages = {
   logo: PDFImage | null;
   men: PDFImage | null;
   women: PDFImage | null;
-  postal: PDFImage | null;
 };
 
 type PdfContext = {
@@ -151,12 +151,8 @@ async function createContext(): Promise<Pick<PdfContext, "doc" | "font" | "boldF
   } catch {
     logo = null;
   }
-  const [men, women, postal] = await Promise.all([
-    embedPublicJpg(doc, "men.jpg"),
-    embedPublicJpg(doc, "women.jpg"),
-    embedPublicJpg(doc, "postal.jpg"),
-  ]);
-  return { doc, font, boldFont, images: { logo, men, women, postal } };
+  const [men, women] = await Promise.all([embedPublicJpg(doc, "men.jpg"), embedPublicJpg(doc, "women.jpg")]);
+  return { doc, font, boldFont, images: { logo, men, women } };
 }
 
 function isAllowedProductImageUrl(url: string): boolean {
@@ -227,6 +223,15 @@ function newPage(ctx: Pick<PdfContext, "doc" | "font" | "boldFont" | "images">):
   return { ...ctx, page, y: PAGE_HEIGHT - MARGIN, column: 0 };
 }
 
+const CHICLE = rgb(1, 0.435, 0.569);
+const HEART_PATH = "M12 21s-7.5-4.6-9.6-9.3C.9 8.2 3 4.5 6.6 4.5c2 0 3.6 1.1 4.4 2.6.8-1.5 2.4-2.6 4.4-2.6 3.6 0 5.7 3.7 4.2 7.2C19.5 16.4 12 21 12 21z";
+
+/** Corazon de acento de la marca (vectorial). (cx, cy) es su centro; size, su alto y ancho en puntos. */
+function drawHeart(page: PDFPage, cx: number, cy: number, size: number, color: ReturnType<typeof rgb>): void {
+  const scale = size / 24;
+  page.drawSvgPath(HEART_PATH, { x: cx - size / 2, y: cy + size / 2, scale, color });
+}
+
 function drawCoverPage(base: Pick<PdfContext, "doc" | "font" | "boldFont" | "images">, settings: LabelSettings): void {
   const page = base.doc.addPage([PAGE_WIDTH, PAGE_HEIGHT]);
   drawVerticalGradient(page, 0, 0, PAGE_WIDTH, PAGE_HEIGHT, COVER_TOP, PURPLE_600);
@@ -237,21 +242,16 @@ function drawCoverPage(base: Pick<PdfContext, "doc" | "font" | "boldFont" | "ima
 
   const centerX = PAGE_WIDTH / 2;
 
-  let cursorY = PAGE_HEIGHT - 110;
-  if (base.images.postal) {
-    const boxWidth = CONTENT_WIDTH - 40;
-    const boxHeight = boxWidth * (base.images.postal.height / base.images.postal.width);
-    page.drawRectangle({ x: centerX - boxWidth / 2 - 6, y: cursorY - boxHeight - 6, width: boxWidth + 12, height: boxHeight + 12, color: WHITE, opacity: 0.95 });
-    drawContained(page, base.images.postal, centerX - boxWidth / 2, cursorY - boxHeight, boxWidth, boxHeight);
-    cursorY -= boxHeight + 46;
-  } else if (base.images.logo) {
-    const logoSize = 100;
-    page.drawCircle({ x: centerX, y: cursorY - logoSize / 2, size: 78, color: WHITE, opacity: 0.14 });
+  // Portada de marca: el logo con aro grande sobre el degradado morado (sin fotos de terceros).
+  let cursorY = PAGE_HEIGHT - 150;
+  if (base.images.logo) {
+    const logoSize = 230;
+    page.drawCircle({ x: centerX, y: cursorY - logoSize / 2, size: logoSize / 2 + 26, color: WHITE, opacity: 0.1 });
     page.drawImage(base.images.logo, { x: centerX - logoSize / 2, y: cursorY - logoSize, width: logoSize, height: logoSize });
-    cursorY -= logoSize + 40;
+    cursorY -= logoSize + 60;
   }
 
-  const title = "CATALOGO";
+  const title = "CATÁLOGO";
   const titleSize = 34;
   const titleWidth = base.boldFont.widthOfTextAtSize(title, titleSize);
   page.drawText(title, { x: centerX - titleWidth / 2, y: cursorY, size: titleSize, font: base.boldFont, color: WHITE });
@@ -261,9 +261,10 @@ function drawCoverPage(base: Pick<PdfContext, "doc" | "font" | "boldFont" | "ima
   const subtitleSize = 11;
   const subtitleWidth = base.font.widthOfTextAtSize(subtitle, subtitleSize);
   page.drawText(subtitle, { x: centerX - subtitleWidth / 2, y: cursorY, size: subtitleSize, font: base.font, color: rgb(0.945, 0.894, 0.98) });
-  cursorY -= 26;
+  cursorY -= 30;
 
-  page.drawRectangle({ x: centerX - 60, y: cursorY, width: 120, height: 1.5, color: WHITE, opacity: 0.5 });
+  drawHeart(page, centerX, cursorY + 4, 16, CHICLE);
+  cursorY -= 22;
 
   const contactLines = [
     settings.defaultSender.phone ? `WhatsApp: ${settings.defaultSender.phone}` : "",
@@ -429,7 +430,7 @@ export async function renderCatalogPdfBuffer(products: ProductCode[], settings: 
 
   if (groups.length === 0) {
     let ctx = drawBrandStrip(newPage(base));
-    ctx.page.drawText("Aun no hay productos en el catalogo.", { x: MARGIN, y: ctx.y - 14, size: 11, font: ctx.font, color: MUTED_COLOR });
+    ctx.page.drawText("Aún no hay productos en el catálogo.", { x: MARGIN, y: ctx.y - 14, size: 11, font: ctx.font, color: MUTED_COLOR });
   }
 
   for (const group of groups) {

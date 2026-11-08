@@ -71,7 +71,7 @@ export function LabelForm() {
             toPrint = await store.saveLabel({ ...existing, status: "impreso" }, savedSettings);
             if (active) setDraft(toPrint);
           } catch {
-            if (active) setSaveStatus("Se imprimio, pero no se pudo marcar el rotulo como impreso.");
+            if (active) setSaveStatus("Se imprimió, pero no se pudo marcar el rótulo como impreso.");
           }
         }
         if (active) openPrintDialog(toPrint.size);
@@ -112,7 +112,7 @@ export function LabelForm() {
     try {
       const saved = await getLabelStore().saveLabel(draft, settings);
       setDraft(saved);
-      setSaveStatus("Rotulo guardado.");
+      setSaveStatus("Rótulo guardado.");
     } finally {
       setSaving(false);
     }
@@ -129,10 +129,10 @@ export function LabelForm() {
           ? draft
           : await getLabelStore().saveLabel({ ...draft, status: "impreso" }, settings);
       setDraft(printed);
-      setSaveStatus("Rotulo guardado como impreso.");
+      setSaveStatus("Rótulo guardado como impreso.");
       window.setTimeout(() => openPrintDialog(printed.size), 150);
     } catch {
-      setSaveStatus("No se pudo guardar el rotulo, por eso no se imprimio. Intenta de nuevo.");
+      setSaveStatus("No se pudo guardar el rótulo, por eso no se imprimió. Intenta de nuevo.");
     } finally {
       setSaving(false);
     }

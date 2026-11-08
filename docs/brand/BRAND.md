@@ -16,7 +16,10 @@ por Edwing; no volver a ella.)
   600 `#6E1593` · 500 `#8C43AD` · 400 `#AC74C9` · 300 `#D9B8F0` (Lila) · 200 `#E6D0F6` ·
   100 `#F1E4FA` · 50 `#FBF7FD` (Fondo).
 - Acentos (solo piezas para clientes, no la UI de gestión): Chicle `#FF6F91`, Limón `#E7F76A`.
-- Tema oscuro: `--primary` = Lila `#D9B8F0`.
+- Tema oscuro: `--primary` = Lila `#D9B8F0`; fondos y bordes de la familia Noche (`#150A20`, `#1F1130`,
+  `#3A2352`). Tema claro: texto Noche `#2A0F3D`, texto secundario `#6B4F85`, fondo `#FBF7FD`.
+- PWA: `theme_color` `#6E1593`, `background_color` `#2A0F3D`; íconos `icon-192/512.png` (disco original) e
+  `icon-maskable-192/512.png` (logo con aro sobre morado, dentro de la zona segura).
 - **Descartados** (no volver a usarlos): `#742F92`, `#741984`, `#784D92`, `#6B1FA2`, `#7C3AED` y la
   escala violeta de Tailwind.
 - Texto sobre color: blanco sobre morado/noche; Noche sobre lila/chicle/limón. Nunca blanco sobre
@@ -38,8 +41,16 @@ Retiradas: Myriad Pro, Berlin Sans FB Demi, Champagne & Limousines, Oriflame Scr
 Instagram `@purpleshop.online` (minúscula) · WhatsApp `+57 322 957 5255`.
 Frase: «detalles que viajan con amor».
 
+## Hecho
+- Mensajes de WhatsApp y textos visibles con tildes y signos de apertura («Guía», «envío», «¡Gracias!»).
+- Los PDF (resumen, catálogo) conservan tildes: `sanitize` ahora deja pasar Latin-1.
+- Corazón de acento en resúmenes de pedido y portada del catálogo.
+- Portada del catálogo de marca (logo con aro, sin fotos de terceros); se quitó `public/catalog/postal.jpg`.
+
 ## Pendientes conocidos
-- Los mensajes de WhatsApp de la app salen sin tildes («Guia», «envio», «confirmanos»).
+- Las portadas por categoría del catálogo (`public/catalog/men.jpg` y `women.jpg`) siguen siendo el diseño
+  anterior: logo viejo con banda verde y fotos de perfumes de otras marcas. Reemplazar cuando haya fotos propias.
+- CMYK de lila, chicle, limón y noche: confirmar con la imprenta (el del morado, 67/98/0/0, ya es oficial).
 - El rótulo (preview y PDF) no se tocó: usa colores fijos (texto `#1A0630` y la imagen
   `public/label-template-bg.png`, de un violeta propio). Si se alinea, cambiar la imagen y
   `pdf.ts`/`globals.css` juntos y validar preview y PDF a la vez.

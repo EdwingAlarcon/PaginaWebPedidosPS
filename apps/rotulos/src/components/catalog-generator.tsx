@@ -12,7 +12,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { useToast } from "@/components/ui/toast";
 
 const CATALOG_FILENAME = "catalogo-purple-shop.pdf";
-const WHATSAPP_MESSAGE = "Hola! Te comparto nuestro catalogo de productos.";
+const WHATSAPP_MESSAGE = "¡Hola! Te comparto nuestro catálogo de productos.";
 
 export function CatalogGenerator() {
   const [downloadingPdf, setDownloadingPdf] = useState(false);

@@ -150,10 +150,10 @@ describe("HistoryTable", () => {
 
     await user.click(screen.getByRole("button", { name: `Acciones para el rótulo ${saved.orderNumber}` }));
     await user.click(screen.getByRole("menuitem", { name: "Agregar guia" }));
-    await user.type(screen.getByLabelText("Numero de guia"), "987654321");
+    await user.type(screen.getByLabelText("Número de guía"), "987654321");
     await user.click(screen.getByRole("button", { name: "Guardar" }));
 
-    expect(await screen.findByText("Guia de rastreo guardada.")).toBeInTheDocument();
+    expect(await screen.findByText("Guía de rastreo guardada.")).toBeInTheDocument();
     expect((await store.listLabels())[0].trackingNumber).toBe("987654321");
 
     await user.click(screen.getByRole("button", { name: `Acciones para el rótulo ${saved.orderNumber}` }));

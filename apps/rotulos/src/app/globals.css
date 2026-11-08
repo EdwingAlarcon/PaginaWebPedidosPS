@@ -22,8 +22,8 @@
   --background: #fbf7fd;
   --surface: #ffffff;
   --surface-muted: #f6edfb;
-  --foreground: #16121f;
-  --foreground-muted: #635d72;
+  --foreground: #2a0f3d;
+  --foreground-muted: #6b4f85;
   --border: #ece0f5;
   --primary: var(--purple-600);
   --primary-hover: var(--purple-700);
@@ -67,7 +67,7 @@
   --surface-elevated: var(--surface);
   --text-primary: var(--foreground);
   --text-secondary: var(--foreground-muted);
-  --text-tertiary: #9993a8;
+  --text-tertiary: #9a83b0;
   --text-inverse: var(--primary-foreground);
   --border-color: var(--border);
   --border-color-hover: #dcc9ec;
@@ -78,15 +78,15 @@
 [data-theme="dark"] {
   color-scheme: dark;
 
-  --background: #0f0b17;
-  --surface: #1c1728;
-  --surface-muted: #171223;
-  --foreground: #f3f0fa;
-  --foreground-muted: #b9b0cc;
-  --border: #322a45;
+  --background: #150a20;
+  --surface: #1f1130;
+  --surface-muted: #190d28;
+  --foreground: #f6eefc;
+  --foreground-muted: #c7b4da;
+  --border: #3a2352;
   --primary: #D9B8F0;
   --primary-hover: #F1E4FA;
-  --primary-foreground: #16121f;
+  --primary-foreground: #2a0f3d;
   --success: #34d399;
   --warning: #fbbf24;
   --danger: #f87171;
@@ -96,7 +96,7 @@
   --color-primary-hover: var(--primary-hover);
   --color-primary-active: #AC74C9;
   --color-primary-light: #D9B8F0;
-  --color-primary-soft: #241c33;
+  --color-primary-soft: #2a1740;
   --color-secondary: #f472b6;
   --color-secondary-hover: #f9a8d4;
   --danger-color: var(--danger);
@@ -104,14 +104,14 @@
   --warning-color: var(--warning);
   --info-color: #60a5fa;
   --background-secondary: var(--surface-muted);
-  --surface-elevated: #241d33;
+  --surface-elevated: #281639;
   --text-primary: var(--foreground);
   --text-secondary: var(--foreground-muted);
-  --text-tertiary: #857c99;
+  --text-tertiary: #9c84b6;
   --text-inverse: var(--primary-foreground);
   --border-color: var(--border);
-  --border-color-hover: #443a5c;
-  --hover-bg: #241d33;
+  --border-color-hover: #4d2f69;
+  --hover-bg: #281639;
 }
 
 @media (prefers-color-scheme: dark) {

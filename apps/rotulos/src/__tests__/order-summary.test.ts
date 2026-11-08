@@ -59,7 +59,7 @@ describe("buildOrderSummaryText", () => {
     expect(text).toContain("2x CAMISETA ROSA");
     expect(text).toMatch(/Subtotal: \$\s?60\.000/);
     expect(text).toMatch(/Descuento: -\$\s?5\.000/);
-    expect(text).toMatch(/Envio: \$\s?8\.000/);
+    expect(text).toMatch(/Envío: \$\s?8\.000/);
     expect(text).toMatch(/Total: \$\s?63\.000/);
   });
 
@@ -67,7 +67,7 @@ describe("buildOrderSummaryText", () => {
     const text = buildOrderSummaryText(makeOrder({ discount: 0, shippingCost: 0 }));
 
     expect(text).not.toContain("Descuento:");
-    expect(text).not.toContain("Envio:");
+    expect(text).not.toContain("Envío:");
   });
 
   it("shows a placeholder when there are no items", () => {
@@ -91,7 +91,7 @@ describe("buildOrderSummaryText", () => {
   it("omits the shipment section when there is no tracking", () => {
     const text = buildOrderSummaryText(makeOrder());
 
-    expect(text).not.toContain("*Envio*");
+    expect(text).not.toContain("*Envío*");
   });
 });
 

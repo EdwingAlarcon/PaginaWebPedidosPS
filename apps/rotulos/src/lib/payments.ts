@@ -77,9 +77,9 @@ export function buildPaymentReminderText(receivable: Receivable, formatMoney: (v
   const { order, summary } = receivable;
   const name = order.customer.fullName.trim();
   return [
-    `Hola${name ? ` ${name}` : ""}! Te escribimos de Purple Shop.`,
+    `¡Hola${name ? ` ${name}` : ""}! Te escribimos de Purple Shop.`,
     `Tu pedido del ${order.orderDate} tiene un saldo pendiente de ${formatMoney(summary.balance)}` +
       (summary.paid > 0 ? ` (ya abonaste ${formatMoney(summary.paid)} de ${formatMoney(order.total)}).` : "."),
-    "Cuando puedas, confirmanos el pago. Gracias!",
+    "Cuando puedas, confírmanos el pago. ¡Gracias!",
   ].join("\n");
 }

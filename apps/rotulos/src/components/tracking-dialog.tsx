@@ -38,7 +38,7 @@ function TrackingForm({ label, onSave }: TrackingFormProps) {
         Pedido {label.orderNumber} - {label.recipient.fullName}
       </Dialog.Description>
       <div className="mt-4 grid gap-3">
-        <FormField label="Numero de guia">
+        <FormField label="Número de guía">
           <Input value={trackingNumber} onChange={(event) => setTrackingNumber(event.target.value)} placeholder="Ej. 123456789" />
         </FormField>
         <FormField label="Link de rastreo (opcional)" hint="Pega el link que te da la transportadora.">

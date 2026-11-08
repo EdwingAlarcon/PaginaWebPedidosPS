@@ -57,7 +57,7 @@ describe("LabelForm", () => {
     render(<LabelForm />);
     const sender = within(screen.getByRole("group", { name: "Remitente" }));
     const recipient = within(screen.getByRole("group", { name: "Destinatario" }));
-    const shipment = within(screen.getByRole("group", { name: "Datos del envio" }));
+    const shipment = within(screen.getByRole("group", { name: "Datos del envío" }));
 
     fireEvent.change(sender.getByLabelText(/Teléfono/), { target: { value: "3001234567" } });
     fireEvent.change(sender.getByLabelText(/Departamento/), { target: { value: "VALLE DEL CAUCA" } });
@@ -74,7 +74,7 @@ describe("LabelForm", () => {
 
     fireEvent.click(screen.getByRole("button", { name: "Guardar rótulo" }));
 
-    expect(await screen.findByText("Rotulo guardado.")).toBeInTheDocument();
+    expect(await screen.findByText("Rótulo guardado.")).toBeInTheDocument();
     expect((await getLabelStore().listLabels())[0].orderNumber).toBe("PS-2026-000001");
   });
 
@@ -92,7 +92,7 @@ describe("LabelForm", () => {
 
   it("uses a currency input for the cash-on-delivery amount and never lets numeric fields become NaN", async () => {
     render(<LabelForm />);
-    const shipment = within(screen.getByRole("group", { name: "Datos del envio" }));
+    const shipment = within(screen.getByRole("group", { name: "Datos del envío" }));
 
     fireEvent.change(shipment.getByLabelText(/Metodo de pago/), { target: { value: "contraentrega" } });
     const codAmountInput = shipment.getByLabelText(/Valor contraentrega/);
@@ -169,18 +169,18 @@ describe("LabelForm", () => {
     await waitFor(() => expect(within(screen.getByRole("group", { name: "Remitente" })).getByRole("option", { name: "SANTIAGO DE CALI" })).toBeInTheDocument());
     fireEvent.change(within(screen.getByRole("group", { name: "Remitente" })).getByLabelText(/Ciudad/), { target: { value: "SANTIAGO DE CALI" } });
     fireEvent.change(within(screen.getByRole("group", { name: "Remitente" })).getByLabelText(/Dirección/), { target: { value: "Calle 1 # 2-3" } });
-    fireEvent.change(within(screen.getByRole("group", { name: "Datos del envio" })).getByLabelText(/Transportadora/), { target: { value: "Coordinadora" } });
+    fireEvent.change(within(screen.getByRole("group", { name: "Datos del envío" })).getByLabelText(/Transportadora/), { target: { value: "Coordinadora" } });
 
     fireEvent.click(screen.getByRole("button", { name: "Guardar rótulo" }));
 
-    expect(await screen.findByText("Rotulo guardado.")).toBeInTheDocument();
+    expect(await screen.findByText("Rótulo guardado.")).toBeInTheDocument();
     expect((await getLabelStore().listLabels())[0].orderId).toBe(savedOrder.id);
   });
 
   async function fillValidDraft() {
     const sender = within(screen.getByRole("group", { name: "Remitente" }));
     const recipient = within(screen.getByRole("group", { name: "Destinatario" }));
-    const shipment = within(screen.getByRole("group", { name: "Datos del envio" }));
+    const shipment = within(screen.getByRole("group", { name: "Datos del envío" }));
 
     fireEvent.change(sender.getByLabelText(/Teléfono/), { target: { value: "3001234567" } });
     fireEvent.change(sender.getByLabelText(/Departamento/), { target: { value: "VALLE DEL CAUCA" } });
@@ -251,7 +251,7 @@ describe("LabelForm", () => {
     render(<LabelForm />);
     const sender = within(screen.getByRole("group", { name: "Remitente" }));
     const recipient = within(screen.getByRole("group", { name: "Destinatario" }));
-    const shipment = within(screen.getByRole("group", { name: "Datos del envio" }));
+    const shipment = within(screen.getByRole("group", { name: "Datos del envío" }));
 
     fireEvent.change(sender.getByLabelText(/Teléfono/), { target: { value: "3001234567" } });
     fireEvent.change(sender.getByLabelText(/Departamento/), { target: { value: "VALLE DEL CAUCA" } });

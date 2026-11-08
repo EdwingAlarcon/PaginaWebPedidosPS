@@ -37,7 +37,11 @@ type Op =
   | { kind: "rect"; x: number; y: number; w: number; h: number; color: string }
   | { kind: "line"; x1: number; y1: number; x2: number; y2: number; color: string }
   | { kind: "text"; x: number; y: number; text: string; font: string; color: string; align: CanvasTextAlign }
-  | { kind: "logo"; x: number; y: number; size: number };
+  | { kind: "logo"; x: number; y: number; size: number }
+  | { kind: "heart"; x: number; y: number; size: number; color: string };
+
+const HEART_PATH = "M12 21s-7.5-4.6-9.6-9.3C.9 8.2 3 4.5 6.6 4.5c2 0 3.6 1.1 4.4 2.6.8-1.5 2.4-2.6 4.4-2.6 3.6 0 5.7 3.7 4.2 7.2C19.5 16.4 12 21 12 21z";
+const CHICLE = "#FF6F91";
 
 class ReceiptBuilder {
   ops: Op[] = [];
@@ -77,6 +81,10 @@ class ReceiptBuilder {
 
   logo(x: number, y: number, size: number) {
     this.ops.push({ kind: "logo", x, y, size });
+  }
+
+  heart(x: number, y: number, size: number, color = CHICLE) {
+    this.ops.push({ kind: "heart", x, y, size, color });
   }
 }
 
@@ -149,7 +157,7 @@ function drawTotals(b: ReceiptBuilder, order: OrderRecord): void {
     b.y += 22;
   }
   if (order.shippingCost > 0) {
-    b.text(MARGIN, "Envio", regularFont(11), COLORS.muted);
+    b.text(MARGIN, "Envío", regularFont(11), COLORS.muted);
     b.text(TOTAL_X, formatCop(order.shippingCost), regularFont(11), COLORS.muted, "right");
     b.y += 22;
   }
@@ -164,7 +172,7 @@ function drawTotals(b: ReceiptBuilder, order: OrderRecord): void {
 
 function drawShipment(b: ReceiptBuilder, tracking?: ShipmentTracking | null): void {
   if (!tracking) return;
-  b.text(MARGIN, "Envio", boldFont(13), COLORS.purple800);
+  b.text(MARGIN, "Envío", boldFont(13), COLORS.purple800);
   b.y += 22;
   b.text(MARGIN, `Transportadora: ${tracking.carrier || "-"}`, regularFont(10.5), COLORS.muted);
   b.y += 18;
@@ -179,8 +187,10 @@ function drawShipment(b: ReceiptBuilder, tracking?: ShipmentTracking | null): vo
 
 function drawFooter(b: ReceiptBuilder): void {
   b.line(MARGIN, WIDTH - MARGIN);
-  b.y += 26;
-  b.text(WIDTH / 2, "Gracias por tu compra - Purple Shop", italicFont(11), COLORS.purple700, "center");
+  b.y += 12;
+  b.heart(WIDTH / 2 - 7, b.y, 14);
+  b.y += 32;
+  b.text(WIDTH / 2, "¡Gracias por tu compra! - Purple Shop", italicFont(11), COLORS.purple700, "center");
   b.y += 20;
 }
 
@@ -223,6 +233,13 @@ async function renderBuilder(b: ReceiptBuilder): Promise<Blob> {
       ctx.font = op.font;
       ctx.textAlign = op.align;
       ctx.fillText(op.text, op.x, op.y);
+    } else if (op.kind === "heart") {
+      ctx.save();
+      ctx.translate(op.x, op.y);
+      ctx.scale(op.size / 24, op.size / 24);
+      ctx.fillStyle = op.color;
+      ctx.fill(new Path2D(HEART_PATH));
+      ctx.restore();
     } else if (op.kind === "logo" && logo) {
       ctx.save();
       ctx.beginPath();

@@ -36,7 +36,7 @@ export function HistoryTable({ labels }: { labels: LabelRecord[] }) {
     const updated = await store.saveLabel({ ...trackingLabel, trackingNumber, trackingUrl }, settings);
     setTableLabels((current) => current.map((label) => (label.id === updated.id ? updated : label)));
     setTrackingLabel(null);
-    toast.push({ variant: "success", title: "Guia de rastreo guardada." });
+    toast.push({ variant: "success", title: "Guía de rastreo guardada." });
   }
 
   function sendTrackingByWhatsApp(label: LabelRecord) {

@@ -6,8 +6,8 @@ const DIVIDER = "──────────────";
 
 function shipmentLines(tracking?: ShipmentTracking | null): string[] {
   if (!tracking) return [];
-  const lines = ["", "*Envio*", `Transportadora: ${tracking.carrier || "-"}`, `Guia: *${tracking.trackingNumber}*`];
-  if (tracking.trackingUrl) lines.push(`Rastrealo aqui: ${tracking.trackingUrl}`);
+  const lines = ["", "*Envío*", `Transportadora: ${tracking.carrier || "-"}`, `Guía: *${tracking.trackingNumber}*`];
+  if (tracking.trackingUrl) lines.push(`Rastréalo aquí: ${tracking.trackingUrl}`);
   return lines;
 }
 
@@ -34,8 +34,8 @@ export function buildOrderSummaryText(order: OrderRecord, tracking?: ShipmentTra
     `Subtotal: ${formatCop(order.subtotal)}`,
   ];
   if (order.discount > 0) lines.push(`Descuento: -${formatCop(order.discount)}`);
-  if (order.shippingCost > 0) lines.push(`Envio: ${formatCop(order.shippingCost)}`);
-  lines.push(`*Total: ${formatCop(order.total)}*`, ...shipmentLines(tracking), DIVIDER, "_Gracias por tu compra!_");
+  if (order.shippingCost > 0) lines.push(`Envío: ${formatCop(order.shippingCost)}`);
+  lines.push(`*Total: ${formatCop(order.total)}*`, ...shipmentLines(tracking), DIVIDER, "_¡Gracias por tu compra!_");
   return lines.join("\n");
 }
 
@@ -52,7 +52,7 @@ export function buildCustomerHistoryText(customer: Customer, orders: OrderRecord
       `Total pedido: *${formatCop(order.total)}*`,
     );
   });
-  lines.push("", DIVIDER, `*Total comprado: ${formatCop(grandTotal)}*`, "_Gracias por tu preferencia!_");
+  lines.push("", DIVIDER, `*Total comprado: ${formatCop(grandTotal)}*`, "_¡Gracias por tu preferencia!_");
   return lines.join("\n").trim();
 }
 

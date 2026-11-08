@@ -439,7 +439,7 @@ export function OrderForm() {
         </Card>
 
         <Card>
-          <CardTitle>Notas y envio</CardTitle>
+          <CardTitle>Notas y envío</CardTitle>
           <div className="mt-4 grid gap-4 sm:grid-cols-2">
             <FormField label="Fecha del pedido">
               <DatePicker

@@ -34,7 +34,8 @@ type PdfContext = {
 };
 
 function sanitize(value: string): string {
-  return value.normalize("NFKD").replace(/[^\x20-\x7E]/g, "");
+  // Helvetica (WinAnsi) dibuja Latin-1: se conservan tildes, ñ, ¡ y ¿; lo demás (emojis, etc.) se descarta.
+  return value.normalize("NFKC").replace(/[^\x20-\x7E\u00A0-\u00FF]/g, "");
 }
 
 function wrapText(font: PDFFont, text: string, size: number, maxWidth: number): string[] {
@@ -185,7 +186,7 @@ function drawTotalsBlock(ctx: PdfContext, order: OrderRecord): PdfContext {
   }
   if (order.shippingCost > 0) {
     next = ensureSpace(next, 16);
-    drawText(next.page, "Envio", MARGIN, next.y - 11, { size: 9.5, font: next.font, color: MUTED_COLOR });
+    drawText(next.page, "Envío", MARGIN, next.y - 11, { size: 9.5, font: next.font, color: MUTED_COLOR });
     drawRightAligned(next.page, formatCop(order.shippingCost), TOTAL_RIGHT, next.y - 11, { size: 9.5, font: next.font, color: MUTED_COLOR });
     next = { ...next, y: next.y - 18 };
   }
@@ -211,25 +212,31 @@ function drawTotalsBlock(ctx: PdfContext, order: OrderRecord): PdfContext {
 
 function drawShipmentBlock(ctx: PdfContext, tracking?: ShipmentTracking | null): PdfContext {
   if (!tracking) return ctx;
-  let next = drawWrapped(ctx, "Envio", { size: 11, bold: true });
+  let next = drawWrapped(ctx, "Envío", { size: 11, bold: true });
   next = drawWrapped(next, `Transportadora: ${tracking.carrier || "-"}`, { size: 9.5, muted: true });
   next = drawWrapped(next, `Guia: ${tracking.trackingNumber}`, { size: 9.5, bold: true });
   if (tracking.trackingUrl) next = drawWrapped(next, `Rastrealo aqui: ${tracking.trackingUrl}`, { size: 9.5, muted: true });
   return { ...next, y: next.y - 8 };
 }
 
+const CHICLE = rgb(1, 0.435, 0.569);
+const HEART_PATH = "M12 21s-7.5-4.6-9.6-9.3C.9 8.2 3 4.5 6.6 4.5c2 0 3.6 1.1 4.4 2.6.8-1.5 2.4-2.6 4.4-2.6 3.6 0 5.7 3.7 4.2 7.2C19.5 16.4 12 21 12 21z";
+
 function drawFooter(ctx: PdfContext): void {
-  const next = ensureSpace(ctx, 30);
+  const next = ensureSpace(ctx, 46);
   next.page.drawLine({
     start: { x: MARGIN, y: next.y },
     end: { x: PAGE_WIDTH - MARGIN, y: next.y },
     thickness: 0.75,
     color: BORDER,
   });
-  const text = "Gracias por tu compra - Purple Shop";
+  // Corazon de acento de la marca, centrado sobre la frase de cierre.
+  const heartSize = 13;
+  next.page.drawSvgPath(HEART_PATH, { x: PAGE_WIDTH / 2 - heartSize / 2, y: next.y - 10, scale: heartSize / 24, color: CHICLE });
+  const text = "¡Gracias por tu compra! - Purple Shop";
   const size = 10;
   const width = next.italicFont.widthOfTextAtSize(text, size);
-  drawText(next.page, text, MARGIN + (CONTENT_WIDTH - width) / 2, next.y - 20, { size, font: next.italicFont, color: PURPLE_700 });
+  drawText(next.page, text, MARGIN + (CONTENT_WIDTH - width) / 2, next.y - 36, { size, font: next.italicFont, color: PURPLE_700 });
 }
 
 async function createContext(): Promise<Pick<PdfContext, "doc" | "font" | "boldFont" | "italicFont" | "logo">> {

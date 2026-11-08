@@ -126,7 +126,7 @@ function validateOrder(value: OrderEditValue, initialValue: OrderEditValue, orde
   if (!value.customer.fullName.trim()) errors.customer = "El nombre del cliente es obligatorio.";
   if (!value.orderDate.trim()) errors.orderDate = "La fecha es obligatoria.";
   if (value.discount < 0) errors.discount = "El descuento no puede ser negativo.";
-  if (value.shippingCost < 0) errors.shippingCost = "El envio no puede ser negativo.";
+  if (value.shippingCost < 0) errors.shippingCost = "El envío no puede ser negativo.";
   if (value.items.length === 0 && value.status !== "cancelled") errors.items = "Un pedido activo debe conservar al menos una linea.";
   value.items.forEach((item, index) => {
     if (!item.productName.trim()) errors[`items.${index}.productName`] = "El producto es obligatorio.";

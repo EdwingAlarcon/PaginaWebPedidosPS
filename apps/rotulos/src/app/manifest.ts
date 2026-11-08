@@ -10,12 +10,14 @@ export default function manifest(): MetadataRoute.Manifest {
     start_url: "/",
     scope: "/",
     display: "standalone",
-    background_color: "#0f0b17",
-    theme_color: "#0f0b17",
+    background_color: "#2a0f3d",
+    theme_color: "#6e1593",
     lang: "es-CO",
     icons: [
-      { src: "/purple-shop-logo.png", sizes: "512x512", type: "image/png", purpose: "any" },
-      { src: "/purple-shop-logo.png", sizes: "512x512", type: "image/png", purpose: "maskable" },
+      { src: "/icon-192.png", sizes: "192x192", type: "image/png", purpose: "any" },
+      { src: "/icon-512.png", sizes: "512x512", type: "image/png", purpose: "any" },
+      { src: "/icon-maskable-192.png", sizes: "192x192", type: "image/png", purpose: "maskable" },
+      { src: "/icon-maskable-512.png", sizes: "512x512", type: "image/png", purpose: "maskable" },
     ],
     shortcuts: [
       { name: "Nuevo pedido", url: "/pedidos/nuevo" },
