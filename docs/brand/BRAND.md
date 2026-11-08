@@ -57,5 +57,6 @@ Frase: «detalles que viajan con amor».
 - El rótulo (preview y PDF) no se tocó: usa colores fijos (texto `#1A0630` y la imagen
   `public/label-template-bg.png`, de un violeta propio). Si se alinea, cambiar la imagen y
   `pdf.ts`/`globals.css` juntos y validar preview y PDF a la vez.
-- La fila de `settings.brand_colors` en Supabase conserva el valor anterior hasta guardarla de nuevo
-  en Configuración.
+- (Resuelto 2026-11-07) `settings.brand_colors` en Supabase ya tiene #6E1593 / #2A0F3D / #D9B8F0. Para guardarlo hubo que aplicar
+  a mano la migración `202608250002` (columnas `email`, `facebook_user`, `tiktok_user`), que nunca se había aplicado y hacía
+  fallar con 400 el guardado de Configuración.

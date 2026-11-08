@@ -187,7 +187,8 @@ explicitamente si no pudiste probar con sesion autenticada).
   toca; sobre fondos morados se usa `public/purple-shop-logo-aro.png`. La app sigue con Inter. El rótulo
   (preview y PDF) no se tocó. Mensajes de WhatsApp y textos visibles ya llevan tildes; `sanitize` de los
   PDF conserva Latin-1. Portada del catálogo sin la postal (las portadas `men.jpg`/`women.jpg` siguen
-  pendientes de fotos propias). La fila `settings.brand_colors` de Supabase se actualiza desde Configuración.
+  pendientes de fotos propias). `settings.brand_colors` en Supabase ya está actualizado; para poder guardar Configuración se aplicó a mano la migración
+  `202608250002` (faltaba en producción y el guardado fallaba con 400; ahora el formulario avisa si falla).
 
 - 2026-11-06: listados sin truncar + Inicio orientado a accion. Supabase corta cada
   consulta en 1000 filas SIN error; `src/lib/paginate.ts` (`fetchAllPages`) recorre
