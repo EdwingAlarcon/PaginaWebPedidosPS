@@ -22,7 +22,7 @@ import { getInventoryStore } from "@/lib/inventory-store";
 import type { Customer, OrderPayment, OrderRecord } from "@/lib/business-types";
 import { listReceivables, totalReceivable } from "@/lib/payments";
 import type { LabelRecord } from "@/lib/types";
-import { MetricCard, Card, CardHeader, CardTitle } from "@/components/ui/card";
+import { MetricCard, Card, CardHeader, CardTitle, IconChip, type ChipTone } from "@/components/ui/card";
 import { EmptyState } from "@/components/ui/empty-state";
 import { Button } from "@/components/ui/button";
 
@@ -37,6 +37,7 @@ const INACTIVE_DAYS = 45;
 function ActionCard({
   href,
   icon: Icon,
+  tone = "lila",
   title,
   value,
   detail,
@@ -45,6 +46,7 @@ function ActionCard({
 }: {
   href: string;
   icon: LucideIcon;
+  tone?: ChipTone;
   title: string;
   value: ReactNode;
   detail: string;
@@ -67,9 +69,9 @@ function ActionCard({
           <>
             <div className="flex items-center justify-between gap-2 text-sm text-foreground-muted">
               <span>{title}</span>
-              <Icon className="size-4" aria-hidden="true" />
+              <IconChip icon={Icon} tone={tone} />
             </div>
-            <p className="mt-2 text-2xl font-semibold text-foreground">{value}</p>
+            <p className="mt-2 font-display text-2xl font-semibold text-foreground">{value}</p>
             <p className="mt-1 flex items-center justify-between gap-2 text-sm text-foreground-muted">
               <span>{detail}</span>
               <ArrowRight className="size-4 shrink-0 transition-transform group-hover:translate-x-0.5" aria-hidden="true" />
@@ -149,6 +151,7 @@ export function DashboardStats() {
           <ActionCard
             href="/despacho"
             icon={Truck}
+            tone="limon"
             title="Por despachar"
             value={dispatchRows.length}
             detail={
@@ -164,6 +167,7 @@ export function DashboardStats() {
           <ActionCard
             href="/reportes"
             icon={Wallet}
+            tone="chicle"
             title="Por cobrar"
             value={currency(receivableTotal)}
             detail={
@@ -177,6 +181,7 @@ export function DashboardStats() {
           <ActionCard
             href="/reportes"
             icon={MessageCircle}
+            tone="lila"
             title="Clientes por reactivar"
             value={inactiveReachable}
             detail={
@@ -192,12 +197,13 @@ export function DashboardStats() {
       </section>
 
       <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
-        <MetricCard label="Pedidos hoy" value={todayOrders.length} icon={ClipboardList} loading={loading} />
-        <MetricCard label="Ventas hoy" value={currency(todayRevenue)} icon={DollarSign} loading={loading} />
+        <MetricCard label="Pedidos hoy" value={todayOrders.length} icon={ClipboardList} tone="lila" loading={loading} />
+        <MetricCard label="Ventas hoy" value={currency(todayRevenue)} icon={DollarSign} tone="limon" loading={loading} />
         <MetricCard
           label="Pedidos pendientes"
           value={pendingOrders.length}
           icon={PackagePlus}
+          tone="chicle"
           loading={loading}
           className={pendingOrders.length > 0 ? "border-[var(--warning)]" : undefined}
         />

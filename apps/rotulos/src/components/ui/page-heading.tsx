@@ -9,7 +9,10 @@ interface PageHeadingProps {
 export function PageHeading({ eyebrow, title, className }: PageHeadingProps) {
   return (
     <div className={cn("mb-6", className)}>
-      <p className="mb-1.5 text-[0.82rem] font-bold uppercase tracking-wide text-primary">{eyebrow}</p>
+      <p className="mb-1.5 flex items-center gap-2 text-[0.82rem] font-bold uppercase tracking-wide text-primary">
+        <span aria-hidden="true" className="size-2 rounded-full bg-[var(--accent)]" />
+        {eyebrow}
+      </p>
       <h1 className="text-page-title">{title}</h1>
     </div>
   );

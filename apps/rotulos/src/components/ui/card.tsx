@@ -19,16 +19,34 @@ export function CardTitle({ className, ...props }: HTMLAttributes<HTMLHeadingEle
   return <h3 className={cn("text-card-title", className)} {...props} />;
 }
 
+export type ChipTone = "lila" | "chicle" | "limon";
+
+const CHIP_TONES: Record<ChipTone, string> = {
+  lila: "bg-[var(--lila)]",
+  chicle: "bg-[var(--accent)]",
+  limon: "bg-[var(--lime)]",
+};
+
+/** Icono dentro de un chip de color de marca. El icono va siempre en Noche para que se lea. */
+export function IconChip({ icon: Icon, tone = "lila", className }: { icon: LucideIcon; tone?: ChipTone; className?: string }) {
+  return (
+    <span className={cn("flex size-8 shrink-0 items-center justify-center rounded-full text-[var(--on-accent)]", CHIP_TONES[tone], className)}>
+      <Icon className="size-4" aria-hidden="true" />
+    </span>
+  );
+}
+
 interface MetricCardProps {
   label: string;
   value: ReactNode;
   icon?: LucideIcon;
+  tone?: ChipTone;
   trend?: { value: string; direction: "up" | "down" | "neutral" };
   loading?: boolean;
   className?: string;
 }
 
-export function MetricCard({ label, value, icon: Icon, trend, loading, className }: MetricCardProps) {
+export function MetricCard({ label, value, icon: Icon, tone = "lila", trend, loading, className }: MetricCardProps) {
   if (loading) {
     return (
       <Card className={className}>
@@ -45,9 +63,9 @@ export function MetricCard({ label, value, icon: Icon, trend, loading, className
     <Card className={cn("flex flex-col gap-2", className)}>
       <div className="flex items-center justify-between">
         <span className="text-sm font-medium text-foreground-muted">{label}</span>
-        {Icon ? <Icon className="size-4 text-primary" aria-hidden="true" /> : null}
+        {Icon ? <IconChip icon={Icon} tone={tone} /> : null}
       </div>
-      <span className="text-2xl font-semibold text-foreground">{value}</span>
+      <span className="font-display text-2xl font-semibold text-foreground">{value}</span>
       {trend ? <span className={cn("text-xs font-medium", trendColor)}>{trend.value}</span> : null}
     </Card>
   );

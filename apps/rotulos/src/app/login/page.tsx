@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { PackageCheck, Tags, BarChart3 } from "lucide-react";
+import { PackageCheck, Tags, BarChart3, Heart } from "lucide-react";
 import { LoginCard } from "./login-card";
 import { ThemeToggle } from "@/components/theme-toggle";
 
@@ -31,13 +31,17 @@ export default async function LoginPage({
           <img
             src="/purple-shop-logo.png"
             alt=""
-            width={48}
-            height={48}
-            className="size-12 rounded-full object-contain"
+            width={64}
+            height={64}
+            className="size-16 rounded-full object-contain"
           />
-          <span className="text-lg font-semibold text-foreground">PurpleShop</span>
+          <span className="font-display text-2xl font-semibold lowercase text-primary">purple shop</span>
         </div>
 
+        <p className="mt-2 flex items-center justify-center gap-1.5 text-sm font-semibold text-foreground-muted">
+          detalles que viajan con amor
+          <Heart className="size-3.5 fill-[var(--accent)] text-[var(--accent)]" aria-hidden="true" />
+        </p>
         <p className="mt-3.5 text-base leading-relaxed text-foreground-muted">
           Gestiona tus pedidos, clientes, inventario y envíos desde un solo lugar.
         </p>

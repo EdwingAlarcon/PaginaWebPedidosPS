@@ -25,9 +25,19 @@ const config: Config = {
         warning: "var(--warning)",
         danger: "var(--danger)",
         "focus-ring": "var(--focus-ring)",
+        accent: {
+          DEFAULT: "var(--accent)",
+          soft: "var(--accent-soft)",
+          foreground: "var(--on-accent)",
+        },
+        lime: {
+          DEFAULT: "var(--lime)",
+          soft: "var(--lime-soft)",
+        },
       },
       fontFamily: {
         sans: ["var(--font-sans)"],
+        display: ["var(--font-display)"],
       },
       boxShadow: {
         card: "0 1px 2px rgba(15, 11, 23, 0.06)",

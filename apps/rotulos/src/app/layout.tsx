@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Inter } from "next/font/google";
+import { Fredoka, Inter } from "next/font/google";
 import { Analytics } from "@vercel/analytics/next";
 import "./globals.css";
 import { ToastProvider } from "@/components/ui/toast";
@@ -7,6 +7,14 @@ import { ToastProvider } from "@/components/ui/toast";
 const inter = Inter({
   subsets: ["latin"],
   variable: "--font-inter",
+  display: "swap",
+});
+
+// Fredoka: tipografia de titulos de la marca (manual v2). El texto y los datos siguen en Inter.
+const fredoka = Fredoka({
+  subsets: ["latin"],
+  weight: ["500", "600"],
+  variable: "--font-fredoka",
   display: "swap",
 });
 
@@ -26,7 +34,7 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="es" className={inter.variable}>
+    <html lang="es" className={`${inter.variable} ${fredoka.variable}`}>
       <body>
         <ToastProvider>{children}</ToastProvider>
         <Analytics />

@@ -15,8 +15,10 @@ por Edwing; no volver a ella.)
 - Escala de la app: 950 `#1B0A28` · 900 `#2A0F3D` (Noche) · 800 `#45115F` · 700 `#5B137B` ·
   600 `#6E1593` · 500 `#8C43AD` · 400 `#AC74C9` · 300 `#D9B8F0` (Lila) · 200 `#E6D0F6` ·
   100 `#F1E4FA` · 50 `#FBF7FD` (Fondo).
-- Acentos (solo piezas para clientes, no la UI de gestión): Chicle `#FF6F91`, Limón `#E7F76A`.
-- Tema oscuro: `--primary` = Lila `#D9B8F0`; fondos y bordes de la familia Noche (`#150A20`, `#1F1130`,
+- Acentos: Chicle `#FF6F91` (`--accent`) y Limón `#E7F76A` (`--lime`). En la app son **decorativos** (chips de ícono, punto del
+  encabezado, marca del ítem activo del menú, corazón de estados vacíos); nunca como color de estado (éxito/alerta/error siguen
+  siendo los semánticos) y el texto sobre ellos va en Noche (`--on-accent`). Componentes: `IconChip`, `MetricCard tone=`.
+- Login: fondo morado de marca con el patrón de garabatos (`public/patron-zigzag.png`, blanco con alfa).- Tema oscuro: `--primary` = Lila `#D9B8F0`; fondos y bordes de la familia Noche (`#150A20`, `#1F1130`,
   `#3A2352`). Tema claro: texto Noche `#2A0F3D`, texto secundario `#6B4F85`, fondo `#FBF7FD`.
 - PWA: `theme_color` `#6E1593`, `background_color` `#2A0F3D`; íconos `icon-192/512.png` (disco original) e
   `icon-maskable-192/512.png` (logo con aro sobre morado, dentro de la zona segura).
@@ -34,7 +36,8 @@ por Edwing; no volver a ella.)
 - Nunca recolorear, rotar, recortar ni dibujar el logo desde cero.
 
 ## Tipografía
-Fredoka (títulos) + Nunito (texto) en piezas para clientes. **La app de gestión sigue con Inter.**
+Fredoka (títulos) + Nunito (texto) en piezas para clientes. En la app de gestión: **Fredoka solo en títulos y cifras**
+(`--font-display`, clases `text-page-title`, `text-card-title`, `font-display`); el texto y los datos siguen en **Inter**.
 Retiradas: Myriad Pro, Berlin Sans FB Demi, Champagne & Limousines, Oriflame Script, Avant Garde.
 
 ## Datos oficiales
