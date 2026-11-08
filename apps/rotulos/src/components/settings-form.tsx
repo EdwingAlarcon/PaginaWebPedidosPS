@@ -47,6 +47,7 @@ function ColorField({ label, value, onChange }: { label: string; value: string; 
 export function SettingsForm({ initialSettings = defaultSettings, onSave = (settings) => getLabelStore().saveSettings(settings) }: SettingsFormProps) {
   const [settings, setSettings] = useState(initialSettings);
   const [saveStatus, setSaveStatus] = useState("");
+  const [saveError, setSaveError] = useState("");
   const [saving, setSaving] = useState(false);
   const allowManualEditId = useId();
   const sequenceDigitsError = !Number.isInteger(settings.orderNumberConfig.sequenceDigits) || settings.orderNumberConfig.sequenceDigits < 1;
@@ -67,9 +68,15 @@ export function SettingsForm({ initialSettings = defaultSettings, onSave = (sett
   async function saveSettings() {
     if (sequenceDigitsError) return;
     setSaving(true);
+    setSaveStatus("");
+    setSaveError("");
     try {
       await onSave(settings);
       setSaveStatus("Configuración guardada.");
+    } catch (error) {
+      // Antes este error se perdia en silencio: el boton parecia guardar y no persistia nada.
+      console.error("No se pudo guardar la configuracion", error);
+      setSaveError("No se pudo guardar la configuración. Los cambios no se aplicaron; intenta de nuevo y, si sigue igual, revisa que la base de datos esté al día.");
     } finally {
       setSaving(false);
     }
@@ -82,7 +89,7 @@ export function SettingsForm({ initialSettings = defaultSettings, onSave = (sett
       <Tabs defaultValue="marca">
         <TabsList>
           <TabsTrigger value="marca">Marca</TabsTrigger>
-          <TabsTrigger value="numeracion">Numeracion</TabsTrigger>
+          <TabsTrigger value="numeracion">Numeración</TabsTrigger>
           <TabsTrigger value="remitente">Remitente</TabsTrigger>
           <TabsTrigger value="rotulos">Rótulos</TabsTrigger>
         </TabsList>
@@ -255,10 +262,11 @@ export function SettingsForm({ initialSettings = defaultSettings, onSave = (sett
           {saveStatus}
         </Alert>
       ) : null}
+      {saveError ? <Alert variant="danger">{saveError}</Alert> : null}
 
       <div>
         <Button type="button" disabled={sequenceDigitsError} loading={saving} onClick={saveSettings}>
-          Guardar configuracion
+          Guardar configuración
         </Button>
       </div>
     </div>

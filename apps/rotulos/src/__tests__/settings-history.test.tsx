@@ -57,7 +57,7 @@ describe("SettingsForm", () => {
     fireEvent.change(screen.getByLabelText("Digitos"), { target: { value: "0" } });
 
     expect(screen.getByText("Los digitos deben ser al menos 1.")).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "Guardar configuracion" })).toBeDisabled();
+    expect(screen.getByRole("button", { name: "Guardar configuración" })).toBeDisabled();
   });
 
   it("loads settings saved in the browser fallback", async () => {
