@@ -180,26 +180,14 @@ explicitamente si no pudiste probar con sesion autenticada).
 
 ## Estado operativo reciente
 
-- 2026-11-07: manual de marca v1.0 (PDF + logos SVG/PNG + patrón) en
-  `C:\Users\EdwingAlarcon\OneDrive\Docs\PurpleShop\Manual de marca\`; referencia para el
-  código en `docs/brand/BRAND.md`. **Morado oficial `#742F92`**: la escala `--purple-*` de
-  `globals.css`, el tema oscuro (Lila `#B57EDC`), los resúmenes de pedido (PDF e imagen),
-  `brandColors.primary` por defecto se alinearon a él. El logo de la app (`public/purple-shop-logo.png`
-  e `icon.png`) se dejó como estaba (con sombra): el logo vectorial sin sombra no gustó a Edwing y
-  se rehace con el look original. El rótulo (preview y PDF) no se tocó. No reintroducir `#7C3AED`/`#6B1FA2` ni la escala violeta de Tailwind. La fila de
-  `settings.brand_colors` en Supabase conserva el valor anterior hasta que se guarde de nuevo
-  en Configuración.
-
-- 2026-11-07: rótulos compartidos entre usuarios. `labels` tenía RLS "solo los
-  propios" (`created_by = auth.uid()`): con dos cuentas del negocio cada una
-  veía un historial incompleto y Despacho creó un rótulo duplicado (PS-2026-000011
-  de la otra cuenta, PS-2026-000012 de Edwing; el 12 se borró). Migración
-  `202611070001_share_labels_between_users.sql` aplicada a mano por Claude en el
-  SQL Editor de Supabase (misma fecha): lectura/edición/borrado para todo usuario
-  autenticado, insert sigue exigiendo `created_by = auth.uid()`. Imprimir desde
-  `/crear` e Historial (`?print=1`) ahora guarda el rótulo como "Impreso" antes
-  de abrir la impresión (si el guardado falla, no imprime); antes solo Despacho
-  lo marcaba.
+- 2026-11-07: manual de marca **v2.0** ("Fresco, con el logo de siempre") en
+  `C:\Users\EdwingAlarcon\OneDrive\Docs\PurpleShop\Manual de marca\`; referencia para el código en
+  `docs/brand/BRAND.md`. **Morado oficial `#6E1593`** (el de los logos originales; el `#742F92` de
+  la v1 se descartó). Alineados a él: escala `--purple-*` y tema oscuro (Lila) de `globals.css`,
+  resúmenes de pedido (PDF e imagen), catálogo PDF y `brandColors` por defecto. El logo original no
+  se toca; sobre fondos morados se usa `public/purple-shop-logo-aro.png`. La app sigue con Inter. El
+  rótulo (preview y PDF) no se tocó. La fila de `settings.brand_colors` en Supabase conserva el valor
+  anterior hasta que se guarde de nuevo en Configuración.
 
 - 2026-11-06: listados sin truncar + Inicio orientado a accion. Supabase corta cada
   consulta en 1000 filas SIN error; `src/lib/paginate.ts` (`fetchAllPages`) recorre

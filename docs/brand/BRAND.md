@@ -1,42 +1,47 @@
-# Purple Shop — referencia de marca (v1.0, 2026-11-07)
+# Purple Shop — referencia de marca (v2.0, 2026-11-07)
 
-Manual completo (PDF, 15 páginas) y todos los logos/patrón:
+Manual completo (PDF, 15 páginas), logos y patrón:
 `C:\Users\EdwingAlarcon\OneDrive\Docs\PurpleShop\Manual de marca\` (fuera del repo).
 Aquí queda solo lo que el código necesita saber.
 
+## Dirección de marca
+"Fresco, con el logo de siempre": el logo original NO se toca; alrededor van tipografía redonda,
+acentos vivos y un corazón como detalle. (La v1 con #742F92 y un logo reconstruido fue rechazada
+por Edwing; no volver a ella.)
+
 ## Color
-- **Morado oficial: `#742F92`** (RGB 116·47·146, CMYK 67·98·0·0). Es `--purple-600` en
-  `apps/rotulos/src/app/globals.css` y `--primary` en tema claro.
-- Escala de la app: 950 `#260740` · 900 `#3B0A57` (Noche) · 800 `#4F176C` · 700 `#62237F` ·
-  600 `#742F92` · 500 `#8F50B1` · 400 `#B57EDC` (Lila) · 300 `#CCA5E8` · 200 `#E0CAF1` ·
-  100 `#ECE2F0` (Lavanda) · 50 `#F7F2FA`. Papel `#F5F5F7`, Tinta `#111111`.
-- Tema oscuro: `--primary` = Lila `#B57EDC`.
-- Valores **descartados** (no volver a usarlos): `#741984`, `#784D92`, `#6B1FA2`, `#7C3AED`
-  y el resto de la escala violeta anterior (Tailwind).
-- Colores por categoría (propuesta, aún no aplicada en la app): Perfumes `#A3318A`, Medias
-  `#5B3FC4`, Accesorios `#B03A5F`, Camisetas `#2F6FB0`, Chaquetas `#1F7A6D`, Monturas `#8A5A12`.
+- **Morado oficial: `#6E1593`** (RGB 110·21·147, CMYK 67·98·0·0). Es el morado medido en todos los
+  archivos de logo originales. Es `--purple-600` / `--primary` (tema claro) en `globals.css`.
+- Escala de la app: 950 `#1B0A28` · 900 `#2A0F3D` (Noche) · 800 `#45115F` · 700 `#5B137B` ·
+  600 `#6E1593` · 500 `#8C43AD` · 400 `#AC74C9` · 300 `#D9B8F0` (Lila) · 200 `#E6D0F6` ·
+  100 `#F1E4FA` · 50 `#FBF7FD` (Fondo).
+- Acentos (solo piezas para clientes, no la UI de gestión): Chicle `#FF6F91`, Limón `#E7F76A`.
+- Tema oscuro: `--primary` = Lila `#D9B8F0`.
+- **Descartados** (no volver a usarlos): `#742F92`, `#741984`, `#784D92`, `#6B1FA2`, `#7C3AED` y la
+  escala violeta de Tailwind.
+- Texto sobre color: blanco sobre morado/noche; Noche sobre lila/chicle/limón. Nunca blanco sobre
+  chicle (2,6:1) ni sobre lila (1,7:1).
 
 ## Logo
-- Archivos en esta carpeta: `purpleshop-logo-color.svg`, `-color-aro.svg` (fotos, fondos
-  oscuros y morados), `-1color-blanco.svg`.
-- La app conserva su logo anterior (con sombra) en `public/purple-shop-logo.png` e `icon.png`
-  hasta cerrar el logo definitivo: los SVG de esta carpeta (sin sombra) **no** fueron aprobados
-  por Edwing; se está rehaciendo con el look original (sombra suave y profundidad).
-- Las letras P, l, e, S y p se salen del círculo. Sin la sombra/aro del logo original el borde
-  queda abierto y se ve incompleto sobre blanco.
+- Tres versiones, todas a partir de los archivos originales: **con sombra** (fondos claros),
+  **con aro blanco** (fondos morados, oscuros, fotos) y **una tinta** (sellos/bordado; vectores).
+- En la app: sidebar, login e `icon.png` usan `public/purple-shop-logo.png` (original, con sombra).
+  Todo lo que dibuja el logo **sobre fondo morado** (resúmenes de pedido PDF/imagen y catálogo PDF)
+  usa `public/purple-shop-logo-aro.png`; sin el aro el disco se camufla con el fondo.
+- Nunca recolorear, rotar, recortar ni dibujar el logo desde cero.
 
 ## Tipografía
-Myriad Pro (impresión) · Inter (pantalla, la de la app) · Source Sans 3 (sustituta gratuita de
-Myriad, p. ej. en Canva). Retiradas: Berlin Sans FB Demi, Champagne & Limousines, Oriflame
-Script, Avant Garde.
+Fredoka (títulos) + Nunito (texto) en piezas para clientes. **La app de gestión sigue con Inter.**
+Retiradas: Myriad Pro, Berlin Sans FB Demi, Champagne & Limousines, Oriflame Script, Avant Garde.
 
 ## Datos oficiales
 Instagram `@purpleshop.online` (minúscula) · WhatsApp `+57 322 957 5255`.
-Frase: «Detalles que viajan con amor».
+Frase: «detalles que viajan con amor».
 
-## Pendiente conocido
-Los mensajes de WhatsApp de la app salen sin tildes («Guia», «envio», «confirmanos»); el tono
-de marca los pide con tildes. El rótulo (preview y PDF) no se tocó: usa colores fijos (texto `#1A0630` y la imagen
-`public/label-template-bg.png`, de un violeta propio), no las variables de globals.css. Si algún día
-se quiere alinear al morado oficial, cambiar la imagen y `pdf.ts`/`globals.css` juntos y validar
-preview y PDF a la vez.
+## Pendientes conocidos
+- Los mensajes de WhatsApp de la app salen sin tildes («Guia», «envio», «confirmanos»).
+- El rótulo (preview y PDF) no se tocó: usa colores fijos (texto `#1A0630` y la imagen
+  `public/label-template-bg.png`, de un violeta propio). Si se alinea, cambiar la imagen y
+  `pdf.ts`/`globals.css` juntos y validar preview y PDF a la vez.
+- La fila de `settings.brand_colors` en Supabase conserva el valor anterior hasta guardarla de nuevo
+  en Configuración.

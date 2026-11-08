@@ -32,9 +32,9 @@ export const defaultSettings: LabelSettings = {
   email: "",
   brandPhrase: "Detalles que viajan con amor",
   brandColors: {
-    primary: "#742F92",
-    dark: "#3B0A57",
-    light: "#B57EDC",
+    primary: "#6E1593",
+    dark: "#2A0F3D",
+    light: "#D9B8F0",
     paper: "#F5F5F7",
     ink: "#111111",
   },

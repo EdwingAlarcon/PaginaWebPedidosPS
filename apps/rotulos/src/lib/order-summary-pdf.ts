@@ -12,12 +12,12 @@ const HEADER_HEIGHT = 108;
 const CONTENT_WIDTH = PAGE_WIDTH - MARGIN * 2;
 
 // Paleta de marca Purple Shop (apps/rotulos/src/app/globals.css)
-const PURPLE_900 = rgb(0.231, 0.039, 0.341);
-const PURPLE_800 = rgb(0.31, 0.09, 0.424);
-const PURPLE_700 = rgb(0.384, 0.137, 0.498);
-const PURPLE_600 = rgb(0.455, 0.184, 0.573);
-const PURPLE_100 = rgb(0.925, 0.886, 0.941);
-const PURPLE_50 = rgb(0.969, 0.949, 0.98);
+const PURPLE_900 = rgb(0.165, 0.059, 0.239);
+const PURPLE_800 = rgb(0.271, 0.067, 0.373);
+const PURPLE_700 = rgb(0.357, 0.075, 0.482);
+const PURPLE_600 = rgb(0.431, 0.082, 0.576);
+const PURPLE_100 = rgb(0.945, 0.894, 0.98);
+const PURPLE_50 = rgb(0.984, 0.969, 0.992);
 const BORDER = rgb(0.894, 0.875, 0.949);
 const TEXT_COLOR = rgb(0.086, 0.071, 0.122);
 const MUTED_COLOR = rgb(0.388, 0.365, 0.447);
@@ -241,7 +241,7 @@ async function createContext(): Promise<Pick<PdfContext, "doc" | "font" | "boldF
   ]);
   let logo: PDFImage | null = null;
   try {
-    const bytes = await readFile(join(process.cwd(), "public", "purple-shop-logo.png"));
+    const bytes = await readFile(join(process.cwd(), "public", "purple-shop-logo-aro.png"));
     logo = await doc.embedPng(bytes);
   } catch {
     logo = null;

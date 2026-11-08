@@ -11,12 +11,12 @@ const CONTENT_WIDTH = WIDTH - MARGIN * 2;
 const EXPORT_SCALE = 2;
 
 const COLORS = {
-  purple900: "#3B0A57",
-  purple800: "#4F176C",
-  purple700: "#62237F",
-  purple600: "#742F92",
-  purple100: "#ECE2F0",
-  purple50: "#F7F2FA",
+  purple900: "#2A0F3D",
+  purple800: "#45115F",
+  purple700: "#5B137B",
+  purple600: "#6E1593",
+  purple100: "#F1E4FA",
+  purple50: "#FBF7FD",
   border: "#E4DFF2",
   text: "#16121F",
   muted: "#635D72",
@@ -189,7 +189,7 @@ function loadLogo(): Promise<HTMLImageElement | null> {
     const img = new Image();
     img.onload = () => resolve(img);
     img.onerror = () => resolve(null);
-    img.src = "/purple-shop-logo.png";
+    img.src = "/purple-shop-logo-aro.png";
   });
 }
 

@@ -5,26 +5,26 @@
 :root {
   color-scheme: light;
 
-  /* Escala de marca PurpleShop (swatch fijo, igual en ambos temas). El morado oficial es --purple-600 = #742F92 (ver docs/brand/BRAND.md). */
-  --purple-950: #260740;
-  --purple-900: #3B0A57;
-  --purple-800: #4F176C;
-  --purple-700: #62237F;
-  --purple-600: #742F92;
-  --purple-500: #8F50B1;
-  --purple-400: #B57EDC;
-  --purple-300: #CCA5E8;
-  --purple-200: #E0CAF1;
-  --purple-100: #ECE2F0;
-  --purple-50: #F7F2FA;
+  /* Escala de marca PurpleShop (swatch fijo, igual en ambos temas). El morado oficial es --purple-600 = #6E1593, el de tu logo (ver docs/brand/BRAND.md). */
+  --purple-950: #1B0A28;
+  --purple-900: #2A0F3D;
+  --purple-800: #45115F;
+  --purple-700: #5B137B;
+  --purple-600: #6E1593;
+  --purple-500: #8C43AD;
+  --purple-400: #AC74C9;
+  --purple-300: #D9B8F0;
+  --purple-200: #E6D0F6;
+  --purple-100: #F1E4FA;
+  --purple-50: #FBF7FD;
 
   /* ---- Tokens semanticos (fuente de verdad) ---- */
-  --background: #f8f7fb;
+  --background: #fbf7fd;
   --surface: #ffffff;
-  --surface-muted: #f1eef8;
+  --surface-muted: #f6edfb;
   --foreground: #16121f;
   --foreground-muted: #635d72;
-  --border: #e4dff2;
+  --border: #ece0f5;
   --primary: var(--purple-600);
   --primary-hover: var(--purple-700);
   --primary-foreground: #ffffff;
@@ -34,7 +34,7 @@
   --focus-ring: var(--purple-600);
 
   /* Tintes translucidos para fondos sutiles (badges, alerts) — mismo valor en ambos temas */
-  --primary-soft: rgba(116, 47, 146, 0.12);
+  --primary-soft: rgba(110, 21, 147, 0.12);
   --success-soft: rgba(16, 185, 129, 0.12);
   --warning-soft: rgba(245, 158, 11, 0.14);
   --danger-soft: rgba(239, 68, 68, 0.12);
@@ -56,7 +56,7 @@
   --color-primary-hover: var(--primary-hover);
   --color-primary-active: var(--purple-800);
   --color-primary-light: var(--purple-400);
-  --color-primary-soft: #f1e8f6;
+  --color-primary-soft: #f1e4fa;
   --color-secondary: #ec4899;
   --color-secondary-hover: #db2777;
   --danger-color: var(--danger);
@@ -70,9 +70,9 @@
   --text-tertiary: #9993a8;
   --text-inverse: var(--primary-foreground);
   --border-color: var(--border);
-  --border-color-hover: #d3caea;
+  --border-color-hover: #dcc9ec;
   --focus-outline: var(--focus-ring);
-  --hover-bg: #f4f1fa;
+  --hover-bg: #f6eefa;
 }
 
 [data-theme="dark"] {
@@ -84,18 +84,18 @@
   --foreground: #f3f0fa;
   --foreground-muted: #b9b0cc;
   --border: #322a45;
-  --primary: #B57EDC;
-  --primary-hover: #CCA5E8;
+  --primary: #D9B8F0;
+  --primary-hover: #F1E4FA;
   --primary-foreground: #16121f;
   --success: #34d399;
   --warning: #fbbf24;
   --danger: #f87171;
-  --focus-ring: #B57EDC;
+  --focus-ring: #D9B8F0;
 
   --color-primary: var(--primary);
   --color-primary-hover: var(--primary-hover);
-  --color-primary-active: #8F50B1;
-  --color-primary-light: #CCA5E8;
+  --color-primary-active: #AC74C9;
+  --color-primary-light: #D9B8F0;
   --color-primary-soft: #241c33;
   --color-secondary: #f472b6;
   --color-secondary-hover: #f9a8d4;
@@ -162,7 +162,7 @@ body {
 .app-shell-brand img {
   border-radius: 14px;
   object-fit: contain;
-  box-shadow: 0 10px 24px rgba(79, 23, 108, 0.18);
+  box-shadow: 0 10px 24px rgba(66, 18, 90, 0.18);
 }
 
 .app-shell-brand strong {

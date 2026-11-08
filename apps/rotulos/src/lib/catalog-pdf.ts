@@ -18,16 +18,16 @@ const CARD_HEIGHT = PHOTO_HEIGHT + 58;
 const NAME_FONT_SIZE = 9;
 const BRAND_STRIP_HEIGHT = 34;
 
-const PURPLE_900: [number, number, number] = [0.298, 0.114, 0.584];
-const PURPLE_600: [number, number, number] = [0.486, 0.227, 0.929];
-const PURPLE_100 = rgb(0.929, 0.914, 0.996);
-const PURPLE_50 = rgb(0.961, 0.953, 1);
+const PURPLE_900: [number, number, number] = [0.271, 0.067, 0.373];
+const PURPLE_600: [number, number, number] = [0.431, 0.082, 0.576];
+const PURPLE_100 = rgb(0.945, 0.894, 0.98);
+const PURPLE_50 = rgb(0.984, 0.969, 0.992);
 const BORDER = rgb(0.894, 0.875, 0.949);
 const TEXT_COLOR = rgb(0.086, 0.071, 0.122);
 const MUTED_COLOR = rgb(0.388, 0.365, 0.447);
 const WHITE = rgb(1, 1, 1);
 
-const COVER_TOP: [number, number, number] = [0.176, 0.055, 0.373];
+const COVER_TOP: [number, number, number] = [0.165, 0.059, 0.239];
 const HOMBRE_TOP: [number, number, number] = [0.169, 0.157, 0.42];
 const MUJER_TOP: [number, number, number] = [0.827, 0.145, 0.435];
 
@@ -146,7 +146,7 @@ async function createContext(): Promise<Pick<PdfContext, "doc" | "font" | "boldF
   const [font, boldFont] = await Promise.all([doc.embedFont(StandardFonts.Helvetica), doc.embedFont(StandardFonts.HelveticaBold)]);
   let logo: PDFImage | null = null;
   try {
-    const bytes = await readFile(join(process.cwd(), "public", "purple-shop-logo.png"));
+    const bytes = await readFile(join(process.cwd(), "public", "purple-shop-logo-aro.png"));
     logo = await doc.embedPng(bytes);
   } catch {
     logo = null;
@@ -260,7 +260,7 @@ function drawCoverPage(base: Pick<PdfContext, "doc" | "font" | "boldFont" | "ima
   const subtitle = tracked(sanitize(settings.brandPhrase).toUpperCase());
   const subtitleSize = 11;
   const subtitleWidth = base.font.widthOfTextAtSize(subtitle, subtitleSize);
-  page.drawText(subtitle, { x: centerX - subtitleWidth / 2, y: cursorY, size: subtitleSize, font: base.font, color: rgb(0.929, 0.914, 0.996) });
+  page.drawText(subtitle, { x: centerX - subtitleWidth / 2, y: cursorY, size: subtitleSize, font: base.font, color: rgb(0.945, 0.894, 0.98) });
   cursorY -= 26;
 
   page.drawRectangle({ x: centerX - 60, y: cursorY, width: 120, height: 1.5, color: WHITE, opacity: 0.5 });
@@ -322,7 +322,7 @@ function drawCategoryDividerPage(base: Pick<PdfContext, "doc" | "font" | "boldFo
   const eyebrowWidth = base.font.widthOfTextAtSize(eyebrow, eyebrowSize);
   const centerX = PAGE_WIDTH / 2;
   const centerY = PAGE_HEIGHT / 2;
-  page.drawText(eyebrow, { x: centerX - eyebrowWidth / 2, y: centerY + 46, size: eyebrowSize, font: base.font, color: rgb(0.929, 0.914, 0.996) });
+  page.drawText(eyebrow, { x: centerX - eyebrowWidth / 2, y: centerY + 46, size: eyebrowSize, font: base.font, color: rgb(0.945, 0.894, 0.98) });
 
   const titleSize = 46;
   const titleWidth = base.boldFont.widthOfTextAtSize(meta.label, titleSize);
