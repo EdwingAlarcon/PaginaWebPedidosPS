@@ -26,7 +26,7 @@ describe("design tokens de PurpleShop", () => {
   it("redefine los tokens semanticos para [data-theme=dark]", () => {
     const darkBlock = css.split('[data-theme="dark"] {')[1] ?? "";
     expect(darkBlock).toContain("--background: #0f0b17");
-    expect(darkBlock).toContain("--primary: #a78bfa");
+    expect(darkBlock).toContain("--primary: #B57EDC");
     expect(darkBlock).toContain("--focus-ring:");
   });
 

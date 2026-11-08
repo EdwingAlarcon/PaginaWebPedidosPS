@@ -11,12 +11,12 @@ const CONTENT_WIDTH = WIDTH - MARGIN * 2;
 const EXPORT_SCALE = 2;
 
 const COLORS = {
-  purple900: "#4C1D95",
-  purple800: "#5B21B6",
-  purple700: "#6D28D9",
-  purple600: "#7C3AED",
-  purple100: "#EDE9FE",
-  purple50: "#F5F3FF",
+  purple900: "#3B0A57",
+  purple800: "#4F176C",
+  purple700: "#62237F",
+  purple600: "#742F92",
+  purple100: "#ECE2F0",
+  purple50: "#F7F2FA",
   border: "#E4DFF2",
   text: "#16121F",
   muted: "#635D72",

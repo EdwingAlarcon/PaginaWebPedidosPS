@@ -5,18 +5,18 @@
 :root {
   color-scheme: light;
 
-  /* Escala de marca PurpleShop (swatch fijo, igual en ambos temas) */
-  --purple-950: #2E1065;
-  --purple-900: #4C1D95;
-  --purple-800: #5B21B6;
-  --purple-700: #6D28D9;
-  --purple-600: #7C3AED;
-  --purple-500: #8B5CF6;
-  --purple-400: #A78BFA;
-  --purple-300: #C4B5FD;
-  --purple-200: #DDD6FE;
-  --purple-100: #EDE9FE;
-  --purple-50: #F5F3FF;
+  /* Escala de marca PurpleShop (swatch fijo, igual en ambos temas). El morado oficial es --purple-600 = #742F92 (ver docs/brand/BRAND.md). */
+  --purple-950: #260740;
+  --purple-900: #3B0A57;
+  --purple-800: #4F176C;
+  --purple-700: #62237F;
+  --purple-600: #742F92;
+  --purple-500: #8F50B1;
+  --purple-400: #B57EDC;
+  --purple-300: #CCA5E8;
+  --purple-200: #E0CAF1;
+  --purple-100: #ECE2F0;
+  --purple-50: #F7F2FA;
 
   /* ---- Tokens semanticos (fuente de verdad) ---- */
   --background: #f8f7fb;
@@ -34,7 +34,7 @@
   --focus-ring: var(--purple-600);
 
   /* Tintes translucidos para fondos sutiles (badges, alerts) — mismo valor en ambos temas */
-  --primary-soft: rgba(124, 58, 237, 0.12);
+  --primary-soft: rgba(116, 47, 146, 0.12);
   --success-soft: rgba(16, 185, 129, 0.12);
   --warning-soft: rgba(245, 158, 11, 0.14);
   --danger-soft: rgba(239, 68, 68, 0.12);
@@ -56,7 +56,7 @@
   --color-primary-hover: var(--primary-hover);
   --color-primary-active: var(--purple-800);
   --color-primary-light: var(--purple-400);
-  --color-primary-soft: #f1e9fe;
+  --color-primary-soft: #f1e8f6;
   --color-secondary: #ec4899;
   --color-secondary-hover: #db2777;
   --danger-color: var(--danger);
@@ -84,18 +84,18 @@
   --foreground: #f3f0fa;
   --foreground-muted: #b9b0cc;
   --border: #322a45;
-  --primary: #a78bfa;
-  --primary-hover: #c4b5fd;
+  --primary: #B57EDC;
+  --primary-hover: #CCA5E8;
   --primary-foreground: #16121f;
   --success: #34d399;
   --warning: #fbbf24;
   --danger: #f87171;
-  --focus-ring: #a78bfa;
+  --focus-ring: #B57EDC;
 
   --color-primary: var(--primary);
   --color-primary-hover: var(--primary-hover);
-  --color-primary-active: #8b5cf6;
-  --color-primary-light: #c4b5fd;
+  --color-primary-active: #8F50B1;
+  --color-primary-light: #CCA5E8;
   --color-primary-soft: #241c33;
   --color-secondary: #f472b6;
   --color-secondary-hover: #f9a8d4;
@@ -162,7 +162,7 @@ body {
 .app-shell-brand img {
   border-radius: 14px;
   object-fit: contain;
-  box-shadow: 0 10px 24px rgba(91, 33, 182, 0.18);
+  box-shadow: 0 10px 24px rgba(79, 23, 108, 0.18);
 }
 
 .app-shell-brand strong {
