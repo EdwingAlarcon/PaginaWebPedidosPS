@@ -186,9 +186,10 @@ explicitamente si no pudiste probar con sesion autenticada).
   de la otra cuenta, PS-2026-000012 de Edwing; el 12 se borró). Migración
   `202611070001_share_labels_between_users.sql` aplicada a mano por Claude en el
   SQL Editor de Supabase (misma fecha): lectura/edición/borrado para todo usuario
-  autenticado, insert sigue exigiendo `created_by = auth.uid()`. Pendiente:
-  Imprimir desde `/crear` e Historial no marca el rótulo como "Impreso" (solo
-  Despacho lo hace).
+  autenticado, insert sigue exigiendo `created_by = auth.uid()`. Imprimir desde
+  `/crear` e Historial (`?print=1`) ahora guarda el rótulo como "Impreso" antes
+  de abrir la impresión (si el guardado falla, no imprime); antes solo Despacho
+  lo marcaba.
 
 - 2026-11-06: listados sin truncar + Inicio orientado a accion. Supabase corta cada
   consulta en 1000 filas SIN error; `src/lib/paginate.ts` (`fetchAllPages`) recorre

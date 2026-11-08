@@ -16,6 +16,19 @@ import { RecipientFields } from "@/components/recipient-fields";
 import { SenderFields } from "@/components/sender-fields";
 import { ShipmentFields } from "@/components/shipment-fields";
 
+function openPrintDialog(size: LabelDraft["size"]) {
+  const { widthCm, heightCm } = LABEL_SIZES[size];
+  const styleId = "dynamic-page-size";
+  let styleEl = document.getElementById(styleId) as HTMLStyleElement | null;
+  if (!styleEl) {
+    styleEl = document.createElement("style");
+    styleEl.id = styleId;
+    document.head.appendChild(styleEl);
+  }
+  styleEl.textContent = `@page { size: ${widthCm}cm ${heightCm}cm; margin: 0; }`;
+  window.print();
+}
+
 export function LabelForm() {
   const [draft, setDraft] = useState<LabelDraft>(() => {
     const initial = createBlankLabelDraft();
@@ -50,7 +63,19 @@ export function LabelForm() {
         const senderIsEmpty = !current.sender.phone && !current.sender.department && !current.sender.city && !current.sender.locality && !current.sender.neighborhood && !current.sender.address;
         return { ...current, sender: senderIsEmpty ? savedSettings.defaultSender : current.sender };
       });
-      if (existing && shouldPrint) window.setTimeout(() => window.print(), 150);
+      if (existing && shouldPrint) {
+        // Imprimir desde el Historial tambien debe dejar el rotulo como "Impreso".
+        let toPrint = existing;
+        if (existing.status === "borrador" || existing.status === "generado") {
+          try {
+            toPrint = await store.saveLabel({ ...existing, status: "impreso" }, savedSettings);
+            if (active) setDraft(toPrint);
+          } catch {
+            if (active) setSaveStatus("Se imprimio, pero no se pudo marcar el rotulo como impreso.");
+          }
+        }
+        if (active) openPrintDialog(toPrint.size);
+      }
     }
 
     void loadFallbackData();
@@ -93,18 +118,24 @@ export function LabelForm() {
     }
   }
 
-  function printDraft() {
-    if (!validateDraft()) return;
-    const { widthCm, heightCm } = LABEL_SIZES[draft.size];
-    const styleId = "dynamic-page-size";
-    let styleEl = document.getElementById(styleId) as HTMLStyleElement | null;
-    if (!styleEl) {
-      styleEl = document.createElement("style");
-      styleEl.id = styleId;
-      document.head.appendChild(styleEl);
+  async function printDraft() {
+    if (saving || !validateDraft()) return;
+    setSaving(true);
+    try {
+      // Guardar como "impreso" antes de abrir la impresion: si no se guarda, el
+      // rotulo no queda en el historial ni Despacho sabe que ya se imprimio.
+      const printed =
+        draft.id && draft.status === "impreso"
+          ? draft
+          : await getLabelStore().saveLabel({ ...draft, status: "impreso" }, settings);
+      setDraft(printed);
+      setSaveStatus("Rotulo guardado como impreso.");
+      window.setTimeout(() => openPrintDialog(printed.size), 150);
+    } catch {
+      setSaveStatus("No se pudo guardar el rotulo, por eso no se imprimio. Intenta de nuevo.");
+    } finally {
+      setSaving(false);
     }
-    styleEl.textContent = `@page { size: ${widthCm}cm ${heightCm}cm; margin: 0; }`;
-    window.print();
   }
 
   async function downloadPdf() {

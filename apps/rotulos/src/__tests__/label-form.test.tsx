@@ -245,4 +245,46 @@ describe("LabelForm", () => {
     await waitFor(() => expect(recipient.getByDisplayValue("3101234567")).toBeInTheDocument());
     expect(recipient.getByDisplayValue("CARRERA 45 # 10-20")).toBeInTheDocument();
   });
+
+  it("saves the label as printed before opening the print dialog", async () => {
+    const print = vi.spyOn(window, "print").mockImplementation(() => undefined);
+    render(<LabelForm />);
+    const sender = within(screen.getByRole("group", { name: "Remitente" }));
+    const recipient = within(screen.getByRole("group", { name: "Destinatario" }));
+    const shipment = within(screen.getByRole("group", { name: "Datos del envio" }));
+
+    fireEvent.change(sender.getByLabelText(/Teléfono/), { target: { value: "3001234567" } });
+    fireEvent.change(sender.getByLabelText(/Departamento/), { target: { value: "VALLE DEL CAUCA" } });
+    await waitFor(() => expect(sender.getByRole("option", { name: "SANTIAGO DE CALI" })).toBeInTheDocument());
+    fireEvent.change(sender.getByLabelText(/Ciudad/), { target: { value: "SANTIAGO DE CALI" } });
+    fireEvent.change(sender.getByLabelText(/Dirección/), { target: { value: "Calle 1 # 2-3" } });
+    fireEvent.change(recipient.getByLabelText(/Nombre y apellidos/), { target: { value: "Ana Perez" } });
+    fireEvent.change(recipient.getByLabelText(/Teléfono/), { target: { value: "3101234567" } });
+    fireEvent.change(recipient.getByLabelText(/Departamento/), { target: { value: "ANTIOQUIA" } });
+    await waitFor(() => expect(recipient.getByRole("option", { name: "MEDELLÍN" })).toBeInTheDocument());
+    fireEvent.change(recipient.getByLabelText(/Ciudad/), { target: { value: "MEDELLÍN" } });
+    fireEvent.change(recipient.getByLabelText(/Dirección completa/), { target: { value: "Carrera 45 # 10-20" } });
+    fireEvent.change(shipment.getByLabelText(/Transportadora/), { target: { value: "Coordinadora" } });
+
+    fireEvent.click(screen.getByRole("button", { name: "Imprimir" }));
+
+    await waitFor(() => expect(print).toHaveBeenCalledTimes(1));
+    const [saved] = await getLabelStore().listLabels();
+    expect(saved.status).toBe("impreso");
+    expect(saved.orderNumber).toBe("PS-2026-000001");
+  });
+
+  it("marks the label as printed when opened with print=1 from the history", async () => {
+    const print = vi.spyOn(window, "print").mockImplementation(() => undefined);
+    const draft = createBlankLabelDraft();
+    draft.recipient.fullName = "Ana Perez";
+    const saved = await getLabelStore().saveLabel(draft, defaultSettings);
+    expect(saved.status).toBe("generado");
+    window.history.pushState({}, "", `/crear?id=${saved.id}&print=1`);
+
+    render(<LabelForm />);
+
+    await waitFor(() => expect(print).toHaveBeenCalledTimes(1));
+    expect((await getLabelStore().getLabel(saved.id))?.status).toBe("impreso");
+  });
 });
