@@ -22,10 +22,12 @@ const PURPLE_900: [number, number, number] = [0.271, 0.067, 0.373];
 const PURPLE_600: [number, number, number] = [0.431, 0.082, 0.576];
 const PURPLE_100 = rgb(0.945, 0.894, 0.98);
 const PURPLE_50 = rgb(0.984, 0.969, 0.992);
-const BORDER = rgb(0.894, 0.875, 0.949);
-const TEXT_COLOR = rgb(0.086, 0.071, 0.122);
-const MUTED_COLOR = rgb(0.388, 0.365, 0.447);
+const BORDER = rgb(0.925, 0.878, 0.961);
+const TEXT_COLOR = rgb(0.165, 0.059, 0.239); // Noche #2A0F3D
+const MUTED_COLOR = rgb(0.42, 0.31, 0.522); // #6B4F85
 const WHITE = rgb(1, 1, 1);
+const LIMON = rgb(0.906, 0.969, 0.416); // #E7F76A
+const LILA = rgb(0.851, 0.722, 0.941); // #D9B8F0
 
 const COVER_TOP: [number, number, number] = [0.165, 0.059, 0.239];
 const HOMBRE_TOP: [number, number, number] = [0.169, 0.157, 0.42];
@@ -220,6 +222,7 @@ async function embedProductImage(doc: PDFDocument, url: string | null, cache?: I
 
 function newPage(ctx: Pick<PdfContext, "doc" | "font" | "boldFont" | "images">): PdfContext {
   const page = ctx.doc.addPage([PAGE_WIDTH, PAGE_HEIGHT]);
+  page.drawRectangle({ x: 0, y: 0, width: PAGE_WIDTH, height: PAGE_HEIGHT, color: PURPLE_50 });
   return { ...ctx, page, y: PAGE_HEIGHT - MARGIN, column: 0 };
 }
 
@@ -230,6 +233,13 @@ const HEART_PATH = "M12 21s-7.5-4.6-9.6-9.3C.9 8.2 3 4.5 6.6 4.5c2 0 3.6 1.1 4.4
 function drawHeart(page: PDFPage, cx: number, cy: number, size: number, color: ReturnType<typeof rgb>): void {
   const scale = size / 24;
   page.drawSvgPath(HEART_PATH, { x: cx - size / 2, y: cy + size / 2, scale, color });
+}
+
+/** Rectangulo con esquinas redondeadas. (x, y) es la esquina inferior izquierda. */
+function drawRoundedRect(page: PDFPage, x: number, y: number, width: number, height: number, radius: number, color: ReturnType<typeof rgb>): void {
+  const r = Math.min(radius, width / 2, height / 2);
+  const path = `M ${r} 0 H ${width - r} Q ${width} 0 ${width} ${r} V ${height - r} Q ${width} ${height} ${width - r} ${height} H ${r} Q 0 ${height} 0 ${height - r} V ${r} Q 0 0 ${r} 0 Z`;
+  page.drawSvgPath(path, { x, y: y + height, color });
 }
 
 function drawCoverPage(base: Pick<PdfContext, "doc" | "font" | "boldFont" | "images">, settings: LabelSettings): void {
@@ -318,7 +328,7 @@ function drawCategoryDividerPage(base: Pick<PdfContext, "doc" | "font" | "boldFo
     page.drawImage(base.images.logo, { x: MARGIN, y: PAGE_HEIGHT - MARGIN - logoSize, width: logoSize, height: logoSize });
   }
 
-  const eyebrow = tracked("COLECCION PURPLE SHOP");
+  const eyebrow = tracked("COLECCIÓN PURPLE SHOP");
   const eyebrowSize = 11;
   const eyebrowWidth = base.font.widthOfTextAtSize(eyebrow, eyebrowSize);
   const centerX = PAGE_WIDTH / 2;
@@ -329,39 +339,42 @@ function drawCategoryDividerPage(base: Pick<PdfContext, "doc" | "font" | "boldFo
   const titleWidth = base.boldFont.widthOfTextAtSize(meta.label, titleSize);
   page.drawText(meta.label, { x: centerX - titleWidth / 2, y: centerY - 10, size: titleSize, font: base.boldFont, color: WHITE });
 
-  page.drawRectangle({ x: centerX - 50, y: centerY - 34, width: 100, height: 1.5, color: WHITE, opacity: 0.5 });
+  drawRoundedRect(page, centerX - 24, centerY - 36, 48, 4, 2, CHICLE);
+  drawHeart(page, centerX, centerY - 58, 16, CHICLE);
 }
 
 function drawBrandStrip(ctx: PdfContext): PdfContext {
-  ctx.page.drawRectangle({ x: 0, y: PAGE_HEIGHT - BRAND_STRIP_HEIGHT, width: PAGE_WIDTH, height: BRAND_STRIP_HEIGHT, color: PURPLE_50 });
+  ctx.page.drawRectangle({ x: 0, y: PAGE_HEIGHT - BRAND_STRIP_HEIGHT, width: PAGE_WIDTH, height: BRAND_STRIP_HEIGHT, color: rgb(PURPLE_600[0], PURPLE_600[1], PURPLE_600[2]) });
+  const centerY = PAGE_HEIGHT - BRAND_STRIP_HEIGHT / 2;
+  let textX = MARGIN;
   if (ctx.images.logo) {
-    const logoSize = 18;
-    ctx.page.drawImage(ctx.images.logo, { x: MARGIN, y: PAGE_HEIGHT - BRAND_STRIP_HEIGHT / 2 - logoSize / 2, width: logoSize, height: logoSize });
+    const logoSize = 24;
+    ctx.page.drawImage(ctx.images.logo, { x: MARGIN, y: centerY - logoSize / 2, width: logoSize, height: logoSize });
+    textX += logoSize + 8;
   }
-  const label = "PURPLE SHOP";
-  ctx.page.drawText(label, {
-    x: MARGIN + (ctx.images.logo ? 24 : 0),
-    y: PAGE_HEIGHT - BRAND_STRIP_HEIGHT / 2 - 3,
-    size: 9,
-    font: ctx.boldFont,
-    color: rgb(PURPLE_900[0], PURPLE_900[1], PURPLE_900[2]),
-  });
-  return { ...ctx, y: PAGE_HEIGHT - BRAND_STRIP_HEIGHT - 16 };
+  ctx.page.drawText("purple shop", { x: textX, y: centerY - 3.5, size: 11, font: ctx.boldFont, color: WHITE });
+  const phrase = "detalles que viajan con amor";
+  const phraseSize = 8.5;
+  const phraseWidth = ctx.font.widthOfTextAtSize(phrase, phraseSize);
+  ctx.page.drawText(phrase, { x: PAGE_WIDTH - MARGIN - 14 - phraseWidth, y: centerY - 3, size: phraseSize, font: ctx.font, color: LILA });
+  drawHeart(ctx.page, PAGE_WIDTH - MARGIN - 5, centerY, 10, CHICLE);
+  return { ...ctx, y: PAGE_HEIGHT - BRAND_STRIP_HEIGHT - 20 };
 }
 
 function drawCategoryTitle(ctx: PdfContext, category: string): PdfContext {
   let next = ctx;
   if (next.column !== 0) next = { ...newPage(next), column: 0 };
-  if (next.y - 26 < MARGIN) next = newPage(next);
+  if (next.y - 34 < MARGIN) next = newPage(next);
   const meta = CATEGORY_DISPLAY[category.trim().toUpperCase()];
   next.page.drawText(sanitize(meta?.label ?? category) || "OTROS", {
     x: MARGIN,
     y: next.y - 16,
-    size: 13,
+    size: 16,
     font: next.boldFont,
-    color: rgb(PURPLE_900[0], PURPLE_900[1], PURPLE_900[2]),
+    color: TEXT_COLOR,
   });
-  return { ...next, y: next.y - 30, column: 0 };
+  drawRoundedRect(next.page, MARGIN, next.y - 26, 34, 3.5, 1.75, CHICLE);
+  return { ...next, y: next.y - 38, column: 0 };
 }
 
 async function drawProductCard(ctx: PdfContext, product: ProductCode, imageCache?: ImageBytesCache): Promise<PdfContext> {
@@ -376,7 +389,7 @@ async function drawProductCard(ctx: PdfContext, product: ProductCode, imageCache
     y: cardTop - CARD_HEIGHT,
     width: CARD_WIDTH,
     height: CARD_HEIGHT,
-    color: PURPLE_50,
+    color: WHITE,
     borderColor: BORDER,
     borderWidth: 1,
   });
@@ -386,10 +399,11 @@ async function drawProductCard(ctx: PdfContext, product: ProductCode, imageCache
   if (image) {
     drawContained(next.page, image, cardX, photoY, CARD_WIDTH, PHOTO_HEIGHT);
   } else {
-    next.page.drawRectangle({ x: cardX + 6, y: photoY, width: CARD_WIDTH - 12, height: PHOTO_HEIGHT, color: PURPLE_100 });
+    drawRoundedRect(next.page, cardX + 6, photoY, CARD_WIDTH - 12, PHOTO_HEIGHT, 6, PURPLE_100);
+    drawHeart(next.page, cardX + CARD_WIDTH / 2, photoY + PHOTO_HEIGHT / 2 + 8, 14, CHICLE);
     const label = "SIN FOTO";
     const width = next.font.widthOfTextAtSize(label, 8);
-    next.page.drawText(label, { x: cardX + (CARD_WIDTH - width) / 2, y: photoY + PHOTO_HEIGHT / 2 - 3, size: 8, font: next.font, color: MUTED_COLOR });
+    next.page.drawText(label, { x: cardX + (CARD_WIDTH - width) / 2, y: photoY + PHOTO_HEIGHT / 2 - 12, size: 8, font: next.font, color: MUTED_COLOR });
   }
 
   const name = sanitize(product.productName);
@@ -408,13 +422,11 @@ async function drawProductCard(ctx: PdfContext, product: ProductCode, imageCache
       color: TEXT_COLOR,
     });
   });
-  next.page.drawText(formatCop(product.unitPrice), {
-    x: cardX + 8,
-    y: cardTop - CARD_HEIGHT + 14,
-    size: 10,
-    font: next.boldFont,
-    color: rgb(PURPLE_900[0], PURPLE_900[1], PURPLE_900[2]),
-  });
+  // Precio en pastilla limon (acento de la marca), texto en Noche.
+  const priceText = formatCop(product.unitPrice);
+  const priceWidth = next.boldFont.widthOfTextAtSize(priceText, 10);
+  drawRoundedRect(next.page, cardX + 8, cardTop - CARD_HEIGHT + 8, priceWidth + 14, 16, 8, LIMON);
+  next.page.drawText(priceText, { x: cardX + 15, y: cardTop - CARD_HEIGHT + 13.5, size: 10, font: next.boldFont, color: TEXT_COLOR });
 
   const column = (next.column + 1) % COLUMNS;
   const y = column === 0 ? next.y - CARD_HEIGHT - CARD_GAP : next.y;

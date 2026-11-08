@@ -186,8 +186,9 @@ explicitamente si no pudiste probar con sesion autenticada).
   oficial `#6E1593`** (el de los logos originales; el `#742F92` de la v1 se descartó). El logo original no se
   toca; sobre fondos morados se usa `public/purple-shop-logo-aro.png`. La app sigue con Inter. El rótulo
   (preview y PDF) no se tocó. Mensajes de WhatsApp y textos visibles ya llevan tildes; `sanitize` de los
-  PDF conserva Latin-1. Portada del catálogo sin la postal (las portadas `men.jpg`/`women.jpg` siguen
-  pendientes de fotos propias). `settings.brand_colors` en Supabase ya está actualizado; para poder guardar Configuración se aplicó a mano la migración
+  PDF conserva Latin-1. Catálogo PDF con el diseño del manual (portada de marca sin postal; las portadas de perfumes
+  `men.jpg`/`women.jpg` se dejan tal cual por decisión de Edwing). CMYK de imprenta definidos en
+  `docs/brand/BRAND.md` (morado 70·100·0·0). `settings.brand_colors` en Supabase ya está actualizado; para poder guardar Configuración se aplicó a mano la migración
   `202608250002` (faltaba en producción y el guardado fallaba con 400; ahora el formulario avisa si falla).
 
 - 2026-11-06: listados sin truncar + Inicio orientado a accion. Supabase corta cada

@@ -10,7 +10,7 @@ acentos vivos y un corazón como detalle. (La v1 con #742F92 y un logo reconstru
 por Edwing; no volver a ella.)
 
 ## Color
-- **Morado oficial: `#6E1593`** (RGB 110·21·147, CMYK 67·98·0·0). Es el morado medido en todos los
+- **Morado oficial: `#6E1593`** (RGB 110·21·147, CMYK 70·100·0·0). Es el morado medido en todos los
   archivos de logo originales. Es `--purple-600` / `--primary` (tema claro) en `globals.css`.
 - Escala de la app: 950 `#1B0A28` · 900 `#2A0F3D` (Noche) · 800 `#45115F` · 700 `#5B137B` ·
   600 `#6E1593` · 500 `#8C43AD` · 400 `#AC74C9` · 300 `#D9B8F0` (Lila) · 200 `#E6D0F6` ·
@@ -22,7 +22,11 @@ por Edwing; no volver a ella.)
   `#3A2352`). Tema claro: texto Noche `#2A0F3D`, texto secundario `#6B4F85`, fondo `#FBF7FD`.
 - PWA: `theme_color` `#6E1593`, `background_color` `#2A0F3D`; íconos `icon-192/512.png` (disco original) e
   `icon-maskable-192/512.png` (logo con aro sobre morado, dentro de la zona segura).
-- **Descartados** (no volver a usarlos): `#742F92`, `#741984`, `#784D92`, `#6B1FA2`, `#7C3AED` y la
+- **CMYK para imprenta** (calculado con perfil SWOP coated, buscando la combinación más cercana; tinta total ≤ 300 %): Morado 70·100·0·0 ·
+  Lila 20·30·0·0 · Chicle 0·75·20·0 · Limón 15·0·80·0 · Noche 85·95·5·60 · Texto 0·0·0·90 · Fondo 3·4·0·0. El morado y el lila quedan
+  fuera del rango imprimible (se ven más apagados/rosados en papel): para igualar el morado exacto, pedir tinta directa Pantone;
+  siempre pedir prueba de color. Detalle en la página 10 del manual.
+- Valores **descartados** (no volver a usarlos): `#742F92`, `#741984`, `#784D92`, `#6B1FA2`, `#7C3AED` y la
   escala violeta de Tailwind.
 - Texto sobre color: blanco sobre morado/noche; Noche sobre lila/chicle/limón. Nunca blanco sobre
   chicle (2,6:1) ni sobre lila (1,7:1).
@@ -51,9 +55,9 @@ Frase: «detalles que viajan con amor».
 - Portada del catálogo de marca (logo con aro, sin fotos de terceros); se quitó `public/catalog/postal.jpg`.
 
 ## Pendientes conocidos
-- Las portadas por categoría del catálogo (`public/catalog/men.jpg` y `women.jpg`) siguen siendo el diseño
-  anterior: logo viejo con banda verde y fotos de perfumes de otras marcas. Reemplazar cuando haya fotos propias.
-- CMYK de lila, chicle, limón y noche: confirmar con la imprenta (el del morado, 67/98/0/0, ya es oficial).
+- Decisión de Edwing (2026-11-07): las portadas de perfumes del catálogo (`public/catalog/men.jpg` y `women.jpg`) **se quedan tal cual**,
+  con su logo y sus fotos. El resto del catálogo sigue el manual (franja morada con logo con aro, fondo Fondo, tarjetas blancas,
+  precio en pastilla limón, acentos chicle y corazón).
 - El rótulo (preview y PDF) no se tocó: usa colores fijos (texto `#1A0630` y la imagen
   `public/label-template-bg.png`, de un violeta propio). Si se alinea, cambiar la imagen y
   `pdf.ts`/`globals.css` juntos y validar preview y PDF a la vez.
