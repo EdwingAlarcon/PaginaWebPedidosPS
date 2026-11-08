@@ -180,6 +180,16 @@ explicitamente si no pudiste probar con sesion autenticada).
 
 ## Estado operativo reciente
 
+- 2026-11-07: manual de marca v1.0 (PDF + logos SVG/PNG + patrón) en
+  `C:\Users\EdwingAlarcon\OneDrive\Docs\PurpleShop\Manual de marca\`; referencia para el
+  código en `docs/brand/BRAND.md`. **Morado oficial `#742F92`**: la escala `--purple-*` de
+  `globals.css`, el tema oscuro (Lila `#B57EDC`), los resúmenes de pedido (PDF e imagen),
+  `brandColors.primary` por defecto y el logo de la app (`public/purple-shop-logo.png` e
+  `icon.png`, versión con aro, sin sombra) se alinearon a él. El rótulo (preview y PDF) no se
+  tocó. No reintroducir `#7C3AED`/`#6B1FA2` ni la escala violeta de Tailwind. La fila de
+  `settings.brand_colors` en Supabase conserva el valor anterior hasta que se guarde de nuevo
+  en Configuración.
+
 - 2026-11-07: rótulos compartidos entre usuarios. `labels` tenía RLS "solo los
   propios" (`created_by = auth.uid()`): con dos cuentas del negocio cada una
   veía un historial incompleto y Despacho creó un rótulo duplicado (PS-2026-000011
