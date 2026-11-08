@@ -19,9 +19,11 @@ Aquí queda solo lo que el código necesita saber.
 ## Logo
 - Archivos en esta carpeta: `purpleshop-logo-color.svg`, `-color-aro.svg` (fotos, fondos
   oscuros y morados), `-1color-blanco.svg`.
-- La app usa la versión **con aro** (`public/purple-shop-logo.png`, `src/app/icon.png`).
-- Las letras P, l, e, S y p se salen del círculo a propósito (efecto esténcil). La sombra de
-  los JPG/PNG antiguos no era parte del logo.
+- La app conserva su logo anterior (con sombra) en `public/purple-shop-logo.png` e `icon.png`
+  hasta cerrar el logo definitivo: los SVG de esta carpeta (sin sombra) **no** fueron aprobados
+  por Edwing; se está rehaciendo con el look original (sombra suave y profundidad).
+- Las letras P, l, e, S y p se salen del círculo. Sin la sombra/aro del logo original el borde
+  queda abierto y se ve incompleto sobre blanco.
 
 ## Tipografía
 Myriad Pro (impresión) · Inter (pantalla, la de la app) · Source Sans 3 (sustituta gratuita de

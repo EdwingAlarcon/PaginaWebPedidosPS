@@ -184,9 +184,9 @@ explicitamente si no pudiste probar con sesion autenticada).
   `C:\Users\EdwingAlarcon\OneDrive\Docs\PurpleShop\Manual de marca\`; referencia para el
   código en `docs/brand/BRAND.md`. **Morado oficial `#742F92`**: la escala `--purple-*` de
   `globals.css`, el tema oscuro (Lila `#B57EDC`), los resúmenes de pedido (PDF e imagen),
-  `brandColors.primary` por defecto y el logo de la app (`public/purple-shop-logo.png` e
-  `icon.png`, versión con aro, sin sombra) se alinearon a él. El rótulo (preview y PDF) no se
-  tocó. No reintroducir `#7C3AED`/`#6B1FA2` ni la escala violeta de Tailwind. La fila de
+  `brandColors.primary` por defecto se alinearon a él. El logo de la app (`public/purple-shop-logo.png`
+  e `icon.png`) se dejó como estaba (con sombra): el logo vectorial sin sombra no gustó a Edwing y
+  se rehace con el look original. El rótulo (preview y PDF) no se tocó. No reintroducir `#7C3AED`/`#6B1FA2` ni la escala violeta de Tailwind. La fila de
   `settings.brand_colors` en Supabase conserva el valor anterior hasta que se guarde de nuevo
   en Configuración.
 
