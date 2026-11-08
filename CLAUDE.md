@@ -180,14 +180,14 @@ explicitamente si no pudiste probar con sesion autenticada).
 
 ## Estado operativo reciente
 
-- 2026-11-07: manual de marca **v2.0** ("Fresco, con el logo de siempre") en
-  `C:\Users\EdwingAlarcon\OneDrive\Docs\PurpleShop\Manual de marca\`; referencia para el código en
-  `docs/brand/BRAND.md`. **Morado oficial `#6E1593`** (el de los logos originales; el `#742F92` de
-  la v1 se descartó). Alineados a él: escala `--purple-*` y tema oscuro (Lila) de `globals.css`,
-  resúmenes de pedido (PDF e imagen), catálogo PDF y `brandColors` por defecto. El logo original no
-  se toca; sobre fondos morados se usa `public/purple-shop-logo-aro.png`. La app sigue con Inter. El
-  rótulo (preview y PDF) no se tocó. La fila de `settings.brand_colors` en Supabase conserva el valor
-  anterior hasta que se guarde de nuevo en Configuración.
+- 2026-11-07: manual de marca **v2.0** ("Fresco, con el logo de siempre") aplicado a la app. Manual,
+  logos y patrón en `C:\Users\EdwingAlarcon\OneDrive\Docs\PurpleShop\Manual de marca\`; referencia
+  para el código en `docs/brand/BRAND.md` (paleta, tokens claro/oscuro, PWA, reglas del logo). **Morado
+  oficial `#6E1593`** (el de los logos originales; el `#742F92` de la v1 se descartó). El logo original no se
+  toca; sobre fondos morados se usa `public/purple-shop-logo-aro.png`. La app sigue con Inter. El rótulo
+  (preview y PDF) no se tocó. Mensajes de WhatsApp y textos visibles ya llevan tildes; `sanitize` de los
+  PDF conserva Latin-1. Portada del catálogo sin la postal (las portadas `men.jpg`/`women.jpg` siguen
+  pendientes de fotos propias). La fila `settings.brand_colors` de Supabase se actualiza desde Configuración.
 
 - 2026-11-06: listados sin truncar + Inicio orientado a accion. Supabase corta cada
   consulta en 1000 filas SIN error; `src/lib/paginate.ts` (`fetchAllPages`) recorre
