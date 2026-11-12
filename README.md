@@ -37,6 +37,7 @@ Playwright · Vercel.
 ```
 apps/rotulos/        la aplicación (única app del repo)
 docs/brand/          referencia de marca para el código
+docs/arquitectura.html   diagrama de arquitectura (2026-10-06; abrir en el navegador)
 docs/superpowers/    specs: decisiones de diseño de cada función
 CLAUDE.md            guía técnica y reglas que no se deben romper
 NEXT_STEPS.md        pendientes y decisiones vigentes

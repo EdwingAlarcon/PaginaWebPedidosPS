@@ -7,8 +7,8 @@
       "violeta-purple-shop": {
         "role": "primary",
         "displayName": "Violeta Purple Shop",
-        "canonical": "#7C3AED",
-        "tonalRamp": ["#2E1065", "#4C1D95", "#5B21B6", "#6D28D9", "#7C3AED", "#8B5CF6", "#A78BFA", "#C4B5FD"]
+        "canonical": "#6E1593",
+        "tonalRamp": ["#2E1065", "#4C1D95", "#45115F", "#5B137B", "#6E1593", "#8B5CF6", "#A78BFA", "#C4B5FD"]
       },
       "background": {
         "role": "neutral",
@@ -56,7 +56,7 @@
       "refersTo": "button-primary",
       "description": "Acción primaria: guardar pedido, generar rótulo, confirmar.",
       "html": "<button class=\"ds-btn-primary\">Guardar pedido</button>",
-      "css": ".ds-btn-primary { display: inline-flex; align-items: center; justify-content: center; gap: 8px; height: 40px; padding: 0 16px; border: none; border-radius: 8px; background: #7C3AED; color: #ffffff; font-size: 14px; font-weight: 500; white-space: nowrap; transition: background-color 0.15s ease; } .ds-btn-primary:hover { background: #6D28D9; } .ds-btn-primary:focus-visible { outline: 2px solid #7C3AED; outline-offset: 2px; } .ds-btn-primary:disabled { opacity: 0.5; pointer-events: none; }"
+      "css": ".ds-btn-primary { display: inline-flex; align-items: center; justify-content: center; gap: 8px; height: 40px; padding: 0 16px; border: none; border-radius: 8px; background: #6E1593; color: #ffffff; font-size: 14px; font-weight: 500; white-space: nowrap; transition: background-color 0.15s ease; } .ds-btn-primary:hover { background: #5B137B; } .ds-btn-primary:focus-visible { outline: 2px solid #6E1593; outline-offset: 2px; } .ds-btn-primary:disabled { opacity: 0.5; pointer-events: none; }"
     },
     {
       "name": "Secondary Button",
@@ -64,7 +64,7 @@
       "refersTo": "button-secondary",
       "description": "Acción secundaria: cancelar, volver, exportar.",
       "html": "<button class=\"ds-btn-secondary\">Cancelar</button>",
-      "css": ".ds-btn-secondary { display: inline-flex; align-items: center; justify-content: center; gap: 8px; height: 40px; padding: 0 16px; border: 1px solid #e4dff2; border-radius: 8px; background: #ffffff; color: #16121f; font-size: 14px; font-weight: 500; transition: background-color 0.15s ease; } .ds-btn-secondary:hover { background: #f1eef8; } .ds-btn-secondary:focus-visible { outline: 2px solid #7C3AED; outline-offset: 2px; }"
+      "css": ".ds-btn-secondary { display: inline-flex; align-items: center; justify-content: center; gap: 8px; height: 40px; padding: 0 16px; border: 1px solid #e4dff2; border-radius: 8px; background: #ffffff; color: #16121f; font-size: 14px; font-weight: 500; transition: background-color 0.15s ease; } .ds-btn-secondary:hover { background: #f1eef8; } .ds-btn-secondary:focus-visible { outline: 2px solid #6E1593; outline-offset: 2px; }"
     },
     {
       "name": "Text Input",
@@ -72,7 +72,7 @@
       "refersTo": "input-default",
       "description": "Campo de texto estándar para formularios de pedido/cliente.",
       "html": "<input class=\"ds-input\" placeholder=\"Nombre del cliente\" />",
-      "css": ".ds-input { width: 100%; height: 40px; padding: 0 12px; border: 1px solid #e4dff2; border-radius: 8px; background: #ffffff; color: #16121f; font-size: 14px; transition: border-color 0.15s ease; } .ds-input::placeholder { color: #635d72; } .ds-input:focus-visible { outline: 2px solid #7C3AED; outline-offset: 2px; } .ds-input:disabled { opacity: 0.5; cursor: not-allowed; }"
+      "css": ".ds-input { width: 100%; height: 40px; padding: 0 12px; border: 1px solid #e4dff2; border-radius: 8px; background: #ffffff; color: #16121f; font-size: 14px; transition: border-color 0.15s ease; } .ds-input::placeholder { color: #635d72; } .ds-input:focus-visible { outline: 2px solid #6E1593; outline-offset: 2px; } .ds-input:disabled { opacity: 0.5; cursor: not-allowed; }"
     },
     {
       "name": "Card",
@@ -96,7 +96,7 @@
       "refersTo": "nav-link",
       "description": "Enlace de navegación en la sidebar, con estado activo distintivo.",
       "html": "<a class=\"ds-nav-link ds-nav-link-active\" href=\"#\">Pedidos</a>",
-      "css": ".ds-nav-link { display: inline-flex; align-items: center; gap: 10px; width: 100%; border-radius: 8px; padding: 10px 12px; color: #5B21B6; font-weight: 700; text-decoration: none; } .ds-nav-link:hover { background: #f1e9fe; } .ds-nav-link-active { background: #F5F3FF; border-left: 3px solid #7C3AED; padding-left: 9px; }"
+      "css": ".ds-nav-link { display: inline-flex; align-items: center; gap: 10px; width: 100%; border-radius: 8px; padding: 10px 12px; color: #45115F; font-weight: 700; text-decoration: none; } .ds-nav-link:hover { background: #f1e9fe; } .ds-nav-link-active { background: #F5F3FF; border-left: 3px solid #6E1593; padding-left: 9px; }"
     }
   ],
   "narrative": {
@@ -114,7 +114,7 @@
       { "name": "La Regla Plana-por-Defecto", "body": "Ninguna superficie lleva sombra en reposo. La sombra es siempre una respuesta a estar por encima del flujo (overlay, drawer) o a representar un objeto físico (el rótulo), nunca decoración de tarjeta.", "section": "elevation" }
     ],
     "dos": [
-      "Do usar el violeta de marca (#7C3AED) solo en acciones primarias, estados activos y foco — su escasez es la señal.",
+      "Do usar el violeta de marca (#6E1593) solo en acciones primarias, estados activos y foco — su escasez es la señal.",
       "Do mantener las superficies planas en reposo; reservar sombra para overlays y para el rótulo (objeto físico simulado).",
       "Do usar Inter en todo el sistema; construir jerarquía con peso/tamaño, no con familias tipográficas nuevas.",
       "Do mantener paridad de tokens semánticos entre modo claro y oscuro (mismo nombre de variable, distinto valor).",

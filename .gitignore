@@ -89,3 +89,7 @@ graphify-out/
 
 # Scratch local de baton (handoff staged), no versionar
 .baton/local/
+
+# Skills de agentes instalados localmente (no son parte del proyecto)
+.agents/
+skills-lock.json
