@@ -9,9 +9,10 @@ web
 ## Users
 
 Edwing (dueño/desarrollador) y su gerente, operando la única app del repo
-(`apps/rotulos`) desde escritorio durante la operación diaria del negocio:
-crear y editar pedidos, gestionar clientes e inventario, y generar rótulos
-de envío en PDF. No hay equipo más amplio usando el sistema hoy.
+(`apps/rotulos`) desde escritorio y desde el celular (PWA instalable, junto
+a WhatsApp) durante la operación diaria del negocio:
+crear y editar pedidos, registrar pagos, gestionar clientes, despachar,
+asignar guías, compartir el catálogo y generar rótulos de envío en PDF. No hay equipo más amplio usando el sistema hoy.
 
 ## Product Purpose
 
@@ -31,8 +32,9 @@ del pedido real.
 
 ## Operating Context
 
-Flujo diario: crear pedido → asociar o crear cliente → generar rótulo PDF
-para envío. Historial de pedidos y clientes se consulta y edita
+Flujo diario: crear pedido → asociar o crear cliente → registrar pago →
+generar rótulo PDF → despachar → asignar la guía de Interrapidísimo y
+enviarla al cliente por WhatsApp. Historial de pedidos y clientes se consulta y edita
 regularmente. Departamento/Ciudad Colombia con campos extra (Localidad,
 Barrio/Sector) cuando la ciudad es Bogotá. Datos históricos se importan
 periódicamente desde el Excel real del negocio ("REFERENCIAS", en
@@ -47,7 +49,10 @@ OneDrive del gerente) de forma manual (`npm run import:excel`).
   preview (CSS) y PDF comparten coordenadas que deben mantenerse en
   sincronía manualmente.
 - `product_codes` (catálogo para pedidos/rótulos) y `products`
-  (inventario con stock real) son tablas distintas e independientes.
+  (inventario con stock real) son tablas distintas e independientes. El
+  negocio vende por catálogo, sin bodega: `products` está vacía a propósito
+  (decisión de Edwing, 2026-09-22) y la interfaz oculta lo de stock.
+- Identidad visual: manual de marca v2.0, ver `docs/brand/BRAND.md`.
 - Sincronización de Excel real del negocio es manual por decisión
   explícita — no automatizar sin permiso.
 - Ver `CLAUDE.md` para reglas técnicas completas (rutas API protegidas,
@@ -57,9 +62,9 @@ OneDrive del gerente) de forma manual (`npm run import:excel`).
 ## Evidence on Hand
 
 Producción real en https://purpleshoponline.vercel.app, en uso operativo
-por el negocio desde 2026-07. Rediseño de UI ya ejecutado (2026-07,
-design system con 22 componentes) y auditoría UX ya completada
-(2026-07-18) con hallazgos implementados. No hay testimonios, casos de
+por el negocio desde 2026-07. Auditoría de producto con sesión real
+(2026-09-21) y revisión móvil con capturas del celular de Edwing
+(2026-09-22), ambas con hallazgos implementados. No hay testimonios, casos de
 estudio ni prensa — no fabricar ninguno.
 
 ## Product Principles
@@ -75,4 +80,6 @@ estudio ni prensa — no fabricar ninguno.
 
 ## Accessibility & Inclusion
 
-Sin requisito de accesibilidad específico establecido aún.
+Sin requisito formal. Base ya aplicada: un solo `h1` por página, skip link,
+foco visible en todo control y contraste de texto sobre color según
+`docs/brand/BRAND.md`.

@@ -2,35 +2,35 @@
 name: Purple Shop — apps/rotulos
 description: Sistema operativo de pedidos, clientes y rótulos de envío; morado directo, superficies planas, foco en velocidad de uso repetitivo.
 colors:
-  violeta-purple-shop: "#7C3AED"
-  violeta-purple-shop-hover: "#6D28D9"
-  violeta-purple-shop-active: "#5B21B6"
+  violeta-purple-shop: "#6E1593"
+  violeta-purple-shop-hover: "#5B137B"
+  violeta-purple-shop-active: "#45115F"
   primary-foreground: "#ffffff"
-  background: "#f8f7fb"
+  background: "#fbf7fd"
   surface: "#ffffff"
-  surface-muted: "#f1eef8"
-  foreground: "#16121f"
-  foreground-muted: "#635d72"
-  border: "#e4dff2"
+  surface-muted: "#f6edfb"
+  foreground: "#2a0f3d"
+  foreground-muted: "#6b4f85"
+  border: "#ece0f5"
   success: "#10b981"
   warning: "#f59e0b"
   danger: "#ef4444"
-  focus-ring: "#7C3AED"
+  focus-ring: "#6E1593"
 typography:
   display:
-    fontFamily: "var(--font-inter), 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif"
+    fontFamily: "var(--font-fredoka), var(--font-inter), 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif"
     fontSize: "2rem"
     fontWeight: 700
     lineHeight: 1.2
     letterSpacing: "-0.01em"
   page-title:
-    fontFamily: "var(--font-inter), 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif"
+    fontFamily: "var(--font-fredoka), var(--font-inter), 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif"
     fontSize: "1.75rem"
     fontWeight: 700
     lineHeight: 1.25
     letterSpacing: "-0.01em"
   section-title:
-    fontFamily: "var(--font-inter), 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif"
+    fontFamily: "var(--font-fredoka), var(--font-inter), 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif"
     fontSize: "1.25rem"
     fontWeight: 600
     lineHeight: 1.3
@@ -89,6 +89,10 @@ components:
 
 # Design System: Purple Shop — apps/rotulos
 
+> Actualizado 2026-11-11 al manual de marca v2.0. La referencia de marca
+> (paleta completa, logo, CMYK, valores descartados) es `docs/brand/BRAND.md`;
+> si este archivo y `BRAND.md` se contradicen, manda `BRAND.md`.
+
 ## Overview
 
 **Creative North Star: "El Taller Violeta"**
@@ -112,38 +116,45 @@ redondeados extremos que suavicen la sensación operativa.
 - Superficies planas; sombra solo con propósito funcional (elevar overlays).
 - Bordes suavizados pero contenidos (6–12px), nunca extremos.
 - Tema claro y oscuro con paridad total de tokens semánticos.
-- Tipografía Inter, jerarquía compacta orientada a escaneo rápido.
+- Fredoka solo en títulos y cifras; texto y datos en Inter, jerarquía compacta orientada a escaneo rápido.
+- En celular (<640px) las tablas se muestran como tarjetas, una por fila.
 
 ## Colors
 
-Paleta de un solo acento: violeta de marca sobre neutros cálidos, con
+Morado de marca (`#6E1593`, el del logo original) sobre neutros de la
+familia morada, más dos acentos decorativos (Chicle `#FF6F91` y Limón
+`#E7F76A`), con
 colores de estado (éxito/alerta/peligro) reservados estrictamente a
 comunicar estado, nunca decoración.
 
 ### Primary
-- **Violeta Purple Shop** (`#7C3AED`): acción primaria (botones, enlaces, foco), estado activo de navegación, franja del ítem de menú seleccionado.
-- **Violeta Purple Shop Hover** (`#6D28D9`): estado hover de acciones primarias.
-- **Violeta Purple Shop Activo** (`#5B21B6`): texto de marca en sidebar/login (logo, encabezado), variante más oscura para contraste sobre fondos claros.
+- **Violeta Purple Shop** (`#6E1593`): acción primaria (botones, enlaces, foco), estado activo de navegación, franja del ítem de menú seleccionado.
+- **Violeta Purple Shop Hover** (`#5B137B`): estado hover de acciones primarias.
+- **Violeta Purple Shop Activo** (`#45115F`): texto de marca en sidebar/login (logo, encabezado), variante más oscura para contraste sobre fondos claros.
 
 ### Neutral
-- **Fondo** (`#f8f7fb`): fondo general de página.
+- **Fondo** (`#fbf7fd`): fondo general de página.
 - **Superficie** (`#ffffff`): tarjetas, sidebar, topbar, inputs.
-- **Superficie Atenuada** (`#f1eef8`): fondos de skeleton, hover sutil, franja de navegación activa en modo claro.
-- **Texto Principal** (`#16121f`): texto de cuerpo y títulos.
-- **Texto Secundario** (`#635d72`): metadatos, labels, texto de apoyo.
-- **Borde** (`#e4dff2`): separadores, contornos de input y tarjeta.
+- **Superficie Atenuada** (`#f6edfb`): fondos de skeleton, hover sutil, franja de navegación activa en modo claro.
+- **Texto Principal** (`#2a0f3d`): texto de cuerpo y títulos.
+- **Texto Secundario** (`#6b4f85`): metadatos, labels, texto de apoyo.
+- **Borde** (`#ece0f5`): separadores, contornos de input y tarjeta.
 
 ### Estado
 - **Éxito** (`#10b981`), **Alerta** (`#f59e0b`), **Peligro** (`#ef4444`): exclusivos para badges de estado, mensajes de validación y el punto de sincronización online/offline. Cada uno tiene variante translúcida (`-soft`, alpha 0.12–0.14) para fondos de badge.
 
 ### Named Rules
-**La Regla del Acento Único.** El violeta se reserva para significar "acción primaria" o "seleccionado". No se usa como color decorativo de fondo o texto secundario — su escasez es lo que lo hace legible como llamado a la acción.
+**La Regla del Morado.** El morado se reserva para significar "acción primaria" o "seleccionado". No se usa como color decorativo de fondo o texto secundario — su escasez es lo que lo hace legible como llamado a la acción.
+
+**La Regla de los Acentos.** Chicle (`--accent`) y Limón (`--lime`) son solo decorativos: chips de ícono (`IconChip`), punto del encabezado, marca del ítem activo del menú, corazón de estados vacíos, `MetricCard tone=`. Nunca comunican estado (para eso están éxito/alerta/peligro) y el texto sobre ellos va en Noche (`--on-accent`, `#2A0F3D`).
 
 ## Typography
 
+**Display Font:** Fredoka (`--font-display`; clases `text-page-title`, `text-card-title`, `font-display`) — solo títulos y cifras.
+
 **Body Font:** Inter (con fallback `'Segoe UI', Tahoma, Geneva, Verdana, sans-serif`)
 
-**Character:** Una sola familia tipográfica para todo el sistema — la jerarquía se construye con peso y tamaño, no con mezcla de fuentes. Sensación neutra y funcional, pensada para lectura rápida de datos tabulares y formularios, no para expresión editorial.
+**Character:** Dos familias con papeles fijos — Fredoka da el tono de marca en títulos y cifras; Inter lleva todo el texto y los datos. Sensación neutra y funcional, pensada para lectura rápida de datos tabulares y formularios, no para expresión editorial.
 
 ### Hierarchy
 - **Display** (700, 2rem / 32px, line-height 1.2): título hero, usado solo en la pantalla de login.
@@ -192,7 +203,7 @@ sin efectos de escala ni sombra añadida al interactuar.
 
 ### Buttons
 - **Shape:** esquinas suaves (8px, `rounded-md`).
-- **Primary:** fondo Violeta Purple Shop (`#7C3AED`), texto blanco, alto 40px (`md`), padding horizontal 16px.
+- **Primary:** fondo Violeta Purple Shop (`#6E1593`), texto blanco, alto 40px (`md`), padding horizontal 16px.
 - **Secondary:** fondo superficie, borde 1px `--border`, texto `--foreground`.
 - **Ghost:** transparente, hover con fondo `--surface-muted`.
 - **Danger:** fondo `--danger`, texto blanco.
@@ -234,15 +245,18 @@ retira y el tamaño se fija en cm exactos.
 ## Do's and Don'ts
 
 ### Do:
-- **Do** usar el violeta de marca (`#7C3AED`) solo en acciones primarias, estados activos y foco — su escasez es la señal.
+- **Do** usar el violeta de marca (`#6E1593`) solo en acciones primarias, estados activos y foco — su escasez es la señal.
 - **Do** mantener las superficies planas en reposo; reservar sombra para overlays y para el rótulo (objeto físico simulado).
-- **Do** usar Inter en todo el sistema; construir jerarquía con peso/tamaño, no con familias tipográficas nuevas.
+- **Do** usar Fredoka solo en títulos y cifras e Inter en todo lo demás; no sumar más familias.
+- **Do** dar a cada tabla nueva un `mobileCard` en `DataTable` para que en celular se lea como tarjeta, sin scroll horizontal.
 - **Do** mantener paridad de tokens semánticos entre modo claro y oscuro (mismo nombre de variable, distinto valor).
 - **Do** usar el mismo tratamiento de foco (`outline` 2px + offset 2px en `--focus-ring`) en todo control interactivo.
 
 ### Don't:
 - **Don't** agregar sombra decorativa a tarjetas o inputs en reposo — rompe la Regla Plana-por-Defecto.
-- **Don't** introducir una segunda familia tipográfica o gradientes fuera del fondo del login.
+- **Don't** introducir una tercera familia tipográfica ni gradientes ornamentales.
+- **Don't** usar Chicle o Limón como color de estado, ni texto blanco sobre ellos.
+- **Don't** volver a los violetas descartados (`#7C3AED`, `#742F92` y la escala violeta de Tailwind).
 - **Don't** usar radios de esquina mayores a 12px (excepto elementos circulares) — la sensación operativa se pierde con esquinas muy suaves.
 - **Don't** modificar las coordenadas de `label-canvas` (`.lbl-*`) sin actualizar `src/lib/pdf.ts` en el mismo cambio — preview y PDF comparten esas coordenadas a mano.
 - **Don't** introducir nuevos usos de los alias heredados (`--color-primary`, `--text-primary`, etc.) en `globals.css` — están en retiro; usar los tokens semánticos (`--primary`, `--foreground`, ...).

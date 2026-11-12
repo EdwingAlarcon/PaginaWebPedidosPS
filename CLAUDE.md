@@ -19,13 +19,11 @@ antes de generar rótulo, el resumen post-guardar pedido, el fix de fechas
 de negocio en zona Colombia, la exportación de resumen de compra por
 cliente (WhatsApp/PDF/imagen, con identidad de marca Purple Shop) y el
 numero de guía de rastreo por rótulo (envío por WhatsApp).
-Contexto completo en `NEXT_STEPS.md` → "Recomendaciones para próxima fase".
+Pendientes y decisiones vigentes en `NEXT_STEPS.md`.
 
 La recomendación grande post-importación quedó implementada en código el
 2026-08-22:
 
-- Plan:
-  `docs/superpowers/plans/2026-08-22-operacion-post-importacion.md`
 - Spec:
   `docs/superpowers/specs/2026-08-22-operacion-post-importacion-design.md`
 - Entregado: vista `/pedidos/importados`, mapa de alias para importación,
@@ -152,17 +150,17 @@ usuarios, que por RLS normal quedarian limitados a `created_by = auth.uid()`).
 No hay backup automatico ni scheduled — es manual, pensado para antes de
 operaciones masivas (importar, unificar en lote) o como snapshot periodico.
 
-## Escrituras sin transaccion (conocido, no bloqueante)
+## Escrituras de pedidos: RPC transaccionales
 
-`saveOrder`, `updateOrder` y `mergeCustomers` en `business-store.ts` hacen
-varias llamadas Supabase secuenciales sin transaccion de base de datos —
-un fallo de red a mitad de camino puede en teoria dejar un pedido sin
-lineas o un merge de clientes a medias. Diseno de la correccion (RPC
-`security definer`, mismo patron que `reserve_order_number` y
-`apply_stock_movement`) en
-`docs/superpowers/specs/2026-07-20-transacciones-rpc-design.md`. No
-implementar sin que el usuario lo pida explicitamente — es trabajo de fase
-siguiente, no bloqueante para operar.
+`saveOrder`, `updateOrder` y `mergeCustomers` en `business-store.ts` llaman
+a las funciones `security definer` `save_order`, `update_order` y
+`merge_customers` (migracion `202607270002_add_order_transaction_rpcs.sql`
+y posteriores), asi que cada operacion es atomica. Las reglas de negocio
+de esas escrituras (reusar cliente por nombre, exigir motivo para editar un
+pedido completado o pagado, movimientos de stock) viven en SQL: un cambio
+ahi es una migracion nueva que Edwing aplica a mano en el SQL Editor.
+Diseno original en
+`docs/superpowers/specs/2026-07-20-transacciones-rpc-design.md`.
 
 ## Validaciones obligatorias antes de cerrar una tarea
 
@@ -179,6 +177,16 @@ terminada. Si tocaste UI, ademas probala en el navegador si es posible
 explicitamente si no pudiste probar con sesion autenticada).
 
 ## Estado operativo reciente
+
+- 2026-11-11: celular y limpieza de documentación. En pantallas de menos de 640px Pedidos, Clientes,
+  Historial, Importados y Despacho muestran una tarjeta por fila (`DataTable` recibe `mobileCard` y
+  agrega "Ordenar por"; hook `src/lib/use-is-mobile.ts`). **Toda tabla nueva debe definir su
+  `mobileCard`.** El ítem Inventario del menú solo aparece si hay productos o si ya estás en
+  `/inventario`. Documentación depurada: se borraron `docs/_archive/legacy-app-2025/`, los planes ya
+  ejecutados (`docs/superpowers/plans/`, `apps/rotulos/plans/`) y el critique viejo de `.impeccable/`
+  (todo sigue en el historial de git); quedan los specs en `docs/superpowers/specs/` como registro de
+  decisiones. `NEXT_STEPS.md` se reescribió corto: solo pendientes y decisiones vigentes.
+  El deploy es automático: push a `main` despliega en Vercel (Root Directory `apps/rotulos`).
 
 - 2026-11-07: manual de marca **v2.0** ("Fresco, con el logo de siempre") aplicado a la app. Manual,
   logos y patrón en `C:\Users\EdwingAlarcon\OneDrive\Docs\PurpleShop\Manual de marca\`; referencia
@@ -298,7 +306,8 @@ explicitamente si no pudiste probar con sesion autenticada).
   `CONTRIBUTING.md`, `SECURITY.md`, `project_redesign_status.md`,
   `apps/rotulos/PENDING_QA.md`) en `docs/_archive/legacy-app-2025/` — no
   describe el stack actual y contradecia el flujo de auth real (decian
-  "magic link"; es OAuth Microsoft + allowlist). `README.md` raiz,
+  "magic link"; es OAuth Microsoft + allowlist). Ese archivo se borro del
+  repo el 2026-11-11 (sigue en el historial de git). `README.md` raiz,
   `apps/rotulos/README.md`, `CLAUDE.md` y `NEXT_STEPS.md` quedaron como la
   documentacion vigente.
 - Commits recientes relevantes:
@@ -325,5 +334,5 @@ Este repositorio alojo hasta 2026-07 una app legacy en la raiz
 (HTML/CSS/JS plano con integracion a Excel/OneDrive via MSAL.js, servida
 en GitHub Pages). Fue retirada tras migrar toda la funcionalidad a
 `apps/rotulos`; el codigo sigue disponible en el historial de git anterior
-a ese retiro, y su documentacion (ya obsoleta, no describe el stack
-actual) esta archivada en `docs/_archive/legacy-app-2025/`.
+a ese retiro, igual que su documentacion (obsoleta; se borro del repo el
+2026-11-11).
