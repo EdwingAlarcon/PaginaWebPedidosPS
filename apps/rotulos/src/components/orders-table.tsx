@@ -131,6 +131,27 @@ const columns: DataTableColumn<OrderTableRow>[] = [
   },
 ];
 
+function OrderMobileCard({ order }: { order: OrderTableRow }) {
+  return (
+    <>
+      <div className="flex items-start justify-between gap-3 text-sm font-semibold">
+        <span className="min-w-0 break-words">{order.displayCustomerName || "Cliente sin nombre"}</span>
+        <span className="shrink-0">${Math.round(order.total).toLocaleString("es-CO")}</span>
+      </div>
+      <div className="mt-0.5 text-xs text-foreground-muted">
+        {order.orderDate} · {order.items.length} {order.items.length === 1 ? "item" : "items"}
+      </div>
+      <div className="mt-2 flex flex-wrap items-center gap-1.5">
+        <StatusBadge status={order.status} />
+        <PaymentBadge status={order.paymentStatus} />
+        {order.paymentBalance > 0 ? (
+          <span className="text-xs text-foreground-muted">Debe ${Math.round(order.paymentBalance).toLocaleString("es-CO")}</span>
+        ) : null}
+      </div>
+    </>
+  );
+}
+
 function matchesPaymentFilter(row: OrderTableRow, filter: PaymentFilter): boolean {
   if (filter === "all") return true;
   if (filter === "receivable") return row.paymentBalance > 0;
@@ -286,6 +307,7 @@ export function OrdersTable() {
         columns={columns}
         data={rows}
         initialSort={{ key: "date", direction: "desc" }}
+        mobileCard={(order) => <OrderMobileCard order={order} />}
         toolbar={
           <div className="flex flex-wrap items-center gap-2">
             <Select

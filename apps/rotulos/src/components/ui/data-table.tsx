@@ -4,7 +4,8 @@ import { useMemo, useState } from "react";
 import type { ReactNode } from "react";
 import { ArrowDown, ArrowUp, ArrowUpDown, Search } from "lucide-react";
 import { cn } from "@/lib/cn";
-import { Input } from "@/components/ui/input";
+import { Input, Select } from "@/components/ui/input";
+import { useIsMobile } from "@/lib/use-is-mobile";
 import { Skeleton } from "@/components/ui/skeleton";
 import { EmptyState } from "@/components/ui/empty-state";
 import { Pagination } from "@/components/ui/pagination";
@@ -35,6 +36,8 @@ interface DataTableProps<T> {
   onRowClick?: (row: T) => void;
   initialQuery?: string;
   initialSort?: { key: string; direction: "asc" | "desc" };
+  /** Si se define, en celular cada fila se dibuja como tarjeta con este contenido en vez de la tabla. */
+  mobileCard?: (row: T) => ReactNode;
 }
 
 export function DataTable<T>({
@@ -52,7 +55,11 @@ export function DataTable<T>({
   onRowClick,
   initialQuery = "",
   initialSort,
+  mobileCard,
 }: DataTableProps<T>) {
+  const isMobile = useIsMobile();
+  const showCards = isMobile && Boolean(mobileCard);
+  const sortableColumns = columns.filter((column) => column.sortValue);
   const [query, setQuery] = useState(initialQuery);
   const [sort, setSort] = useState<{ key: string; direction: "asc" | "desc" } | null>(initialSort ?? null);
   const [page, setPage] = useState(1);
@@ -111,6 +118,69 @@ export function DataTable<T>({
         </div>
       )}
 
+      {showCards && sortableColumns.length > 0 ? (
+        <Select
+          aria-label="Ordenar por"
+          value={sort ? `${sort.key}:${sort.direction}` : ""}
+          onChange={(event) => {
+            const [key, direction] = event.target.value.split(":");
+            setSort(key ? { key, direction: direction === "desc" ? "desc" : "asc" } : null);
+            setPage(1);
+          }}
+        >
+          <option value="">Sin ordenar</option>
+          {sortableColumns.flatMap((column) => [
+            <option key={`${column.key}:asc`} value={`${column.key}:asc`}>
+              Ordenar: {column.header} ↑
+            </option>,
+            <option key={`${column.key}:desc`} value={`${column.key}:desc`}>
+              Ordenar: {column.header} ↓
+            </option>,
+          ])}
+        </Select>
+      ) : null}
+
+      {showCards && mobileCard ? (
+        <div>
+          {loading ? (
+            <ul className="flex flex-col gap-2">
+              {Array.from({ length: 4 }).map((_, i) => (
+                <li key={i} className="rounded-lg border border-border bg-surface p-3">
+                  <Skeleton className="h-4 w-40" />
+                  <Skeleton className="mt-2 h-3 w-28" />
+                </li>
+              ))}
+            </ul>
+          ) : rows.length === 0 ? (
+            <EmptyState title={emptyTitle} description={emptyDescription} action={emptyAction} />
+          ) : (
+            <ul className="flex flex-col gap-2">
+              {rows.map((row) => (
+                <li key={getRowId(row)}>
+                  {onRowClick ? (
+                    <div
+                      role="button"
+                      tabIndex={0}
+                      onClick={() => onRowClick(row)}
+                      onKeyDown={(event) => {
+                        if (event.target === event.currentTarget && (event.key === "Enter" || event.key === " ")) {
+                          event.preventDefault();
+                          onRowClick(row);
+                        }
+                      }}
+                      className="cursor-pointer rounded-lg border border-border bg-surface p-3 text-foreground hover:bg-surface-muted focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--primary)]"
+                    >
+                      {mobileCard(row)}
+                    </div>
+                  ) : (
+                    <div className="rounded-lg border border-border bg-surface p-3 text-foreground">{mobileCard(row)}</div>
+                  )}
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+      ) : (
       <div className="overflow-x-auto rounded-lg border border-border">
         <table className="w-full min-w-[420px] border-collapse text-sm">
           <thead>
@@ -193,6 +263,7 @@ export function DataTable<T>({
           <EmptyState title={emptyTitle} description={emptyDescription} action={emptyAction} className="rounded-none border-0" />
         ) : null}
       </div>
+      )}
 
       {!loading && rows.length > 0 ? (
         <Pagination page={pageSafe} pageCount={pageCount} onPageChange={setPage} totalItems={sorted.length} pageSize={pageSize} />

@@ -21,6 +21,7 @@ import { Input, Select } from "@/components/ui/input";
 import { EmptyState } from "@/components/ui/empty-state";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/components/ui/toast";
+import { useIsMobile } from "@/lib/use-is-mobile";
 
 type DispatchFilter = "action" | "missing-label" | "label-ready" | "pending" | "completed" | "all";
 type QualityReviewState = { orderId: string; issues: LabelQualityIssue[] } | null;
@@ -74,6 +75,7 @@ export function DispatchBoard() {
   const [payments, setPayments] = useState<OrderPayment[]>([]);
   const [completeTargets, setCompleteTargets] = useState<CompletionTarget[]>([]);
   const toast = useToast();
+  const isMobile = useIsMobile();
 
   async function load() {
     setLoading(true);
@@ -310,6 +312,99 @@ export function DispatchBoard() {
     });
   }
 
+  const mobileCards = loading ? (
+    <ul className="flex flex-col gap-2">
+      {Array.from({ length: 3 }).map((_, index) => (
+        <li key={index} className="rounded-lg border border-border bg-surface p-3">
+          <Skeleton className="h-4 w-40" />
+          <Skeleton className="mt-2 h-3 w-28" />
+        </li>
+      ))}
+    </ul>
+  ) : (
+    <ul className="flex flex-col gap-2">
+      {filteredRows.map((row) => {
+        const stage = dispatchStage(row);
+        const isBusy = busyId === row.order.id;
+        const rowPayments = paymentsByOrder.get(row.order.id) ?? [];
+        const balance = completionBalance(row.order, rowPayments);
+        const customerName = row.order.customer.fullName || "Cliente sin nombre";
+        return (
+          <li key={row.order.id} className="rounded-lg border border-border bg-surface p-3 text-foreground">
+            <div className="flex items-start gap-2.5">
+              <Checkbox
+                className="mt-0.5"
+                aria-label={`Seleccionar pedido de ${row.order.customer.fullName || "cliente sin nombre"}`}
+                checked={selectedIds.has(row.order.id)}
+                onCheckedChange={(checked) => toggleRow(row.order.id, checked === true)}
+              />
+              <div className="min-w-0 flex-1">
+                <div className="flex items-start justify-between gap-3 text-sm font-semibold">
+                  <span className="min-w-0 break-words">{customerName}</span>
+                  <span className="shrink-0">{currency(row.order.total)}</span>
+                </div>
+                <div className="mt-0.5 text-xs text-foreground-muted">
+                  {row.order.orderDate} · {row.order.items.length} item(s)
+                  {balance > 0 ? ` · Debe ${currency(balance)}` : ""}
+                </div>
+                <div className="mt-0.5 text-xs text-foreground-muted">
+                  {row.order.customer.city || "Sin ciudad"} · {row.order.customer.neighborhood || row.order.customer.locality || "Sin barrio/localidad"}
+                </div>
+                <div className="mt-2 flex flex-wrap items-center gap-1.5">
+                  <StatusBadge status={row.order.status} />
+                  <PaymentBadge status={summarizePayment(row.order, rowPayments).status} />
+                  <Badge variant={stage.variant}>{stage.label}</Badge>
+                  {row.label ? (
+                    <>
+                      <LabelStatusBadge status={row.label.status} />
+                      <Link className="text-xs font-medium text-primary hover:underline" href={`/crear?id=${row.label.id}`}>{row.label.orderNumber}</Link>
+                    </>
+                  ) : (
+                    <Badge variant="warning">Sin rótulo</Badge>
+                  )}
+                  {row.issues.length ? (
+                    row.issues.map((issue) => <Badge key={issue.key} variant="danger">{issue.label}</Badge>)
+                  ) : (
+                    <Badge variant="success">Datos completos</Badge>
+                  )}
+                </div>
+                {qualityReview?.orderId === row.order.id ? (
+                  <div className="mt-2 rounded-md border border-danger/20 bg-[var(--danger-soft)] p-2 text-xs text-danger">
+                    <p className="font-medium">Completa el rótulo</p>
+                    <ul className="mt-1 list-disc pl-4">
+                      {qualityReview.issues.slice(0, 3).map((issue) => <li key={issue.field}>{issue.message}</li>)}
+                    </ul>
+                    <Link className="mt-2 inline-block font-medium underline" href={`/crear?fromOrderId=${row.order.id}`}>
+                      Abrir formulario
+                    </Link>
+                  </div>
+                ) : null}
+              </div>
+            </div>
+            <div className="mt-3 grid grid-flow-col auto-cols-fr gap-1.5 border-t border-border pt-3">
+              {!row.label ? (
+                <Button type="button" size="sm" variant="secondary" onClick={() => generateLabel(row)} disabled={isBusy}>
+                  <FilePlus2 className="size-4" aria-hidden="true" />
+                  Rótulo
+                </Button>
+              ) : null}
+              <Button type="button" size="sm" variant="secondary" onClick={() => downloadPdf(row)} disabled={isBusy}>
+                <Download className="size-4" aria-hidden="true" />
+                PDF
+              </Button>
+              <Button type="button" size="sm" variant="secondary" onClick={() => printLabel(row)} disabled={isBusy} aria-label="Imprimir">
+                <Printer className="size-4" aria-hidden="true" />
+              </Button>
+              <Button type="button" size="sm" variant="secondary" onClick={() => requestComplete([row])} disabled={isBusy || row.order.status === "completed" || row.order.status === "cancelled"} aria-label="Marcar completado">
+                <CheckCircle2 className="size-4" aria-hidden="true" />
+              </Button>
+            </div>
+          </li>
+        );
+      })}
+    </ul>
+  );
+
   return (
     <div className="flex flex-col gap-4">
       <div className="grid gap-3 md:grid-cols-4">
@@ -370,7 +465,8 @@ export function DispatchBoard() {
           </div>
         ) : null}
 
-        <div className="mt-4 overflow-x-auto rounded-lg border border-border">
+        <div className={isMobile ? "mt-4" : "mt-4 overflow-x-auto rounded-lg border border-border"}>
+          {isMobile ? mobileCards : (
           <table className="w-full min-w-[1020px] border-collapse text-sm">
             <thead>
               <tr className="border-b border-border bg-surface-muted">
@@ -484,6 +580,7 @@ export function DispatchBoard() {
               })}
             </tbody>
           </table>
+          )}
           {!loading && filteredRows.length === 0 ? (
             <EmptyState title="Sin pedidos para despacho" description="Ajusta los filtros o registra un pedido pendiente para verlo en esta bandeja." className="rounded-none border-0" />
           ) : null}

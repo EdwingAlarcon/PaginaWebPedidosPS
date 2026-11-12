@@ -8,7 +8,7 @@ import type { LabelRecord } from "@/lib/types";
 import { buildTrackingWhatsAppText } from "@/lib/label-tracking";
 import { buildWhatsAppLink } from "@/lib/whatsapp";
 import { DataTable, type DataTableColumn } from "@/components/ui/data-table";
-import { LabelStatusBadge } from "@/components/ui/badge";
+import { Badge, LabelStatusBadge } from "@/components/ui/badge";
 import { Button, IconButton } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -175,6 +175,25 @@ export function HistoryTable({ labels }: { labels: LabelRecord[] }) {
         columns={columns}
         data={tableLabels}
         getRowId={(label) => label.id}
+        mobileCard={(label) => (
+          <>
+            <div className="flex items-start justify-between gap-3 text-sm font-semibold">
+              <span className="min-w-0 break-words">{label.recipient.fullName || "Sin nombre"}</span>
+              <span className="-mr-1 -mt-1 shrink-0">{columns[columns.length - 1].render(label)}</span>
+            </div>
+            <div className="mt-0.5 text-xs text-foreground-muted">
+              {[label.orderNumber, label.date, label.recipient.city].filter(Boolean).join(" · ")}
+            </div>
+            <div className="mt-2 flex flex-wrap items-center gap-1.5">
+              <LabelStatusBadge status={label.status} />
+              {label.trackingNumber ? (
+                <Badge variant="primary">Guía {label.trackingNumber}</Badge>
+              ) : (
+                <Badge variant="warning">Sin guía</Badge>
+              )}
+            </div>
+          </>
+        )}
         searchPlaceholder="Buscar por número de pedido, cliente o teléfono"
         searchPredicate={(label, query) =>
           label.orderNumber.toLowerCase().includes(query) ||

@@ -52,6 +52,20 @@ export function ImportedOrdersTable({ orders, loading = false }: { orders: Order
       columns={columns}
       data={filtered}
       getRowId={(order) => order.id}
+      mobileCard={(order) => (
+        <>
+          <div className="flex items-start justify-between gap-3 text-sm font-semibold">
+            <span className="min-w-0 break-words">{order.customer.fullName || "Cliente sin nombre"}</span>
+            <span className="shrink-0">{formatCop(order.total)}</span>
+          </div>
+          <div className="mt-0.5 text-xs text-foreground-muted">
+            {formatDate(order.orderDate)} · {order.items.reduce((sum, item) => sum + item.quantity, 0)} unidades
+          </div>
+          <div className="mt-2 flex flex-wrap items-center gap-1.5">
+            <StatusBadge status={order.status} />
+          </div>
+        </>
+      )}
       loading={loading}
       searchPlaceholder="Buscar importados"
       searchPredicate={(order, query) =>

@@ -227,6 +227,18 @@ export function CustomersTable() {
         getRowId={(customer) => customer.id}
         loading={loading}
         onRowClick={openEdit}
+        mobileCard={(customer) => (
+          <>
+            <div className="flex items-start justify-between gap-3 text-sm font-semibold">
+              <span className="min-w-0 break-words">{customer.fullName || "Sin nombre"}</span>
+              <span className="-mr-1 -mt-1 shrink-0">{columns[columns.length - 1].render(customer)}</span>
+            </div>
+            <div className="mt-0.5 text-xs text-foreground-muted">
+              {[customer.phone || "Sin teléfono", customer.city].filter(Boolean).join(" · ")}
+            </div>
+            {customer.address ? <div className="mt-0.5 break-words text-xs text-foreground-muted">{customer.address}</div> : null}
+          </>
+        )}
         searchPlaceholder="Buscar por nombre, teléfono o ciudad"
         searchPredicate={(customer, query) =>
           customer.fullName.toLowerCase().includes(query) ||
