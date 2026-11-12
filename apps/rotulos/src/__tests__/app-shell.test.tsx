@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react";
+import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { AppShell } from "@/components/app-shell";
@@ -8,9 +8,37 @@ vi.mock("@/components/user-menu", () => ({ UserMenu: () => <div>UserMenu</div> }
 vi.mock("@/components/sync-status", () => ({ SyncStatus: () => <div>SyncStatus</div> }));
 vi.mock("@/components/theme-toggle", () => ({ ThemeToggle: () => <div>ThemeToggle</div> }));
 
+const listProducts = vi.fn<() => Promise<unknown[]>>();
+vi.mock("@/lib/inventory-store", () => ({ getInventoryStore: () => ({ listProducts }) }));
+
 describe("AppShell", () => {
   beforeEach(() => {
     localStorage.clear();
+    listProducts.mockReset();
+    listProducts.mockResolvedValue([]);
+  });
+
+  it("oculta Inventario del menu cuando no hay productos cargados", async () => {
+    render(
+      <AppShell>
+        <div>contenido</div>
+      </AppShell>,
+    );
+
+    await waitFor(() => expect(listProducts).toHaveBeenCalled());
+    expect(screen.queryByRole("link", { name: "Inventario" })).not.toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Clientes" })).toBeInTheDocument();
+  });
+
+  it("muestra Inventario en el menu cuando hay productos", async () => {
+    listProducts.mockResolvedValue([{ id: "p1" }]);
+    render(
+      <AppShell>
+        <div>contenido</div>
+      </AppShell>,
+    );
+
+    expect(await screen.findByRole("link", { name: "Inventario" })).toBeInTheDocument();
   });
 
   it("marca como activo el enlace de la ruta actual", () => {

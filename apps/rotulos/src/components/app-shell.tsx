@@ -26,6 +26,7 @@ import {
 import { UserMenu } from "@/components/user-menu";
 import { SyncStatus } from "@/components/sync-status";
 import { ThemeToggle } from "@/components/theme-toggle";
+import { getInventoryStore } from "@/lib/inventory-store";
 
 const COLLAPSE_STORAGE_KEY = "purpleshop.sidebar-collapsed";
 
@@ -83,12 +84,15 @@ const PAGE_META: Record<string, { title: string; description: string }> = {
   "/configuracion": { title: "Configuración", description: "Ajustes de la aplicación" },
 };
 
+const INVENTORY_HREF = "/inventario";
+
 const DEFAULT_PAGE_META = { title: "PurpleShop", description: "Sistema de gestión de pedidos e inventario" };
 
 export function AppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const [collapsed, setCollapsed] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [hasInventory, setHasInventory] = useState(false);
   const mobileToggleRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
@@ -96,6 +100,26 @@ export function AppShell({ children }: { children: React.ReactNode }) {
     // eslint-disable-next-line react-hooks/set-state-in-effect -- read persisted UI preference once after mount
     if (stored === "true") setCollapsed(true);
   }, []);
+
+  // Inventario solo aparece en el menu cuando hay productos cargados (o si ya
+  // estas en esa pantalla). Sin inventario sigue accesible desde Reportes.
+  useEffect(() => {
+    let cancelled = false;
+    getInventoryStore()
+      .listProducts()
+      .then((products) => {
+        if (!cancelled) setHasInventory(products.length > 0);
+      })
+      .catch(() => undefined);
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const showInventory = hasInventory || pathname === INVENTORY_HREF;
+  const navGroups = showInventory
+    ? NAV_GROUPS
+    : NAV_GROUPS.map((group) => ({ ...group, items: group.items.filter((item) => item.href !== INVENTORY_HREF) }));
 
   function closeMobileDrawer() {
     setMobileOpen(false);
@@ -147,7 +171,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           </button>
         </div>
         <nav className="app-shell-nav" aria-label="Navegación principal">
-          {NAV_GROUPS.map((group) => (
+          {navGroups.map((group) => (
             <div className="sidebar-group" key={group.label}>
               {!collapsed && <p className="sidebar-group-label">{group.label}</p>}
               {group.items.map((item) => {
@@ -207,7 +231,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
               >
                 <X size={20} />
               </button>
-              {NAV_GROUPS.map((group) => (
+              {navGroups.map((group) => (
                 <div className="sidebar-group" key={group.label}>
                   <p className="sidebar-group-label">{group.label}</p>
                   {group.items.map((item) => (
