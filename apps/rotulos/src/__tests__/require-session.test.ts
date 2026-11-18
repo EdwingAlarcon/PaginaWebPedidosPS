@@ -4,7 +4,7 @@ function mockSupabase({
   user,
   allowed,
 }: {
-  user: { id: string; email: string } | null;
+  user: { id: string; email: string; app_metadata?: { providers: string[] } } | null;
   allowed: boolean;
 }) {
   return {
@@ -40,7 +40,7 @@ describe("requireSession", () => {
   });
 
   it("retorna null si el usuario autenticado no esta en allowed_users", async () => {
-    const supabase = mockSupabase({ user: { id: "u1", email: "intruso@example.com" }, allowed: false });
+    const supabase = mockSupabase({ user: { id: "u1", email: "intruso@example.com", app_metadata: { providers: ["azure"] } }, allowed: false });
     vi.doMock("@/lib/supabase/server", () => ({ createServerSupabaseClient: vi.fn(async () => supabase) }));
     const { requireSession } = await import("@/lib/require-session");
 
@@ -50,7 +50,7 @@ describe("requireSession", () => {
   });
 
   it("retorna la sesion si el usuario esta autenticado y en allowed_users", async () => {
-    const supabase = mockSupabase({ user: { id: "u1", email: "edwing@example.com" }, allowed: true });
+    const supabase = mockSupabase({ user: { id: "u1", email: "edwing@example.com", app_metadata: { providers: ["azure"] } }, allowed: true });
     vi.doMock("@/lib/supabase/server", () => ({ createServerSupabaseClient: vi.fn(async () => supabase) }));
     const { requireSession } = await import("@/lib/require-session");
 

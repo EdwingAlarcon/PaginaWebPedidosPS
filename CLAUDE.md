@@ -178,6 +178,16 @@ explicitamente si no pudiste probar con sesion autenticada).
 
 ## Estado operativo reciente
 
+- 2026-11-17: auditoría de seguridad. Hallazgo crítico: la lista `allowed_users` solo se validaba en la
+  app; RLS dejaba pasar a cualquier `authenticated` y Supabase Auth tenía registro por email abierto con
+  autoconfirmación (cualquiera podía crear cuenta con la anon key y leer/escribir todo por la API de Supabase).
+  Corrección en código (desplegada): `src/lib/supabase/trusted-identity.ts` exige identidad Microsoft en
+  `proxy.ts` y `require-session.ts`; cabeceras de seguridad en `next.config.ts`; Next 16.4.6 y zod 4.6.7.
+  Corrección en base de datos: migración `202611170001_enforce_allowlist_in_database.sql` (políticas
+  restrictivas + guardia `db_pre_request`), **pendiente de que Edwing la aplique a mano** y de desactivar el
+  proveedor Email en Supabase Auth. **Toda tabla nueva debe sumarse a la lista de esa migración** (política
+  restrictiva `is_allowed_user()`); `using (true)` solo no basta.
+
 - 2026-11-11: celular y limpieza de documentación. En pantallas de menos de 640px Pedidos, Clientes,
   Historial, Importados y Despacho muestran una tarjeta por fila (`DataTable` recibe `mobileCard` y
   agrega "Ordenar por"; hook `src/lib/use-is-mobile.ts`). **Toda tabla nueva debe definir su

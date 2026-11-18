@@ -1,5 +1,6 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { createMiddlewareSupabaseClient } from "@/lib/supabase/middleware";
+import { hasTrustedIdentity } from "@/lib/supabase/trusted-identity";
 
 const PUBLIC_PATHS = ["/login", "/auth/callback"];
 
@@ -20,6 +21,11 @@ export async function proxy(request: NextRequest) {
 
   if (!user?.email) {
     return NextResponse.redirect(new URL("/login", request.url));
+  }
+
+  if (!hasTrustedIdentity(user)) {
+    await supabase.auth.signOut();
+    return NextResponse.redirect(new URL("/login?unauthorized=1", request.url));
   }
 
   const { data: allowed } = await supabase

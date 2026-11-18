@@ -1,4 +1,5 @@
 import { createServerSupabaseClient } from "@/lib/supabase/server";
+import { hasTrustedIdentity } from "@/lib/supabase/trusted-identity";
 
 export type ApiSession = {
   userId: string;
@@ -17,7 +18,7 @@ export async function requireSession(): Promise<ApiSession | null> {
   const {
     data: { user },
   } = await supabase.auth.getUser();
-  if (!user?.email) return null;
+  if (!user?.email || !hasTrustedIdentity(user)) return null;
 
   const { data: allowed } = await supabase
     .from("allowed_users")

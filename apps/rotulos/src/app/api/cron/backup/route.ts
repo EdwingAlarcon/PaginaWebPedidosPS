@@ -1,3 +1,4 @@
+import { createHash, timingSafeEqual } from "node:crypto";
 import { NextRequest } from "next/server";
 import { createServiceClient } from "@/lib/supabase/server";
 import { buildFullBackupPayload } from "@/lib/backup";
@@ -11,7 +12,9 @@ const BUCKET = "backups";
 function isAuthorized(request: NextRequest): boolean {
   const secret = process.env.CRON_SECRET;
   if (!secret) return false;
-  return request.headers.get("authorization") === `Bearer ${secret}`;
+  // Comparacion en tiempo constante: no filtra el secreto por tiempos de respuesta.
+  const digest = (value: string) => createHash("sha256").update(value).digest();
+  return timingSafeEqual(digest(request.headers.get("authorization") ?? ""), digest(`Bearer ${secret}`));
 }
 
 export async function GET(request: NextRequest) {
