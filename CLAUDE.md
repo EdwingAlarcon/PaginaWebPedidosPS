@@ -184,8 +184,9 @@ explicitamente si no pudiste probar con sesion autenticada).
   Corrección en código (desplegada): `src/lib/supabase/trusted-identity.ts` exige identidad Microsoft en
   `proxy.ts` y `require-session.ts`; cabeceras de seguridad en `next.config.ts`; Next 16.4.6 y zod 4.6.7.
   Corrección en base de datos: migración `202611170001_enforce_allowlist_in_database.sql` (políticas
-  restrictivas + guardia `db_pre_request`), **pendiente de que Edwing la aplique a mano** y de desactivar el
-  proveedor Email en Supabase Auth. **Toda tabla nueva debe sumarse a la lista de esa migración** (política
+  restrictivas + guardia `db_pre_request`), **aplicada en producción el 2026-11-17** junto con la desactivación del
+  proveedor Email en Supabase Auth (verificado: registro por email responde `email_provider_disabled`, Pedidos
+  y Clientes cargan con sesión). No reactivar el proveedor Email. **Toda tabla nueva debe sumarse a la lista de esa migración** (política
   restrictiva `is_allowed_user()`); `using (true)` solo no basta.
 
 - 2026-11-11: celular y limpieza de documentación. En pantallas de menos de 640px Pedidos, Clientes,
