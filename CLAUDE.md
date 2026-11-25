@@ -178,6 +178,10 @@ explicitamente si no pudiste probar con sesion autenticada).
 
 ## Estado operativo reciente
 
+- 2026-11-25: `202611250001_update_order_integrity.sql` **aplicada en producción**: `update_order` bloquea la
+  fila, un pedido cancelado no mueve stock y reactivarlo lo vuelve a descontar; la base rechaza precio,
+  descuento y envío negativos.
+
 - 2026-11-25: login Microsoft limitado a cuentas personales (cierra el riesgo nOAuth). El registro en Entra
   quedó en "Solo cuentas personales" y en Supabase la Azure Tenant URL es
   `https://login.microsoftonline.com/9188040d-6c67-4c5b-b112-36a304b66dad`. **No usar `.../consumers`**: rompe

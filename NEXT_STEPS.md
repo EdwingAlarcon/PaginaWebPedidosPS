@@ -43,18 +43,12 @@ reales desde agosto de 2026.
 - Clientes sin teléfono: se completan desde `Clientes` → "Completar uno por
   uno". Sin teléfono no se pueden reactivar por WhatsApp.
 
-### Hallazgos de la revisión de `update_order` (2026-11-25, sin corregir)
+### Por decidir
 
-Ninguno permite acceso de terceros; son de integridad de datos. Corregirlos es
-una migración nueva (requiere OK de Edwing).
-
-- **Antes de cargar inventario:** reactivar un pedido cancelado no vuelve a
-  descontar stock (cancelarlo otra vez lo suma dos veces), editar líneas de un
-  pedido ya cancelado mueve stock, y la función no bloquea la fila del pedido
-  (`for update`). Hoy no afecta: no hay productos ni movimientos.
-- La base no impide precio unitario, descuento ni envío negativos.
-- El motivo de ajuste se puede evitar cambiando primero el estado de un pedido
-  completado (si no está pagado) y editándolo después.
+- **Motivo tras reabrir un pedido:** al reabrir un completado sin pagar se puede
+  editar sin motivo de ajuste (la reapertura sí queda en el historial). Es el
+  camino de corrección que indica `order-lock.ts`; exigir motivo ahí también
+  cambia interfaz y RPC.
 - Opcional: la CSP no define `script-src` (requiere nonces y probar con sesión).
 
 ### Mejoras opcionales (ninguna urgente)
