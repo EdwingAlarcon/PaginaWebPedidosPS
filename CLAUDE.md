@@ -178,6 +178,12 @@ explicitamente si no pudiste probar con sesion autenticada).
 
 ## Estado operativo reciente
 
+- 2026-11-25: login Microsoft limitado a cuentas personales (cierra el riesgo nOAuth). El registro en Entra
+  quedó en "Solo cuentas personales" y en Supabase la Azure Tenant URL es
+  `https://login.microsoftonline.com/9188040d-6c67-4c5b-b112-36a304b66dad`. **No usar `.../consumers`**: rompe
+  el login (el emisor del token no coincide). Una cuenta de empresa o estudio no puede entrar. El callback
+  ahora muestra el error en `/login?error=1` en vez de recargar en silencio.
+
 - 2026-11-17: auditoría de seguridad. Hallazgo crítico: la lista `allowed_users` solo se validaba en la
   app; RLS dejaba pasar a cualquier `authenticated` y Supabase Auth tenía registro por email abierto con
   autoconfirmación (cualquiera podía crear cuenta con la anon key y leer/escribir todo por la API de Supabase).

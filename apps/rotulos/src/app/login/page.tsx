@@ -16,9 +16,9 @@ const BENEFITS = [
 export default async function LoginPage({
   searchParams,
 }: {
-  searchParams: Promise<{ unauthorized?: string }>;
+  searchParams: Promise<{ unauthorized?: string; error?: string }>;
 }) {
-  const { unauthorized } = await searchParams;
+  const { unauthorized, error } = await searchParams;
 
   return (
     <main className="login-screen">
@@ -57,7 +57,7 @@ export default async function LoginPage({
 
         <hr className="my-6 border-border" />
 
-        <LoginCard initialUnauthorized={unauthorized === "1"} />
+        <LoginCard initialUnauthorized={unauthorized === "1"} initialError={error === "1"} />
       </div>
     </main>
   );

@@ -1,6 +1,6 @@
 # Purple Shop — Pendientes y decisiones vigentes
 
-> Actualizado 2026-11-11. Este archivo lista solo lo que está **abierto** y las
+> Actualizado 2026-11-25. Este archivo lista solo lo que está **abierto** y las
 > decisiones que siguen mandando. El detalle de lo ya hecho está en el
 > historial de git y en `CLAUDE.md` → "Estado operativo reciente"; las
 > decisiones de diseño de cada función, en `docs/superpowers/specs/`.
@@ -42,6 +42,20 @@ reales desde agosto de 2026.
   Renombrar desde `/catalogo`.
 - Clientes sin teléfono: se completan desde `Clientes` → "Completar uno por
   uno". Sin teléfono no se pueden reactivar por WhatsApp.
+
+### Hallazgos de la revisión de `update_order` (2026-11-25, sin corregir)
+
+Ninguno permite acceso de terceros; son de integridad de datos. Corregirlos es
+una migración nueva (requiere OK de Edwing).
+
+- **Antes de cargar inventario:** reactivar un pedido cancelado no vuelve a
+  descontar stock (cancelarlo otra vez lo suma dos veces), editar líneas de un
+  pedido ya cancelado mueve stock, y la función no bloquea la fila del pedido
+  (`for update`). Hoy no afecta: no hay productos ni movimientos.
+- La base no impide precio unitario, descuento ni envío negativos.
+- El motivo de ajuste se puede evitar cambiando primero el estado de un pedido
+  completado (si no está pagado) y editándolo después.
+- Opcional: la CSP no define `script-src` (requiere nonces y probar con sesión).
 
 ### Mejoras opcionales (ninguna urgente)
 

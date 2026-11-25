@@ -7,8 +7,16 @@ import { Alert } from "@/components/ui/alert";
 
 type LoginStatus = "idle" | "loading" | "error" | "unauthorized";
 
-export function LoginCard({ initialUnauthorized }: { initialUnauthorized: boolean }) {
-  const [status, setStatus] = useState<LoginStatus>(initialUnauthorized ? "unauthorized" : "idle");
+export function LoginCard({
+  initialUnauthorized,
+  initialError = false,
+}: {
+  initialUnauthorized: boolean;
+  initialError?: boolean;
+}) {
+  const [status, setStatus] = useState<LoginStatus>(
+    initialUnauthorized ? "unauthorized" : initialError ? "error" : "idle",
+  );
   const supabase = createClient();
 
   async function signInWithMicrosoft() {

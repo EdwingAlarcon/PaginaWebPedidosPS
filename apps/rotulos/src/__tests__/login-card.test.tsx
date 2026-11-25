@@ -38,6 +38,12 @@ describe("LoginCard", () => {
     );
   });
 
+  it("muestra el error cuando el regreso desde Microsoft fallo", () => {
+    render(<LoginCard initialUnauthorized={false} initialError />);
+
+    expect(screen.getByRole("alert")).toHaveTextContent(/no se pudo iniciar sesión/i);
+  });
+
   it("muestra el aviso de cuenta no autorizada cuando initialUnauthorized es true", () => {
     render(<LoginCard initialUnauthorized={true} />);
 
